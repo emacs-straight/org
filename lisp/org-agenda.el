@@ -2080,9 +2080,25 @@ For example, this value makes those two functions available:
 
 With selected entries in an agenda buffer, `B R' will call
 the custom function `set-category' on the selected entries.
-Note that functions in this alist don't need to be quoted."
-  :type '(alist :key-type character :value-type (group function))
-  :version "24.1"
+Note that functions in this alist don't need to be quoted.
+
+You can also specify a function which collects arguments to be
+used for each call to your bulk custom function.  The argument
+collecting function will be run once and should return a list of
+arguments to pass to the bulk function.  For example:
+
+  \\='((?R set-category get-category))
+
+Now, `B R' will call the custom `get-category' which would prompt
+the user once for a category.  That category is then passed as an
+argument to `set-category' for each entry it's called against."
+  :type
+  '(alist :key-type character
+	  :value-type
+          (group (function :tag "Bulk Custom Function")
+		 (choice (function :tag "Bulk Custom Argument Function")
+		         (const :tag "No Bulk Custom Argument Function" nil))))
+  :package-version '(Org . "9.5")
   :group 'org-agenda)
 
 (defmacro org-agenda-with-point-at-orig-entry (string &rest body)
@@ -7768,8 +7784,8 @@ the variable `org-agenda-auto-exclude-function'."
 	  (setq s (replace-regexp-in-string ; Remove the temporary special string.
 		   "~~~" "-" (match-string 3 f-string)))
 	  (cond
-	   ((member s tag-list)
-	    (add-to-list 'ft (concat pm s) 'append 'equal))
+	   ((member (downcase s) tag-list)
+	    (add-to-list 'ft (concat pm (downcase s)) 'append 'equal))
 	   ((member s category-list)
 	    (add-to-list 'fc (concat pm ; Remove temporary double quotes.
 				     (replace-regexp-in-string "\"\\(.*\\)\"" "\\1" s))
@@ -10487,10 +10503,15 @@ The prefix arg is passed through to the command if possible."
 		(completing-read "Function: " obarray #'fboundp t nil nil))))
 
 	(action
-	 (pcase (assoc action org-agenda-bulk-custom-functions)
-	   (`(,_ ,f) (setq cmd f) (setq redo-at-end t))
-	   (_ (user-error "Invalid bulk action: %c" action)))))
-
+         (setq cmd
+               (pcase (assoc action org-agenda-bulk-custom-functions)
+                 (`(,_ ,fn)
+                  fn)
+                 (`(,_ ,fn ,arg-fn)
+                  (apply #'apply-partially fn (funcall arg-fn)))
+                 (_
+                  (user-error "Invalid bulk action: %c" action))))
+         (setq redo-at-end t)))
       ;; Sort the markers, to make sure that parents are handled
       ;; before children.
       (setq entries (sort entries
