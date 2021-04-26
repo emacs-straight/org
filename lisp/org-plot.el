@@ -570,7 +570,7 @@ manner suitable for prepending to a user-specified script."
 			       org-plot/gnuplot-term-extra
 			     (funcall org-plot/gnuplot-term-extra type))))
       (when file ; output file
-	(funcall ats (format "set output '%s'" file)))
+	(funcall ats (format "set output '%s'" (expand-file-name file))))
 
       (when plot-pre
 	(funcall ats (funcall plot-pre table data-file num-cols params plot-str)))
@@ -637,15 +637,16 @@ line directly before or after the table."
     (when (get-buffer "*gnuplot*") ; reset *gnuplot* if it already running
       (with-current-buffer "*gnuplot*"
 	(goto-char (point-max))))
-    (org-plot/goto-nearest-table)
-    ;; Set default options.
-    (dolist (pair org-plot/gnuplot-default-options)
-      (unless (plist-member params (car pair))
-	(setf params (plist-put params (car pair) (cdr pair)))))
-    ;; Collect options.
-    (save-excursion (while (and (equal 0 (forward-line -1))
-				(looking-at "[[:space:]]*#\\+"))
-		      (setf params (org-plot/collect-options params))))
+    (save-excursion
+      (org-plot/goto-nearest-table)
+      ;; Set default options.
+      (dolist (pair org-plot/gnuplot-default-options)
+        (unless (plist-member params (car pair))
+          (setf params (plist-put params (car pair) (cdr pair)))))
+      ;; Collect options.
+      (while (and (equal 0 (forward-line -1))
+                  (looking-at "[[:space:]]*#\\+"))
+        (setf params (org-plot/collect-options params))))
     ;; collect table and table information
     (let* ((data-file (make-temp-file "org-plot"))
 	   (table (let ((tbl (org-table-to-lisp)))
@@ -708,7 +709,8 @@ line directly before or after the table."
 	  (insert (org-plot/gnuplot-script table data-file num-cols params)))
 	;; Graph table.
 	(gnuplot-mode)
-	(gnuplot-send-buffer-to-gnuplot))
+        (ignore-error buffer-read-only
+          (gnuplot-send-buffer-to-gnuplot)))
       ;; Cleanup.
       (bury-buffer (get-buffer "*gnuplot*"))
       ;; Refresh any displayed images
