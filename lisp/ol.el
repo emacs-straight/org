@@ -1329,7 +1329,21 @@ PATH is a symbol name, as a string."
     ((and (pred boundp) function) (describe-variable function))
     (name (user-error "Unknown function or variable: %s" name))))
 
-(org-link-set-parameters "help" :follow #'org-link--open-help)
+(defun org-link--store-help ()
+  "Store \"help\" type link."
+  (when (eq major-mode 'help-mode)
+    (let ((symbol
+           (save-excursion
+	     (goto-char (point-min))
+             ;; In case the help is about the key-binding, store the
+             ;; function instead.
+             (search-forward "runs the command " (line-end-position) t)
+             (read (current-buffer)))))
+      (org-link-store-props :type "help" :link (format "help:%s" symbol)))))
+
+(org-link-set-parameters "help"
+                         :follow #'org-link--open-help
+                         :store #'org-link--store-help)
 
 ;;;; "http", "https", "mailto", "ftp", and "news" link types
 (dolist (scheme '("ftp" "http" "https" "mailto" "news"))
@@ -1545,19 +1559,6 @@ non-nil."
 			(list 0 0 0 (nth 1 cd) (nth 0 cd) (nth 2 cd)
 			      nil nil nil))))
 	  (org-link-store-props :type "calendar" :date cd)))
-
-       ((eq major-mode 'help-mode)
-	(let ((symbol (replace-regexp-in-string
-		       ;; Help mode escapes backquotes and backslashes
-		       ;; before displaying them.  E.g., "`" appears
-		       ;; as "\'" for reasons.  Work around this.
-		       (rx "\\" (group (or "`" "\\"))) "\\1"
-		       (save-excursion
-			 (goto-char (point-min))
-			 (looking-at "^[^ ]+")
-			 (match-string 0)))))
-	  (setq link (concat "help:" symbol)))
-	(org-link-store-props :type "help"))
 
        ((eq major-mode 'w3-mode)
 	(setq cpltxt (if (and (buffer-name)
