@@ -7424,7 +7424,9 @@ Assume point is at a heading or an inlinetask beginning."
 	   (col (+ (current-indentation) diff)))
        (when (wholenump col)
 	 (while (< (point) end-marker)
-	   (indent-line-to col)
+           (if (natnump diff)
+	       (insert (make-string diff 32))
+             (delete-char (abs diff)))
 	   (forward-line)))))
    (catch 'no-shift
      (when (or (zerop diff) (not (eq org-adapt-indentation t)))
@@ -11761,7 +11763,7 @@ an accumulator used in recursive calls."
 		(org--tags-expand-group (cdr group) tag-groups expanded))))))
   expanded)
 
-(defun org-tags-expand (match &optional single-as-list downcased)
+(defun org-tags-expand (match &optional single-as-list)
   "Expand group tags in MATCH.
 
 This replaces every group tag in MATCH with a regexp tag search.
@@ -11788,24 +11790,18 @@ will be replaced like this:
 
 When the optional argument SINGLE-AS-LIST is non-nil, MATCH is
 assumed to be a single group tag, and the function will return
-the list of tags in this group.
-
-When DOWNCASED is non-nil, expand downcased TAGS."
+the list of tags in this group."
   (unless (org-string-nw-p match) (error "Invalid match tag: %S" match))
   (let ((tag-groups
-	 (let ((g (or org-tag-groups-alist-for-agenda org-tag-groups-alist)))
-	   (if (not downcased) g
-	     (mapcar (lambda (s) (mapcar #'downcase s)) g)))))
+         (or org-tag-groups-alist-for-agenda org-tag-groups-alist)))
     (cond
-     (single-as-list (org--tags-expand-group
-		      (list (if downcased (downcase match) match))
-		      tag-groups nil))
+     (single-as-list (org--tags-expand-group (list match) tag-groups nil))
      (org-group-tags
       (let* ((case-fold-search t)
 	     (tag-syntax org-mode-syntax-table)
 	     (group-keys (mapcar #'car tag-groups))
 	     (key-regexp (concat "\\([+-]?\\)" (regexp-opt group-keys 'words)))
-	     (return-match (if downcased (downcase match) match)))
+	     (return-match match))
 	;; Mark regexp-expressions in the match-expression so that we
 	;; do not replace them later on.
 	(let ((s 0))
@@ -11825,7 +11821,7 @@ When DOWNCASED is non-nil, expand downcased TAGS."
 		 m			;regexp tag: ignore
 	       (let* ((operator (match-string 1 m))
 		      (tag-token (let ((tag (match-string 2 m)))
-				   (list (if downcased (downcase tag) tag))))
+				   (list tag)))
 		      regexp-tags regular-tags)
 		 ;; Partition tags between regexp and regular tags.
 		 ;; Remove curly bracket syntax from regexp tags.
@@ -15982,15 +15978,25 @@ Some of the options can be changed using the variable
 			 (fg
 			  (let ((color (plist-get org-format-latex-options
 						  :foreground)))
-			    (if (and forbuffer (eq color 'auto))
-				(face-attribute face :foreground nil 'default)
-			      color)))
+                            (if forbuffer
+                                (cond
+                                 ((eq color 'auto)
+                                  (face-attribute face :foreground nil 'default))
+                                 ((eq color 'default)
+                                  (face-attribute 'default :foreground nil))
+                                 (t color))
+                              color)))
 			 (bg
 			  (let ((color (plist-get org-format-latex-options
 						  :background)))
-			    (if (and forbuffer (eq color 'auto))
-				(face-attribute face :background nil 'default)
-			      color)))
+                            (if forbuffer
+                                (cond
+                                 ((eq color 'auto)
+                                  (face-attribute face :background nil 'default))
+                                 ((eq color 'default)
+                                  (face-attribute 'default :background nil))
+                                 (t color))
+                              color)))
 			 (hash (sha1 (prin1-to-string
 				      (list org-format-latex-header
 					    org-latex-default-packages-alist
@@ -18881,7 +18887,13 @@ ELEMENT."
 	  (current-indentation))))
       ((and
 	(eq org-adapt-indentation 'headline-data)
-	(memq type '(planning clock node-property property-drawer drawer)))
+        (or (memq type '(planning clock node-property property-drawer drawer))
+            ;; When storing a note in a LOGBOOK drawer,
+            ;; `org-store-log-note' needs to insert a new line before
+            ;; the newly inserted note, thus the `type' at point will
+            ;; return `paragraph' instead of the expected `drawer', so
+            ;; we need to manually detect the drawer.
+            (eq (org-element-type (car (org-element-lineage element))) 'drawer)))
        (org--get-expected-indentation
 	(org-element-property :parent element) t))
       ((memq type '(headline inlinetask nil))
