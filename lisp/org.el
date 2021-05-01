@@ -5075,9 +5075,9 @@ stacked delimiters is N.  Escaping delimiters is not possible."
 	      (when (and org-hide-emphasis-markers
 			 (not (org-at-comment-p)))
 		(add-text-properties (match-end 4) (match-beginning 5)
-				     '(invisible org-link))
+				     '(invisible t))
 		(add-text-properties (match-beginning 3) (match-end 3)
-				     '(invisible org-link)))
+				     '(invisible t)))
 	      (throw :exit t))))))))
 
 (defun org-emphasize (&optional char)
@@ -6988,6 +6988,7 @@ unconditionally."
 	 (when (equal arg '(16)) (org-up-heading-safe))
 	 (org-end-of-subtree)))
       (unless (bolp) (insert "\n"))
+      (unless level (backward-char))
       (unless (and blank? (org-previous-line-empty-p))
 	(org-N-empty-lines-before-current (if blank? 1 0)))
       (insert stars " ")
@@ -14101,6 +14102,19 @@ user."
 	       (if (and (= hour 12) (not pm))
 		   (setq hour 0)
 		 (when (and pm (< hour 12)) (setq hour (+ 12 hour))))
+	       (setq ans (replace-match (format "%02d:%02d" hour minute)
+					t t ans))))
+
+    ;; Help matching HHhMM times, similarly as for am/pm times.
+    (cl-loop for i from 1 to 2 do	; twice, for end time as well
+	     (when (and (not (string-match "\\(\\`\\|[^+]\\)[012]?[0-9]:[0-9][0-9]\\([ \t\n]\\|$\\)" ans))
+			(string-match "\\(?:\\(?1:[012]?[0-9]\\)?h\\(?2:[0-5][0-9]\\)\\)\\|\\(?:\\(?1:[012]?[0-9]\\)h\\(?2:[0-5][0-9]\\)?\\)\\>" ans))
+	       (setq hour (if (match-end 1)
+				(string-to-number (match-string 1 ans))
+			      0)
+		     minute (if (match-end 2)
+				(string-to-number (match-string 2 ans))
+			      0))
 	       (setq ans (replace-match (format "%02d:%02d" hour minute)
 					t t ans))))
 
