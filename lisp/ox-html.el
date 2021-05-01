@@ -240,23 +240,20 @@ property on the headline itself.")
      {
        var target = document.getElementById(id);
        if(null != target) {
-         elem.cacheClassElem = elem.className;
-         elem.cacheClassTarget = target.className;
-         target.className = \"code-highlighted\";
-         elem.className   = \"code-highlighted\";
+         elem.classList.add(\"code-highlighted\");
+         target.classList.add(\"code-highlighted\");
        }
      }
      function CodeHighlightOff(elem, id)
      {
        var target = document.getElementById(id);
-       if(elem.cacheClassElem)
-         elem.className = elem.cacheClassElem;
-       if(elem.cacheClassTarget)
-         target.className = elem.cacheClassTarget;
+       if(null != target) {
+         elem.classList.remove(\"code-highlighted\");
+         target.classList.remove(\"code-highlighted\");
      }
 // @license-end
 </script>"
-  "Basic JavaScript that is needed by HTML files produced by Org mode."
+  "Basic JavaScript to allow highlighting references in code blocks."
   :group 'org-export-html
   :package-version '(Org . "9.5")
   :type 'string)
@@ -1425,10 +1422,9 @@ ignored."
 
 ;;;; Template :: Scripts
 
-(defcustom org-html-head-include-scripts t
+(defcustom org-html-head-include-scripts nil
   "Non-nil means include the JavaScript snippets in exported HTML files.
-The actual script is defined in `org-html-scripts' and should
-not be modified."
+The actual script is defined in `org-html-scripts'."
   :group 'org-export-html
   :version "24.4"
   :package-version '(Org . "8.0")
