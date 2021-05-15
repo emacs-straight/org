@@ -17165,7 +17165,7 @@ for more information."
    ((org-at-table-p) (org-call-with-arg 'org-table-move-row 'up))
    ((and (featurep 'org-inlinetask)
          (org-inlinetask-in-task-p))
-    (user-error "Dragging inline tasks is not supported"))
+    (org-drag-element-backward))
    ((org-at-heading-p) (call-interactively 'org-move-subtree-up))
    ((org-at-item-p) (call-interactively 'org-move-item-up))
    (t (org-drag-element-backward))))
@@ -17198,7 +17198,7 @@ commands for more information."
    ((org-at-table-p) (call-interactively 'org-table-move-row))
    ((and (featurep 'org-inlinetask)
          (org-inlinetask-in-task-p))
-    (user-error "Dragging inline tasks is not supported"))
+    (org-drag-element-forward))
    ((org-at-heading-p) (call-interactively 'org-move-subtree-down))
    ((org-at-item-p) (call-interactively 'org-move-item-down))
    (t (org-drag-element-forward))))
@@ -17898,12 +17898,13 @@ will not happen if point is in a table or on a \"dead\"
 object (e.g., within a comment).  In these case, you need to use
 `org-open-at-point' directly."
   (interactive "i\nP\np")
-  (let ((context (if org-return-follows-link (org-element-context)
-		   (org-element-at-point))))
+  (let* ((context (if org-return-follows-link (org-element-context)
+		   (org-element-at-point)))
+         (element-type (org-element-type context)))
     (cond
      ;; In a table, call `org-table-next-row'.  However, before first
      ;; column or after last one, split the table.
-     ((or (and (eq 'table (org-element-type context))
+     ((or (and (eq 'table element-type)
 	       (not (eq 'table.el (org-element-property :type context)))
 	       (>= (point) (org-element-property :contents-begin context))
 	       (< (point) (org-element-property :contents-end context)))
@@ -17917,7 +17918,7 @@ object (e.g., within a comment).  In these case, you need to use
      ;; `org-return-follows-link' allows it.  Tolerate fuzzy
      ;; locations, e.g., in a comment, as `org-open-at-point'.
      ((and org-return-follows-link
-	   (or (and (eq 'link (org-element-type context))
+	   (or (and (eq 'link element-type)
 		    ;; Ensure point is not on the white spaces after
 		    ;; the link.
 		    (let ((origin (point)))
@@ -17957,6 +17958,10 @@ object (e.g., within a comment).  In these case, you need to use
 	     (delete-and-extract-region (point) (line-end-position))))
 	(org--newline indent arg interactive)
 	(save-excursion (insert trailing-data))))
+     ;; FIXME: In a source block, don't try to indent as it may result
+     ;; in weird results due to `electric-indent-mode' being `t'.
+     ((eq element-type 'src-block)
+      (org--newline nil nil nil))
      (t
       ;; Do not auto-fill when point is in an Org property drawer.
       (let ((auto-fill-function (and (not (org-at-property-p))
@@ -18464,7 +18469,7 @@ Your bug report will be posted to the Org mailing list.
 ------------------------------------------------------------------------")
     (save-excursion
       (when (re-search-backward "^\\(Subject: \\)Org mode version \\(.*?\\);[ \t]*\\(.*\\)" nil t)
-	(replace-match "\\1Bug: \\3 [\\2]")))))
+	(replace-match "\\1[BUG] \\3 [\\2]")))))
 
 
 (defun org-install-agenda-files-menu ()
@@ -19081,13 +19086,13 @@ Also align node properties according to `org-property-format'."
   (interactive)
   (unless (or (org-at-heading-p)
               (and (eq org-adapt-indentation 'headline-data)
-                   (not (org-at-clock-log-p))
+                   (not (or (org-at-clock-log-p)
+                            (org-at-planning-p)))
                    (save-excursion
                      (beginning-of-line 1)
                      (skip-chars-backward "\n")
                      (or (org-at-heading-p)
-                         (looking-back ":END:.*" (point-at-bol))
-                         (org-at-planning-p)))))
+                         (looking-back ":END:.*" (point-at-bol))))))
     (let* ((element (save-excursion (beginning-of-line) (org-element-at-point)))
 	   (type (org-element-type element)))
       (cond ((and (memq type '(plain-list item))
@@ -19102,7 +19107,7 @@ Also align node properties according to `org-property-format'."
 		       (line-beginning-position 2))))
 	     nil)
 	    ((and (eq type 'src-block)
-		  org-src-tab-acts-natively
+                  org-src-tab-acts-natively
 		  (> (line-beginning-position)
 		     (org-element-property :post-affiliated element))
 		  (< (line-beginning-position)
@@ -20455,6 +20460,10 @@ This function considers both visible and invisible heading lines.
 With argument, move up ARG levels."
   (outline-up-heading arg t))
 
+(defvar-local org--up-heading-cache nil
+  "Buffer-local `org-up-heading-safe' cache.")
+(defvar-local org--up-heading-cache-tick nil
+  "Buffer `buffer-chars-modified-tick' in `org--up-heading-cache'.")
 (defun org-up-heading-safe ()
   "Move to the heading line of which the present line is a subheading.
 This version will not throw an error.  It will return the level of the
@@ -20464,10 +20473,28 @@ Also, this function will be a lot faster than `outline-up-heading',
 because it relies on stars being the outline starters.  This can really
 make a significant difference in outlines with very many siblings."
   (when (ignore-errors (org-back-to-heading t))
-    (let ((level-up (1- (funcall outline-level))))
-      (and (> level-up 0)
-	   (re-search-backward (format "^\\*\\{1,%d\\} " level-up) nil t)
-	   (funcall outline-level)))))
+    (let (level-cache)
+      (unless org--up-heading-cache
+        (setq org--up-heading-cache (make-hash-table)))
+      (if (and (eq (buffer-chars-modified-tick) org--up-heading-cache-tick)
+               (setq level-cache (gethash (point) org--up-heading-cache)))
+          (when (<= (point-min) (car level-cache) (point-max))
+            ;; Parent is inside accessible part of the buffer.
+            (progn (goto-char (car level-cache))
+                   (cdr level-cache)))
+        ;; Buffer modified.  Invalidate cache.
+        (unless (eq (buffer-chars-modified-tick) org--up-heading-cache-tick)
+          (setq-local org--up-heading-cache-tick
+                      (buffer-chars-modified-tick))
+          (clrhash org--up-heading-cache))
+        (let* ((level-up (1- (funcall outline-level)))
+               (pos (point))
+               (result (and (> level-up 0)
+	                    (re-search-backward
+                             (format "^\\*\\{1,%d\\} " level-up) nil t)
+	                    (funcall outline-level))))
+          (when result (puthash pos (cons (point) result) org--up-heading-cache))
+          result)))))
 
 (defun org-up-heading-or-point-min ()
   "Move to the heading line of which the present is a subheading, or point-min.
