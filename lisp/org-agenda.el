@@ -2951,7 +2951,7 @@ Pressing `<' twice means to restrict to the current subtree or region
 	          (`tags
 	           (org-tags-view current-prefix-arg org-match))
 	          (`tags-todo
-	           (org-tags-view '(4) org-match))
+	           (org-tags-view nil org-match))
 	          (`todo
 		   (org-todo-list org-match))
 		  (`tags-tree
@@ -10616,9 +10616,7 @@ The prefix arg is passed through to the command if possible."
 	      (let (org-loop-over-headlines-in-active-region) (funcall cmd))
 	      ;; `post-command-hook' is not run yet.  We make sure any
 	      ;; pending log note is processed.
-	      (when (or (memq 'org-add-log-note (default-value 'post-command-hook))
-			(memq 'org-add-log-note post-command-hook))
-		(org-add-log-note))
+	      (when org-log-setup (org-add-log-note))
 	      (cl-incf processed))))
 	(when redo-at-end (org-agenda-redo))
 	(unless org-agenda-persistent-marks (org-agenda-bulk-unmark-all))
