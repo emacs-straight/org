@@ -213,7 +213,7 @@ See `org-columns-summary-types' for details.")
 	      (lambda () (interactive)
 		(org-columns-next-allowed-value nil i))))
 
-(easy-menu-define org-columns-menu org-columns-map "Org Column Menu"
+(easy-menu-define org-columns-menu org-columns-map "Org Column Menu."
   '("Column"
     ["Edit property" org-columns-edit-value t]
     ["Next allowed value" org-columns-next-allowed-value t]
@@ -878,7 +878,7 @@ When COLUMNS-FMT-STRING is non-nil, use it as the column format."
 	      (setq-local org-colview-initial-truncate-line-value
 			  truncate-lines))
             (if (not global-visual-line-mode)
-              (setq truncate-lines t))
+                (setq truncate-lines t))
 	    (dolist (entry cache)
 	      (goto-char (car entry))
 	      (org-columns--display-here (cdr entry)))))))))
@@ -1272,7 +1272,7 @@ When PRINTF is non-nil, use it to format the result."
   "Summarize CHECK-BOXES with a check-box cookie."
   (format "[%d/%d]"
 	  (cl-count-if (lambda (b) (or (equal b "[X]")
-				   (string-match-p "\\[\\([1-9]\\)/\\1\\]" b)))
+				       (string-match-p "\\[\\([1-9]\\)/\\1\\]" b)))
 		       check-boxes)
 	  (length check-boxes)))
 
@@ -1398,8 +1398,9 @@ other rows.  Each row is a list of fields, as strings, or
 				  (org-get-tags))))
 	     (push (cons (org-reduced-level (org-current-level)) (nreverse row))
 		   table)))))
-     (or (and maxlevel (format "LEVEL<=%d" maxlevel))
-	 (and match match))
+     (if match
+         (concat match (and maxlevel (format "+LEVEL<=%d" maxlevel)))
+       (and maxlevel (format "LEVEL<=%d" maxlevel)))
      (and local 'tree)
      'archive 'comment)
     (org-columns-quit)
@@ -1694,7 +1695,7 @@ This will add overlays to the date lines, to show the summary for each day."
 			       (delq nil
 				     (mapcar
 				      (lambda (e) (org-string-nw-p
-					      (nth 1 (assoc spec e))))
+					           (nth 1 (assoc spec e))))
 				      entries)))
 			      (final (if values
 					 (funcall summarize values printf)

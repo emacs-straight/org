@@ -43,6 +43,7 @@
 (declare-function org-in-commented-heading-p "org" (&optional no-inheritance))
 (declare-function org-in-archived-heading-p "org" (&optional no-inheritance))
 (declare-function outline-previous-heading "outline" ())
+(defvar org-id-link-to-org-use-id nil) ; Dynamically scoped
 
 (defcustom org-babel-tangle-lang-exts
   '(("emacs-lisp" . "el")
@@ -169,11 +170,14 @@ evaluating BODY."
 (defun org-babel-tangle-file (file &optional target-file lang-re)
   "Extract the bodies of source code blocks in FILE.
 Source code blocks are extracted with `org-babel-tangle'.
+
 Optional argument TARGET-FILE can be used to specify a default
-export file for all source blocks.  Optional argument LANG-RE can
-be used to limit the exported source code blocks by languages
-matching a regular expression.  Return a list whose CAR is the
-tangled file name."
+export file for all source blocks.
+
+Optional argument LANG-RE can be used to limit the exported
+source code blocks by languages matching a regular expression.
+
+Return a list whose CAR is the tangled file name."
   (interactive "fFile to tangle: \nP")
   (let ((visited-p (find-buffer-visiting (expand-file-name file)))
 	to-be-removed)
@@ -281,7 +285,10 @@ matching a regular expression."
 		 (if (= block-counter 1) "" "s")
 		 (file-name-nondirectory
 		  (buffer-file-name
-		   (or (buffer-base-buffer) (current-buffer)))))
+		   (or (buffer-base-buffer)
+                       (current-buffer)
+                       (and (org-src-edit-buffer-p)
+                            (org-src-source-buffer))))))
 	;; run `org-babel-post-tangle-hook' in all tangled files
 	(when org-babel-post-tangle-hook
 	  (mapc
@@ -371,10 +378,13 @@ as computed by `org-babel-tangle-single-block'."
   "Collect source blocks in the current Org file.
 Return an association list of language and source-code block
 specifications of the form used by `org-babel-spec-to-string'
-grouped by tangled file name. Optional argument LANG-RE can be
-used to limit the collected source code blocks by languages
-matching a regular expression. Optional argument TANGLE-FILE can
-be used to limit the collected code blocks by target file."
+grouped by tangled file name.
+
+Optional argument LANG-RE can be used to limit the collected
+source code blocks by languages matching a regular expression.
+
+Optional argument TANGLE-FILE can be used to limit the collected
+code blocks by target file."
   (let ((counter 0) last-heading-pos blocks)
     (org-babel-map-src-blocks (buffer-file-name)
       (let ((current-heading-pos
@@ -420,7 +430,14 @@ non-nil, return the full association list to be used by
 	 (extra (nth 3 info))
          (coderef (nth 6 info))
 	 (cref-regexp (org-src-coderef-regexp coderef))
-	 (link (let ((l (org-no-properties (org-store-link nil))))
+	 (link (let* (
+                      ;; The created link is transient.  Using ID is
+                      ;; not necessary, but could have side-effects if
+                      ;; used.  An ID property may be added to
+                      ;; existing entries thus creatin unexpected file
+                      ;; modifications.
+                      (org-id-link-to-org-use-id nil)
+                      (l (org-no-properties (org-store-link nil))))
                  (and (string-match org-link-bracket-re l)
                       (match-string 1 l))))
 	 (source-name
@@ -506,7 +523,13 @@ by `org-babel-get-src-block-info'."
 					   (number-to-string
 					    (line-number-at-pos))))
 			("file" . ,(buffer-file-name))
-			("link" . ,(org-no-properties (org-store-link nil)))
+			("link" . ,(let (;; The created link is transient.  Using ID is
+                                         ;; not necessary, but could have side-effects if
+                                         ;; used.  An ID property may be added to
+                                         ;; existing entries thus creatin unexpected file
+                                         ;; modifications.
+                                         (org-id-link-to-org-use-id nil))
+                                     (org-no-properties (org-store-link nil))))
 			("source-name" . ,name))))))
     (list (org-fill-template org-babel-tangle-comment-format-beg link-data)
 	  (org-fill-template org-babel-tangle-comment-format-end link-data))))

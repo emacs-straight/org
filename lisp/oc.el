@@ -4,54 +4,60 @@
 
 ;; Author: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 
-;; This program is free software; you can redistribute it and/or modify
+;; This file is part of GNU Emacs.
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; This program is distributed in the hope that it will be useful,
+;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
-;; This library provides tooling to handle citations in Org, e.g, activate,
-;; follow, insert, and export them, respectively called "activate", "follow",
-;; "insert" and "export" capabilities.  Libraries responsible for providing
-;; some, or all, of these capabilities are called "citation processors".
+;; This library provides tooling to handle citations in Org, e.g,
+;; activate, follow, insert, and export them, respectively called
+;; "activate", "follow", "insert" and "export" capabilities.
+;; Libraries responsible for providing some, or all, of these
+;; capabilities are called "citation processors".
 
-;; Such processors are defined using `org-cite-register-processor'.  Using this
-;; function, it is possible, in addition to giving it a name, to attach
-;; functions associated to capabilities.  As such, a processor handling citation
-;; export must set the `:export-citation' property to an appropriate function.
-;; Likewise, "activate" capability requires an appropriate `:activate' property,
-;; "insert" requires `:insert' property and, unsurprisingly, "follow" capability
-;; implies `:follow' property.
+;; Such processors are defined using `org-cite-register-processor'.
+;; Using this function, it is possible, in addition to giving it a
+;; name, to attach functions associated to capabilities.  As such, a
+;; processor handling citation export must set the `:export-citation'
+;; property to an appropriate function.  Likewise, "activate"
+;; capability requires an appropriate `:activate' property, "insert"
+;; requires `:insert' property and, unsurprisingly, "follow"
+;; capability implies `:follow' property.
 
-;; As a user, the first thing to do is setting a bibliography, either globally
-;; with `org-cite-global-bibliography', or locally using one; ore more
-;; "bibliography" keywords.  Then one can select any registered processor for
-;; each capability by providing a processor name to the variables
-;; `org-cite-activate-processor' and `org-cite-follow-processor'.
+;; As a user, the first thing to do is setting a bibliography, either
+;; globally with `org-cite-global-bibliography', or locally using one
+;; or more "bibliography" keywords.  Then one can select any
+;; registered processor for each capability by providing a processor
+;; name to the variables `org-cite-activate-processor' and
+;; `org-cite-follow-processor'.
 
-;; The "export" capability is slightly more involved as one need to select the
-;; processor providing it, but may also provide a default style for citations
-;; and bibliography.  Also, the choice of an export processor may depend of the
-;; current export back-end.  The association between export back-ends and
-;; triplets of parameters can be set in `org-cite-export-processors' variable,
-;; or in a document, through the "cite_export" keyword.
+;; The "export" capability is slightly more involved as one need to
+;; select the processor providing it, but may also provide a default
+;; style for citations and bibliography.  Also, the choice of an
+;; export processor may depend of the current export back-end.  The
+;; association between export back-ends and triplets of parameters can
+;; be set in `org-cite-export-processors' variable, or in a document,
+;; through the "cite_export" keyword.
 
-;; Eventually, this library provides some tools, mainly targeted at processor
-;; implementors.  Most are export-specific and are located in the "Tools only
-;; available during export" and "Tools generating or operating on parsed data"
-;; sections.
+;; Eventually, this library provides some tools, mainly targeted at
+;; processor implementors.  Most are export-specific and are located
+;; in the "Tools only available during export" and "Tools generating
+;; or operating on parsed data" sections.
 
-;; The few others can be used directly from an Org buffer, or operate on
-;; processors.  See "Generic tools" section.
+;; The few others can be used directly from an Org buffer, or operate
+;; on processors.  See "Generic tools" section.
 
 ;;; Code:
 
@@ -83,7 +89,6 @@
 (declare-function org-element-type "org-element" (element))
 
 (declare-function org-export-derived-backend-p "org-export" (backend &rest backends))
-(declare-function org-export-get-footnote-definition "org-export" (footnote-reference info))
 (declare-function org-export-get-next-element "org-export" (blob info &optional n))
 (declare-function org-export-get-previous-element "org-export" (blob info &optional n))
 (declare-function org-export-raw-string "org-export" (s))
@@ -121,16 +126,14 @@ File names must be absolute."
   :package-version '(Org . "9.5")
   :type '(choice (const :tag "No global bibliography" nil)
 		 (repeat :tag "List of bibliography files"
-                         (file :tag "Bibliography")))
-  :safe t)
+                         (file :tag "Bibliography"))))
 
 (defcustom org-cite-activate-processor 'basic
   "Processor used for activating citations, as a symbol."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type '(choice (const :tag "Default fontification" nil)
-                 (symbol :tag "Citation processor"))
-  :safe nil)
+                 (symbol :tag "Citation processor")))
 
 (defcustom org-cite-export-processors '((t basic))
   "Processor used for exporting citations, as a triplet, or nil.
@@ -148,10 +151,10 @@ triplet following the pattern
   (NAME BIBLIOGRAPHY-STYLE CITATION-STYLE)
 
 There, NAME is the name of a registered citation processor providing export
-functionality, as a symbol.  BIBLIOGRAPHY-STYLE (resp. CITATION-STYLE) is the
-desired default style to use when printing a bibliography (resp. exporting a
-citation), as a string or nil.  Both BIBLIOGRAPHY-STYLE and CITATION-STYLE are
-optional.  NAME is mandatory.
+functionality, as a symbol.  BIBLIOGRAPHY-STYLE (respectively CITATION-STYLE)
+is the desired default style to use when printing a bibliography (respectively
+exporting a citation), as a string or nil.  Both BIBLIOGRAPHY-STYLE and
+CITATION-STYLE are optional.  NAME is mandatory.
 
 The export process selects the citation processor associated to the current
 export back-end, or the most specific back-end the current one is derived from,
@@ -194,24 +197,21 @@ back-end."
                                (string :tag "Use specific bibliography style"))
                               (choice
                                (const :tag "Default citation style" nil)
-                               (string :tag "Use specific citation style")))))
-  :safe nil)
+                               (string :tag "Use specific citation style"))))))
 
 (defcustom org-cite-follow-processor 'basic
   "Processor used for following citations, as a symbol."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type '(choice (const :tag "No following" nil)
-                 (symbol :tag "Citation processor"))
-  :safe nil)
+                 (symbol :tag "Citation processor")))
 
 (defcustom org-cite-insert-processor 'basic
   "Processor used for inserting citations, as a symbol."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type '(choice (const :tag "No insertion" nil)
-                 (symbol :tag "Citation processor"))
-  :safe nil)
+                 (symbol :tag "Citation processor")))
 
 (defcustom org-cite-adjust-note-numbers t
   "When non-nil, allow process to modify location of note numbers.
@@ -228,7 +228,7 @@ When nil, the note number is not moved."
   :package-version '(Org . "9.5")
   :type '(choice (const :tag "Automatic note number location" t)
                  (const :tag "Place note numbers manually" nil))
-  :safe t)
+  :safe #'booleanp)
 
 (defcustom org-cite-note-rules
   '(("en-us" inside outside after)
@@ -293,8 +293,7 @@ This roughly follows the Oxford Guide to Style recommendations."
                   (const :tag "Citation next to punctuation" same))
           (choice :tag "Order of citation and punctuation"
                   (const :tag "Citation first" before)
-                  (const :tag "Citation last" after))))
-  :safe t)
+                  (const :tag "Citation last" after)))))
 
 (defcustom org-cite-punctuation-marks '("." "," ";" ":" "!" "?")
   "List of strings that can be moved around when placing note numbers.
@@ -304,8 +303,7 @@ allowed to shuffle punctuation marks specified in this list in order to
 place note numbers according to rules defined in `org-cite-note-rules'."
   :group 'org-cite
   :package-version '(Org . "9.5")
-  :type '(repeat string)
-  :safe t)
+  :type '(repeat string))
 
 
 ;;; Citation processors
@@ -334,79 +332,88 @@ Return nil if no such processor is found."
 (defun org-cite-register-processor (name &rest body)
   "Mark citation processor NAME as available.
 
-NAME is a symbol.  BODY is a property list, where the following optional keys
-can be set:
+NAME is a symbol.  BODY is a property list, where the following
+optional keys can be set:
 
   `:activate'
 
-    Function activating a citation.  It is called with a single argument: a
-    citation object extracted from the current buffer.  It may add text
-    properties to the buffer.  If it is not provided, `org-cite-fontify-default'
-    is used.
+    Function activating a citation.  It is called with a single
+    argument: a citation object extracted from the current
+    buffer.  It may add text properties to the buffer.  If it is
+    not provided, `org-cite-fontify-default' is used.
 
   `:export-bibliography'
 
-    Function rendering a bibliography.  It is called with six arguments: the
-    list of citation keys used in the document, as strings, a list of
-    bibliography files, the style, as a string or nil, the local properties, as
-    a property list, the export back-end, as a symbol, and the communication
-    channel, as a property list.
+    Function rendering a bibliography.  It is called with six
+    arguments: the list of citation keys used in the document, as
+    strings, a list of bibliography files, the style, as a string
+    or nil, the local properties, as a property list, the export
+    back-end, as a symbol, and the communication channel, as a
+    property list.
 
-    It is called at each \"print_bibliography\" keyword in the parse tree.
-    It may return a string, a parsed element, a list of parsed elements, or nil.
-    When it returns nil, the keyword is ignored.  Otherwise, the value it returns
-    replaces the keyword in the export output.
+    It is called at each \"print_bibliography\" keyword in the
+    parse tree.  It may return a string, a parsed element, a list
+    of parsed elements, or nil.  When it returns nil, the keyword
+    is ignored.  Otherwise, the value it returns replaces the
+    keyword in the export output.
 
   `:export-citation'    (mandatory for \"export\" capability)
 
-    Function rendering citations.  It is called with four arguments: a citation
-    object, the style, as a pair, the export back-end, as a symbol, and the
-    communication channel, as a property list.
+    Function rendering citations.  It is called with four
+    arguments: a citation object, the style, as a pair, the
+    export back-end, as a symbol, and the communication channel,
+    as a property list.
 
-    It is called on each citation object in the parse tree.  It may return
-    a string, a parsed object, a secondary string, or nil.  When it returns nil,
-    the citation is ignored.  Otherwise, the value it returns replaces the
-    citation object in the export output.
+    It is called on each citation object in the parse tree.  It
+    may return a string, a parsed object, a secondary string, or
+    nil.  When it returns nil, the citation is ignored.
+    Otherwise, the value it returns replaces the citation object
+    in the export output.
 
   `:export-finalizer'
 
-    Function called at the end of export process.  It must accept six arguments:
-    the output, as a string, a list of citation keys used in the document, a
-    list of bibliography files, the expected bibliography style, as a string or
-    nil, the export back-end, as a symbol, and the communication channel, as a
+    Function called at the end of export process.  It must accept
+    six arguments: the output, as a string, a list of citation
+    keys used in the document, a list of bibliography files, the
+    expected bibliography style, as a string or nil, the export
+    back-end, as a symbol, and the communication channel, as a
     property list.
 
-    It must return a string, which will become the final output from the export
-    process, barring subsequent modifications from export filters.
+    It must return a string, which will become the final output
+    from the export process, barring subsequent modifications
+    from export filters.
 
   `:follow'
 
-    Function called to follow a citation.  It accepts two arguments, the
-    citation or citation reference object at point, and any prefix argument
-    received during interactive call of `org-open-at-point'.
+    Function called to follow a citation.  It accepts two
+    arguments, the citation or citation reference object at
+    point, and any prefix argument received during interactive
+    call of `org-open-at-point'.
 
   `:insert'
 
-    Function called to insert a citation.  It accepts two arguments, the
-    citation or citation reference object at point or nil, and any prefix
-    argument received.
+    Function called to insert a citation.  It accepts two
+    arguments, the citation or citation reference object at point
+    or nil, and any prefix argument received.
 
   `:cite-styles'
 
-    When the processor has export capability, the value can specify what cite
-    styles, variants, and their associated shortcuts are supported.  It can be
-    useful information for completion or linting.
+    When the processor has export capability, the value can
+    specify what cite styles, variants, and their associated
+    shortcuts are supported.  It can be useful information for
+    completion or linting.
 
     The expected format is
 
       ((STYLE . SHORTCUTS) . VARIANTS))
 
-    where STYLE is a string, SHORTCUTS a list of strings or nil, and VARIANTS is
-    a list of pairs (VARIANT . SHORTCUTS), VARIANT being a string and SHORTCUTS
-    a list of strings or nil.
+    where STYLE is a string, SHORTCUTS a list of strings or nil,
+    and VARIANTS is a list of pairs (VARIANT . SHORTCUTS),
+    VARIANT being a string and SHORTCUTS a list of strings or
+    nil.
 
-    The \"nil\" style denotes the processor fall-back style.  It should have a
-    corresponding entry in the value.
+    The \"nil\" style denotes the processor fall-back style.  It
+    should have a corresponding entry in the value.
 
 Return a non-nil value on a successful operation."
   (declare (indent 1))
@@ -494,8 +501,8 @@ This function assumes S precedes CITATION."
 
 (defun org-cite--move-punct-before (punct citation s info)
   "Move punctuation PUNCT before CITATION object.
-String S contains PUNCT.  The function assumes S follows CITATION.
-Parse tree is modified by side-effect."
+String S contains PUNCT.  INFO is the export state, as a property list.
+The function assumes S follows CITATION.  Parse tree is modified by side-effect."
   (if (equal s punct)
       (org-element-extract-element s)   ;it would be empty anyway
     (org-element-set-element s (substring s (length punct))))
@@ -782,6 +789,20 @@ Citations are ordered by appearance in the document, when following footnotes.
 INFO is the export communication channel, as a property list."
   (or (plist-get info :citations)
       (letrec ((cites nil)
+               (tree (plist-get info :parse-tree))
+               (find-definition
+                ;; Find definition for standard reference LABEL.  At
+                ;; this point, it is impossible to rely on
+                ;; `org-export-get-footnote-definition' because the
+                ;; function caches results that could contain
+                ;; un-processed citation objects.  So we use
+                ;; a simplified version of the function above.
+                (lambda (label)
+                  (org-element-map tree 'footnote-definition
+                    (lambda (d)
+                      (and (equal label (org-element-property :label d))
+                           (or (org-element-contents d) "")))
+                    info t)))
                (search-cites
                 (lambda (data)
                   (org-element-map data '(citation footnote-reference)
@@ -791,11 +812,13 @@ INFO is the export communication channel, as a property list."
 		        ;; Do not force entering inline definitions, since
 		        ;; `org-element-map' is going to enter it anyway.
                         ((guard (eq 'inline (org-element-property :type datum))))
+                        ;; Walk footnote definition.
                         (_
-                         (funcall search-cites
-                                  (org-export-get-footnote-definition datum info)))))
+                         (let ((label (org-element-property :label datum)))
+                           (funcall search-cites
+                                    (funcall find-definition label))))))
                     info nil 'footnote-definition t))))
-        (funcall search-cites (plist-get info :parse-tree))
+        (funcall search-cites tree)
         (let ((result (nreverse cites)))
           (plist-put info :citations result)
           result))))
@@ -869,13 +892,16 @@ modified by side-effect."
 
 INFO is the export state, as a property list.
 
+Optional argument RULE is the punctuation rule used, as a triplet.  When nil,
+rule is determined according to `org-cite-note-rules', which see.
+
 Optional argument PUNCT is a list of punctuation marks to be considered.
 When nil, it defaults to `org-cite-punctuation-marks'.
 
 Parse tree is modified by side-effect.
 
 Note: when calling both `org-cite-adjust-note' and `org-cite-wrap-citation' on
-the same object, call `org-cite-adjust-punctuation' first."
+the same object, call `org-cite-adjust-note' first."
   (when org-cite-adjust-note-numbers
     (pcase-let* ((rule (or rule (org-cite--get-note-rule info)))
                  (punct-re (regexp-opt (or punct org-cite-punctuation-marks)))
@@ -1025,8 +1051,10 @@ the same object, call `org-cite-adjust-punctuation' first."
 ;;; Tools generating or operating on parsed data
 (defun org-cite-parse-elements (s)
   "Parse string S as a list of Org elements.
-The return value is suitable as a replacement for a \"print_bibliography\" keyword.
-As a consequence, the function raises an error if S contains a headline."
+
+The return value is suitable as a replacement for a
+\"print_bibliography\" keyword.  As a consequence, the function
+raises an error if S contains a headline."
   (with-temp-buffer
     (insert s)
     (pcase (org-element-contents (org-element-parse-buffer))
@@ -1264,11 +1292,13 @@ by side-effect."
           ;; Before removing the citation, transfer its `:post-blank'
           ;; property to the object before, if any.
           (org-cite--set-previous-post-blank cite blanks info)
-        ;; We want to be sure any non-note citation is preceded by
-        ;; a space.  This is particularly important when using
+        ;; Make sure there is a space between a quotation mark and
+        ;; a citation.  This is particularly important when using
         ;; `adaptive' note rule.  See `org-cite-note-rules'.
-        (unless (org-cite-inside-footnote-p cite t)
-          (org-cite--set-previous-post-blank cite 1 info))
+        (let ((previous (org-export-get-previous-element cite info)))
+          (when (and (org-string-nw-p previous)
+                     (string-suffix-p "\"" previous))
+            (org-cite--set-previous-post-blank cite 1 info)))
         (pcase replacement
           ;; String.
           ((pred stringp)
@@ -1374,7 +1404,8 @@ ARG is the prefix argument received when calling `org-open-at-point', or nil."
 
 ;;; Meta-command for citation insertion (insert capability)
 (defun org-cite--allowed-p (context)
-  "Non-nil when a citation can be inserted at point."
+  "Non-nil when a citation can be inserted at point.
+CONTEXT is the element or object at point, as returned by `org-element-context'."
   (let ((type (org-element-type context)))
     (cond
      ;; No citation in attributes, except in parsed ones.
@@ -1420,6 +1451,16 @@ ARG is the prefix argument received when calling `org-open-at-point', or nil."
 			  (skip-chars-backward " \r\t\n")
 			  (if (eq (org-element-class context) 'object) (point)
 			    (line-beginning-position 2)))))
+     ;; At the beginning of a footnote definition, right after the
+     ;; label, is OK.
+     ((eq type 'footnote-definition) (looking-at (rx space)))
+     ;; At the start of a list item is fine, as long as the bullet is
+     ;; unaffected.
+     ((eq type 'item)
+      (> (point) (+ (org-element-property :begin context)
+                    (current-indentation)
+                    (if (org-element-property :checkbox context)
+                        5 1))))
      ;; Other elements are invalid.
      ((eq (org-element-class context) 'element) nil)
      ;; Just before object is fine.

@@ -290,9 +290,9 @@ environment, to override this check."
 		     (format "Evaluate this %s code block%son your system? "
 			     lang name-string)))
 	       (progn
-		(message "Evaluation of this %s code block%sis aborted."
-			 lang name-string)
-		nil)))
+		 (message "Evaluation of this %s code block%sis aborted."
+			  lang name-string)
+		 nil)))
       (x (error "Unexpected value `%s' from `org-babel-check-confirm-evaluate'" x)))))
 
 ;;;###autoload
@@ -472,7 +472,35 @@ For the format of SAFE-LIST, see `org-babel-safe-header-args'."
 (defvar org-babel-default-header-args
   '((:session . "none") (:results . "replace") (:exports . "code")
     (:cache . "no") (:noweb . "no") (:hlines . "no") (:tangle . "no"))
-  "Default arguments to use when evaluating a source block.")
+  "Default arguments to use when evaluating a source block.
+
+This is a list in which each element is an alist.  Each key
+corresponds to a header argument, and each value to that header's
+value.  The value can either be a string or a closure that
+evaluates to a string.  The closure is evaluated when the source
+block is being evaluated (e.g. during execution or export), with
+point at the source block.  It is not possible to use an
+arbitrary function symbol (e.g. 'some-func), since org uses
+lexical binding.  To achieve the same functionality, call the
+function within a closure (e.g. (lambda () (some-func))).
+
+To understand how closures can be used as default header
+arguments, imagine you'd like to set the file name output of a
+latex source block to a sha1 of its contents.  We could achieve
+this with:
+
+(defun org-src-sha ()
+  (let ((elem (org-element-at-point)))
+    (concat (sha1 (org-element-property :value elem)) \".svg\")))
+
+(setq org-babel-default-header-args:latex
+      `((:results . \"file link replace\")
+        (:file . (lambda () (org-src-sha)))))
+
+Because the closure is evaluated with point at the source block,
+the call to `org-element-at-point' above will always retrieve
+information about the current source block.")
+
 (put 'org-babel-default-header-args 'safe-local-variable
      (org-babel-header-args-safe-fn org-babel-safe-header-args))
 
@@ -538,7 +566,7 @@ to raise errors for all languages.")
   "Number of initial characters to show of a hidden results hash.")
 
 (defvar org-babel-after-execute-hook nil
-  "Hook for functions to be called after `org-babel-execute-src-block'")
+  "Hook for functions to be called after `org-babel-execute-src-block'.")
 
 (defun org-babel-named-src-block-regexp-for-name (&optional name)
   "Generate a regexp used to match a source block named NAME.
@@ -581,7 +609,17 @@ multiple blocks are being executed (e.g., in chained execution
 through use of the :var header argument) this marker points to
 the outer-most code block.")
 
-(defvar *this*)
+(defun org-babel-eval-headers (headers)
+  "Compute header list set with HEADERS.
+
+Evaluate all header arguments set to functions prior to returning
+the list of header arguments."
+  (let ((lst nil))
+    (dolist (elem headers)
+      (if (and (cdr elem) (functionp (cdr elem)))
+          (push `(,(car elem) . ,(funcall (cdr elem))) lst)
+        (push elem lst)))
+    (reverse lst)))
 
 (defun org-babel-get-src-block-info (&optional light datum)
   "Extract information from a source block or inline source block.
@@ -651,8 +689,10 @@ a list with the following pattern:
   (pcase (assq :file-desc params)
     (`nil nil)
     (`(:file-desc) result)
-    (`(:file-desc . ,(and (pred stringp) val)) val)
-    (`(:file-desc . []) nil)))
+    (`(:file-desc . ,(and (pred stringp) val)) val)))
+
+(defvar *this*) ; Dynamically bound in `org-babel-execute-src-block'
+                ; and `org-babel-read'
 
 ;;;###autoload
 (defun org-babel-execute-src-block (&optional arg info params)
@@ -1432,7 +1472,7 @@ portions of results lines."
 ;; Remove overlays when changing major mode
 (add-hook 'org-mode-hook
 	  (lambda () (add-hook 'change-major-mode-hook
-			  #'org-babel-show-result-all 'append 'local)))
+			       #'org-babel-show-result-all 'append 'local)))
 
 (defun org-babel-params-from-properties (&optional lang no-eval)
   "Retrieve source block parameters specified as properties.
@@ -1536,11 +1576,11 @@ balanced instances of \"[ \t]:\", set ALTS to ((32 9) . 58)."
 	(first= (lambda (str) (= ch (aref str 0)))))
     (reverse
      (cl-reduce (lambda (acc el)
-		   (let ((head (car acc)))
-		     (if (and head (or (funcall last= head) (funcall first= el)))
-			 (cons (concat head el) (cdr acc))
-		       (cons el acc))))
-		 list :initial-value nil))))
+		  (let ((head (car acc)))
+		    (if (and head (or (funcall last= head) (funcall first= el)))
+			(cons (concat head el) (cdr acc))
+		      (cons el acc))))
+		list :initial-value nil))))
 
 (defun org-babel-parse-header-arguments (string &optional no-eval)
   "Parse header arguments in STRING.
@@ -1614,7 +1654,7 @@ shown below.
 				(t 'value))))
      (cl-remove-if
       (lambda (x) (memq (car x) '(:colname-names :rowname-names :result-params
-					    :result-type :var)))
+					         :result-type :var)))
       params))))
 
 ;; row and column names
@@ -1684,9 +1724,12 @@ of the vars, cnames and rnames."
     (list
      (mapcar
       (lambda (var)
-        (when (listp (cdr var))
+        (when (proper-list-p (cdr var))
           (when (and (not (equal colnames "no"))
-                     (or colnames (and (eq (nth 1 (cdr var)) 'hline)
+                     ;; Compatibility note: avoid `length>', which
+                     ;; isn't available until Emacs 28.
+                     (or colnames (and (> (length (cdr var)) 1)
+                                       (eq (nth 1 (cdr var)) 'hline)
                                        (not (member 'hline (cddr (cdr var)))))))
             (let ((both (org-babel-get-colnames (cdr var))))
               (setq cnames (cons (cons (car var) (cdr both))
@@ -1706,7 +1749,7 @@ of the vars, cnames and rnames."
 (defun org-babel-reassemble-table (table colnames rownames)
   "Add column and row names to a table.
 Given a TABLE and set of COLNAMES and ROWNAMES add the names
-to the table for reinsertion to org-mode."
+to the table for reinsertion to `org-mode'."
   (if (listp table)
       (let ((table (if (and rownames (= (length table) (length rownames)))
                        (org-babel-put-rownames table rownames) table)))
@@ -1741,7 +1784,7 @@ If the point is not on a source block then return nil."
   "Go to the beginning of the current code block."
   (interactive)
   (let ((head (org-babel-where-is-src-block-head)))
-     (if head (goto-char head) (error "Not currently in a code block"))))
+    (if head (goto-char head) (error "Not currently in a code block"))))
 
 ;;;###autoload
 (defun org-babel-goto-named-src-block (name)
@@ -2185,6 +2228,10 @@ silent -- no results are inserted into the Org buffer but
           ingested by Emacs (a potentially time consuming
           process).
 
+none ---- no results are inserted into the Org buffer nor
+          echoed to the minibuffer. they are not processed into
+          Emacs-lisp objects at all.
+
 file ---- the results are interpreted as a file path, and are
           inserted into the buffer using the Org file syntax.
 
@@ -2309,7 +2356,7 @@ INFO may provide the values of these header arguments (in the
 		      (if results-switches (concat " " results-switches) ""))
 		(let ((wrap
 		       (lambda (start finish &optional no-escape no-newlines
-				 inline-start inline-finish)
+				      inline-start inline-finish)
 			 (when inline
 			   (setq start inline-start)
 			   (setq finish inline-finish)
@@ -2556,9 +2603,9 @@ file's directory then expand relative links."
     (let ((same-directory?
 	   (and (buffer-file-name (buffer-base-buffer))
 		(not (string= (expand-file-name default-directory)
-			    (expand-file-name
-			     (file-name-directory
-			      (buffer-file-name (buffer-base-buffer)))))))))
+			      (expand-file-name
+			       (file-name-directory
+			        (buffer-file-name (buffer-base-buffer)))))))))
       (format "[[file:%s]%s]"
 	      (if (and default-directory
 		       (buffer-file-name (buffer-base-buffer)) same-directory?)
@@ -2692,12 +2739,17 @@ parameters when merging lists."
 				  results-exclusive-groups
 				  results
 				  (split-string
-				   (if (stringp value) value (eval value t))))))
+				   (cond ((stringp value) value)
+                                         ((functionp value) (funcall value))
+                                         (t (eval value t)))))))
 	  (`(:exports . ,value)
 	   (setq exports (funcall merge
 				  exports-exclusive-groups
 				  exports
-				  (split-string (or value "")))))
+				  (split-string
+                                   (cond ((and value (functionp value)) (funcall value))
+                                         (value value)
+                                         (t ""))))))
 	  ;; Regular keywords: any value overwrites the previous one.
 	  (_ (setq params (cons pair (assq-delete-all (car pair) params)))))))
     ;; Handle `:var' and clear out colnames and rownames for replaced
@@ -2712,14 +2764,14 @@ parameters when merging lists."
 			      (cdr (assq param params))))
 	  (setq params
 		(cl-remove-if (lambda (pair) (and (equal (car pair) param)
-					     (null (cdr pair))))
+						  (null (cdr pair))))
 			      params)))))
     ;; Handle other special keywords, which accept multiple values.
     (setq params (nconc (list (cons :results (mapconcat #'identity results " "))
 			      (cons :exports (mapconcat #'identity exports " ")))
 			params))
     ;; Return merged params.
-    params))
+    (org-babel-eval-headers params)))
 
 (defun org-babel-noweb-p (params context)
   "Check if PARAMS require expansion in CONTEXT.
@@ -2962,7 +3014,7 @@ block but are passed literally to the \"example-block\"."
 
 (defun org-babel-read (cell &optional inhibit-lisp-eval)
   "Convert the string value of CELL to a number if appropriate.
-Otherwise if CELL looks like lisp (meaning it starts with a
+Otherwise if CELL looks like Lisp (meaning it starts with a
 \"(\", \"\\='\", \"\\=`\" or a \"[\") then read and evaluate it as
 lisp, otherwise return it unmodified as a string.  Optional
 argument INHIBIT-LISP-EVAL inhibits lisp evaluation for
@@ -3134,7 +3186,7 @@ For the format of SAFE-LIST, see `org-babel-safe-header-args'."
 	  (and entry
 	       (consp entry)
 	       (cond ((functionp (cdr entry))
-		       (funcall (cdr entry) (cdr pair)))
+		      (funcall (cdr entry) (cdr pair)))
 		     ((listp (cdr entry))
 		      (member (cdr pair) (cdr entry)))
 		     (t nil)))))))
@@ -3154,10 +3206,10 @@ Otherwise, the :file parameter is treated as a full file name,
 and the output file name is the directory (as calculated above)
 plus the parameter value."
   (let* ((file-cons (assq :file params))
-	   (file-ext-cons (assq :file-ext params))
-	   (file-ext (cdr-safe file-ext-cons))
-	   (dir (cdr-safe (assq :output-dir params)))
-	   fname)
+	 (file-ext-cons (assq :file-ext params))
+	 (file-ext (cdr-safe file-ext-cons))
+	 (dir (cdr-safe (assq :output-dir params)))
+	 fname)
     ;; create the output-dir if it does not exist
     (when dir
       (make-directory dir t))

@@ -4,18 +4,20 @@
 
 ;; Author: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 
-;; This program is free software; you can redistribute it and/or modify
+;; This file is part of GNU Emacs.
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; This program is distributed in the hope that it will be useful,
+;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -87,42 +89,42 @@
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'symbol
-  :safe t)
+  :safe #'symbolp)
 
 (defcustom org-cite-basic-author-year-separator ", "
   "String used to separate cites in an author-year configuration."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'string
-  :safe t)
+  :safe #'stringp)
 
 (defcustom org-cite-basic-max-key-distance 2
   "Maximum (Levenshtein) distance between a wrong key and its suggestions."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'integer
-  :safe t)
+  :safe #'integerp)
 
 (defcustom org-cite-basic-author-column-end 25
   "Column where author field ends in completion table, as an integer."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'integer
-  :safe t)
+  :safe #'integerp)
 
 (defcustom org-cite-basic-column-separator "  "
   "Column separator in completion table, as a string."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'string
-  :safe t)
+  :safe #'stringp)
 
 (defcustom org-cite-basic-mouse-over-key-face 'highlight
   "Face used when mouse is over a citation key."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'face
-  :safe t)
+  :safe #'facep)
 
 
 ;;; Internal variables
@@ -533,7 +535,7 @@ INFO is the export state as a property list."
 INFO is the export state, as a property list."
   (and field
        (lambda (a b)
-         (org-string-collate-lessp
+         (string-collate-lessp
           (org-cite-basic--get-field field a info 'raw)
           (org-cite-basic--get-field field b info 'raw)
           nil t))))
@@ -632,7 +634,7 @@ export communication channel, as a property list."
 (defun org-cite-basic-export-bibliography (keys _files style _props backend info)
   "Generate bibliography.
 KEYS is the list of cited keys, as strings.  STYLE is the expected bibliography
-style, as a string.  BACKEND is the export back-end, as a symbol. INFO is the
+style, as a string.  BACKEND is the export back-end, as a symbol.  INFO is the
 export state, as a property list."
   (mapconcat
    (lambda (k)
@@ -767,4 +769,4 @@ Raise an error when no bibliography is set in the buffer."
     (("nil") ("bare" "b") ("bare-caps" "bc") ("caps" "c"))))
 
 (provide 'oc-basic)
-;;; oc-default.el ends here
+;;; oc-basic.el ends here

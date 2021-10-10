@@ -4,18 +4,20 @@
 
 ;; Author: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 
-;; This program is free software; you can redistribute it and/or modify
+;; This file is part of GNU Emacs.
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; This program is distributed in the hope that it will be useful,
+;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -65,7 +67,6 @@
 
 (declare-function org-element-property "org-element" (property element))
 (declare-function org-export-data "org-export" (data info))
-(declare-function org-export-get-next-element "org-export" (blob info &optional n))
 
 
 ;;; Customization
@@ -78,7 +79,7 @@ If \"biblatex\" package is already required in the document, e.g., through
   :type '(choice
           (string :tag "Options (key=value,key2=value2...)")
           (const :tag "No option" nil))
-  :safe t)
+  :safe #'string-or-null-p)
 
 
 ;;; Internal functions
@@ -163,15 +164,11 @@ INFO is the export state, as a property list."
                          (org-cite-biblatex--atomic-arguments (list r) info))
                        (org-cite-get-references citation)
                        "")
-            ;; According to biblatex manual, left braces or brackets
+            ;; According to BibLaTeX manual, left braces or brackets
             ;; following a multicite command could be parsed as other
-            ;; arguments. So we look ahead and insert a \relax if
-            ;; needed.
-            (and (let ((next (org-export-get-next-element citation info)))
-                   (and next
-                        (string-match (rx string-start (or "{" "["))
-                                      (org-export-data next info))))
-                 "\\relax"))))
+            ;; arguments. So we stop any further parsing by inserting
+            ;; a \relax unconditionally.
+            "\\relax")))
 
 (defun org-cite-biblatex--command (citation info base &optional multi no-opt)
   "Return biblatex command using BASE name for CITATION object.
@@ -312,6 +309,7 @@ to the document, and set styles."
   '((("author" "a") ("caps" "c") ("full" "f") ("caps-full" "cf"))
     (("locators" "l") ("bare" "b") ("caps" "c") ("bare-caps" "bc"))
     (("noauthor" "na"))
+    (("nocite" "n"))
     (("text" "t") ("caps" "c"))
     (("nil") ("bare" "b") ("caps" "c") ("bare-caps" "bc"))))
 

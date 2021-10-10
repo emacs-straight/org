@@ -118,7 +118,7 @@
 ;; to current setup.
 
 (defconst org-element-citation-key-re
-  (rx "@" (group (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%&~"))))
+  (rx "@" (group (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
   "Regexp matching a citation key.
 Key is located in match group 1.")
 
@@ -1021,7 +1021,10 @@ Assume point is at beginning of the headline."
 	   (commentedp
 	    (and (let (case-fold-search) (looking-at org-comment-string))
 		 (goto-char (match-end 0))))
-	   (title-start (point))
+	   (title-start (prog1 (point)
+                          (unless (or todo priority commentedp)
+                            ;; Headline like "* :tag:"
+                            (skip-chars-backward " \t"))))
 	   (tags (when (re-search-forward
 			"[ \t]+\\(:[[:alnum:]_@#%:]+:\\)[ \t]*$"
 			(line-end-position)
@@ -4489,7 +4492,7 @@ element or object.  Meaningful values are `first-section',
 TYPE is the type of the current element or object.
 
 If PARENT? is non-nil, assume the next element or object will be
-located inside the current one.  "
+located inside the current one."
   (if parent?
       (pcase type
 	(`headline 'section)
@@ -5333,7 +5336,7 @@ Assume ELEMENT belongs to cache and that a cache is active."
   (setq org-element--cache-sync-timer
 	(run-with-idle-timer
 	 (let ((idle (current-idle-time)))
-	   (if idle (org-time-add idle org-element-cache-sync-break)
+	   (if idle (time-add idle org-element-cache-sync-break)
 	     org-element-cache-sync-idle-time))
 	 nil
 	 #'org-element--cache-sync
@@ -5344,7 +5347,7 @@ Assume ELEMENT belongs to cache and that a cache is active."
 TIME-LIMIT is a time value or nil."
   (and time-limit
        (or (input-pending-p)
-	   (org-time-less-p time-limit nil))))
+	   (time-less-p time-limit nil))))
 
 (defsubst org-element--cache-shift-positions (element offset &optional props)
   "Shift ELEMENT properties relative to buffer positions by OFFSET.
@@ -5398,8 +5401,7 @@ updated before current modification are actually submitted."
 	     (and next (aref next 0))
 	     threshold
 	     (and (not threshold)
-		  (org-time-add nil
-				org-element-cache-sync-duration))
+		  (time-add nil org-element-cache-sync-duration))
 	     future-change)
 	    ;; Request processed.  Merge current and next offsets and
 	    ;; transfer ending position.

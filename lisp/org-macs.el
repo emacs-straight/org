@@ -36,7 +36,7 @@
 
 (declare-function org-mode "org" ())
 (declare-function org-show-context "org" (&optional key))
-(declare-function org-string-collate-lessp "org-compat" (s1 s2 &optional locale ignore-case))
+(declare-function string-collate-lessp "org-compat" (s1 s2 &optional locale ignore-case))
 
 (defvar org-ts-regexp0)
 (defvar ffap-url-regexp)
@@ -209,7 +209,7 @@ because otherwise all these markers will point to nowhere."
 
 (defmacro org-no-popups (&rest body)
   "Suppress popup windows and evaluate BODY."
-  `(let (pop-up-frames display-buffer-alist)
+  `(let (pop-up-frames pop-up-windows)
      ,@body))
 
 
@@ -326,17 +326,19 @@ it for output."
 
 ;;; Indentation
 
-(defun org-do-remove-indentation (&optional n)
+(defun org-do-remove-indentation (&optional n skip-fl)
   "Remove the maximum common indentation from the buffer.
 When optional argument N is a positive integer, remove exactly
-that much characters from indentation, if possible.  Return nil
-if it fails."
+that much characters from indentation, if possible.  When
+optional argument SKIP-FL is non-nil, skip the first
+line.  Return nil if it fails."
   (catch :exit
     (goto-char (point-min))
     ;; Find maximum common indentation, if not specified.
     (let ((n (or n
 		 (let ((min-ind (point-max)))
 		   (save-excursion
+                     (when skip-fl (forward-line))
 		     (while (re-search-forward "^[ \t]*\\S-" nil t)
 		       (let ((ind (current-indentation)))
 			 (if (zerop ind) (throw :exit nil)
@@ -344,6 +346,7 @@ if it fails."
 		   min-ind))))
       (if (zerop n) (throw :exit nil)
 	;; Remove exactly N indentation, but give up if not possible.
+        (when skip-fl (forward-line))
 	(while (not (eobp))
 	  (let ((ind (progn (skip-chars-forward " \t") (current-column))))
 	    (cond ((eolp) (delete-region (line-beginning-position) (point)))
@@ -473,8 +476,8 @@ is selected, only the bare key is returned."
 		(goto-char (point-min))
 		(org-fit-window-to-buffer)
 		(message "") ; With this line the prompt appears in
-			     ; the minibuffer. Else keystrokes may
-			     ; appear, which is spurious.
+                                        ; the minibuffer. Else keystrokes may
+                                        ; appear, which is spurious.
 		(let ((pressed (org--mks-read-key
 				allowed-keys prompt
 				(not (pos-visible-in-window-p (1- (point-max)))))))
@@ -537,6 +540,11 @@ that may remove elements by altering the list structure."
   (while elts
     (setq list (delete (pop elts) list)))
   list)
+
+(defun org-plist-delete-all (plist props)
+  "Delete all elements in PROPS from PLIST."
+  (dolist (e props plist)
+    (setq plist (org-plist-delete plist e))))
 
 (defun org-plist-delete (plist property)
   "Delete PROPERTY from PLIST.
@@ -811,23 +819,23 @@ return nil."
 (defun org-url-p (s)
   "Non-nil if string S is a URL."
   (require 'ffap)
-  (string-match-p ffap-url-regexp s))
+  (and ffap-url-regexp (string-match-p ffap-url-regexp s)))
 
 
 ;;; String manipulation
 
 (defun org-string< (a b)
-  (org-string-collate-lessp a b))
+  (string-collate-lessp a b))
 
 (defun org-string<= (a b)
-  (or (string= a b) (org-string-collate-lessp a b)))
+  (or (string= a b) (string-collate-lessp a b)))
 
 (defun org-string>= (a b)
-  (not (org-string-collate-lessp a b)))
+  (not (string-collate-lessp a b)))
 
 (defun org-string> (a b)
   (and (not (string= a b))
-       (not (org-string-collate-lessp a b))))
+       (not (string-collate-lessp a b))))
 
 (defun org-string<> (a b)
   (not (string= a b)))
@@ -1154,13 +1162,13 @@ move it back by one char before doing this check."
     (org-invisible-p)))
 
 (defun org-find-visible ()
-  "Return closest visible buffer position, or `point-max'"
+  "Return closest visible buffer position, or `point-max'."
   (if (org-invisible-p)
       (next-single-char-property-change (point) 'invisible)
     (point)))
 
 (defun org-find-invisible ()
-  "Return closest invisible buffer position, or `point-max'"
+  "Return closest invisible buffer position, or `point-max'."
   (if (org-invisible-p)
       (point)
     (next-single-char-property-change (point) 'invisible)))
@@ -1271,13 +1279,13 @@ window."
 	(scrldn (if additional-keys `(?\d ?\M-v) ?\M-v)))
     (pcase key
       (?\C-n (if (not (pos-visible-in-window-p (point-max)))
-	      (ignore-errors (scroll-up 1))
-	    (message "End of buffer")
-	    (sit-for 1)))
+	         (ignore-errors (scroll-up 1))
+	       (message "End of buffer")
+	       (sit-for 1)))
       (?\C-p (if (not (pos-visible-in-window-p (point-min)))
-	      (ignore-errors (scroll-down 1))
-	    (message "Beginning of buffer")
-	    (sit-for 1)))
+	         (ignore-errors (scroll-down 1))
+	       (message "Beginning of buffer")
+	       (sit-for 1)))
       ;; SPC or
       ((guard (memq key scrlup))
        (if (not (pos-visible-in-window-p (point-max)))

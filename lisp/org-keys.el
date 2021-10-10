@@ -58,7 +58,6 @@
 (declare-function org-clone-subtree-with-time-shift "org" (n &optional shift))
 (declare-function org-columns "org" (&optional global columns-fmt-string))
 (declare-function org-comment-dwim "org" (arg))
-(declare-function org-refile-copy "org" ())
 (declare-function org-copy-special "org" ())
 (declare-function org-copy-visible "org" (beg end))
 (declare-function org-ctrl-c-ctrl-c "org" (&optional arg))
@@ -145,6 +144,8 @@
 (declare-function org-promote-subtree "org" ())
 (declare-function org-redisplay-inline-images "org" ())
 (declare-function org-refile "org" (&optional arg1 default-buffer rfloc msg))
+(declare-function org-refile-copy "org" ())
+(declare-function org-refile-reverse "org-refile" (&optional arg default-buffer rfloc msg))
 (declare-function org-reftex-citation "org" ())
 (declare-function org-reload "org" (&optional arg1))
 (declare-function org-remove-file "org" (&optional file))
@@ -278,8 +279,7 @@ before org.el is loaded."
   :type '(choice
 	  (const :tag "A double click follows the link" double)
 	  (const :tag "Unconditionally follow the link with mouse-1" t)
-	  (integer :tag "mouse-1 click does not follow the link if longer than N ms" 450))
-  :safe t)
+	  (integer :tag "mouse-1 click does not follow the link if longer than N ms" 450)))
 
 (defcustom org-tab-follows-link nil
   "Non-nil means on links TAB will follow the link.
@@ -299,7 +299,7 @@ implementation is bad."
 In tables, the special behavior of RET has precedence."
   :group 'org-link-follow
   :type 'boolean
-  :safe t)
+  :safe #'booleanp)
 
 
 ;;; Functions

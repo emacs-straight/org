@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2012-2021 Free Software Foundation, Inc.
 ;; Author: Jonathan Leech-Pepin <jonathan.leechpepin at gmail dot com>
-;; Maintainer: Nicolas Goaziou <n.goaziou at gmail dot com>
+;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: outlines, hypermedia, calendar, wp
 
 ;; This file is part of GNU Emacs.
@@ -421,8 +421,8 @@ If two strings share the same prefix (e.g. \"ISO-8859-1\" and
 (defun org-texinfo--normalize-headlines (tree _backend info)
   "Normalize headlines in TREE.
 
-BACK-END is the symbol specifying back-end used for export. INFO
-is a plist used as a communication channel.
+BACK-END is the symbol specifying back-end used for export.
+INFO is a plist used as a communication channel.
 
 Make sure every headline in TREE contains a section, since those
 are required to install a menu.  Also put exactly one blank line
@@ -928,7 +928,7 @@ holding contextual information."
 	 contents))))))
 
 (defun org-texinfo-format-headline-default-function
-  (todo _todo-type priority text tags)
+    (todo _todo-type priority text tags)
   "Default format function for a headline.
 See `org-texinfo-format-headline-function' for details."
   (concat (and todo (format "@strong{%s} " todo))
@@ -965,7 +965,7 @@ holding contextual information."
 	     todo todo-type priority title tags contents)))
 
 (defun org-texinfo-format-inlinetask-default-function
-  (todo _todo-type priority title tags contents)
+    (todo _todo-type priority title tags contents)
   "Default format function for inlinetasks.
 See `org-texinfo-format-inlinetask-function' for details."
   (let ((full-title
@@ -1606,7 +1606,7 @@ channel."
 
 (defun org-texinfo-verse-block (_verse-block contents _info)
   "Transcode a VERSE-BLOCK element from Org to Texinfo.
-CONTENTS is verse block contents. INFO is a plist holding
+CONTENTS is verse block contents.  INFO is a plist holding
 contextual information."
   (format "@display\n%s@end display" contents))
 
@@ -1615,7 +1615,7 @@ contextual information."
 
 ;;;###autoload
 (defun org-texinfo-export-to-texinfo
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to a Texinfo file.
 
 If narrowing is active in the current buffer, only export its
@@ -1666,7 +1666,7 @@ Usage: emacs -batch -f org-texinfo-export-to-texinfo-batch INFILE OUTFILE"
 
 ;;;###autoload
 (defun org-texinfo-export-to-info
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to Texinfo then process through to INFO.
 
 If narrowing is active in the current buffer, only export its

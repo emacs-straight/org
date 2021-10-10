@@ -659,7 +659,7 @@ This uses `bibtex-parse-entry'."
   (interactive)
   (let ((keyword (lambda (str) (intern (concat ":" (downcase str)))))
 	(clean-space (lambda (str) (replace-regexp-in-string
-			       "[[:space:]\n\r]+" " " str)))
+			            "[[:space:]\n\r]+" " " str)))
 	(strip-delim
 	 (lambda (str)		     ; strip enclosing "..." and {...}
 	   (dolist (pair '((34 . 34) (123 . 125)))
@@ -677,7 +677,8 @@ This uses `bibtex-parse-entry'."
                        (_ field)))
                    (funcall clean-space (funcall strip-delim (cdr pair)))))
            (save-excursion (bibtex-beginning-of-entry) (bibtex-parse-entry)))
-          org-bibtex-entries)))
+          org-bibtex-entries)
+    (unless (car org-bibtex-entries) (pop org-bibtex-entries))))
 
 (defun org-bibtex-read-buffer (buffer)
   "Read all bibtex entries in BUFFER and save to `org-bibtex-entries'.

@@ -29,8 +29,8 @@
 ;; to toggle it.
 ;;
 ;; You can select what is numbered according to level, tags, COMMENT
-;; keyword, or UNNUMBERED property. You can also skip footnotes
-;; sections. See `org-num-max-level', `org-num-skip-tags',
+;; keyword, or UNNUMBERED property.  You can also skip footnotes
+;; sections.  See `org-num-max-level', `org-num-skip-tags',
 ;; `org-num-skip-commented', `org-num-skip-unnumbered', and
 ;; `org-num-skip-footnotes' for details.
 ;;
@@ -99,8 +99,7 @@ Any `face' text property on the returned string overrides
 `org-num-face'."
   :group 'org-appearance
   :package-version '(Org . "9.3")
-  :type 'function
-  :safe nil)
+  :type 'function)
 
 (defcustom org-num-max-level nil
   "Level below which headlines are not numbered.

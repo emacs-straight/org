@@ -350,7 +350,7 @@ called with one argument, the key used for comparison."
    (lambda (datum name)
      (goto-char (org-element-property :begin datum))
      (re-search-forward
-      (format "^[ \t]*#\\+[A-Za-z]+: +%s *$" (regexp-quote name)))
+      (format "^[ \t]*#\\+[A-Za-z]+:[ \t]*%s[ \t]*$" (regexp-quote name)))
      (match-beginning 0))
    (lambda (key) (format "Duplicate NAME \"%s\"" key))))
 
@@ -1251,7 +1251,7 @@ CHECKERS is the list of checkers used."
   (let ((c (org-lint--current-checker)))
     (setf tabulated-list-entries
 	  (cl-remove-if (lambda (e) (equal c (org-lint--current-checker e)))
-			 tabulated-list-entries))
+			tabulated-list-entries))
     (tabulated-list-print)))
 
 (defun org-lint--ignore-checker ()
@@ -1305,7 +1305,7 @@ ARG can also be a list of checker names, as symbols, to run."
 		     (throw 'exit c)))))))
 	   ((pred consp)
 	    (cl-remove-if-not (lambda (c) (memq (org-lint-checker-name c) arg))
-			       org-lint--checkers))
+			      org-lint--checkers))
 	   (_ (user-error "Invalid argument `%S' for `org-lint'" arg)))))
     (if (not (called-interactively-p 'any))
 	(org-lint--generate-reports (current-buffer) checkers)

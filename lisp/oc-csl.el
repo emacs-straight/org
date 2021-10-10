@@ -4,18 +4,20 @@
 
 ;; Author: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 
-;; This program is free software; you can redistribute it and/or modify
+;; This file is part of GNU Emacs.
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; This program is distributed in the hope that it will be useful,
+;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -54,7 +56,10 @@
 
 ;; The library supports the following citation styles:
 ;;
+;; - author (a), including caps (c), full (f), and caps-full (cf) variants,
 ;; - noauthor (na), including bare (b), caps (c) and bare-caps (bc) variants,
+;; - year (y), including a bare (b) variant,
+;; - text (t). including caps (c), full (f), and caps-full (cf) variants,
 ;; - default style, including bare (b), caps (c) and bare-caps (bc) variants.
 
 ;; CSL styles recognize "locator" in citation references' suffix.  For example,
@@ -99,6 +104,7 @@
 (declare-function citeproc-append-citations "ext:citeproc")
 (declare-function citeproc-render-citations "ext:citeproc")
 (declare-function citeproc-render-bib "ext:citeproc")
+(declare-function citeproc-hash-itemgetter-from-any "ext:citeproc")
 
 (declare-function org-element-interpret-data "org-element" (data))
 (declare-function org-element-map "org-element" (data types fun &optional info first-match no-recursion with-affiliated))
@@ -119,9 +125,11 @@ If nil then only the fallback en-US locale will be available."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type '(choice
-          (dir :tag "Locales directory")
+          (directory :tag "Locales directory")
           (const :tag "Use en-US locale only" nil))
-  :safe t)
+  ;; It's not obvious to me that arbitrary locations are safe.
+;;;  :safe #'string-or-null-p
+  )
 
 (defcustom org-cite-csl-styles-dir nil
   "Directory of CSL style files.
@@ -130,9 +138,11 @@ directory.  This variable is ignored when style file is absolute."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type '(choice
-          (dir :tag "Styles directory")
+          (directory :tag "Styles directory")
           (const :tag "Use absolute file names" nil))
-  :safe t)
+  ;; It's not obvious to me that arbitrary locations are safe.
+;;;  :safe #'string-or-null-p
+  )
 
 ;;;; Citelinks
 (defcustom org-cite-csl-link-cites t
@@ -140,7 +150,7 @@ directory.  This variable is ignored when style file is absolute."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'boolean
-  :safe t)
+  :safe #'booleanp)
 
 (defcustom org-cite-csl-no-citelinks-backends '(ascii)
   "List of export back-ends for which cite linking is disabled.
@@ -148,8 +158,7 @@ Cite linking for export back-ends derived from any of the back-ends listed here,
 is also disabled."
   :group 'org-cite
   :package-version '(Org . "9.5")
-  :type '(repeat symbol)
-  :safe t)
+  :type '(repeat symbol))
 
 ;;;; Output-specific variables
 (defcustom org-cite-csl-html-hanging-indent "1.5em"
@@ -157,7 +166,7 @@ is also disabled."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'string
-  :safe t)
+  :safe #'stringp)
 
 (defcustom org-cite-csl-html-label-width-per-char "0.6em"
   "Character width in CSS units for calculating entry label widths.
@@ -165,27 +174,33 @@ Used only when `second-field-align' is activated by the used CSL style."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'string
-  :safe t)
+  :safe #'stringp)
 
 (defcustom org-cite-csl-latex-hanging-indent "1.5em"
   "Size of hanging-indent for LaTeX output in valid LaTeX units."
   :group 'org-cite
   :package-version '(Org . "9.5")
   :type 'string
-  :safe t)
+  :safe #'stringp)
 
 
 ;;; Internal variables
 (defconst org-cite-csl--etc-dir
-  (let* ((oc-root (file-name-directory (locate-library "oc")))
-         (oc-etc-dir-1 (expand-file-name "../etc/csl/" oc-root)))
-      ;; package.el and straight will put all of org-mode/lisp/ in org-mode/.
-      ;; This will cause .. to resolve to the directory above Org.
-      ;; To make life easier for people using package.el or straight, we can
-      ;; check to see if ../etc/csl exists, and if it doesn't try ./etc/csl.
-    (if (file-exists-p oc-etc-dir-1) oc-etc-dir-1
-      (expand-file-name "etc/csl/" oc-root)))
-  "Directory \"etc/\" from repository.")
+  (let ((oc-root (file-name-directory (locate-library "oc"))))
+    (cond
+     ;; First check whether it looks like we're running from the main
+     ;; Org repository.
+     ((let ((csl-org (expand-file-name "../etc/csl/" oc-root)))
+        (and (file-directory-p csl-org) csl-org)))
+     ;; Next look for the directory alongside oc.el because package.el
+     ;; and straight will put all of org-mode/lisp/ in org-mode/.
+     ((let ((csl-pkg (expand-file-name "etc/csl/" oc-root)))
+        (and (file-directory-p csl-pkg) csl-pkg)))
+     ;; Finally fall back the location used by shared system installs
+     ;; and when running directly from Emacs repository.
+     (t
+      (expand-file-name "org/csl/" data-directory))))
+  "Directory containing CSL-related data files.")
 
 (defconst org-cite-csl--fallback-locales-dir org-cite-csl--etc-dir
   "Fallback CSL locale files directory.")
@@ -255,11 +270,12 @@ If nil then the Chicago author-date style is used as a fallback.")
 (defconst org-cite-csl--label-regexp
   ;; Prior to Emacs-27.1 argument of `regexp' form must be a string literal.
   ;; It is the reason why `rx' is avoided here.
-  (rx-to-string `(seq word-start
-                  (regexp ,(regexp-opt (mapcar #'car org-cite-csl--label-alist) t))
-                  (0+ digit)
-                  (or word-start line-end (any ?\s ?\t)))
-                t)
+  (rx-to-string
+   `(seq word-start
+         (regexp ,(regexp-opt (mapcar #'car org-cite-csl--label-alist) t))
+         (0+ digit)
+         (or word-start line-end space ? ))
+   t)
   "Regexp matching a label in a citation reference suffix.
 Label is in match group 1.")
 
@@ -276,26 +292,48 @@ INFO is the export state, as a property list."
    (citeproc-proc-style
     (org-cite-csl--processor info))))
 
-(defun org-cite-csl--no-affixes-p (citation info)
-  "Non-nil when CITATION should be exported without affix.
-INFO is the export data, as a property list."
-  (pcase (org-cite-citation-style citation info)
-    (`(,(or "noauthor" "na" `nil) . ,(or "bare" "b" "bare-caps" "bc")) t)
-    (_ nil)))
-
-(defun org-cite-csl--capitalize-p (citation info)
-  "Non-nil when CITATION should be capitalized.
-INFO is the export-data, as a property list."
-  (pcase (org-cite-citation-style citation info)
-    (`(,(or "noauthor" "na" `nil) . ,(or "caps" "c" "bare-caps" "bc")) t)
-    (_ nil)))
-
-(defun org-cite-csl--no-author-p (reference info)
-  "Non-nil when citation REFERENCE should be exported without author.
-INFO is the export data, as a property list."
-  (pcase (org-cite-citation-style (org-element-property :parent reference) info)
-    (`(,(or "noauthor" "na") . ,_) t)
-    (_ nil)))
+(defun org-cite-csl--create-structure-params (citation info)
+  "Return citeproc structure creation params for CITATION object.
+STYLE is the citation style, as a string or nil. INFO is the export state, as
+a property list."
+  (let ((style (org-cite-citation-style citation info)))
+    (pcase style
+      ;; "author" style.
+      (`(,(or "author" "a") . ,variant)
+       (pcase variant
+	 ((or "caps" "c") '(:mode author-only :capitalize-first t))
+	 ((or "full" "f") '(:mode author-only :ignore-et-al t))
+	 ((or "caps-full" "cf") '(:mode author-only :capitalize-first t :ignore-et-al t))
+	 (_ '(:mode author-only))))
+      ;; "noauthor" style.
+      (`(,(or "noauthor" "na") . ,variant)
+       (pcase variant
+	 ((or "bare" "b") '(:mode suppress-author :suppress-affixes t))
+	 ((or "caps" "c") '(:mode suppress-author :capitalize-first t))
+	 ((or "bare-caps" "bc")
+          '(:mode suppress-author :suppress-affixes t :capitalize-first t))
+	 (_ '(:mode suppress-author))))
+      ;; "year" style.
+      (`(,(or "year" "y") . ,variant)
+       (pcase variant
+	 ((or "bare" "b") '(:mode year-only :suppress-affixes t))
+	 (_ '(:mode year-only))))
+      ;; "text" style.
+      (`(,(or "text" "t") . ,variant)
+       (pcase variant
+         ((or "caps" "c") '(:mode textual :capitalize-first t))
+         ((or "full" "f") '(:mode textual :ignore-et-al t))
+         ((or "caps-full" "cf") '(:mode textual :ignore-et-al t :capitalize-first t))
+         (_ '(:mode textual))))
+      ;; Default "nil" style.
+      (`(,_ . ,variant)
+       (pcase variant
+         ((or "caps" "c") '(:capitalize-first t))
+         ((or "bare" "b") '(:suppress-affixes t))
+         ((or "bare-caps" "bc") '(:suppress-affixes t :capitalize-first t))
+         (_  nil)))
+      ;; This should not happen.
+      (_ (error "Invalid style: %S" style)))))
 
 (defun org-cite-csl--no-citelinks-p (info)
   "Non-nil when export BACKEND should not create cite-reference links."
@@ -336,34 +374,6 @@ or raise an error if the variable is unset."
     (other
      (user-error "Cannot handle relative style file name" other))))
 
-(defun org-cite-csl--itemgetter (bibliography)
-  "Return Citeproc's \"itemgetter\" function for BIBLIOGRAPHY files.
-The function handles \".bib\", \".bibtex\" and \".json\" files."
-  (let ((cache (make-hash-table :test #'equal)))
-    (dolist (file bibliography)
-      (pcase (file-name-extension file)
-        ("json"
-         (let ((json-array-type 'list)
-               (json-key-type 'symbol))
-           (dolist (item (json-read-file file))
-             (puthash (cdr (assq 'id item)) item cache))))
-        ((and (or "bib" "bibtex") ext)
-         (with-temp-buffer
-	   (insert-file-contents file)
-	   (goto-char (point-min))
-	   (bibtex-set-dialect (if (string= ext "bib") 'biblatex 'BibTeX) t)
-	   (bibtex-map-entries
-	    (lambda (key &rest _)
-              (puthash key
-                       (citeproc-bt-entry-to-csl (bibtex-parse-entry))
-                       cache)))))
-        (ext
-         (user-error "Unknown bibliography extension: %S" ext))))
-    (lambda (itemids)
-      (mapcar (lambda (id)
-                (cons id (gethash id cache)))
-              itemids))))
-
 (defun org-cite-csl--locale-getter ()
   "Return a locale getter.
 The getter looks for locales in `org-cite-csl-locales-dir' directory.  If it
@@ -391,7 +401,7 @@ property in INFO."
              (processor
               (citeproc-create
                (org-cite-csl--style-file info)
-               (org-cite-csl--itemgetter bibliography)
+               (citeproc-hash-itemgetter-from-any bibliography)
                (org-cite-csl--locale-getter)
                locale)))
         (plist-put info :cite-citeproc-processor processor)
@@ -402,8 +412,8 @@ property in INFO."
 
 INFO is the export state, as a property list.
 
-The result is a association list.  Keys are: `id', `suppress-author', `prefix',
-`suffix', `location', `locator' and `label'."
+The result is a association list.  Keys are: `id', `prefix',`suffix',
+`location', `locator' and `label'."
   (let (label location-start locator-start location locator prefix suffix)
     ;; Parse suffix.  Insert it in a temporary buffer to find
     ;; different parts: pre-label, label, locator, location (label +
@@ -461,8 +471,7 @@ The result is a association list.  Keys are: `id', `suppress-author', `prefix',
         (suffix . ,(funcall export suffix))
         (locator . ,locator)
         (label . ,label)
-        (location . ,location)
-        (suppress-author . ,(org-cite-csl--no-author-p reference info))))))
+        (location . ,location)))))
 
 (defun org-cite-csl--create-structure (citation info)
   "Create Citeproc structure for CITATION object.
@@ -492,11 +501,11 @@ INFO is the export state, as a property list."
       (org-cite-adjust-note citation info)
       (org-cite-wrap-citation citation info))
     ;; Return structure.
-    (citeproc-citation-create
-     :note-index (and footnote (org-export-get-footnote-number footnote info))
-     :cites cites
-     :capitalize-first (or footnote (org-cite-csl--capitalize-p citation info))
-     :suppress-affixes (org-cite-csl--no-affixes-p citation info))))
+    (apply #'citeproc-citation-create
+           `(:note-index
+             ,(and footnote (org-export-get-footnote-number footnote info))
+             :cites ,cites
+             ,@(org-cite-csl--create-structure-params citation info)))))
 
 (defun org-cite-csl--rendered-citations (info)
   "Return the rendered citations as an association list.
@@ -605,8 +614,11 @@ property list."
   :export-bibliography #'org-cite-csl-render-bibliography
   :export-finalizer #'org-cite-csl-finalizer
   :cite-styles
-  '((("noauthor" "na") ("bare" "b") ("bare-caps" "bc") ("caps" "c"))
-    (("nil") ("bare" "b") ("bare-caps" "bc") ("caps" "c"))))
+  '((("author" "a") ("full" "f") ("caps" "c") ("caps-full" "cf"))
+    (("noauthor" "na") ("bare" "b") ("caps" "c") ("bare-caps" "bc"))
+    (("year" "y") ("bare" "b"))
+    (("text" "t") ("caps" "c") ("full" "f") ("caps-full" "cf"))
+    (("nil") ("bare" "b") ("caps" "c") ("bare-caps" "bc"))))
 
 (provide 'oc-csl)
-;;; oc-citeproc.el ends here
+;;; oc-csl.el ends here

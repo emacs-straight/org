@@ -3,6 +3,7 @@
 ;; Copyright (C) 2009-2021 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
+;; Maintainer: Ihor Radchenko <yantar92@gmail.com>
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: https://orgmode.org
 
@@ -87,7 +88,7 @@ code."
        (cons
 	(car pair) ;; variable name
 	(let* ((val (cdr pair)) ;; variable value
-	       (lp  (listp val)))
+	       (lp  (proper-list-p val)))
 	  (if lp
 	      (org-babel-gnuplot-table-to-data
 	       (let* ((first  (car val))
@@ -98,18 +99,18 @@ code."
 		     (file-remote-p val)  ;; check if val is a remote file
 		     (file-exists-p val)) ;; call to file-exists-p is slow, maybe remove it
 		(let* ((local-name (concat ;; create a unique filename to avoid multiple downloads
-				org-babel-temporary-directory
-				"/gnuplot/"
-				(file-remote-p val 'host)
-				(org-babel-local-file-name val))))
+				    org-babel-temporary-directory
+				    "/gnuplot/"
+				    (file-remote-p val 'host)
+				    (org-babel-local-file-name val))))
 		  (if (and (file-exists-p local-name) ;; only download file if remote is newer
 			   (file-newer-than-file-p local-name val))
 		      local-name
 		    (make-directory (file-name-directory local-name) t)
 		    (copy-file val local-name t)
-		  ))
+		    ))
 	      val
-		)))))
+	      )))))
      (org-babel--get-vars params))))
 
 (defun org-babel-expand-body:gnuplot (body params)
@@ -289,7 +290,7 @@ Pass PARAMS through to `orgtbl-to-generic' when exporting TABLE."
 	      (orgtbl-to-generic
 	       table
 	       (org-combine-plists
-		'(:sep "\t" :fmt org-babel-gnuplot-quote-tsv-field)
+		'(:sep "\t" :fmt org-babel-gnuplot-quote-tsv-field :raw t :backend ascii)
 		params)))))
   data-file)
 

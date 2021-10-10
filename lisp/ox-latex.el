@@ -297,7 +297,7 @@
     ("uk" "ukrainian")
     ("ur" "urdu")
     ("vi" "vietnamese"))
-  "Alist between language code and corresponding Polyglossia option")
+  "Alist between language code and corresponding Polyglossia option.")
 
 (defconst org-latex-table-matrix-macros '(("bordermatrix" . "\\cr")
 					  ("qbordermatrix" . "\\cr")
@@ -308,14 +308,14 @@
   (format
    "\\`[ \t]*\\\\begin{%s\\*?}"
    (regexp-opt
-	   '("equation" "eqnarray" "math" "displaymath"
-	     "align"  "gather" "multline" "flalign"  "alignat"
-	     "xalignat" "xxalignat"
-	     "subequations"
-	     ;; breqn
-	     "dmath" "dseries" "dgroup" "darray"
-	     ;; empheq
-	     "empheq")))
+    '("equation" "eqnarray" "math" "displaymath"
+      "align"  "gather" "multline" "flalign"  "alignat"
+      "xalignat" "xxalignat"
+      "subequations"
+      ;; breqn
+      "dmath" "dseries" "dgroup" "darray"
+      ;; empheq
+      "empheq")))
   "Regexp of LaTeX math environments.")
 
 
@@ -346,7 +346,7 @@ symbols are: `image', `table', `src-block' and `special-block'."
 	       (const :tag "Special blocks" special-block))))
 
 (defcustom org-latex-prefer-user-labels nil
-   "Use user-provided labels instead of internal ones when non-nil.
+  "Use user-provided labels instead of internal ones when non-nil.
 
 When this variable is non-nil, Org will use the value of
 CUSTOM_ID property, NAME keyword or Org target as the key for the
@@ -413,7 +413,7 @@ to \"\\autoref{%s}\" or \"\\cref{%s}\" for example."
   :group 'org-export-latex
   :type 'string
   :package-version '(Org . "9.5")
-  :safe t)
+  :safe #'stringp)
 
 ;;;; Preamble
 
@@ -793,7 +793,7 @@ default we use here encompasses both."
   :group 'org-export-latex
   :package-version '(Org . "9.5")
   :type 'string
-  :safe t)
+  :safe #'stringp)
 
 (defcustom org-latex-default-table-mode 'table
   "Default mode for tables.
@@ -1633,9 +1633,9 @@ INFO is a plist used as a communication channel."
   "Insert LaTeX_compiler info into the document.
 INFO is a plist used as a communication channel."
   (let ((compiler (plist-get info :latex-compiler)))
-       (and (org-string-nw-p org-latex-compiler-file-string)
-	    (member (or compiler "") org-latex-compilers)
-	    (format org-latex-compiler-file-string compiler))))
+    (and (org-string-nw-p org-latex-compiler-file-string)
+	 (member (or compiler "") org-latex-compilers)
+	 (format org-latex-compiler-file-string compiler))))
 
 
 ;;; Filters
@@ -2924,18 +2924,18 @@ channel."
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (let ((environment
-	  (or (org-export-read-attribute :attr_latex quote-block :environment)
-	      (plist-get info :latex-default-quote-environment)))
-	 (options
-	  (or (org-export-read-attribute :attr_latex quote-block :options)
-	      "")))
-  (org-latex--wrap-label
-   quote-block (format "\\begin{%s}%s\n%s\\end{%s}"
-			     environment
-			     options
-			     contents
-			     environment)
-   info)))
+	 (or (org-export-read-attribute :attr_latex quote-block :environment)
+	     (plist-get info :latex-default-quote-environment)))
+	(options
+	 (or (org-export-read-attribute :attr_latex quote-block :options)
+	     "")))
+    (org-latex--wrap-label
+     quote-block (format "\\begin{%s}%s\n%s\\end{%s}"
+			 environment
+			 options
+			 contents
+			 environment)
+     info)))
 
 ;;;; Radio Target
 
@@ -2994,22 +2994,20 @@ contextual information."
       (cond
        ;; Case 1.  No source fontification.
        ((or (not lang) (not listings))
-	(let* ((caption-str (org-latex--caption/label-string src-block info))
-	       (float-env
-		(cond ((string= "multicolumn" float)
-		       (format "\\begin{figure*}[%s]\n%s%%s\n%s\\end{figure*}"
-			       (plist-get info :latex-default-figure-position)
-			       (if caption-above-p caption-str "")
-			       (if caption-above-p "" caption-str)))
-		      (caption (concat
-				(if caption-above-p caption-str "")
-				"%s"
-				(if caption-above-p "" (concat "\n" caption-str))))
-		      (t "%s"))))
-	  (format
-	   float-env
-	   (concat (format "\\begin{verbatim}\n%s\\end{verbatim}"
-			   (org-export-format-code-default src-block info))))))
+	(let ((caption-str (org-latex--caption/label-string src-block info))
+              (verbatim (format "\\begin{verbatim}\n%s\\end{verbatim}"
+                                (org-export-format-code-default src-block info))))
+          (cond ((string= "multicolumn" float)
+                 (format "\\begin{figure*}[%s]\n%s%s\n%s\\end{figure*}"
+                         (plist-get info :latex-default-figure-position)
+                         (if caption-above-p caption-str "")
+                         verbatim
+                         (if caption-above-p "" caption-str)))
+                (caption (concat
+                          (if caption-above-p caption-str "")
+                          verbatim
+                          (if caption-above-p "" (concat "\n" caption-str))))
+                (t verbatim))))
        ;; Case 2.  Custom environment.
        (custom-env
 	(let ((caption-str (org-latex--caption/label-string src-block info))
@@ -3601,7 +3599,7 @@ contextual information."
 
 ;;;###autoload
 (defun org-latex-export-as-latex
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer as a LaTeX buffer.
 
 If narrowing is active in the current buffer, only export its
@@ -3645,7 +3643,7 @@ command to convert it."
 
 ;;;###autoload
 (defun org-latex-export-to-latex
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to a LaTeX file.
 
 If narrowing is active in the current buffer, only export its
@@ -3677,7 +3675,7 @@ file-local settings."
 
 ;;;###autoload
 (defun org-latex-export-to-pdf
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to LaTeX then process through to PDF.
 
 If narrowing is active in the current buffer, only export its

@@ -3,7 +3,7 @@
 ;; Copyright (C) 2012-2021 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou at gmail dot com>
-;; Maintainer: Nicolas Goaziou <n.goaziou at gmail dot com>
+;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: outlines, hypermedia, calendar, wp
 
 ;; This file is part of GNU Emacs.
@@ -480,6 +480,9 @@ HOW determines the type of justification: it can be `left',
     (insert s)
     (goto-char (point-min))
     (let ((fill-column text-width)
+          ;; Ensure that `indent-tabs-mode' is nil so that indentation
+          ;; will always be achieved using spaces rather than tabs.
+          (indent-tabs-mode nil)
 	  ;; Disable `adaptive-fill-mode' so it doesn't prevent
 	  ;; filling lines matching `adaptive-fill-regexp'.
 	  (adaptive-fill-mode nil))
@@ -1377,7 +1380,7 @@ contextual information."
 ;;;; Inlinetask
 
 (defun org-ascii-format-inlinetask-default
-  (_todo _type _priority _name _tags contents width inlinetask info)
+    (_todo _type _priority _name _tags contents width inlinetask info)
   "Format an inline task element for ASCII export.
 See `org-ascii-format-inlinetask-function' for a description
 of the parameters."
@@ -2088,7 +2091,7 @@ a communication channel."
 
 ;;;###autoload
 (defun org-ascii-export-as-ascii
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to a text buffer.
 
 If narrowing is active in the current buffer, only export its
@@ -2123,7 +2126,7 @@ is non-nil."
 
 ;;;###autoload
 (defun org-ascii-export-to-ascii
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to a text file.
 
 If narrowing is active in the current buffer, only export its

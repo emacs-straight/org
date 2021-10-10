@@ -3,8 +3,8 @@
 ;; Copyright (C) 2004-2021 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
-;;      Nicolas Goaziou <n dot goaziou at gmail dot com>
-;; Maintainer: Nicolas Goaziou <n.goaziou at gmail dot com>
+;;      Nicolas Goaziou <mail@nicolasgoaziou.fr>
+;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: https://orgmode.org
 
@@ -722,7 +722,7 @@ Return VEVENT component as a string."
 	     "END:VEVENT"))))
 
 (defun org-icalendar--vtodo
-  (entry uid summary location description categories timezone class)
+    (entry uid summary location description categories timezone class)
   "Create a VTODO component.
 
 ENTRY is either a headline or an inlinetask element.  UID is the
@@ -849,7 +849,7 @@ CALSCALE:GREGORIAN\n"
 
 ;;;###autoload
 (defun org-icalendar-export-to-ics
-  (&optional async subtreep visible-only body-only)
+    (&optional async subtreep visible-only body-only)
   "Export current buffer to an iCalendar file.
 
 If narrowing is active in the current buffer, only export its
