@@ -40,7 +40,8 @@
 (declare-function org-align-tags "org" (&optional all))
 (declare-function org-at-heading-p "org" (&optional ignored))
 (declare-function org-at-table.el-p "org" ())
-(declare-function org-element-at-point "org-element" ())
+(declare-function org-element-at-point "org-element" (&optional pom cached-only))
+(declare-function org-element-at-point-no-context "org-element" (&optional pom))
 (declare-function org-element-context "org-element" (&optional element))
 (declare-function org-element-lineage "org-element" (blob &optional types with-self))
 (declare-function org-element-type "org-element" (element))
@@ -74,6 +75,27 @@
 
 ;;; Emacs < 28.1 compatibility
 
+(if (fboundp 'file-name-concat)
+    (defalias 'org-file-name-concat #'file-name-concat)
+  (defun org-file-name-concat (directory &rest components)
+    "Append COMPONENTS to DIRECTORY and return the resulting string.
+
+Elements in COMPONENTS must be a string or nil.
+DIRECTORY or the non-final elements in COMPONENTS may or may not end
+with a slash -- if they don't end with a slash, a slash will be
+inserted before contatenating."
+    (save-match-data
+      (mapconcat
+       #'identity
+       (delq nil
+             (mapcar
+              (lambda (str)
+                (when (and str (not (seq-empty-p str))
+                           (string-match "\\(.+\\)/?" str))
+                  (match-string 1 str)))
+              (cons directory components)))
+       "/"))))
+
 (if (fboundp 'directory-empty-p)
     (defalias 'org-directory-empty-p #'directory-empty-p)
   (defun org-directory-empty-p (dir)
@@ -83,6 +105,17 @@
 
 
 ;;; Emacs < 27.1 compatibility
+
+(unless (fboundp 'combine-change-calls)
+  ;; A stub when `combine-change-calls' was not yet there.
+  (defmacro combine-change-calls (_beg _end &rest body)
+    (declare (debug (form form def-body)) (indent 2))
+    `(progn ,@body)))
+
+(if (version< emacs-version "27.1")
+    (defsubst org-replace-buffer-contents (source &optional _max-secs _max-costs)
+      (replace-buffer-contents source))
+  (defalias 'org-replace-buffer-contents #'replace-buffer-contents))
 
 (unless (fboundp 'proper-list-p)
   ;; `proper-list-p' was added in Emacs 27.1.  The function below is
@@ -1020,8 +1053,8 @@ ELEMENT is the element at point."
 	   (or (not (match-beginning 5))
 	       (< (point) (match-beginning 5)))
            ;; Ignore checks in code, verbatim and others.
-           (org--flyspell-object-check-p (org-element-at-point)))
-    (let* ((element (org-element-at-point))
+           (org--flyspell-object-check-p (org-element-at-point-no-context)))
+    (let* ((element (org-element-at-point-no-context))
 	   (post-affiliated (org-element-property :post-affiliated element)))
       (cond
        ;; Ignore checks in all affiliated keywords but captions.

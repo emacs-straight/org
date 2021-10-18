@@ -53,7 +53,8 @@
 (declare-function org-cycle "org" (&optional arg))
 (declare-function org-edit-src-code "org-src" (&optional code edit-buffer-name))
 (declare-function org-edit-src-exit "org-src"  ())
-(declare-function org-element-at-point "org-element" ())
+(declare-function org-element-at-point "org-element" (&optional pom cached-only))
+(declare-function org-element-at-point-no-context "org-element" (&optional pom))
 (declare-function org-element-context "org-element" (&optional element))
 (declare-function org-element-normalize-string "org-element" (s))
 (declare-function org-element-property "org-element" (property element))
@@ -70,7 +71,7 @@
 (declare-function org-list-to-lisp "org-list" (&optional delete))
 (declare-function org-macro-escape-arguments "org-macro" (&rest args))
 (declare-function org-mark-ring-push "org" (&optional pos buffer))
-(declare-function org-narrow-to-subtree "org" ())
+(declare-function org-narrow-to-subtree "org" (&optional element))
 (declare-function org-next-block "org" (arg &optional backward block-regexp))
 (declare-function org-open-at-point "org" (&optional in-emacs reference-buffer))
 (declare-function org-previous-block "org" (arg &optional block-regexp))
@@ -2055,8 +2056,11 @@ to HASH."
 	 ((or `inline-babel-call `inline-src-block)
 	  ;; Results for inline objects are located right after them.
 	  ;; There is no RESULTS line to insert either.
-	  (let ((limit (org-element-property
-			:contents-end (org-element-property :parent context))))
+	  (let ((limit (pcase (org-element-type (org-element-property :parent context))
+                         (`section (org-element-property
+		                    :end (org-element-property :parent context)))
+                         (_ (org-element-property
+		             :contents-end (org-element-property :parent context))))))
 	    (goto-char (org-element-property :end context))
 	    (skip-chars-forward " \t\n" limit)
 	    (throw :found
@@ -2089,8 +2093,11 @@ to HASH."
 	     ;; No possible anonymous results at the very end of
 	     ;; buffer or outside CONTEXT parent.
 	     ((eq (point)
-		  (or (org-element-property
-		       :contents-end (org-element-property :parent context))
+		  (or (pcase (org-element-type (org-element-property :parent context))
+                        ((or `section `org-data) (org-element-property
+		                                  :end (org-element-property :parent context)))
+                        (_ (org-element-property
+		            :contents-end (org-element-property :parent context))))
 		      (point-max))))
 	     ;; Check if next element is an anonymous result below
 	     ;; the current block.
