@@ -35,13 +35,13 @@
 (declare-function org-next-visible-heading "org" (arg))
 (declare-function org-at-heading-p "org" (&optional invisible-not-ok))
 
-(defvar org-persist-path (expand-file-name
-               (org-file-name-concat
-                (let ((cache-dir (xdg-cache-home)))
-                  (if (seq-empty-p cache-dir)
-                      user-emacs-directory
-                    cache-dir))
-                "org-persist/"))
+(defvar org-persist-directory (expand-file-name
+                               (org-file-name-concat
+                                (let ((cache-dir (xdg-cache-home)))
+                                  (if (seq-empty-p cache-dir)
+                                      user-emacs-directory
+                                    cache-dir))
+                                "org-persist/"))
   "Directory where the data is stored.")
 
 (defvar org-persist-index-file "index"
@@ -78,6 +78,7 @@ a data variable.  Each plist contains the following properties:
 (defun org-persist--get-index (var &optional buffer)
   "Return plist used to store VAR in BUFFER.
 When BUFFER is nil, return plist for global VAR."
+  (org-persist--read-index)
   (let* ((buffer-file (when buffer (buffer-file-name (or (buffer-base-buffer buffer)
                                                          buffer))))
          (inode (when buffer-file (file-attribute-inode-number (file-attributes buffer-file)))))
@@ -103,10 +104,12 @@ When BUFFER is nil, return plist for global VAR."
 (defun org-persist--read-index ()
   "Read `org-persist--index'"
   (unless org-persist--index
-    (when (file-exists-p (org-file-name-concat org-persist-path org-persist-index-file))
-      (with-temp-buffer
-        (insert-file-contents (org-file-name-concat org-persist-path org-persist-index-file))
-        (setq org-persist--index (read (current-buffer)))))))
+    (if (file-exists-p (org-file-name-concat org-persist-directory org-persist-index-file))
+        (with-temp-buffer
+          (insert-file-contents (org-file-name-concat org-persist-directory org-persist-index-file))
+          (setq org-persist--index (read (current-buffer))))
+      (warn "Cannot read org-persist index from %s."
+            (org-file-name-concat org-persist-directory org-persist-index-file)))))
 
 (cl-defun org-persist-register (var &optional buffer &key inherit)
   "Register VAR in BUFFER to be persistent.
@@ -144,7 +147,7 @@ When BUFFER is `all', unregister VAR in all buffers."
                                     (delq var (plist-get plist :variable))))
                    ;; Do not remove the index though.
                    nil)
-               (let ((persist-file (org-file-name-concat org-persist-path (plist-get plist :persist-file))))
+               (let ((persist-file (org-file-name-concat org-persist-directory (plist-get plist :persist-file))))
                  (delete-file persist-file)
                  (when (org-directory-empty-p (file-name-directory persist-file))
                    (delete-directory (file-name-directory persist-file))))
@@ -170,17 +173,29 @@ When BUFFER is `all', unregister VAR in all buffers."
           (unless (seq-find (lambda (v)
                               (run-hook-with-args-until-success 'org-persist-before-write-hook v buffer))
                             (plist-get index :variable))
-            (unless (file-exists-p org-persist-path)
-              (make-directory org-persist-path))
-            (with-temp-file (org-file-name-concat org-persist-path org-persist-index-file)
-              (prin1 org-persist--index (current-buffer)))
-            (let ((file (org-file-name-concat org-persist-path (plist-get index :persist-file)))
-                  (data (mapcar (lambda (s) (cons s (symbol-value s)))
-                                (plist-get index :variable))))
-              (unless (file-exists-p (file-name-directory file))
-                (make-directory (file-name-directory file) t))
-              (with-temp-file file
-                (prin1 data (current-buffer))))))))))
+            (unless (file-exists-p org-persist-directory)
+              (make-directory org-persist-directory))
+            (unless (file-exists-p org-persist-directory)
+              (warn "Failed to create org-persist storage in %s."
+                    org-persist-directory)
+              (let ((dir (directory-file-name
+                          (file-name-as-directory org-persist-directory))))
+                (while (and (not (file-exists-p dir))
+                            (not (equal dir (setq dir (directory-file-name
+                                                     (file-name-directory dir)))))))
+                (unless (file-writable-p dir)
+                  (message "Missing write access rights to org-persist-directory: %S"
+                           org-persist-directory))))
+            (when (file-exists-p org-persist-directory)
+              (with-temp-file (org-file-name-concat org-persist-directory org-persist-index-file)
+                (prin1 org-persist--index (current-buffer)))
+              (let ((file (org-file-name-concat org-persist-directory (plist-get index :persist-file)))
+                    (data (mapcar (lambda (s) (cons s (symbol-value s)))
+                                  (plist-get index :variable))))
+                (unless (file-exists-p (file-name-directory file))
+                  (make-directory (file-name-directory file) t))
+                (with-temp-file file
+                  (prin1 data (current-buffer)))))))))))
 
 (defun org-persist-write-all (&optional buffer)
   "Save all the persistent data."
@@ -202,7 +217,7 @@ When BUFFER is `all', unregister VAR in all buffers."
 (defun org-persist-read (var &optional buffer)
   "Restore VAR data in BUFFER."
   (let* ((index (org-persist--get-index var buffer))
-         (persist-file (org-file-name-concat org-persist-path (plist-get index :persist-file)))
+         (persist-file (org-file-name-concat org-persist-directory (plist-get index :persist-file)))
          (data nil))
     (when (and (file-exists-p persist-file)
                (or (not buffer)
@@ -217,9 +232,9 @@ When BUFFER is `all', unregister VAR in all buffers."
           ;; FIXME: Reading sometimes fails to read circular objects.
           ;; I suspect that it happens when we have object reference
           ;; #N# read before object definition #N=.  If it is really
-          ;; #so, it should be Emacs bug - either in `read' or in
-          ;; #`prin1'.  Meanwhile, just fail silently when `read'
-          ;; #fails to parse the saved cache object.
+          ;; so, it should be Emacs bug - either in `read' or in
+          ;; `prin1'.  Meanwhile, just fail silently when `read'
+          ;; fails to parse the saved cache object.
           (condition-case err
               (setq data (read (current-buffer)))
             (error
@@ -252,7 +267,7 @@ When BUFFER is `all', unregister VAR in all buffers."
     (dolist (index org-persist--index)
       (let ((file (plist-get index :path))
             (persist-file (org-file-name-concat
-                           org-persist-path
+                           org-persist-directory
                            (plist-get index :persist-file))))
         (when (and file persist-file)
           (if (file-exists-p file)
@@ -263,8 +278,18 @@ When BUFFER is `all', unregister VAR in all buffers."
                 (delete-directory (file-name-directory persist-file))))))))
     (setq org-persist--index (nreverse new-index))))
 
-(add-hook 'kill-emacs-hook #'org-persist-gc)
-(add-hook 'kill-emacs-hook #'org-persist-write-all 1000)
+;; Automatically write the data, but only when we have write access.
+(let ((dir (directory-file-name
+            (file-name-as-directory org-persist-directory))))
+  (while (and (not (file-exists-p dir))
+              (not (equal dir (setq dir (directory-file-name
+                                       (file-name-directory dir)))))))
+  (if (not (file-writable-p dir))
+      (message "Missing write access rights to org-persist-directory: %S"
+               org-persist-directory)
+    (add-hook 'kill-emacs-hook #'org-persist-gc)
+    (add-hook 'kill-emacs-hook #'org-persist-write-all 100)))
+
 (add-hook 'after-init-hook #'org-persist-read-all)
 
 (provide 'org-persist)
