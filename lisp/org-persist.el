@@ -104,12 +104,14 @@ When BUFFER is nil, return plist for global VAR."
 (defun org-persist--read-index ()
   "Read `org-persist--index'"
   (unless org-persist--index
-    (if (file-exists-p (org-file-name-concat org-persist-directory org-persist-index-file))
-        (with-temp-buffer
-          (insert-file-contents (org-file-name-concat org-persist-directory org-persist-index-file))
-          (setq org-persist--index (read (current-buffer))))
-      (warn "Cannot read org-persist index from %s."
-            (org-file-name-concat org-persist-directory org-persist-index-file)))))
+    (when (file-exists-p (org-file-name-concat org-persist-directory org-persist-index-file))
+      (with-temp-buffer
+        (insert-file-contents (org-file-name-concat org-persist-directory org-persist-index-file))
+        (setq org-persist--index
+              (condition-case err
+                  (read (current-buffer))
+                ;; Recover gracefully if index file is corrupted.
+                (error nil)))))))
 
 (cl-defun org-persist-register (var &optional buffer &key inherit)
   "Register VAR in BUFFER to be persistent.
@@ -125,7 +127,7 @@ dependency means that data shared between variables will be preserved
                          (cons var (plist-get inherited-index :variable)))))))
   (org-persist--get-index var buffer)
   (when buffer
-    (add-hook 'kill-buffer-hook #'org-persist-write-all-buffer 1000 'local)))
+    (add-hook 'kill-buffer-hook #'org-persist-write-all-buffer 'local)))
 
 (defun org-persist-unregister (var &optional buffer)
   "Unregister VAR in BUFFER to be persistent.
@@ -287,8 +289,10 @@ When BUFFER is `all', unregister VAR in all buffers."
   (if (not (file-writable-p dir))
       (message "Missing write access rights to org-persist-directory: %S"
                org-persist-directory)
-    (add-hook 'kill-emacs-hook #'org-persist-gc)
-    (add-hook 'kill-emacs-hook #'org-persist-write-all 100)))
+    (add-hook 'kill-emacs-hook #'org-persist-write-all)
+    ;; `org-persist-gc' should run before `org-persist-write-all'.  So we are adding the
+    ;; hook after `org-persist-write-all'.
+    (add-hook 'kill-emacs-hook #'org-persist-gc)))
 
 (add-hook 'after-init-hook #'org-persist-read-all)
 
