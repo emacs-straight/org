@@ -111,7 +111,11 @@ When BUFFER is nil, return plist for global VAR."
               (condition-case err
                   (read (current-buffer))
                 ;; Recover gracefully if index file is corrupted.
-                (error nil)))))))
+                (error
+                 (warn "Emacs reader failed to read data for `org-persist--index' from %S. The error was: %S"
+                       (org-file-name-concat org-persist-directory org-persist-index-file)
+                       (error-message-string err))
+                 nil)))))))
 
 (cl-defun org-persist-register (var &optional buffer &key inherit)
   "Register VAR in BUFFER to be persistent.
@@ -127,7 +131,7 @@ dependency means that data shared between variables will be preserved
                          (cons var (plist-get inherited-index :variable)))))))
   (org-persist--get-index var buffer)
   (when buffer
-    (add-hook 'kill-buffer-hook #'org-persist-write-all-buffer 'local)))
+    (add-hook 'kill-buffer-hook #'org-persist-write-all-buffer nil 'local)))
 
 (defun org-persist-unregister (var &optional buffer)
   "Unregister VAR in BUFFER to be persistent.

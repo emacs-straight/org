@@ -5772,6 +5772,10 @@ Properties are modified by side-effect."
 			(plist-get properties key))))
 	(and value (plist-put properties key (+ offset value)))))))
 
+(defvar org-element--cache-interrupt-C-g nil)
+(defvar org-element--cache-interrupt-C-g-max-count 5)
+(defvar org-element--cache-interrupt-C-g-count 0)
+
 (defun org-element--cache-sync (buffer &optional threshold future-change)
   "Synchronize cache with recent modification in BUFFER.
 
@@ -5797,6 +5801,7 @@ updated before current modification are actually submitted."
                           this-command)
             (org-element-cache-reset))
         (let ((inhibit-quit t) request next)
+          (setq org-element--cache-interrupt-C-g-count 0)
 	  (when org-element--cache-sync-timer
 	    (cancel-timer org-element--cache-sync-timer))
           (let ((time-limit (time-add nil org-element-cache-sync-duration)))
@@ -5838,7 +5843,7 @@ updated before current modification are actually submitted."
 	  ;; Otherwise, reset keys.
 	  (if org-element--cache-sync-requests
 	      (org-element--cache-set-timer buffer)
-            (setq org-element--cache-sync-keys-value (buffer-chars-modified-tick))))))))
+            (setq org-element--cache-sync-keys-value (1+ org-element--cache-sync-keys-value))))))))
 
 (defun org-element--cache-process-request
     (request next-request-key threshold time-limit future-change)
@@ -6262,8 +6267,17 @@ the process stopped before finding the expected result."
            (while t
 	     (when (org-element--cache-interrupt-p time-limit)
                (throw 'interrupt nil))
+             (when (and inhibit-quit org-element--cache-interrupt-C-g)
+               (when quit-flag
+	         (cl-incf org-element--cache-interrupt-C-g-count)
+                 (setq quit-flag nil))
+               (when (> org-element--cache-interrupt-C-g-count
+                        org-element--cache-interrupt-C-g-max-count)
+                 (setq quit-flag t)
+                 (org-element-cache-reset)
+                 (error "org-element: Parsing aborted by user.  Cache has been cleared.")))
 	     (unless element
-               ;; Do not try to parse withi blank at EOB.
+               ;; Do not try to parse within blank at EOB.
                (unless (save-excursion
                          (org-skip-whitespace)
                          (eobp))
@@ -6668,9 +6682,7 @@ change, as an integer."
         ;; yet to the otherwise correct part of the cache (i.e, before
         ;; the first request).
         (org-element--cache-log-message "Adding new phase 0 request")
-        ;; FIXME: Disabling this optimisation to hunt errors.
-        ;; (when next (org-element--cache-sync (current-buffer) end beg))
-        (when next (org-element--cache-sync (current-buffer) end))
+        (when next (org-element--cache-sync (current-buffer) end beg))
         (let ((first (org-element--cache-for-removal beg end offset)))
 	  (if first
 	      (push (let ((first-beg (org-element-property :begin first))
@@ -6807,6 +6819,12 @@ Return non-nil when verification failed."
              org-element-cache-persistent
              (eq var 'org-element--cache))
     (with-current-buffer buffer
+      ;; Cleanup cache request keys to avoid collisions during next
+      ;; Emacs session.
+      (avl-tree-mapc
+       (lambda (el)
+         (org-element-put-property el :org-element--cache-sync-key nil))
+       org-element--cache)
       (org-with-wide-buffer
        (org-element-at-point (point-max))))
     nil))
@@ -6860,7 +6878,7 @@ buffers."
 		    (avl-tree-create #'org-element--cache-compare))
         (setq-local org-element--cache-size 0)
         (setq-local org-element--headline-cache-size 0)
-	(setq-local org-element--cache-sync-keys-value (buffer-chars-modified-tick))
+	(setq-local org-element--cache-sync-keys-value 0)
 	(setq-local org-element--cache-change-warning nil)
 	(setq-local org-element--cache-sync-requests nil)
 	(setq-local org-element--cache-sync-timer nil)
