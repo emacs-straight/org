@@ -5717,7 +5717,8 @@ Assume ELEMENT belongs to cache and that a cache is active."
       (progn
         ;; This should not happen, but if it is, would be better to know
         ;; where it happens.
-        (org-element--cache-warn "Failed to delete %S element in %S at %S. The element cache key was %S."
+        (org-element--cache-warn "Failed to delete %S element in %S at %S. The element cache key was %S.
+If this warning appears regularly, please report it to Org mode mailing list (M-x org-submit-bug-report)."
                       (org-element-type element)
                       (current-buffer)
                       (org-element-property :begin element)
@@ -5772,9 +5773,16 @@ Properties are modified by side-effect."
 			(plist-get properties key))))
 	(and value (plist-put properties key (+ offset value)))))))
 
-(defvar org-element--cache-interrupt-C-g nil)
-(defvar org-element--cache-interrupt-C-g-max-count 5)
-(defvar org-element--cache-interrupt-C-g-count 0)
+(defvar org-element--cache-interrupt-C-g t
+  "When non-nil, allow the user to abort `org-element--cache-sync'.
+The execution is aborted upon pressing `\\[keyboard-quit]'
+`org-element--cache-interrupt-C-g-max-count' times.")
+(defvar org-element--cache-interrupt-C-g-max-count 5
+  "`\\[keyboard-quit]' count to interrupt `org-element--cache-sync'.
+See `org-element--cache-interrupt-C-g'.")
+(defvar org-element--cache-interrupt-C-g-count 0
+  "Current number of `org-element--cache-sync' calls.
+See `org-element--cache-interrupt-C-g'.")
 
 (defun org-element--cache-sync (buffer &optional threshold future-change)
   "Synchronize cache with recent modification in BUFFER.
@@ -5796,7 +5804,9 @@ updated before current modification are actually submitted."
       (if (/= org-element--cache-change-tic
              (buffer-chars-modified-tick))
           (progn
-            (org-element--cache-warn "Unregistered buffer modifications detected. Resetting\n The buffer is: %s\n Current command: %S"
+            (org-element--cache-warn "Unregistered buffer modifications detected. Resetting.
+If this warning appears regularly, please report it to Org mode mailing list (M-x org-submit-bug-report).
+The buffer is: %s\n Current command: %S"
                           (buffer-name (current-buffer))
                           this-command)
             (org-element-cache-reset))
@@ -6146,7 +6156,7 @@ request."
                          ;; such error happens within
                          ;; `org-element--cache-process-request' or somewhere
                          ;; else.
-                         (org-element--cache-warn "Added org-data parent to non-headline element: %S" data)
+                         (org-element--cache-warn "Added org-data parent to non-headline element: %S\nIf this warning appears regularly, please report it to Org mode mailing list (M-x org-submit-bug-report)." data)
                          (org-element-cache-reset)
                          (throw 'quit t))
 		       (org-element-put-property data :parent parent)
@@ -6215,7 +6225,8 @@ the process stopped before finding the expected result."
           ;; file.
           ((and (not cached) (org-element--cache-active-p))
            (setq element (org-element-org-data-parser))
-           (unless (org-element-property :begin element) (org-element--cache-warn "Error parsing org-data. Got %S" element))
+           (unless (org-element-property :begin element)
+             (org-element--cache-warn "Error parsing org-data. Got %S\nPlease report to Org mode mailing list (M-x org-submit-bug-report)." element))
            (org-element--cache-log-message "Nothing in cache. Adding org-data: %S"
                                 (org-element--format-element element))
            (org-element--cache-put element)
@@ -6267,15 +6278,21 @@ the process stopped before finding the expected result."
            (while t
 	     (when (org-element--cache-interrupt-p time-limit)
                (throw 'interrupt nil))
-             (when (and inhibit-quit org-element--cache-interrupt-C-g)
+             (when (and inhibit-quit org-element--cache-interrupt-C-g quit-flag)
                (when quit-flag
 	         (cl-incf org-element--cache-interrupt-C-g-count)
                  (setq quit-flag nil))
-               (when (> org-element--cache-interrupt-C-g-count
+               (when (>= org-element--cache-interrupt-C-g-count
                         org-element--cache-interrupt-C-g-max-count)
                  (setq quit-flag t)
+                 (setq org-element--cache-interrupt-C-g-count 0)
                  (org-element-cache-reset)
-                 (error "org-element: Parsing aborted by user.  Cache has been cleared.")))
+                 (error "org-element: Parsing aborted by user.  Cache has been cleared.
+If you observe Emacs hangs frequently, please report this to Org mode mailing list (M-x org-submit-bug-report)."))
+               (message (substitute-command-keys
+                         "`org-element--parse-buffer': Suppressed `\\[keyboard-quit]'.  Press `\\[keyboard-quit]' %d more times to force interruption.")
+                        (- org-element--cache-interrupt-C-g-max-count
+                           org-element--cache-interrupt-C-g-count)))
 	     (unless element
                ;; Do not try to parse within blank at EOB.
                (unless (save-excursion
@@ -6591,7 +6608,7 @@ known element in cache (it may start after END)."
 	      (when robust-flag (setq robust-flag nil))))
           (unless (or (org-element-property :parent up)
                       (eq 'org-data (org-element-type up)))
-            (org-element--cache-warn "Got element without parent.\n%S" up))
+            (org-element--cache-warn "Got element without parent. Please report it to Org mode mailing list (M-x org-submit-bug-report).\n%S" up))
 	  (setq up (org-element-property :parent up)))
         ;; We're at top level element containing ELEMENT: if it's
         ;; altered by buffer modifications, it is first element in
@@ -6771,7 +6788,9 @@ Return non-nil when verification failed."
         (org-element-with-disabled-cache (org-up-heading-or-point-min))
         (unless (or (= (point) (org-element-property :begin (org-element-property :parent element)))
                     (eq (point) (point-min)))
-          (org-element--cache-warn "Cached element has wrong parent in %s. Resetting.\n The element is: %S\n The parent is: %S\n The real parent is: %S"
+          (org-element--cache-warn "Cached element has wrong parent in %s. Resetting.
+If this warning appears regularly, please report it to Org mode mailing list (M-x org-submit-bug-report).
+The element is: %S\n The parent is: %S\n The real parent is: %S"
                         (buffer-name (current-buffer))
                         (org-element--format-element element)
                         (org-element--format-element (org-element-property :parent element))
@@ -6797,7 +6816,9 @@ Return non-nil when verification failed."
                      (eq (org-element-property :contents-end real-element) (org-element-property :contents-end element))
                      (or (not (org-element-property :ID real-element))
                          (string= (org-element-property :ID real-element) (org-element-property :ID element))))
-          (org-element--cache-warn "(%S) Cached element is incorrect in %s. (Cache tic up to date: %S) Resetting.\n The element is: %S\n The real element is: %S\n Cache around :begin:\n%S\n%S\n%S"
+          (org-element--cache-warn "(%S) Cached element is incorrect in %s. (Cache tic up to date: %S) Resetting.
+If this warning appears regularly, please report it to Org mode mailing list (M-x org-submit-bug-report).
+The element is: %S\n The real element is: %S\n Cache around :begin:\n%S\n%S\n%S"
                         this-command
                         (buffer-name (current-buffer))
                         (if (/= org-element--cache-change-tic
@@ -7081,7 +7102,15 @@ of FUNC.  Changes to elements made in FUNC will also alter the cache."
                  continue-flag
                  ;; Byte-compile FUNC making sure that it is as performant
                  ;; as it could be.
-                 (func (if (or (byte-code-function-p func))
+                 (func (if (or (byte-code-function-p func)
+                               ;; FIXME: Working around bug
+                               ;; https://list.orgmode.org/87tuha62rq.fsf@localhost/T/#t
+                               ;; Byte-compilation in
+                               ;; `org-agenda-get-scheduled' call
+                               ;; somehow alters the FUNC result in
+                               ;; Emacs 26 and 27, but not in Emacs
+                               ;; >=28.
+                               (version< emacs-version "28"))
                            func
                          (let ((warning-minimum-log-level :error)
                                (inhibit-message t))
@@ -7356,7 +7385,7 @@ element ending there."
                     (condition-case err
                         (org-element--parse-to pom)
                       (error
-                       (org-element--cache-warn "Cache corruption detected in %s. Resetting.\n The error was: %S"
+                       (org-element--cache-warn "Cache corruption detected in %s. Resetting.\n The error was: %S\n Please report this to Org mode mailing list (M-x org-submit-bug-report)."
                                      (buffer-name (current-buffer))
                                      err)
                        (org-element-cache-reset)
