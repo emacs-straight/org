@@ -16706,7 +16706,7 @@ according to the value of `org-display-remote-inline-images'."
 			 width
 			 'imagemagick)
 		    remote?
-		    :width width))))
+		    :width width :scale 1))))
 
 (defun org-display-inline-images (&optional include-linked refresh beg end)
   "Display inline images.
@@ -19218,6 +19218,10 @@ ELEMENT."
       (contentsp
        (cl-case type
 	 ((diary-sexp footnote-definition) 0)
+         (section
+          (org--get-expected-indentation
+           (org-element-property :parent element)
+           t))
 	 ((headline inlinetask nil)
 	  (if (not org-adapt-indentation) 0
 	    (let ((level (org-current-level)))
@@ -20743,7 +20747,7 @@ unless optional argument NO-INHERITANCE is non-nil.
 
 Optional argument ELEMENT contains element at point."
   (cond
-   ((org-before-first-heading-p) nil)
+   ((and (not element) (org-before-first-heading-p)) nil)
    ((if element
         (org-element-property :archivedp element)
       (let ((tags (org-get-tags element 'local)))
@@ -20753,7 +20757,7 @@ Optional argument ELEMENT contains element at point."
    (t
     (if (org-element--cache-active-p)
         (cl-some (lambda (el) (org-element-property :archivedp el))
-                 (org-element-lineage (org-element-at-point) nil t))
+                 (org-element-lineage (or element (org-element-at-point)) nil t))
       (save-excursion (and (org-up-heading-safe) (org-in-archived-heading-p)))))))
 
 (defun org-at-comment-p nil
