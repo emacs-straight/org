@@ -5129,7 +5129,6 @@ stacked delimiters is N.  Escaping delimiters is not possible."
 				     '(invisible t))
 		(add-text-properties (match-beginning 3) (match-end 3)
 				     '(invisible t)))
-              (goto-char (match-end 0))
 	      (throw :exit t))))))))
 
 (defun org-emphasize (&optional char)
@@ -11592,16 +11591,22 @@ headlines matching this string."
 		           (match-beginning 1) (match-end 1)))
 	             (org-show-context 'tags-tree))
 	            ((eq action 'agenda)
-	             (setq txt (org-agenda-format-item
-			        ""
-			        (concat
-			         (if (eq org-tags-match-list-sublevels 'indented)
-			             (make-string (1- level) ?.) "")
-			         (org-get-heading))
-			        (make-string level ?\s)
-			        category
-			        tags-list)
-		           priority (org-get-priority txt))
+                     (let* ((effort (org-entry-get (point) org-effort-property))
+                            (effort-minutes (when effort (save-match-data (org-duration-to-minutes effort)))))
+	               (setq txt (org-agenda-format-item
+			          ""
+			          (concat
+			           (if (eq org-tags-match-list-sublevels 'indented)
+			               (make-string (1- level) ?.) "")
+                                   (org-add-props
+			               (org-get-heading)
+                                       nil
+                                     'effort effort
+                                     'effort-minutes effort-minutes))
+			          (make-string level ?\s)
+			          category
+			          tags-list)
+		             priority (org-get-priority txt)))
 	             (goto-char (org-element-property :begin el))
 	             (setq marker (org-agenda-new-marker))
 	             (org-add-props txt props
@@ -21394,7 +21399,9 @@ See `org-backward-paragraph'."
 	    (forward-line -1))
 	   ;; At the beginning of the first element within a greater
 	   ;; element.  Move to the beginning of the greater element.
-	   ((and parent (= begin (org-element-property :contents-begin parent)))
+	   ((and parent
+                 (not (eq 'section (org-element-type parent)))
+                 (= begin (org-element-property :contents-begin parent)))
 	    (funcall reach (org-element-property :begin parent)))
 	   ;; Since we have to move anyway, find the beginning
 	   ;; position of the element above.
