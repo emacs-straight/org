@@ -207,16 +207,17 @@ When BUFFER is `all', unregister VAR in all buffers."
 
 (defun org-persist-write-all (&optional buffer)
   "Save all the persistent data."
-  (dolist (index org-persist--index)
-    (when (or (not (plist-get index :path))
-              (and (get-file-buffer (plist-get index :path))
-                   (or (not buffer)
-                       (equal (buffer-file-name (or (buffer-base-buffer buffer)
-                                                    buffer))
-                              (plist-get index :path)))))
-      (org-persist-write (plist-get index :variable)
-              (when (plist-get index :path)
-                (get-file-buffer (plist-get index :path)))))))
+  (unless (and buffer (not (buffer-file-name buffer)))
+    (dolist (index org-persist--index)
+      (when (or (and (not (plist-get index :path))
+                     (not buffer))
+                (and (plist-get index :path)
+                     (get-file-buffer (plist-get index :path))
+                     (equal (buffer-file-name buffer)
+                            (plist-get index :path))))
+        (org-persist-write (plist-get index :variable)
+                (when (plist-get index :path)
+                  (get-file-buffer (plist-get index :path))))))))
 
 (defun org-persist-write-all-buffer ()
   "Call `org-persist-write-all' in current buffer."
@@ -272,9 +273,10 @@ When BUFFER is `all', unregister VAR in all buffers."
   (let (new-index)
     (dolist (index org-persist--index)
       (let ((file (plist-get index :path))
-            (persist-file (org-file-name-concat
-                           org-persist-directory
-                           (plist-get index :persist-file))))
+            (persist-file (when (plist-get index :persist-file)
+                            (org-file-name-concat
+                             org-persist-directory
+                             (plist-get index :persist-file)))))
         (when (and file persist-file)
           (if (file-exists-p file)
               (push index new-index)
