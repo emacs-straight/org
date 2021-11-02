@@ -36,12 +36,13 @@
 (declare-function org-at-heading-p "org" (&optional invisible-not-ok))
 
 (defvar org-persist-directory (expand-file-name
-                               (org-file-name-concat
-                                (let ((cache-dir (xdg-cache-home)))
-                                  (if (seq-empty-p cache-dir)
-                                      user-emacs-directory
-                                    cache-dir))
-                                "org-persist/"))
+                    (org-file-name-concat
+                     (let ((cache-dir (xdg-cache-home)))
+                       (if (or (seq-empty-p cache-dir)
+                               (not (file-exists-p cache-dir)))
+                           user-emacs-directory
+                         cache-dir))
+                     "org-persist/"))
   "Directory where the data is stored.")
 
 (defvar org-persist-index-file "index"
@@ -248,8 +249,10 @@ When BUFFER is `all', unregister VAR in all buffers."
           (condition-case err
               (setq data (read (current-buffer)))
             (error
-             (warn "Emacs reader failed to read data for %S:%S. The error was: %S"
-                   (or buffer "global") var (error-message-string err))
+             ;; Do not report the known error to user.
+             (unless (string-match-p "Invalid read syntax" (error-message-string err))
+               (warn "Emacs reader failed to read data for %S:%S. The error was: %S"
+                     (or buffer "global") var (error-message-string err)))
              (setq data nil))))
         (with-current-buffer (or buffer (current-buffer))
           (cl-loop for var1 in (plist-get index :variable)
