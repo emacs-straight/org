@@ -93,7 +93,6 @@
 (defvar org-drawer-regexp)
 (defvar org-edit-src-content-indentation)
 (defvar org-emph-re)
-(defvar org-emphasis-regexp-components)
 (defvar org-keyword-time-not-clock-regexp)
 (defvar org-match-substring-regexp)
 (defvar org-odd-levels-only)
@@ -193,9 +192,7 @@ specially in `org-element--object-lex'.")
 		      "\\(?:[_^][-{(*+.,[:alnum:]]\\)"
 		      ;; Bold, code, italic, strike-through, underline
 		      ;; and verbatim.
-		      (concat "[*~=+_/]"
-			      (format "[^%s]"
-				      (nth 2 org-emphasis-regexp-components)))
+                      (rx (or "*" "~" "=" "+" "_" "/") (not space))
 		      ;; Plain links.
 		      (concat "\\<" link-types ":")
 		      ;; Objects starting with "[": citations,
@@ -5306,6 +5303,17 @@ to be correct.  Setting this to a value less than 0.0001 is useless.")
 (defvar org-element--cache-map-statistics-threshold 0.1
   "Time threshold in seconds to log statistics for `org-element-cache-map'.")
 
+(defvar org-element--cache-diagnostics-modifications t
+  "Non-nil enables cache warnings when for silent modifications.
+
+Silent modifications are the modifications in Org buffers that are not
+registered by `org-element--cache-before-change' and `org-element--cache-after-change'.
+
+This variable may cause false-positives because some Emacs versions
+can change `buffer-chars-modified-tick' internally even though no
+visible changes in buffer are being made.  Some of such expected cases
+are covered by heuristics, but not all.")
+
 (defvar org-element--cache-diagnostics-level 2
   "Detail level of the diagnostics.")
 
@@ -5835,17 +5843,39 @@ updated before current modification are actually submitted."
     (with-current-buffer (or (buffer-base-buffer buffer) buffer)
       ;; Check if the buffer have been changed outside visibility of
       ;; `org-element--cache-before-change' and `org-element--cache-after-change'.
-      (if (/= org-element--cache-change-tic
-             (buffer-chars-modified-tick))
+      (if (and (/= org-element--cache-change-tic
+                  (buffer-chars-modified-tick))
+               ;; FIXME: Below is a heuristics noticed by observation.
+               ;; quail.el with non-latin input does silent
+               ;; modifications in buffer increasing the tick counter
+               ;; but not actually changing the buffer text:
+               ;; https://list.orgmode.org/87sfw2luhj.fsf@localhost/T/#you
+               ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2021-11/msg00894.html
+               ;; However, the values of `buffer-chars-modified-tick'
+               ;; and `buffer-modified-tick' appear to be same after
+               ;; the quail.el's changes in buffer.  We do not
+               ;; consider these exact changes as a dangerous silent
+               ;; edit.
+               (/= (buffer-chars-modified-tick)
+                  (buffer-modified-tick))
+               ;; FIXME: Another heuristics noticed by observation.
+               ;; `replace-match' in `org-toggle-heading' in Emacs <28
+               ;; makes safe silent changes when first letter in the
+               ;; line is a cyrillic capital letter.
+               ;; https://list.orgmode.org/87pmr6lu1y.fsf@localhost/T/#t
+               (not (= (buffer-chars-modified-tick)
+                     (- (buffer-modified-tick) 7))))
           (progn
-            (org-element--cache-warn "Unregistered buffer modifications detected. Resetting.
+            (when (or org-element--cache-diagnostics-modifications
+                      (and (boundp 'org-batch-test) org-batch-test))
+              (org-element--cache-warn "Unregistered buffer modifications detected. Resetting.
 If this warning appears regularly, please report it to Org mode mailing list (M-x org-submit-bug-report).
 The buffer is: %s\n Current command: %S\n Backtrace:\n%S"
-                          (buffer-name (current-buffer))
-                          this-command
-                          (when (and (fboundp 'backtrace-get-frames)
-                                     (fboundp 'backtrace-to-string))
-                            (backtrace-to-string (backtrace-get-frames 'backtrace))))
+                            (buffer-name (current-buffer))
+                            this-command
+                            (when (and (fboundp 'backtrace-get-frames)
+                                       (fboundp 'backtrace-to-string))
+                              (backtrace-to-string (backtrace-get-frames 'backtrace)))))
             (org-element-cache-reset))
         (let ((inhibit-quit t) request next)
           (setq org-element--cache-interrupt-C-g-count 0)
@@ -6361,7 +6391,10 @@ If you observe Emacs hangs frequently, please report this to Org mode mailing li
                      (unless (when (and (/= 1 (org-element-property :level element))
                                         (re-search-forward
                                          (rx-to-string
-                                          `(and bol (repeat 1 ,(1- (org-element-property :level element)) "*") " "))
+                                          `(and bol (repeat 1 ,(1- (let ((level (org-element-property :level element)))
+                                                                     (if org-odd-levels-only (1- (* level 2)) level)))
+                                                            "*")
+                                                " "))
                                          pos t))
                                (beginning-of-line)
                                t)
@@ -6373,7 +6406,10 @@ If you observe Emacs hangs frequently, please report this to Org mode mailing li
                        (goto-char pos)
                        (re-search-backward
                         (rx-to-string
-                         `(and bol (repeat ,(org-element-property :level element) "*") " "))
+                         `(and bol (repeat ,(let ((level (org-element-property :level element)))
+                                              (if org-odd-levels-only (1- (* level 2)) level))
+                                           "*")
+                               " "))
                         elem-end t))))
 	         (setq mode (org-element--next-mode mode type nil)))
 	        ;; A non-greater element contains point: return it.
@@ -6491,7 +6527,7 @@ The function returns the new value of `org-element--cache-change-warning'."
                                       until (= min-level 1))
                              (goto-char beg)
                              (beginning-of-line)
-                             (or min-level
+                             (or (and min-level (org-reduced-level min-level))
                                  (when (looking-at-p "^[ \t]*#\\+CATEGORY:")
                                    'org-data)
                                  t))))))
