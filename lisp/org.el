@@ -12629,34 +12629,34 @@ Inherited tags have the `inherited' text property."
              (not local))
         org-scanner-tags
       (org-with-point-at (unless (org-element-type pos-or-element)
-                           (or pos-or-element (point)))
-        (unless (and (not (org-element-type pos-or-element))
-                     (org-before-first-heading-p))
-          (unless (org-element-type pos-or-element) (org-back-to-heading t))
-          (let ((ltags (if (org-element-type pos-or-element)
-                           (org-element-property :tags (org-element-lineage pos-or-element '(headline) t))
-                         (org--get-local-tags)))
-                itags)
-            (if (or local (not org-use-tag-inheritance)) ltags
-              (let ((cached (and (org-element--cache-active-p)
-                                 (if (org-element-type pos-or-element)
-                                     (org-element-lineage pos-or-element '(headline) t)
-                                   (org-element-at-point nil 'cached)))))
-                (if cached
-                    (while (setq cached (org-element-property :parent cached))
-                      (setq itags (nconc (mapcar #'org-add-prop-inherited
-                                                 ;; If we do not wrap result into `cl-copy-list', reference would
-                                                 ;; be returned and cache element might be modified directly.
-                                                 (cl-copy-list (org-element-property :tags cached)))
-                                         itags)))
-                  (while (org-up-heading-safe)
+                        (or pos-or-element (point)))
+        (unless (or (org-element-type pos-or-element)
+                    (org-before-first-heading-p))
+          (org-back-to-heading t))
+        (let ((ltags (if (org-element-type pos-or-element)
+                         (org-element-property :tags (org-element-lineage pos-or-element '(headline inlinetask) t))
+                       (org--get-local-tags)))
+              itags)
+          (if (or local (not org-use-tag-inheritance)) ltags
+            (let ((cached (and (org-element--cache-active-p)
+                               (if (org-element-type pos-or-element)
+                                   (org-element-lineage pos-or-element '(headline org-data inlinetask) t)
+                                 (org-element-at-point nil 'cached)))))
+              (if cached
+                  (while (setq cached (org-element-property :parent cached))
                     (setq itags (nconc (mapcar #'org-add-prop-inherited
-					       (org--get-local-tags))
-				       itags)))))
-              (setq itags (append org-file-tags itags))
-              (nreverse
-	       (delete-dups
-	        (nreverse (nconc (org-remove-uninherited-tags itags) ltags)))))))))))
+                                               ;; If we do not wrap result into `cl-copy-list', reference would
+                                               ;; be returned and cache element might be modified directly.
+                                               (cl-copy-list (org-element-property :tags cached)))
+                                       itags)))
+                (while (org-up-heading-safe)
+                  (setq itags (nconc (mapcar #'org-add-prop-inherited
+					     (org--get-local-tags))
+				     itags)))))
+            (setq itags (append org-file-tags itags))
+            (nreverse
+	     (delete-dups
+	      (nreverse (nconc (org-remove-uninherited-tags itags) ltags))))))))))
 
 (defun org-get-buffer-tags ()
   "Get a table of all tags used in the buffer, for completion."
@@ -16860,15 +16860,18 @@ buffer boundaries with possible narrowing."
             (when (and par (org-with-point-at
                                (org-element-property :begin par)
                              (re-search-forward attr-re par-end t)))
-              (match-string 1)))
-           (attr-width-val
+              (match-string 1))))
             (cond
-             ((null attr-width) nil)
+             ;; Treat :width t as if `org-image-actual-width' were t.
+             ((string= attr-width "t") nil)
+             ;; Fallback to `org-image-actual-width' if no interprable width is given.
+             ((or (null attr-width)
+                  (string-match-p "\\`[^0-9]"))
+              (car org-image-actual-width))
+             ;; Convert numeric widths to numbers, converting percentages.
              ((string-match-p "\\`[0-9.]+%" attr-width)
               (/ (string-to-number attr-width) 100.0))
              (t (string-to-number attr-width))))
-           ;; Fallback to `org-image-actual-width' if no explicit width is given.
-           (width (or attr-width-val (car org-image-actual-width))))
       (if (and (floatp width) (<= 0.0 width 2.0))
           ;; A float in [0,2] should be interpereted as this portion of
           ;; the text width in the window.  This works well with cases like
@@ -20735,7 +20738,7 @@ Optional argument ELEMENT contains element at point."
     (let ((el (or element (org-element-at-point nil 'cached))))
       (if el
           (catch :found
-            (setq el (org-element-lineage el '(headline) 'include-self))
+            (setq el (org-element-lineage el '(headline inlinetask) 'include-self))
             (if no-inheritance
                 (org-element-property :commentedp el)
               (while el
