@@ -12660,12 +12660,21 @@ Inherited tags have the `inherited' text property."
 
 (defun org-get-buffer-tags ()
   "Get a table of all tags used in the buffer, for completion."
-  (org-with-point-at 1
-    (let (tags)
-      (while (re-search-forward org-tag-line-re nil t)
-	(setq tags (nconc (split-string (match-string-no-properties 2) ":")
-			  tags)))
-      (mapcar #'list (delete-dups (append org-file-tags tags))))))
+  (if (org-element--cache-active-p)
+      ;; `org-element-cache-map' is about 2x faster compared to regexp
+      ;; search.
+      (let ((tags (org-element-cache-map
+                   (lambda (el) (org-element-property :tags el)))))
+        (mapcar #'list (mapcar #'substring-no-properties
+                               (delete-dups
+                                (append org-file-tags
+                                        (apply #'append tags))))))
+    (org-with-point-at 1
+      (let (tags)
+        (while (re-search-forward org-tag-line-re nil t)
+	  (setq tags (nconc (split-string (match-string-no-properties 2) ":")
+			    tags)))
+        (mapcar #'list (delete-dups (append org-file-tags tags)))))))
 
 ;;;; The mapping API
 
@@ -16860,18 +16869,19 @@ buffer boundaries with possible narrowing."
             (when (and par (org-with-point-at
                                (org-element-property :begin par)
                              (re-search-forward attr-re par-end t)))
-              (match-string 1))))
+              (match-string 1)))
+           (width
             (cond
              ;; Treat :width t as if `org-image-actual-width' were t.
              ((string= attr-width "t") nil)
              ;; Fallback to `org-image-actual-width' if no interprable width is given.
              ((or (null attr-width)
-                  (string-match-p "\\`[^0-9]"))
+                  (string-match-p "\\`[^0-9]" attr-width))
               (car org-image-actual-width))
              ;; Convert numeric widths to numbers, converting percentages.
              ((string-match-p "\\`[0-9.]+%" attr-width)
               (/ (string-to-number attr-width) 100.0))
-             (t (string-to-number attr-width))))
+             (t (string-to-number attr-width)))))
       (if (and (floatp width) (<= 0.0 width 2.0))
           ;; A float in [0,2] should be interpereted as this portion of
           ;; the text width in the window.  This works well with cases like
