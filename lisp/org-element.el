@@ -6700,7 +6700,9 @@ known element in cache (it may start after END)."
 	      (when robust-flag (setq robust-flag nil))))
           (unless (or (org-element-property :parent up)
                       (eq 'org-data (org-element-type up)))
-            (org-element--cache-warn "Got element without parent. Please report it to Org mode mailing list (M-x org-submit-bug-report).\n%S" up))
+            (org-element--cache-warn "Got element without parent. Please report it to Org mode mailing list (M-x org-submit-bug-report).\n%S" up)
+            (org-element-cache-reset)
+            (error "org-element--cache: Emergency exit"))
 	  (setq up (org-element-property :parent up)))
         ;; We're at top level element containing ELEMENT: if it's
         ;; altered by buffer modifications, it is first element in
@@ -7292,6 +7294,7 @@ the cache."
                  ;; Statistics
                  (time (float-time))
                  (predicate-time 0)
+                 (pre-process-time 0)
                  (count-predicate-calls-match 0)
                  (count-predicate-calls-fail 0))
             ;; Skip to first element within region.
@@ -7308,9 +7311,13 @@ the cache."
                           (and (eq granularity 'element)
                                (or next-re fail-re)))
                 (let ((org-element-cache-map--recurse t))
-                  (org-element-cache-map
-                   #'ignore
-                   :granularity granularity)
+                  (let ((before-time (float-time)))
+                    (org-element-cache-map
+                     #'ignore
+                     :granularity granularity)  
+                    (cl-incf pre-process-time
+                             (- (float-time)
+                                before-time)))
                   ;; Re-assign the cache root after filling the cache
                   ;; gaps.
                   (setq node (cache-root)))
@@ -7474,13 +7481,14 @@ the cache."
             (when (and org-element--cache-map-statistics
                        (or (not org-element--cache-map-statistics-threshold)
                            (> (- (float-time) time) org-element--cache-map-statistics-threshold)))
-              (message "Mapped over elements in %S. %d/%d predicate matches. Total time: %f sec. Time running predicates: %f sec (%f sec avg)
+              (message "Mapped over elements in %S. %d/%d predicate matches. Total time: %f sec. Pre-process time: %f sec. Time running predicates: %f sec (%f sec avg)
        Calling parameters: :granularity %S :restrict-elements %S :next-re %S :fail-re %S :from-pos %S :to-pos %S :limit-count %S :after-element %S"
                        (current-buffer)
                        count-predicate-calls-match
                        (+ count-predicate-calls-match
                           count-predicate-calls-fail)
                        (- (float-time) time)
+                       pre-process-time
                        predicate-time
                        (if (zerop (+ count-predicate-calls-match
                                      count-predicate-calls-fail))
@@ -7551,8 +7559,9 @@ element ending there."
                     (condition-case err
                         (org-element--parse-to pom)
                       (error
-                       (org-element--cache-warn "Cache corruption detected in %s. Resetting.\n The error was: %S\n Backtrace:\n%S\n Please report this to Org mode mailing list (M-x org-submit-bug-report)."
+                       (org-element--cache-warn "Cache corruption detected in %s::%S. Resetting.\n The error was: %S\n Backtrace:\n%S\n Please report this to Org mode mailing list (M-x org-submit-bug-report)."
                                      (buffer-name (current-buffer))
+                                     pom
                                      err
                                      (when (and (fboundp 'backtrace-get-frames)
                                                 (fboundp 'backtrace-to-string))
