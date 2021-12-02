@@ -4191,7 +4191,7 @@ element it has to parse."
             ;; Node Property.
             ((eq mode 'node-property) (org-element-node-property-parser limit))
             ;; Headline.
-            ((org-with-limited-levels (org-at-heading-p))
+            ((org-with-limited-levels (looking-at-p org-outline-regexp-bol))
              (org-element-headline-parser limit raw-secondary-p))
             ;; Sections (must be checked after headline).
             ((eq mode 'section) (org-element-section-parser limit))
@@ -5880,7 +5880,7 @@ updated before current modification are actually submitted."
                                     ;; Note: 4 is a footprint for
                                     ;; (let ((inhibit-modification-hooks t))
                                     ;; (insert "blah"))
-                                    '(1 3 6 7))))
+                                    '(1 3 6 7 8))))
                       (and (boundp 'org-batch-test) org-batch-test))
               (org-element--cache-warn "Unregistered buffer modifications detected. Resetting.
 If this warning appears regularly, please report it to Org mode mailing list (M-x org-submit-bug-report).
@@ -6583,6 +6583,19 @@ that range.  See `after-change-functions' for more information."
         ;; Activate a timer to process the request during idle time.
         (org-element--cache-set-timer (current-buffer))))))
 
+(defvar org-element--cache-avoid-synchronous-headline-re-parsing nil
+  "This variable controls how buffer changes are handled by the cache.
+
+By default (when this variable is nil), cache re-parses modified
+headlines immidiately after modification preserving all the unaffected
+elements inside the headline.
+
+The default behaviour works best when users types inside Org buffer of
+when buffer modifications are mixed with cache requests.  However,
+large automated edits inserting/deleting many headlines are somewhat
+slower by default (as in `org-archive-subtree').  Let-binding this
+variable to non-nil will reduce cache latency after every singular edit
+(`after-change-functions') at the cost of slower cache queries.")
 (defun org-element--cache-for-removal (beg end offset)
   "Return first element to remove from cache.
 
@@ -6674,6 +6687,7 @@ known element in cache (it may start after END)."
                      ;; its boundaries could have extended to shrinked - we
                      ;; will re-parent and shift them anyway.
                      (and (eq 'headline (org-element-type up))
+                          (not org-element--cache-avoid-synchronous-headline-re-parsing)
                           ;; The change is not inside headline.  Not
                           ;; updating here.
                           (not (<= beg (org-element-property :begin up)))
@@ -6688,8 +6702,11 @@ known element in cache (it may start after END)."
                               t)))
                      ;; If UP is org-data, the situation is similar to
                      ;; headline case.  We just need to re-parse the
-                     ;; org-data itself.
-                     (when (eq 'org-data (org-element-type up))
+                     ;; org-data itself, unless the change is made
+                     ;; within blank lines at BOB (that could
+                     ;; potentially alter first-section).
+                     (when (and (eq 'org-data (org-element-type up))
+                                (>= beg (org-element-property :contents-begin up)))
                        (org-element-set-element up (org-with-point-at 1 (org-element-org-data-parser)))
                        (org-element--cache-log-message "Found non-robust change invalidating org-data. Re-parsing: %S"
                                             (org-element--format-element up))
