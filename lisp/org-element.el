@@ -5880,7 +5880,7 @@ updated before current modification are actually submitted."
                                     ;; Note: 4 is a footprint for
                                     ;; (let ((inhibit-modification-hooks t))
                                     ;; (insert "blah"))
-                                    '(1 3 6 7 8))))
+                                    '(1 3 6 7 8 9))))
                       (and (boundp 'org-batch-test) org-batch-test))
               (org-element--cache-warn "Unregistered buffer modifications detected. Resetting.
 If this warning appears regularly, please report it to Org mode mailing list (M-x org-submit-bug-report).
@@ -6420,14 +6420,18 @@ If you observe Emacs hangs frequently, please report this to Org mode mailing li
                        ;; may exist though.  Parse starting from the
                        ;; last sibling or from ELEM-END if there are
                        ;; no other siblings.
-                       (goto-char pos)
-                       (re-search-backward
-                        (rx-to-string
-                         `(and bol (repeat ,(let ((level (org-element-property :level element)))
-                                              (if org-odd-levels-only (1- (* level 2)) level))
-                                           "*")
-                               " "))
-                        elem-end t))))
+                       (let ((p (point)))
+                         (goto-char pos)
+                         (unless
+                             (re-search-backward
+                              (rx-to-string
+                               `(and bol (repeat ,(let ((level (org-element-property :level element)))
+                                                    (if org-odd-levels-only (1- (* level 2)) level))
+                                                 "*")
+                                     " "))
+                              elem-end t)
+                           ;; Roll-back to normal parsing.
+                           (goto-char p))))))
 	         (setq mode (org-element--next-mode mode type nil)))
 	        ;; A non-greater element contains point: return it.
 	        ((not (memq type org-element-greater-elements))
@@ -7576,7 +7580,7 @@ element ending there."
                     (condition-case err
                         (org-element--parse-to pom)
                       (error
-                       (org-element--cache-warn "Cache corruption detected in %s::%S. Resetting.\n The error was: %S\n Backtrace:\n%S\n Please report this to Org mode mailing list (M-x org-submit-bug-report)."
+                       (org-element--cache-warn "Org parser error in %s::%S. Resetting.\n The error was: %S\n Backtrace:\n%S\n Please report this to Org mode mailing list (M-x org-submit-bug-report)."
                                      (buffer-name (current-buffer))
                                      pom
                                      err
