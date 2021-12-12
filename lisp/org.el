@@ -698,7 +698,7 @@ defined in org-duration.el.")
 If a description starts with <C>, the file is not part of Emacs and Org mode,
 so loading it will require that you have properly installed org-contrib
 package from NonGNU Emacs Lisp Package Archive
-http://elpa.nongnu.org/nongnu/org-contrib.html
+https://elpa.nongnu.org/nongnu/org-contrib.html
 
 You can also use this system to load external packages (i.e. neither Org
 core modules, nor org-contrib modules).  Just add symbols
@@ -778,7 +778,7 @@ For export specific modules, see also `org-export-backends'."
 If a description starts with <C>, the file is not part of Emacs and Org mode,
 so loading it will require that you have properly installed org-contrib
 package from NonGNU Emacs Lisp Package Archive
-http://elpa.nongnu.org/nongnu/org-contrib.html
+https://elpa.nongnu.org/nongnu/org-contrib.html
 
 Unlike to `org-modules', libraries in this list will not be
 loaded along with Org, but only once the export framework is
@@ -12965,9 +12965,10 @@ variables is set."
     ;; Maybe update the effort value:
     (unless (equal current value)
       (org-entry-put nil org-effort-property value))
-    (org-refresh-property '((effort . identity)
-			    (effort-minutes . org-duration-to-minutes))
-			  value)
+    (unless (org-element--cache-active-p)
+      (org-refresh-property '((effort . identity)
+			   (effort-minutes . org-duration-to-minutes))
+		         value))
     (when (equal (org-get-heading t t t t)
 		 (bound-and-true-p org-clock-current-task))
       (setq org-clock-effort value)
@@ -13915,10 +13916,11 @@ completion."
     (beginning-of-line 1)
     (skip-chars-forward " \t")
     (when (equal prop org-effort-property)
-      (org-refresh-property
-       '((effort . identity)
-	 (effort-minutes . org-duration-to-minutes))
-       nval)
+      (unless (org-element--cache-active-p)
+        (org-refresh-property
+         '((effort . identity)
+	   (effort-minutes . org-duration-to-minutes))
+         nval))
       (when (string= org-clock-current-task heading)
 	(setq org-clock-effort nval)
 	(org-clock-update-mode-line)))
@@ -15907,7 +15909,7 @@ When a buffer is unmodified, it is just killed.  When modified, it is saved
 	    (or (memq 'stats org-agenda-ignore-properties)
 		(org-refresh-stats-properties))
 	    (or (memq 'effort org-agenda-ignore-properties)
-                (unless (org-element--cache-active-p)
+                (unless org-element-use-cache
 		  (org-refresh-effort-properties)))
 	    (or (memq 'appt org-agenda-ignore-properties)
 		(org-refresh-properties "APPT_WARNTIME" 'org-appt-warntime))
