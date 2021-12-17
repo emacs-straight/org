@@ -5932,6 +5932,7 @@ The buffer is: %s\n Current command: %S\n Chars modified: %S\n Buffer modified: 
 	  ;; Otherwise, reset keys.
 	  (if org-element--cache-sync-requests
 	      (org-element--cache-set-timer buffer)
+            (setq org-element--cache-change-warning nil)
             (setq org-element--cache-sync-keys-value (1+ org-element--cache-sync-keys-value))))))))
 
 (defun org-element--cache-process-request
@@ -6246,7 +6247,7 @@ completing the request."
 		;; Cache is up-to-date past THRESHOLD.  Request
 		;; interruption.
 		(when (and threshold (> begin threshold))
-                  (org-element--cache-log-message "Reached threshold %d: %S"
+                  (org-element--cache-log-message "Reached threshold %S: %S"
                                                   threshold
                                                   (org-element--format-element data))
                   (setq exit-flag t))))
@@ -6491,10 +6492,9 @@ If you observe Emacs hangs frequently, please report this to Org mode mailing li
    "^\\*+ " "\\|"
    "\\\\end{[A-Za-z0-9*]+}[ \t]*$" "\\|"
    "^[ \t]*\\(?:"
-   "#\\+\\(?:BEGIN[:_]\\|END\\(?:_\\|:?[ \t]*$\\)\\)" "\\|"
+   "#\\+END\\(?:_\\|:?[ \t]*$\\)" "\\|"
    org-list-full-item-re "\\|"
    ":\\(?: \\|$\\)" "\\|"
-   "\\\\begin{[A-Za-z0-9*]+}" "\\|"
    ":\\(?:\\w\\|[-_]\\)+:[ \t]*$"
    "\\)")
   "Regexp matching a sensitive line, structure wise.
@@ -6522,8 +6522,29 @@ The function returns the new value of `org-element--cache-change-warning'."
        (setq org-element--cache-change-tic (buffer-chars-modified-tick))
        (goto-char beg)
        (beginning-of-line)
-       (let ((bottom (save-excursion (goto-char end) (line-end-position))))
+       (let ((bottom (save-excursion
+                       (goto-char end)
+                       (if (bolp)
+                           ;; FIXME: Potential pitfall.
+                           ;; We are appending to an element end.
+                           ;; Unless the last inserted char is not
+                           ;; newline, the next element is not broken
+                           ;; and does not need to be purged from the
+                           ;; cache.
+                           end
+                         (line-end-position)))))
          (prog1
+             ;; Use the worst change warning to not miss important edits.
+             ;; This function is called before edit and after edit by
+             ;; `org-element--cache-after-change'.  Before the edit, we still
+             ;; want to use the old value if it comes from previous
+             ;; not yet processed edit (they may be merged by
+             ;; `org-element--cache-submit-request').  After the edit, we want to
+             ;; look if there was a sensitive removed during edit.
+             ;; FIXME: This is not the most efficient way and we now
+             ;; have to delete more elemetns than needed in some
+             ;; cases.  A better approach may be storing the warning
+             ;; in the modification request itself.
              (let ((org-element--cache-change-warning-before org-element--cache-change-warning)
                    (org-element--cache-change-warning-after))
                (setq org-element--cache-change-warning-after
@@ -6576,6 +6597,15 @@ that range.  See `after-change-functions' for more information."
       (when (not (eq org-element--cache-change-tic (buffer-chars-modified-tick)))
         (org-element--cache-log-message "After change")
         (setq org-element--cache-change-warning (org-element--cache-before-change beg end))
+        ;; If beg is right after spaces in front of an element, we
+        ;; risk affecting previous element, so move beg to bol, making
+        ;; sure that we capture preceding element.
+        (setq beg (save-excursion
+                    (goto-char beg)
+                    (skip-chars-backward " \t")
+                    (if (not (bolp)) beg
+                      (cl-incf pre (- beg (point)))
+                      (point))))
         ;; Store synchronization request.
         (let ((offset (- end beg pre)))
           (save-match-data
@@ -6622,7 +6652,10 @@ known element in cache (it may start after END)."
 	(while up
 	  (if (let ((type (org-element-type up)))
                 (or (and (memq type '( center-block dynamic-block
-                                       quote-block special-block))
+                                       quote-block special-block
+                                       drawer))
+                         (or (not (eq type 'drawer))
+                             (not (string= "PROPERTIES" (org-element-property :drawer-name up))))
                          ;; Sensitive change.  This is
                          ;; unconditionally non-robust change.
                          (not org-element--cache-change-warning)
@@ -6674,9 +6707,11 @@ known element in cache (it may start after END)."
                                             (goto-char (point-min))
                                             (while (and (org-at-comment-p) (bolp)) (forward-line))
                                             ;; Should not see property
-                                            ;; drawer inside robust
+                                            ;; drawer within changed
                                             ;; region.
-                                            (not (looking-at org-property-drawer-re)))))
+                                            (save-match-data
+                                              (or (not (looking-at org-property-drawer-re))
+                                                  (> beg (match-end 0)))))))
                            (_ 'robust)))))
 	      ;; UP is a robust greater element containing changes.
 	      ;; We only need to extend its ending boundaries.
@@ -6702,7 +6737,7 @@ known element in cache (it may start after END)."
                           ;; The change is not inside headline.  Not
                           ;; updating here.
                           (not (<= beg (org-element-property :begin up)))
-                          (not (>= end (org-element-property :end up)))
+                          (not (> end (org-element-property :end up)))
                           (let ((current (org-with-point-at (org-element-property :begin up)
                                            (org-element-with-disabled-cache
                                                (org-element--current-element (point-max))))))
@@ -7472,7 +7507,7 @@ the cache."
                                          (eq cache-size (cache-size)))
                               ;; START may no longer be valid, update
                               ;; it to beginning of real element.
-                              (goto-char start)
+                              (when start (goto-char start))
                               ;; Upon modification, START may lay
                               ;; inside an element.  We want to move
                               ;; it to real beginning then despite
