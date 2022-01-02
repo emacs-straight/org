@@ -1,7 +1,7 @@
 ;;; org.el --- Outline-based notes management and organizer -*- lexical-binding: t; -*-
 
 ;; Carstens outline-mode for keeping track of everything.
-;; Copyright (C) 2004-2021 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2022 Free Software Foundation, Inc.
 ;;
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Maintainer: Bastien Guerry <bzg@gnu.org>
@@ -11641,6 +11641,7 @@ headlines matching this string."
 	             (goto-char (1- (org-element-property :end el))))))
                ;; Get the correct position from where to continue
 	       (when org-map-continue-from
+                 (setq org-element-cache-map-continue-from org-map-continue-from)
 	         (goto-char org-map-continue-from))
                ;; Return nil.
                nil)
