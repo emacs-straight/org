@@ -35,11 +35,17 @@
 (require 'format-spec)
 
 (declare-function org-mode "org" ())
-(declare-function org-show-context "org" (&optional key))
+(declare-function org-agenda-files "org" (&optional unrestricted archives))
+(declare-function org-fold-show-context "org-fold" (&optional key))
+(declare-function org-fold-save-outline-visibility "org-fold" (use-markers &rest body))
+(declare-function org-fold-next-visibility-change "org-fold" (&optional pos limit ignore-hidden-p previous-p))
+(declare-function org-fold-core-with-forced-fontification "org-fold" (&rest body))
+(declare-function org-fold-folded-p "org-fold" (&optional pos limit ignore-hidden-p previous-p))
 (declare-function string-collate-lessp "org-compat" (s1 s2 &optional locale ignore-case))
 
 (defvar org-ts-regexp0)
 (defvar ffap-url-regexp)
+(defvar org-fold-core-style)
 
 
 ;;; Macros
@@ -117,38 +123,7 @@
   (declare (debug (body)))
   `(let ((inhibit-read-only t)) ,@body))
 
-(defmacro org-save-outline-visibility (use-markers &rest body)
-  "Save and restore outline visibility around BODY.
-If USE-MARKERS is non-nil, use markers for the positions.  This
-means that the buffer may change while running BODY, but it also
-means that the buffer should stay alive during the operation,
-because otherwise all these markers will point to nowhere."
-  (declare (debug (form body)) (indent 1))
-  (org-with-gensyms (data invisible-types markers?)
-    `(let* ((,invisible-types '(org-hide-block outline))
-	    (,markers? ,use-markers)
-	    (,data
-	     (mapcar (lambda (o)
-		       (let ((beg (overlay-start o))
-			     (end (overlay-end o))
-			     (type (overlay-get o 'invisible)))
-			 (and beg end
-			      (> end beg)
-			      (memq type ,invisible-types)
-			      (list (if ,markers? (copy-marker beg) beg)
-				    (if ,markers? (copy-marker end t) end)
-				    type))))
-		     (org-with-wide-buffer
-		      (overlays-in (point-min) (point-max))))))
-       (unwind-protect (progn ,@body)
-	 (org-with-wide-buffer
-	  (dolist (type ,invisible-types)
-	    (remove-overlays (point-min) (point-max) 'invisible type))
-	  (pcase-dolist (`(,beg ,end ,type) (delq nil ,data))
-	    (org-flag-region beg end t type)
-	    (when ,markers?
-	      (set-marker beg nil)
-	      (set-marker end nil))))))))
+(defalias 'org-save-outline-visibility #'org-fold-save-outline-visibility)
 
 (defmacro org-with-wide-buffer (&rest body)
   "Execute body while temporarily widening the buffer."
@@ -196,16 +171,8 @@ because otherwise all these markers will point to nowhere."
        (when local-variables
 	 (org-with-wide-buffer
 	  (goto-char (point-max))
-	  ;; If last section is folded, make sure to also hide file
-	  ;; local variables after inserting them back.
-	  (let ((overlay
-		 (cl-find-if (lambda (o)
-			       (eq 'outline (overlay-get o 'invisible)))
-			     (overlays-at (1- (point))))))
-	    (unless (bolp) (insert "\n"))
-	    (insert local-variables)
-	    (when overlay
-	      (move-overlay overlay (overlay-start overlay) (point-max)))))))))
+	  (unless (bolp) (insert "\n"))
+	  (insert local-variables))))))
 
 (defmacro org-no-popups (&rest body)
   "Suppress popup windows and evaluate BODY."
@@ -256,6 +223,44 @@ ignored in this case."
         ((fboundp 'shrink-window-if-larger-than-buffer)
          (shrink-window-if-larger-than-buffer window)))
   (or window (selected-window)))
+
+(defun org-buffer-list (&optional predicate exclude-tmp)
+  "Return a list of Org buffers.
+PREDICATE can be `export', `files' or `agenda'.
+
+export   restrict the list to Export buffers.
+files    restrict the list to buffers visiting Org files.
+agenda   restrict the list to buffers visiting agenda files.
+
+If EXCLUDE-TMP is non-nil, ignore temporary buffers."
+  (let* ((bfn nil)
+	 (agenda-files (and (eq predicate 'agenda)
+			    (mapcar 'file-truename (org-agenda-files t))))
+	 (filter
+	  (cond
+	   ((eq predicate 'files)
+	    (lambda (b) (with-current-buffer b (derived-mode-p 'org-mode))))
+	   ((eq predicate 'export)
+	    (lambda (b) (string-match "\\*Org .*Export" (buffer-name b))))
+	   ((eq predicate 'agenda)
+	    (lambda (b)
+	      (with-current-buffer b
+		(and (derived-mode-p 'org-mode)
+		     (setq bfn (buffer-file-name b))
+		     (member (file-truename bfn) agenda-files)))))
+	   (t (lambda (b) (with-current-buffer b
+			    (or (derived-mode-p 'org-mode)
+				(string-match "\\*Org .*Export"
+					      (buffer-name b)))))))))
+    (delq nil
+	  (mapcar
+	   (lambda(b)
+	     (if (and (funcall filter b)
+		      (or (not exclude-tmp)
+			  (not (string-match "tmp" (buffer-name b)))))
+		 b
+	       nil))
+	   (buffer-list)))))
 
 
 
@@ -728,7 +733,7 @@ When NEXT is non-nil, check the next line instead."
 
 
 
-;;; Overlays
+;;; Overlays and text properties
 
 (defun org-overlay-display (ovl text &optional face evap)
   "Make overlay OVL display TEXT with face FACE."
@@ -751,20 +756,22 @@ If DELETE is non-nil, delete all those overlays."
 	    (delete (delete-overlay ov))
 	    (t (push ov found))))))
 
-(defun org-flag-region (from to flag spec)
-  "Hide or show lines from FROM to TO, according to FLAG.
-SPEC is the invisibility spec, as a symbol."
-  (remove-overlays from to 'invisible spec)
-  ;; Use `front-advance' since text right before to the beginning of
-  ;; the overlay belongs to the visible line than to the contents.
-  (when flag
-    (let ((o (make-overlay from to nil 'front-advance)))
-      (overlay-put o 'evaporate t)
-      (overlay-put o 'invisible spec)
-      (overlay-put o
-		   'isearch-open-invisible
-		   (lambda (&rest _) (org-show-context 'isearch))))))
-
+(defun org-find-text-property-region (pos prop)
+  "Find a region around POS containing same non-nil value of PROP text property.
+Return nil when PROP is not set at POS."
+  (let* ((beg (and (get-text-property pos prop) pos))
+	 (end beg))
+    (when beg
+      (unless (or (equal beg (point-min))
+		  (not (eq (get-text-property beg prop)
+			 (get-text-property (1- beg) prop))))
+	(setq beg (previous-single-property-change pos prop nil (point-min))))
+      (unless (or (equal end (point-max))
+		  ;; (not (eq (get-text-property end prop)
+		  ;; 	 (get-text-property (1+ end) prop)))
+		  )
+	(setq end (next-single-property-change pos prop nil (point-max))))
+      (cons beg end))))
 
 
 ;;; Regexp matching
@@ -896,14 +903,13 @@ delimiting S."
 	(cursor beg))
     (while (setq beg (text-property-not-all beg end property nil s))
       (let* ((next (next-single-property-change beg property s end))
-	     (props (text-properties-at beg s))
-	     (spec (plist-get props property))
+	     (spec (get-text-property beg property s))
 	     (value
 	      (pcase property
 		(`invisible
-		 ;; If `invisible' property in PROPS means text is to
-		 ;; be invisible, return 0.  Otherwise return nil so
-		 ;; as to resume search.
+		 ;; If `invisible' property means text is to be
+		 ;; invisible, return 0.  Otherwise return nil so as
+		 ;; to resume search.
 		 (and (or (eq t buffer-invisibility-spec)
 			  (assoc-string spec buffer-invisibility-spec))
 		      0))
@@ -944,7 +950,7 @@ delimiting S."
 	     ((= cursor end) 0)
 	     (t (string-width (substring s cursor end)))))))
 
-(defun org-string-width (string)
+(defun org--string-width-1 (string)
   "Return width of STRING when displayed in the current buffer.
 Unlike `string-width', this function takes into consideration
 `invisible' and `display' text properties.  It supports the
@@ -952,6 +958,81 @@ latter in a limited way, mostly for combinations used in Org.
 Results may be off sometimes if it cannot handle a given
 `display' value."
   (org--string-from-props string 'display 0 (length string)))
+
+(defun org-string-width (string &optional pixels)
+  "Return width of STRING when displayed in the current buffer.
+Return width in pixels when PIXELS is non-nil."
+  (if (and (version< emacs-version "28") (not pixels))
+      ;; FIXME: Fallback to old limited version, because
+      ;; `window-pixel-width' is buggy in older Emacs.
+      (org--string-width-1 string)
+    ;; Wrap/line prefix will make `window-text-pizel-size' return too
+    ;; large value including the prefix.
+    (remove-text-properties 0 (length string)
+                            '(wrap-prefix t line-prefix t)
+                            string)
+    ;; Face should be removed to make sure that all the string symbols
+    ;; are using default face with constant width.  Constant char width
+    ;; is critical to get right string width from pixel width (not needed
+    ;; when PIXELS are requested though).
+    (unless pixels
+      (remove-text-properties 0 (length string) '(face t) string))
+    (let (;; We need to remove the folds to make sure that folded table
+          ;; alignment is not messed up.
+          (current-invisibility-spec
+           (or (and (not (listp buffer-invisibility-spec))
+                    buffer-invisibility-spec)
+               (let (result)
+                 (dolist (el buffer-invisibility-spec)
+                   (unless (or (memq el
+                                     '(org-fold-drawer
+                                       org-fold-block
+                                       org-fold-outline))
+                               (and (listp el)
+                                    (memq (car el)
+                                          '(org-fold-drawer
+                                            org-fold-block
+                                            org-fold-outline))))
+                     (push el result)))
+                 result)))
+          (current-char-property-alias-alist char-property-alias-alist))
+      (with-temp-buffer
+        (setq-local display-line-numbers nil)
+        (setq-local buffer-invisibility-spec
+                    (if (listp current-invisibility-spec)
+                        (mapcar (lambda (el)
+                                  ;; Consider elipsis to have 0 width.
+                                  ;; It is what Emacs 28+ does, but we have
+                                  ;; to force it in earlier Emacs versions.
+                                  (if (and (consp el) (cdr el))
+                                      (list (car el))
+                                    el))
+                                current-invisibility-spec)
+                      current-invisibility-spec))
+        (setq-local char-property-alias-alist
+                    current-char-property-alias-alist)
+        (let (pixel-width symbol-width)
+          (with-silent-modifications
+            (setf (buffer-string) string)
+            (setq pixel-width
+                  (if (get-buffer-window (current-buffer))
+                      (car (window-text-pixel-size
+                            nil (line-beginning-position) (point-max)))
+                    (set-window-buffer nil (current-buffer))
+                    (car (window-text-pixel-size
+                          nil (line-beginning-position) (point-max)))))
+            (unless pixels
+              (setf (buffer-string) "a")
+              (setq symbol-width
+                    (if (get-buffer-window (current-buffer))
+                        (car (window-text-pixel-size
+                              nil (line-beginning-position) (point-max)))
+                      (set-window-buffer nil (current-buffer))
+                      (car (window-text-pixel-size
+                            nil (line-beginning-position) (point-max)))))))
+          (if pixels
+              pixel-width
+            (/ pixel-width symbol-width)))))))
 
 (defun org-not-nil (v)
   "If V not nil, and also not the string \"nil\", then return V.
@@ -1100,6 +1181,40 @@ so values can contain further %-escapes if they are define later in TABLE."
 				   org-emphasis t)
   "Properties to remove when a string without properties is wanted.")
 
+(defvar org-fold-core--force-fontification)
+(defmacro org-with-forced-fontification (&rest body)
+  "Run BODY forcing fontification of folded regions."
+  (declare (debug (form body)) (indent 1))
+  `(unwind-protect
+       (progn
+         (setq org-fold-core--force-fontification t)
+         ,@body)
+     (setq org-fold-core--force-fontification nil)))
+
+(defun org-buffer-substring-fontified (beg end)
+  "Return fontified region between BEG and END."
+  (when (bound-and-true-p jit-lock-mode)
+    (org-with-forced-fontification
+        (when (or (text-property-not-all beg end 'org-fold-core-fontified t)
+                  (text-property-not-all beg end 'fontified t))
+          (save-match-data (font-lock-fontify-region beg end)))))
+  (buffer-substring beg end))
+
+(defun org-looking-at-fontified (re)
+  "Call `looking-at' RE and make sure that the match is fontified."
+  (prog1 (looking-at re)
+    (when (bound-and-true-p jit-lock-mode)
+      (org-with-forced-fontification
+          (when (or (text-property-not-all
+                     (match-beginning 0) (match-end 0)
+                     'org-fold-core-fontified t)
+                    (text-property-not-all
+                     (match-beginning 0) (match-end 0)
+                     'fontified t))
+            (save-match-data
+              (font-lock-fontify-region (match-beginning 0)
+                                (match-end 0))))))))
+
 (defsubst org-no-properties (s &optional restricted)
   "Remove all text properties from string S.
 When RESTRICTED is non-nil, only remove the properties listed
@@ -1140,7 +1255,18 @@ the value in cadr."
       (get-text-property (or (next-single-property-change 0 prop s) 0)
 			 prop s)))
 
-(defun org-invisible-p (&optional pos folding-only)
+;; FIXME: move to org-fold?
+(defun org-invisible-p--text-properties (&optional pos folding-only)
+  "Non-nil if the character after POS is invisible.
+If POS is nil, use `point' instead.  When optional argument
+FOLDING-ONLY is non-nil, only consider invisible parts due to
+folding of a headline, a block or a drawer, i.e., not because of
+fontification."
+  (let ((value (invisible-p (or pos (point)))))
+    (cond ((not value) nil)
+	  (folding-only (org-fold-folded-p (or pos (point))))
+	  (t value))))
+(defun org-invisible-p--overlays (&optional pos folding-only)
   "Non-nil if the character after POS is invisible.
 If POS is nil, use `point' instead.  When optional argument
 FOLDING-ONLY is non-nil, only consider invisible parts due to
@@ -1149,7 +1275,16 @@ fontification."
   (let ((value (get-char-property (or pos (point)) 'invisible)))
     (cond ((not value) nil)
 	  (folding-only (memq value '(org-hide-block outline)))
-	  (t value))))
+	  (t (and (invisible-p (or pos (point))) value)))))
+(defsubst org-invisible-p (&optional pos folding-only)
+  "Non-nil if the character after POS is invisible.
+If POS is nil, use `point' instead.  When optional argument
+FOLDING-ONLY is non-nil, only consider invisible parts due to
+folding of a headline, a block or a drawer, i.e., not because of
+fontification."
+  (if (eq org-fold-core-style 'text-properties)
+      (org-invisible-p--text-properties pos folding-only)
+    (org-invisible-p--overlays pos folding-only)))
 
 (defun org-truly-invisible-p ()
   "Check if point is at a character currently not visible.
@@ -1167,17 +1302,43 @@ move it back by one char before doing this check."
       (backward-char 1))
     (org-invisible-p)))
 
-(defun org-find-visible ()
+(defun org-region-invisible-p (beg end)
+  "Check if region if completely hidden."
+  (org-with-wide-buffer
+   (and (org-invisible-p beg)
+        (org-invisible-p (org-fold-next-visibility-change beg end)))))
+
+(defun org-find-visible--overlays ()
   "Return closest visible buffer position, or `point-max'."
   (if (org-invisible-p)
       (next-single-char-property-change (point) 'invisible)
     (point)))
+(defun org-find-visible--text-properties ()
+  "Return closest visible buffer position, or `point-max'."
+  (if (org-invisible-p)
+      (org-fold-next-visibility-change (point))
+    (point)))
+(defsubst org-find-visible ()
+  "Return closest visible buffer position, or `point-max'."
+  (if (eq org-fold-core-style 'text-properties)
+      (org-find-visible--text-properties)
+    (org-find-visible--overlays)))
 
-(defun org-find-invisible ()
+(defun org-find-invisible--overlays ()
   "Return closest invisible buffer position, or `point-max'."
   (if (org-invisible-p)
       (point)
     (next-single-char-property-change (point) 'invisible)))
+(defun org-find-invisible--text-properties ()
+  "Return closest invisible buffer position, or `point-max'."
+  (if (org-invisible-p)
+      (point)
+    (org-fold-next-visibility-change (point))))
+(defsubst org-find-invisible ()
+  "Return closest invisible buffer position, or `point-max'."
+  (if (eq org-fold-core-style 'text-properties)
+      (org-find-invisible--text-properties)
+    (org-find-invisible--overlays)))
 
 
 ;;; Time

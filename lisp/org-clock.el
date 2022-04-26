@@ -1035,7 +1035,7 @@ CLOCK is a cons cell of the form (MARKER START-TIME)."
 	       (let ((element (org-element-at-point)))
 		 (when (eq (org-element-type element) 'drawer)
 		   (when (> (org-element-property :end element) (car clock))
-		     (org-hide-drawer-toggle 'off nil element))
+		     (org-fold-hide-drawer-toggle 'off nil element))
 		   (throw 'exit nil)))))))))))
 
 (defun org-clock-resolve (clock &optional prompt-fn last-valid fail-quietly)
@@ -1373,14 +1373,14 @@ the default behavior."
 	   (sit-for 2)
 	   (throw 'abort nil))
 	  (t
-	   (insert-before-markers "\n")
+	   (insert-before-markers-and-inherit "\n")
 	   (backward-char 1)
 	   (when (and (save-excursion
 			(end-of-line 0)
 			(org-in-item-p)))
 	     (beginning-of-line 1)
 	     (indent-line-to (max 0 (- (current-indentation) 2))))
-	   (insert org-clock-string " ")
+	   (insert-and-inherit org-clock-string " ")
 	   (setq org-clock-effort (org-entry-get (point) org-effort-property))
 	   (setq org-clock-total-time (org-clock-sum-current-item
 				       (org-clock-get-sum-start)))
@@ -1581,19 +1581,23 @@ line and position cursor in that line."
 		      count (1+ count))))))
 	(cond
 	 ((null positions)
-	  ;; Skip planning line and property drawer, if any.
-	  (org-end-of-meta-data)
-	  (unless (bolp) (insert "\n"))
-	  ;; Create a new drawer if necessary.
-	  (when (and org-clock-into-drawer
-		     (or (not (wholenump org-clock-into-drawer))
-			 (< org-clock-into-drawer 2)))
-	    (let ((beg (point)))
-	      (insert ":" drawer ":\n:END:\n")
-	      (org-indent-region beg (point))
-	      (org-flag-region
-	       (line-end-position -1) (1- (point)) t 'outline)
-	      (forward-line -1))))
+          (org-fold-core-ignore-modifications
+	      ;; Skip planning line and property drawer, if any.
+	      (org-end-of-meta-data)
+	    (unless (bolp) (insert-and-inherit "\n"))
+	    ;; Create a new drawer if necessary.
+	    (when (and org-clock-into-drawer
+		       (or (not (wholenump org-clock-into-drawer))
+			   (< org-clock-into-drawer 2)))
+	      (let ((beg (point)))
+	        (insert-and-inherit ":" drawer ":\n:END:\n")
+	        (org-indent-region beg (point))
+                (if (eq org-fold-core-style 'text-properties)
+	            (org-fold-region
+	             (line-end-position -1) (1- (point)) t 'drawer)
+                  (org-fold-region
+	           (line-end-position -1) (1- (point)) t 'outline))
+	        (forward-line -1)))))
 	 ;; When a clock drawer needs to be created because of the
 	 ;; number of clock items or simply if it is missing, collect
 	 ;; all clocks in the section and wrap them within the drawer.
@@ -1602,28 +1606,29 @@ line and position cursor in that line."
 	    drawer)
 	  ;; Skip planning line and property drawer, if any.
 	  (org-end-of-meta-data)
-	  (let ((beg (point)))
-	    (insert
-	     (mapconcat
-	      (lambda (p)
-		(save-excursion
-		  (goto-char p)
-		  (org-trim (delete-and-extract-region
-			     (save-excursion (skip-chars-backward " \r\t\n")
-					     (line-beginning-position 2))
-			     (line-beginning-position 2)))))
-	      positions "\n")
-	     "\n:END:\n")
-	    (let ((end (point-marker)))
-	      (goto-char beg)
-	      (save-excursion (insert ":" drawer ":\n"))
-	      (org-flag-region (line-end-position) (1- end) t 'outline)
-	      (org-indent-region (point) end)
-	      (forward-line)
-	      (unless org-log-states-order-reversed
-		(goto-char end)
-		(beginning-of-line -1))
-	      (set-marker end nil))))
+          (org-fold-core-ignore-modifications
+	      (let ((beg (point)))
+	        (insert-and-inherit
+	         (mapconcat
+	          (lambda (p)
+		    (save-excursion
+		      (goto-char p)
+		      (org-trim (delete-and-extract-region
+			         (save-excursion (skip-chars-backward " \r\t\n")
+					         (line-beginning-position 2))
+			         (line-beginning-position 2)))))
+	          positions "\n")
+	         "\n:END:\n")
+	        (let ((end (point-marker)))
+	          (goto-char beg)
+	          (save-excursion (insert-and-inherit ":" drawer ":\n"))
+	          (org-fold-region (line-end-position) (1- end) t 'outline)
+	          (org-indent-region (point) end)
+	          (forward-line)
+	          (unless org-log-states-order-reversed
+		    (goto-char end)
+		    (beginning-of-line -1))
+	          (set-marker end nil)))))
 	 (org-log-states-order-reversed (goto-char (car (last positions))))
 	 (t (goto-char (car positions))))))))
 
@@ -1672,24 +1677,25 @@ to, overriding the existing value of `org-clock-out-switch-to-state'."
 	    (if fail-quietly (throw 'exit nil) (error "Clock start time is gone")))
 	  (goto-char (match-end 0))
 	  (delete-region (point) (point-at-eol))
-	  (insert "--")
-	  (setq te (org-insert-time-stamp (or at-time now) 'with-hm 'inactive))
-	  (setq s (org-time-convert-to-integer
-		   (time-subtract
-		    (org-time-string-to-time te)
-		    (org-time-string-to-time ts)))
-		h (floor s 3600)
-		m (floor (mod s 3600) 60))
-	  (insert " => " (format "%2d:%02d" h m))
-	  (move-marker org-clock-marker nil)
-	  (move-marker org-clock-hd-marker nil)
-	  ;; Possibly remove zero time clocks.
-          (when (and org-clock-out-remove-zero-time-clocks
-		     (= 0 h m))
-            (setq remove t)
-	    (delete-region (line-beginning-position)
-			   (line-beginning-position 2)))
-          (org-clock-remove-empty-clock-drawer)
+          (org-fold-core-ignore-modifications
+              (insert-and-inherit "--")
+            (setq te (org-insert-time-stamp (or at-time now) 'with-hm 'inactive))
+            (setq s (org-time-convert-to-integer
+	             (time-subtract
+	              (org-time-string-to-time te)
+	              (org-time-string-to-time ts)))
+	          h (floor s 3600)
+	          m (floor (mod s 3600) 60))
+            (insert-and-inherit " => " (format "%2d:%02d" h m))
+            (move-marker org-clock-marker nil)
+            (move-marker org-clock-hd-marker nil)
+            ;; Possibly remove zero time clocks.
+            (when (and org-clock-out-remove-zero-time-clocks
+	               (= 0 h m))
+              (setq remove t)
+              (delete-region (line-beginning-position)
+		             (line-beginning-position 2)))
+            (org-clock-remove-empty-clock-drawer))
 	  (when org-clock-mode-line-timer
 	    (cancel-timer org-clock-mode-line-timer)
 	    (setq org-clock-mode-line-timer nil))
@@ -1843,10 +1849,10 @@ With prefix arg SELECT, offer recently clocked tasks for selection."
     (pop-to-buffer-same-window (marker-buffer m))
     (if (or (< m (point-min)) (> m (point-max))) (widen))
     (goto-char m)
-    (org-show-entry)
+    (org-fold-show-entry)
     (org-back-to-heading t)
     (recenter org-clock-goto-before-context)
-    (org-reveal)
+    (org-fold-reveal)
     (if recent
 	(message "No running clock, this is the most recently clocked task"))
     (run-hooks 'org-clock-goto-hook)))
@@ -2140,7 +2146,7 @@ in the buffer and update it."
   (org-clock-remove-overlays)
   (when arg
     (org-find-dblock "clocktable")
-    (org-show-entry))
+    (org-fold-show-entry))
   (pcase (org-in-clocktable-p)
     (`nil
      (org-create-dblock
@@ -3125,7 +3131,7 @@ The details of what will be saved are regulated by the variable
 	     (let ((org-clock-in-resume 'auto-restart)
 		   (org-clock-auto-clock-resolution nil))
 	       (org-clock-in)
-	       (when (org-invisible-p) (org-show-context))))))
+	       (when (org-invisible-p) (org-fold-show-context))))))
 	(_ nil)))))
 
 (defun org-clock-kill-emacs-query ()

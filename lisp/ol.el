@@ -29,6 +29,7 @@
 
 (require 'org-compat)
 (require 'org-macs)
+(require 'org-fold)
 
 (defvar clean-buffer-list-kill-buffer-names)
 (defvar org-agenda-buffer-name)
@@ -66,10 +67,10 @@
 (declare-function org-mode "org" ())
 (declare-function org-occur "org" (regexp &optional keep-previous callback))
 (declare-function org-open-file "org" (path &optional in-emacs line search))
-(declare-function org-overview "org" ())
+(declare-function org-cycle-overview "org-cycle" ())
 (declare-function org-restart-font-lock "org" ())
 (declare-function org-run-like-in-org-mode "org" (cmd))
-(declare-function org-show-context "org" (&optional key))
+(declare-function org-fold-show-context "org-fold" (&optional key))
 (declare-function org-src-coderef-format "org-src" (&optional element))
 (declare-function org-src-coderef-regexp "org-src" (fmt &optional label))
 (declare-function org-src-edit-buffer-p "org-src" (&optional buffer))
@@ -604,6 +605,22 @@ exact and fuzzy text search.")
 (defvar org-link--search-failed nil
   "Non-nil when last link search failed.")
 
+
+(defvar-local org-link--link-folding-spec '(org-link
+                                            (:global t)
+                                            (:ellipsis . nil)
+                                            (:isearch-open . t)
+                                            (:fragile . org-link--reveal-maybe))
+  "Folding spec used to hide invisible parts of links.")
+
+(defvar-local org-link--description-folding-spec '(org-link-description
+                                                   (:global t)
+                                                   (:ellipsis . nil)
+                                                   (:visible . t)
+                                                   (:isearch-open . nil)
+                                                   (:fragile . org-link--reveal-maybe))
+  "Folding spec used to reveal link description.")
+
 
 ;;; Internal Functions
 
@@ -700,7 +717,7 @@ followed by another \"%[A-F0-9]{2}\" group."
 		(make-indirect-buffer (current-buffer)
 				      indirect-buffer-name
 				      'clone))))
-      (with-current-buffer indirect-buffer (org-overview))
+      (with-current-buffer indirect-buffer (org-cycle-overview))
       indirect-buffer))))
 
 (defun org-link--search-radio-target (target)
@@ -718,7 +735,7 @@ White spaces are not significant."
 	(let ((object (org-element-context)))
 	  (when (eq (org-element-type object) 'radio-target)
 	    (goto-char (org-element-property :begin object))
-	    (org-show-context 'link-search)
+	    (org-fold-show-context 'link-search)
 	    (throw :radio-match nil))))
       (goto-char origin)
       (user-error "No match for radio target: %s" target))))
@@ -760,6 +777,13 @@ syntax around the string."
 		    (setq string (substring string (match-end 0))))
 		   (t nil))))
     string))
+
+(defun org-link--reveal-maybe (region _)
+  "Reveal folded link in REGION when needed.
+This function is intended to be used as :fragile property of a folding
+spec."
+  (org-with-point-at (car region)
+    (not (org-in-regexp org-link-any-re))))
 
 
 ;;; Public API
@@ -975,7 +999,9 @@ LINK is escaped with backslashes for inclusion in buffer."
 		(replace-regexp-in-string "]\\'"
 					  (concat "\\&" zero-width-space)
 					  (org-trim description))))))
-    (if (not (org-string-nw-p link)) description
+    (if (not (org-string-nw-p link))
+        (or description
+            (error "Empty link"))
       (format "[[%s]%s]"
 	      (org-link-escape link)
 	      (if description (format "[%s]" description) "")))))
@@ -1257,7 +1283,7 @@ of matched result, which is either `dedicated' or `fuzzy'."
 	(error "No match for fuzzy expression: %s" normalized)))
     ;; Disclose surroundings of match, if appropriate.
     (when (and (derived-mode-p 'org-mode) (not stealth))
-      (org-show-context 'link-search))
+      (org-fold-show-context 'link-search))
     type))
 
 (defun org-link-heading-search-string (&optional string)
@@ -1430,7 +1456,7 @@ is non-nil, move backward."
 	    (`nil nil)
 	    (link
 	     (goto-char (org-element-property :begin link))
-	     (when (org-invisible-p) (org-show-context))
+	     (when (org-invisible-p) (org-fold-show-context))
 	     (throw :found t)))))
       (goto-char pos)
       (setq org-link--search-failed t)
@@ -1443,14 +1469,31 @@ If the link is in hidden text, expose it."
   (interactive)
   (org-next-link t))
 
+(defun org-link-descriptive-ensure ()
+  "Toggle the literal or descriptive display of links in current buffer if needed."
+  (if org-link-descriptive
+      (org-fold-core-set-folding-spec-property (car org-link--link-folding-spec) :visible nil)
+    (org-fold-core-set-folding-spec-property (car org-link--link-folding-spec) :visible t)))
+
 ;;;###autoload
-(defun org-toggle-link-display ()
+(defun org-toggle-link-display--overlays ()
   "Toggle the literal or descriptive display of links."
   (interactive)
   (if org-link-descriptive (remove-from-invisibility-spec '(org-link))
     (add-to-invisibility-spec '(org-link)))
   (org-restart-font-lock)
   (setq org-link-descriptive (not org-link-descriptive)))
+(defun org-toggle-link-display--text-properties ()
+  "Toggle the literal or descriptive display of links in current buffer."
+  (interactive)
+  (setq org-link-descriptive (not org-link-descriptive))
+  (org-link-descriptive-ensure))
+(defsubst org-toggle-link-display ()
+  "Toggle the literal or descriptive display of links."
+  (interactive)
+  (if (eq org-fold-core-style 'text-properties)
+      (org-toggle-link-display--text-properties)
+    (org-toggle-link-display--overlays)))
 
 ;;;###autoload
 (defun org-store-link (arg &optional interactive?)

@@ -79,6 +79,7 @@
 (require 'cl-lib)
 (require 'org-macs)
 (require 'org-compat)
+(require 'org-fold-core)
 
 (defvar org-M-RET-may-split-line)
 (defvar org-adapt-indentation)
@@ -138,7 +139,8 @@
 (declare-function org-previous-line-empty-p "org" ())
 (declare-function org-reduced-level "org" (L))
 (declare-function org-set-tags "org" (tags))
-(declare-function org-show-subtree "org" ())
+(declare-function org-fold-show-subtree "org-fold" ())
+(declare-function org-fold-region "org-fold" (from to flag &optional spec))
 (declare-function org-sort-remove-invisible "org" (S))
 (declare-function org-time-string-to-seconds "org" (s))
 (declare-function org-timer-hms-to-secs "org-timer" (hms))
@@ -1077,7 +1079,65 @@ It determines the number of whitespaces to append by looking at
 	  (replace-match spaces nil nil bullet 1)
 	bullet))))
 
-(defun org-list-swap-items (beg-A beg-B struct)
+(defun org-list-swap-items--text-properties (beg-A beg-B struct)
+  "Swap item starting at BEG-A with item starting at BEG-B in STRUCT.
+
+Blank lines at the end of items are left in place.  Item
+visibility is preserved.  Return the new structure after the
+changes.
+
+Assume BEG-A is lesser than BEG-B and that BEG-A and BEG-B belong
+to the same sub-list.
+
+This function modifies STRUCT."
+  (save-excursion
+    (org-fold-core-ignore-modifications
+        (let* ((end-A-no-blank (org-list-get-item-end-before-blank beg-A struct))
+	       (end-B-no-blank (org-list-get-item-end-before-blank beg-B struct))
+	       (end-A (org-list-get-item-end beg-A struct))
+	       (end-B (org-list-get-item-end beg-B struct))
+	       (size-A (- end-A-no-blank beg-A))
+	       (size-B (- end-B-no-blank beg-B))
+	       (body-A (buffer-substring beg-A end-A-no-blank))
+	       (body-B (buffer-substring beg-B end-B-no-blank))
+	       (between-A-no-blank-and-B (buffer-substring end-A-no-blank beg-B))
+	       (sub-A (cons beg-A (org-list-get-subtree beg-A struct)))
+	       (sub-B (cons beg-B (org-list-get-subtree beg-B struct))))
+          ;; 1. Move effectively items in buffer.
+          (goto-char beg-A)
+          (delete-region beg-A end-B-no-blank)
+          (insert (concat body-B between-A-no-blank-and-B body-A))
+          ;; 2. Now modify struct.  No need to re-read the list, the
+          ;;    transformation is just a shift of positions.  Some special
+          ;;    attention is required for items ending at END-A and END-B
+          ;;    as empty spaces are not moved there.  In others words,
+          ;;    item BEG-A will end with whitespaces that were at the end
+          ;;    of BEG-B and the same applies to BEG-B.
+          (dolist (e struct)
+	    (let ((pos (car e)))
+	      (cond
+	       ((< pos beg-A))
+	       ((memq pos sub-A)
+	        (let ((end-e (nth 6 e)))
+	          (setcar e (+ pos (- end-B-no-blank end-A-no-blank)))
+	          (setcar (nthcdr 6 e)
+		          (+ end-e (- end-B-no-blank end-A-no-blank)))
+	          (when (= end-e end-A) (setcar (nthcdr 6 e) end-B))))
+	       ((memq pos sub-B)
+	        (let ((end-e (nth 6 e)))
+	          (setcar e (- (+ pos beg-A) beg-B))
+	          (setcar (nthcdr 6 e) (+ end-e (- beg-A beg-B)))
+	          (when (= end-e end-B)
+		    (setcar (nthcdr 6 e)
+			    (+ beg-A size-B (- end-A end-A-no-blank))))))
+	       ((< pos beg-B)
+	        (let ((end-e (nth 6 e)))
+	          (setcar e (+ pos (- size-B size-A)))
+	          (setcar (nthcdr 6 e) (+ end-e (- size-B size-A))))))))
+          (setq struct (sort struct #'car-less-than-car))
+          ;; Return structure.
+          struct))))
+(defun org-list-swap-items--overlays (beg-A beg-B struct)
   "Swap item starting at BEG-A with item starting at BEG-B in STRUCT.
 
 Blank lines at the end of items are left in place.  Item
@@ -1162,6 +1222,20 @@ This function modifies STRUCT."
 		      (+ (nth 2 ov) (- beg-A beg-B))))
       ;; Return structure.
       struct)))
+(defsubst org-list-swap-items (beg-A beg-B struct)
+  "Swap item starting at BEG-A with item starting at BEG-B in STRUCT.
+
+Blank lines at the end of items are left in place.  Item
+visibility is preserved.  Return the new structure after the
+changes.
+
+Assume BEG-A is lesser than BEG-B and that BEG-A and BEG-B belong
+to the same sub-list.
+
+This function modifies STRUCT."
+  (if (eq org-fold-core-style 'text-properties)
+      (org-list-swap-items--text-properties beg-A beg-B struct)
+    (org-list-swap-items--overlays beg-A beg-B struct)))
 
 (defun org-list-separating-blank-lines-number (pos struct prevs)
   "Return number of blank lines that should separate items in list.
@@ -2029,7 +2103,7 @@ Possible values are: `folded', `children' or `subtree'.  See
    ((eq view 'folded)
     (let ((item-end (org-list-get-item-end-before-blank item struct)))
       ;; Hide from eol
-      (org-flag-region (save-excursion (goto-char item) (line-end-position))
+      (org-fold-region (save-excursion (goto-char item) (line-end-position))
 		       item-end t 'outline)))
    ((eq view 'children)
     ;; First show everything.
@@ -2042,7 +2116,7 @@ Possible values are: `folded', `children' or `subtree'.  See
    ((eq view 'subtree)
     ;; Show everything
     (let ((item-end (org-list-get-item-end item struct)))
-      (org-flag-region item item-end nil 'outline)))))
+      (org-fold-region item item-end nil 'outline)))))
 
 (defun org-list-item-body-column (item)
   "Return column at which body of ITEM should start."
@@ -2455,7 +2529,7 @@ subtree, ignoring planning line and any drawer following it."
     (save-restriction
       (save-excursion
 	(org-narrow-to-subtree)
-	(org-show-subtree)
+	(org-fold-show-subtree)
 	(goto-char (point-min))
 	(let ((end (point-max)))
 	  (while (< (point) end)

@@ -521,7 +521,7 @@ prefix argument (`C-u C-u C-u C-c C-w')."
 		(goto-char (cond (pos)
 				 ((org-notes-order-reversed-p) (point-min))
 				 (t (point-max))))
-		(org-show-context 'org-goto))
+		(org-fold-show-context 'org-goto))
 	    (if regionp
 		(progn
 		  (org-kill-new (buffer-substring region-start region-end))
@@ -547,6 +547,7 @@ prefix argument (`C-u C-u C-u C-c C-w')."
 		   (goto-char (point-min))
 		   (or (outline-next-heading) (goto-char (point-max)))))
 	       (unless (bolp) (newline))
+               (org-fold-reveal)
 	       (org-paste-subtree level nil nil t)
 	       ;; Record information, according to `org-log-refile'.
 	       ;; Do not prompt for a note when refiling multiple

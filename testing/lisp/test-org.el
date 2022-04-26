@@ -1522,6 +1522,7 @@
   (should
    (org-test-with-temp-text ":MYDRAWER:\n- a\n:END:"
      (forward-line)
+     (org-fold-reveal)
      (org-meta-return)
      (beginning-of-line)
      (looking-at "- $"))))
@@ -2943,6 +2944,7 @@ Foo Bar
    (let ((org-custom-properties '("FOO" "BAR")))
      (org-test-with-temp-text
 	 "* H\n:PROPERTIES:\n<point>:FOO: val\n:P: 1\n:BAR: baz\n:END:\n"
+       (org-fold-reveal)
        (org-toggle-custom-properties-visibility)
        (and (org-invisible-p2)
 	    (not (progn (forward-line) (org-invisible-p2)))
@@ -2963,6 +2965,7 @@ Foo Bar
    (let ((org-custom-properties '("A")))
      (org-test-with-temp-text
 	 "* H\n:PROPERTIES:\n:A: 1\n:END:\n\n:PROPERTIES:\n<point>:A: 2\n:END:"
+       (org-fold-reveal)
        (org-toggle-custom-properties-visibility)
        (org-invisible-p2)))))
 
@@ -3787,7 +3790,7 @@ SCHEDULED: <2017-05-06 Sat>
   (should-not
    (org-test-with-temp-text "#+BEGIN_CENTER\nContents\n#+END_CENTER"
      (let ((org-special-ctrl-a/e t))
-       (org-hide-block-toggle)
+       (org-fold-hide-block-toggle)
        (org-end-of-line)
        (eobp))))
   ;; Get past invisible characters at the end of line.
@@ -3935,7 +3938,7 @@ SCHEDULED: <2017-05-06 Sat>
   (should
    (= 6
       (org-test-with-temp-text "#+begin_center\nP1\n\nP2\n#+end_center\nP3"
-	(org-hide-block-toggle)
+	(org-fold-hide-block-toggle)
 	(org-forward-paragraph)
 	(org-current-line))))
   ;; On an item or a footnote definition, move past the first element
@@ -4055,7 +4058,7 @@ SCHEDULED: <2017-05-06 Sat>
      (bobp)))
   (should
    (org-test-with-temp-text "#+begin_center\nP1\n\nP2\n#+end_center\n"
-     (org-hide-block-toggle)
+     (org-fold-hide-block-toggle)
      (goto-char (point-max))
      (org-backward-paragraph)
      (bobp)))
@@ -4459,7 +4462,9 @@ Outside."
   ;; Preserve visibility of elements and their contents.
   (should
    (equal '((63 . 82) (26 . 48))
-	  (org-test-with-temp-text "
+          (let ((org-fold-core-style 'text-properties))
+	    (org-test-with-temp-text
+             "
 #+BEGIN_CENTER
 Text.
 #+END_CENTER
@@ -4467,11 +4472,35 @@ Text.
   #+BEGIN_QUOTE
   Text.
   #+END_QUOTE"
-	    (while (search-forward "BEGIN_" nil t) (org-cycle))
-	    (search-backward "- item 1")
-	    (org-drag-element-backward)
-	    (mapcar (lambda (ov) (cons (overlay-start ov) (overlay-end ov)))
-		    (overlays-in (point-min) (point-max))))))
+	     (while (search-forward "BEGIN_" nil t) (org-cycle))
+	     (search-backward "- item 1")
+	     (org-drag-element-backward)
+             (let (regions)
+               (goto-char (point-min))
+               (while (< (point) (point-max))
+	         (let ((region (org-fold-get-region-at-point)))
+                   (if (not region)
+                       (goto-char (org-fold-next-folding-state-change))
+                     (goto-char (cdr region))
+                     (push region regions))))
+               regions)))))
+  (should
+   (equal '((63 . 82) (26 . 48))
+          (let ((org-fold-core-style 'overlays))
+	    (org-test-with-temp-text
+             "
+#+BEGIN_CENTER
+Text.
+#+END_CENTER
+- item 1
+  #+BEGIN_QUOTE
+  Text.
+  #+END_QUOTE"
+             (while (search-forward "BEGIN_" nil t) (org-cycle))
+	     (search-backward "- item 1")
+	     (org-drag-element-backward)
+	     (mapcar (lambda (ov) (cons (overlay-start ov) (overlay-end ov)))
+		     (overlays-in (point-min) (point-max)))))))
   ;; Pathological case: handle call with point in blank lines right
   ;; after a headline.
   (should
@@ -4508,7 +4537,9 @@ Text.
     (should (equal (buffer-string) "Para2\n\n\nParagraph 1\n\nPara3"))
     (should (looking-at " 1")))
   ;; 5. Preserve visibility of elements and their contents.
-  (org-test-with-temp-text "
+  (let ((org-fold-core-style 'text-properties))
+    (org-test-with-temp-text
+     "
 #+BEGIN_CENTER
 Text.
 #+END_CENTER
@@ -4516,14 +4547,39 @@ Text.
   #+BEGIN_QUOTE
   Text.
   #+END_QUOTE"
-    (while (search-forward "BEGIN_" nil t) (org-cycle))
-    (search-backward "#+BEGIN_CENTER")
-    (org-drag-element-forward)
-    (should
-     (equal
-      '((63 . 82) (26 . 48))
-      (mapcar (lambda (ov) (cons (overlay-start ov) (overlay-end ov)))
-	      (overlays-in (point-min) (point-max)))))))
+     (while (search-forward "BEGIN_" nil t) (org-cycle))
+     (search-backward "#+BEGIN_CENTER")
+     (org-drag-element-forward)
+     (should
+      (equal
+       '((63 . 82) (26 . 48))
+       (let (regions)
+         (goto-char (point-min))
+         (while (< (point) (point-max))
+	   (let ((region (org-fold-get-region-at-point)))
+             (if (not region)
+                 (goto-char (org-fold-next-folding-state-change))
+               (goto-char (cdr region))
+               (push region regions))))
+         regions)))))
+  (let ((org-fold-core-style 'overlays))
+    (org-test-with-temp-text
+     "
+#+BEGIN_CENTER
+Text.
+#+END_CENTER
+- item 1
+  #+BEGIN_QUOTE
+  Text.
+  #+END_QUOTE"
+     (while (search-forward "BEGIN_" nil t) (org-cycle))
+     (search-backward "#+BEGIN_CENTER")
+     (org-drag-element-forward)
+     (should
+      (equal
+       '((63 . 82) (26 . 48))
+       (mapcar (lambda (ov) (cons (overlay-start ov) (overlay-end ov)))
+	       (overlays-in (point-min) (point-max))))))))
 
 (ert-deftest test-org/next-block ()
   "Test `org-next-block' specifications."
@@ -8057,108 +8113,110 @@ CLOSED: %s
 ;;; Visibility
 
 (ert-deftest test-org/hide-drawer-toggle ()
-  "Test `org-hide-drawer-toggle' specifications."
+  "Test `org-fold-hide-drawer-toggle' specifications."
   ;; Error when not at a drawer.
   (should-error
    (org-test-with-temp-text ":fake-drawer:\ncontents"
-     (org-hide-drawer-toggle 'off)
+     (org-fold-hide-drawer-toggle 'off)
      (get-char-property (line-end-position) 'invisible)))
   (should-error
    (org-test-with-temp-text
        "#+begin_example\n<point>:D:\nc\n:END:\n#+end_example"
-     (org-hide-drawer-toggle t)))
+     (org-fold-hide-drawer-toggle t)))
   ;; Hide drawer.
   (should
    (org-test-with-temp-text ":drawer:\ncontents\n:end:"
-     (org-hide-drawer-toggle)
+     (org-fold-show-all)
+     (org-fold-hide-drawer-toggle)
      (get-char-property (line-end-position) 'invisible)))
   ;; Show drawer unconditionally when optional argument is `off'.
   (should-not
    (org-test-with-temp-text ":drawer:\ncontents\n:end:"
-     (org-hide-drawer-toggle)
-     (org-hide-drawer-toggle 'off)
+     (org-fold-hide-drawer-toggle)
+     (org-fold-hide-drawer-toggle 'off)
      (get-char-property (line-end-position) 'invisible)))
   ;; Hide drawer unconditionally when optional argument is non-nil.
   (should
    (org-test-with-temp-text ":drawer:\ncontents\n:end:"
-     (org-hide-drawer-toggle t)
+     (org-fold-hide-drawer-toggle t)
      (get-char-property (line-end-position) 'invisible)))
   ;; Do not hide drawer when called from final blank lines.
   (should-not
    (org-test-with-temp-text ":drawer:\ncontents\n:end:\n\n<point>"
-     (org-hide-drawer-toggle)
+     (org-fold-show-all)
+     (org-fold-hide-drawer-toggle)
      (goto-char (point-min))
      (get-char-property (line-end-position) 'invisible)))
   ;; Don't leave point in an invisible part of the buffer when hiding
   ;; a drawer away.
   (should-not
    (org-test-with-temp-text ":drawer:\ncontents\n<point>:end:"
-     (org-hide-drawer-toggle)
+     (org-fold-hide-drawer-toggle)
      (get-char-property (point) 'invisible))))
 
 (ert-deftest test-org/hide-block-toggle ()
-  "Test `org-hide-block-toggle' specifications."
+  "Test `org-fold-hide-block-toggle' specifications."
   ;; Error when not at a block.
   (should-error
    (org-test-with-temp-text "#+BEGIN_QUOTE\ncontents"
-     (org-hide-block-toggle 'off)
+     (org-fold-hide-block-toggle 'off)
      (get-char-property (line-end-position) 'invisible)))
   ;; Hide block.
   (should
    (org-test-with-temp-text "#+BEGIN_CENTER\ncontents\n#+END_CENTER"
-     (org-hide-block-toggle)
+     (org-fold-hide-block-toggle)
      (get-char-property (line-end-position) 'invisible)))
   (should
    (org-test-with-temp-text "#+BEGIN_EXAMPLE\ncontents\n#+END_EXAMPLE"
-     (org-hide-block-toggle)
+     (org-fold-hide-block-toggle)
      (get-char-property (line-end-position) 'invisible)))
   ;; Show block unconditionally when optional argument is `off'.
   (should-not
    (org-test-with-temp-text "#+BEGIN_QUOTE\ncontents\n#+END_QUOTE"
-     (org-hide-block-toggle)
-     (org-hide-block-toggle 'off)
+     (org-fold-hide-block-toggle)
+     (org-fold-hide-block-toggle 'off)
      (get-char-property (line-end-position) 'invisible)))
   (should-not
    (org-test-with-temp-text "#+BEGIN_QUOTE\ncontents\n#+END_QUOTE"
-     (org-hide-block-toggle 'off)
+     (org-fold-hide-block-toggle 'off)
      (get-char-property (line-end-position) 'invisible)))
   ;; Hide block unconditionally when optional argument is non-nil.
   (should
    (org-test-with-temp-text "#+BEGIN_QUOTE\ncontents\n#+END_QUOTE"
-     (org-hide-block-toggle t)
+     (org-fold-hide-block-toggle t)
      (get-char-property (line-end-position) 'invisible)))
   (should
    (org-test-with-temp-text "#+BEGIN_QUOTE\ncontents\n#+END_QUOTE"
-     (org-hide-block-toggle)
-     (org-hide-block-toggle t)
+     (org-fold-hide-block-toggle)
+     (org-fold-hide-block-toggle t)
      (get-char-property (line-end-position) 'invisible)))
   ;; Do not hide block when called from final blank lines.
   (should-not
    (org-test-with-temp-text "#+BEGIN_QUOTE\ncontents\n#+END_QUOTE\n\n<point>"
-     (org-hide-block-toggle)
+     (org-fold-hide-block-toggle)
      (goto-char (point-min))
      (get-char-property (line-end-position) 'invisible)))
   ;; Don't leave point in an invisible part of the buffer when hiding
   ;; a block away.
   (should-not
    (org-test-with-temp-text "#+BEGIN_QUOTE\ncontents\n<point>#+END_QUOTE"
-     (org-hide-block-toggle)
+     (org-fold-hide-block-toggle)
      (get-char-property (point) 'invisible))))
 
 (ert-deftest test-org/hide-block-toggle-maybe ()
-  "Test `org-hide-block-toggle-maybe' specifications."
+  "Test `org-fold-hide-block-toggle' specifications."
   (should
    (org-test-with-temp-text "#+BEGIN: dynamic\nContents\n#+END:"
-     (org-hide-block-toggle-maybe)))
-  (should-not
-   (org-test-with-temp-text "Paragraph" (org-hide-block-toggle-maybe))))
+     (org-hide-block-toggle)))
+  (should-error
+   (org-test-with-temp-text "Paragraph" (org-hide-block-toggle))))
 
 (ert-deftest test-org/show-set-visibility ()
-  "Test `org-show-set-visibility' specifications."
+  "Test `org-fold-show-set-visibility' specifications."
   ;; Do not throw an error before first heading.
   (should
    (org-test-with-temp-text "Preamble\n* Headline"
-     (org-show-set-visibility 'tree)
+     (org-fold-show-set-visibility 'tree)
      t))
   ;; Test all visibility spans, both on headline and in entry.
   (let ((list-visible-lines
@@ -8180,7 +8238,7 @@ CLOSED: %s
 "
 	     (org-cycle t)
 	     (search-forward (if headerp "Self" "Match"))
-	     (org-show-set-visibility state)
+	     (org-fold-show-set-visibility state)
 	     (goto-char (point-min))
 	     (let (result (line 0))
 	       (while (not (eobp))
@@ -8211,24 +8269,24 @@ CLOSED: %s
   ;; visible.
   (should-not
    (org-test-with-temp-text "#+BEGIN_QUOTE\nText\n#+END_QUOTE"
-     (org-hide-block-toggle)
+     (org-fold-hide-block-toggle)
      (search-forward "Text")
-     (org-show-set-visibility 'minimal)
+     (org-fold-show-set-visibility 'minimal)
      (org-invisible-p2)))
   (should-not
    (org-test-with-temp-text ":DRAWER:\nText\n:END:"
-     (org-hide-drawer-toggle)
+     (org-fold-hide-drawer-toggle)
      (search-forward "Text")
-     (org-show-set-visibility 'minimal)
+     (org-fold-show-set-visibility 'minimal)
      (org-invisible-p2)))
   (should-not
    (org-test-with-temp-text
        "#+BEGIN_QUOTE\n<point>:DRAWER:\nText\n:END:\n#+END_QUOTE"
-     (org-hide-drawer-toggle)
+     (org-fold-hide-drawer-toggle)
      (forward-line -1)
-     (org-hide-block-toggle)
+     (org-fold-hide-block-toggle)
      (search-forward "Text")
-     (org-show-set-visibility 'minimal)
+     (org-fold-show-set-visibility 'minimal)
      (org-invisible-p2))))
 
 (ert-deftest test-org/copy-visible ()
@@ -8413,6 +8471,100 @@ Contents
 "
    (org-kill-note-or-show-branches)
    (should (org-invisible-p (- (point-max) 2)))))
+
+(ert-deftest test-org/org-cycle-narrowed-subtree ()
+  "Test cycling in narrowed buffer."
+  (org-test-with-temp-text
+   "* Heading 1<point>
+** Child 1.1
+** Child 1.2
+some text
+*** Sub-child 1.2.1
+* Heading 2"
+   (org-overview)
+   (org-narrow-to-subtree)
+   (org-cycle)
+   (re-search-forward "Sub-child")
+   (should (org-invisible-p))))
+
+(ert-deftest test-org/org-fold-reveal-broken-structure ()
+  "Test unfolding broken elements."
+  (let ((org-fold-core-style 'text-properties))
+    (org-test-with-temp-text
+     "<point>* Heading 1
+Text here"
+     (org-overview)
+     (re-search-forward "Text")
+     (should (org-invisible-p))
+     (goto-char 1)
+     (delete-char 1)
+     (re-search-forward "Text")
+     (should-not (org-invisible-p)))
+    (org-test-with-temp-text
+     "* Heading 1
+<point>:PROPERTIES:
+:ID: something
+:END:
+Text here"
+     (org-cycle)
+     (org-fold-hide-drawer-all)
+     (re-search-forward "ID")
+     (should (org-invisible-p))
+     (re-search-backward ":PROPERTIES:")
+     (delete-char 1)
+     (re-search-forward "ID")
+     (should-not (org-invisible-p)))
+    (org-test-with-temp-text
+     "* Heading 1
+<point>:PROPERTIES:
+:ID: something
+:END:
+Text here"
+     (org-cycle)
+     (org-fold-hide-drawer-all)
+     (re-search-forward "ID")
+     (should (org-invisible-p))
+     (re-search-forward ":END:")
+     (delete-char -1)
+     (re-search-backward "ID")
+     (should-not (org-invisible-p)))
+    (org-test-with-temp-text
+     "* Heading 1
+<point>#+begin_src emacs-lisp
+(+ 1 2)
+#+end_src
+Text here"
+     (org-cycle)
+     (org-fold-hide-drawer-all)
+     (re-search-forward "end")
+     (should (org-invisible-p))
+     (delete-char -1)
+     (re-search-backward "2")
+     (should-not (org-invisible-p)))))
+
+(ert-deftest test-org/re-hide-edits-inside-fold ()
+  "Test edits inside folded regions."
+  (org-test-with-temp-text
+      "<point>* Heading 1
+Text here"
+    (org-overview)
+    (org-set-property "TEST" "1")
+    (re-search-forward "TEST")
+    (should (org-invisible-p)))
+  (org-test-with-temp-text
+      "* Heading 1<point>
+Text here"
+    (org-overview)
+    (insert " and extra heading text")
+    (re-search-backward "heading")
+    (should-not (org-invisible-p)))
+  (org-test-with-temp-text
+      "* Heading 1
+Text<point> here"
+    (org-overview)
+    (insert " and extra text")
+    (re-search-backward "extra")
+    (should (org-invisible-p))))
 
 
 ;;; Yank and Kill
