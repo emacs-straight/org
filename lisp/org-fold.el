@@ -932,37 +932,38 @@ This function is intended to be used as a member of
 This function is intended to be used as :fragile property of
 `org-fold-outline' spec.  See `org-fold-core--specs' for details."
   (save-match-data
-    (save-excursion
-      (goto-char (car region))
-      ;; The line before beginning of the fold should be either a
-      ;; headline or a list item.
-      (backward-char)
-      (beginning-of-line)
-      ;; Make sure that headline is not partially hidden
-      (unless (org-fold-folded-p nil 'headline)
-        (org-fold-region (max (point-min) (1- (point)))
-                 (let ((endl (line-end-position)))
-                   (save-excursion
-                     (goto-char endl)
-                     (skip-chars-forward "\n\t\r ")
-                     ;; Unfold blank lines.
-                     (if (or (and (looking-at-p "\\*")
-                                  (> (point) (1+ endl)))
-                             (eq (point) (point-max)))
-                         (point)
-                       endl)))
-                 nil 'headline))
-      ;; Never hide level 1 headlines
-      (save-excursion
-        (goto-char (line-end-position))
-        (when (re-search-forward (rx bol "* ") (cdr region) t)
-          (org-fold-region (match-beginning 0) (line-end-position) nil 'headline)))
-      ;; Check the validity of headline
-      (unless (let ((case-fold-search t))
-	        (looking-at (rx-to-string
-                             `(or (regex ,(org-item-re))
-			          (regex ,org-outline-regexp-bol)))))
-	t))))
+    (org-with-wide-buffer
+     (goto-char (car region))
+     ;; The line before beginning of the fold should be either a
+     ;; headline or a list item.
+     (backward-char)
+     (beginning-of-line)
+     ;; Make sure that headline is not partially hidden
+     (unless (org-fold-folded-p nil 'headline)
+       (org-fold-region
+        (max (point-min) (1- (point)))
+        (let ((endl (line-end-position)))
+          (save-excursion
+            (goto-char endl)
+            (skip-chars-forward "\n\t\r ")
+            ;; Unfold blank lines.
+            (if (or (and (looking-at-p "\\*")
+                         (> (point) (1+ endl)))
+                    (eq (point) (point-max)))
+                (point)
+              endl)))
+        nil 'headline))
+     ;; Never hide level 1 headlines
+     (save-excursion
+       (goto-char (line-end-position))
+       (when (re-search-forward (rx bol "* ") (cdr region) t)
+         (org-fold-region (match-beginning 0) (line-end-position) nil 'headline)))
+     ;; Check the validity of headline
+     (unless (let ((case-fold-search t))
+	       (looking-at (rx-to-string
+                            `(or (regex ,(org-item-re))
+			         (regex ,org-outline-regexp-bol)))))
+       t))))
 
 (defun org-fold--reveal-drawer-or-block-maybe (region spec)
   "Reveal folded drawer/block (according to SPEC) in REGION when needed.
@@ -1050,19 +1051,16 @@ The detailed reaction depends on the user option
     (let* ((invisible-at-point
             (pcase (get-char-property-and-overlay (point) 'invisible)
               (`(,_ . ,(and (pred overlayp) o)) o)))
-           ;; Assume that point cannot land in the middle of an
-           ;; overlay, or between two overlays.
            (invisible-before-point
-            (and (not invisible-at-point)
-                 (not (bobp))
+            (and (not (bobp))
                  (pcase (get-char-property-and-overlay (1- (point)) 'invisible)
                    (`(,_ . ,(and (pred overlayp) o)) o))))
            (border-and-ok-direction
             (or
              ;; Check if we are acting predictably before invisible
              ;; text.
-             (and invisible-at-point
-                  (memq kind '(insert delete-backward)))
+             (and invisible-at-point (not invisible-before-point)
+		  (memq kind '(insert delete-backward)))
              ;; Check if we are acting predictably after invisible text
              ;; This works not well, and I have turned it off.  It seems
              ;; better to always show and stop after invisible text.
@@ -1077,7 +1075,7 @@ The detailed reaction depends on the user option
             (org-toggle-custom-properties-visibility)
           ;; Make the area visible
           (save-excursion
-            (when invisible-before-point
+            (when (and (not invisible-at-point) invisible-before-point)
               (goto-char
                (previous-single-char-property-change (point) 'invisible)))
             ;; Remove whatever overlay is currently making yet-to-be
@@ -1111,32 +1109,35 @@ The detailed reaction depends on the user option
 	     (or (org-invisible-p)
 		 (org-invisible-p (max (point-min) (1- (point))))))
     ;; OK, we need to take a closer look.  Only consider invisibility
-    ;; caused by folding.
-    (let* ((invisible-at-point (org-invisible-p))
+    ;; caused by folding of headlines, drawers, and blocks.  Edits
+    ;; inside links will be handled by font-lock.
+    (let* ((invisible-at-point (org-fold-folded-p (point) '(headline drawer block)))
 	   (invisible-before-point
 	    (and (not (bobp))
-	         (org-invisible-p (1- (point)))))
+	         (org-fold-folded-p (1- (point)) '(headline drawer block))))
 	   (border-and-ok-direction
 	    (or
 	     ;; Check if we are acting predictably before invisible
 	     ;; text.
 	     (and invisible-at-point (not invisible-before-point)
 		  (memq kind '(insert delete-backward)))
-	     (and (not invisible-at-point) invisible-before-point
-		  (memq kind '(insert delete))))))
+             ;; Check if we are acting predictably after invisible text
+             ;; This works not well, and I have turned it off.  It seems
+             ;; better to always show and stop after invisible text.
+             ;; (and (not invisible-at-point) invisible-before-point
+             ;;  (memq kind '(insert delete)))
+             )))
       (when (or invisible-at-point invisible-before-point)
-	(when (and (eq org-fold-catch-invisible-edits 'error)
-                   (not border-and-ok-direction))
+	(when (eq org-fold-catch-invisible-edits 'error)
 	  (user-error "Editing in invisible areas is prohibited, make them visible first"))
 	(if (and org-custom-properties-overlays
 		 (y-or-n-p "Display invisible properties in this buffer? "))
 	    (org-toggle-custom-properties-visibility)
 	  ;; Make the area visible
-          (unless (eq org-fold-catch-invisible-edits 'error)
-            (save-excursion
-	      (org-fold-show-set-visibility 'local))
-            (when invisible-before-point
-              (org-with-point-at (1- (point)) (org-fold-show-set-visibility 'local))))
+          (save-excursion
+	    (org-fold-show-set-visibility 'local))
+          (when invisible-before-point
+            (org-with-point-at (1- (point)) (org-fold-show-set-visibility 'local)))
 	  (cond
 	   ((eq org-fold-catch-invisible-edits 'show)
 	    ;; That's it, we do the edit after showing
@@ -1146,9 +1147,6 @@ The detailed reaction depends on the user option
 	   ((and (eq org-fold-catch-invisible-edits 'smart)
 		 border-and-ok-direction)
 	    (message "Unfolding invisible region around point before editing"))
-           (border-and-ok-direction
-            ;; Just continue editing.
-            nil)
 	   (t
 	    ;; Don't do the edit, make the user repeat it in full visibility
 	    (user-error "Edit in invisible region aborted, repeat to confirm with text visible"))))))))
