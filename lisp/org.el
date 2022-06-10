@@ -11812,12 +11812,13 @@ Inherited tags have the `inherited' text property."
   (if (org-element--cache-active-p)
       ;; `org-element-cache-map' is about 2x faster compared to regexp
       ;; search.
-      (let ((tags (org-element-cache-map
-                   (lambda (el) (org-element-property :tags el)))))
-        (mapcar #'list (mapcar #'substring-no-properties
-                               (delete-dups
-                                (append org-file-tags
-                                        (apply #'append tags))))))
+      (let ((hashed (make-hash-table :test #'equal)))
+        (org-element-cache-map
+         (lambda (el)
+           (dolist (tag (org-element-property :tags el))
+             (puthash (list tag) t hashed))))
+        (dolist (tag org-file-tags) (puthash (list tag) t hashed))
+        (hash-table-keys hashed))
     (org-with-point-at 1
       (let (tags)
         (while (re-search-forward org-tag-line-re nil t)
@@ -13683,10 +13684,14 @@ user."
       (unless deltadef
 	(let ((now (decode-time)))
 	  (setq day (nth 3 now) month (nth 4 now) year (nth 5 now))))
-      (cond ((member deltaw '("d" "")) (setq day (+ day deltan)))
-	    ((equal deltaw "w") (setq day (+ day (* 7 deltan))))
-	    ((equal deltaw "m") (setq month (+ month deltan)))
-	    ((equal deltaw "y") (setq year (+ year deltan)))))
+      (cond ((member deltaw '("h" ""))
+             (when (boundp 'org-time-was-given)
+               (setq org-time-was-given t))
+             (setq hour (+ hour deltan)))
+            ((member deltaw '("d" "")) (setq day (+ day deltan)))
+            ((equal deltaw "w") (setq day (+ day (* 7 deltan))))
+            ((equal deltaw "m") (setq month (+ month deltan)))
+            ((equal deltaw "y") (setq year (+ year deltan)))))
      ((and wday (not (nth 3 tl)))
       ;; Weekday was given, but no day, so pick that day in the week
       ;; on or after the derived date.
@@ -16131,18 +16136,19 @@ front of the next \"|\" separator, to keep the table aligned.  The table will
 still be marked for re-alignment if the field did fill the entire column,
 because, in this case the deletion might narrow the column."
   (interactive "p")
-  (save-match-data
-    (org-fold-check-before-invisible-edit 'delete-backward)
-    (if (and (= N 1)
-	     (not overwrite-mode)
-	     (not (org-region-active-p))
-	     (not (eq (char-before) ?|))
-	     (save-excursion (skip-chars-backward " \t") (not (bolp)))
-	     (looking-at-p ".*?|")
-	     (org-at-table-p))
-	(progn (forward-char -1) (org-delete-char 1))
-      (backward-delete-char N)
-      (org-fix-tags-on-the-fly))))
+  (org-fold-core-ignore-modifications
+    (save-match-data
+      (org-fold-check-before-invisible-edit 'delete-backward)
+      (if (and (= N 1)
+	       (not overwrite-mode)
+	       (not (org-region-active-p))
+	       (not (eq (char-before) ?|))
+	       (save-excursion (skip-chars-backward " \t") (not (bolp)))
+	       (looking-at-p ".*?|")
+	       (org-at-table-p))
+	  (progn (forward-char -1) (org-delete-char 1))
+        (backward-delete-char N)
+        (org-fix-tags-on-the-fly)))))
 
 (defun org-delete-char (N)
   "Like `delete-char', but insert whitespace at field end in tables.
@@ -16151,30 +16157,31 @@ front of the next \"|\" separator, to keep the table aligned.  The table will
 still be marked for re-alignment if the field did fill the entire column,
 because, in this case the deletion might narrow the column."
   (interactive "p")
-  (save-match-data
-    (org-fold-check-before-invisible-edit 'delete)
-    (cond
-     ((or (/= N 1)
-	  (eq (char-after) ?|)
-	  (save-excursion (skip-chars-backward " \t") (bolp))
-	  (not (org-at-table-p)))
-      (delete-char N)
-      (org-fix-tags-on-the-fly))
-     ((looking-at ".\\(.*?\\)|")
-      (let* ((update? org-table-may-need-update)
-	     (noalign (looking-at-p ".*?  |")))
-	(delete-char 1)
-	(org-table-with-shrunk-field
-	 (save-excursion
-	   ;; Last space is `org-table-separator-space', so insert
-	   ;; a regular one before it instead.
-	   (goto-char (- (match-end 0) 2))
-	   (insert " ")))
-	;; If there were two spaces at the end, this field does not
-	;; determine the width of the column.
-	(when noalign (setq org-table-may-need-update update?))))
-     (t
-      (delete-char N)))))
+  (org-fold-core-ignore-modifications
+    (save-match-data
+      (org-fold-check-before-invisible-edit 'delete)
+      (cond
+       ((or (/= N 1)
+	    (eq (char-after) ?|)
+	    (save-excursion (skip-chars-backward " \t") (bolp))
+	    (not (org-at-table-p)))
+        (delete-char N)
+        (org-fix-tags-on-the-fly))
+       ((looking-at ".\\(.*?\\)|")
+        (let* ((update? org-table-may-need-update)
+	       (noalign (looking-at-p ".*?  |")))
+	  (delete-char 1)
+	  (org-table-with-shrunk-field
+	   (save-excursion
+	     ;; Last space is `org-table-separator-space', so insert
+	     ;; a regular one before it instead.
+	     (goto-char (- (match-end 0) 2))
+	     (insert " ")))
+	  ;; If there were two spaces at the end, this field does not
+	  ;; determine the width of the column.
+	  (when noalign (setq org-table-may-need-update update?))))
+       (t
+        (delete-char N))))))
 
 ;; Make `delete-selection-mode' work with Org mode and Orgtbl mode
 (put 'org-self-insert-command 'delete-selection
