@@ -42,6 +42,7 @@
 (defvar org-src-preserve-indentation)
 (defvar org-babel-tangle-uncomment-comments)
 
+(declare-function org-attach-dir "org-attach" (&optional create-if-not-exists-p no-fs-check))
 (declare-function org-at-item-p "org-list" ())
 (declare-function org-at-table-p "org" (&optional table-type))
 (declare-function org-babel-lob-execute-maybe "ob-lob" ())
@@ -484,7 +485,7 @@ value.  The value can either be a string or a closure that
 evaluates to a string.  The closure is evaluated when the source
 block is being evaluated (e.g. during execution or export), with
 point at the source block.  It is not possible to use an
-arbitrary function symbol (e.g. 'some-func), since org uses
+arbitrary function symbol (e.g. \\='some-func), since org uses
 lexical binding.  To achieve the same functionality, call the
 function within a closure (e.g. (lambda () (some-func))).
 

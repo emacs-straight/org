@@ -42,6 +42,9 @@
 (require 'format-spec)
 (require 'ox)
 
+(declare-function org-at-heading-p "org" (&optional _))
+(declare-function org-back-to-heading "org" (&optional invisible-ok))
+(declare-function org-next-visible-heading "org" (arg))
 
 
 ;;; Variables
@@ -839,7 +842,7 @@ in `org-export-options-alist' or in export back-ends.  In the
 latter case, optional argument BACKEND has to be set to the
 back-end where the option is defined, e.g.,
 
-  (org-publish-find-property file :subtitle 'latex)
+  (org-publish-find-property file :subtitle \\='latex)
 
 Return value may be a string or a list, depending on the type of
 PROPERTY, i.e. \"behavior\" parameter from `org-export-options-alist'."

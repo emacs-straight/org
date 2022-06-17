@@ -129,6 +129,7 @@ Stars are put in group 1 and the trimmed body in group 2.")
 (declare-function isearch-no-upper-case-p "isearch" (string regexp-flag))
 (declare-function org-add-archive-files "org-archive" (files))
 (declare-function org-agenda-entry-get-agenda-timestamp "org-agenda" (pom))
+(declare-function org-agenda-todo-yesterday "org-agenda" (&optional arg))
 (declare-function org-agenda-list "org-agenda" (&optional arg start-day span with-hour))
 (declare-function org-agenda-redo "org-agenda" (&optional all))
 (declare-function org-agenda-remove-restriction-lock "org-agenda" (&optional noupdate))
@@ -1509,7 +1510,7 @@ OK to kill that hidden subtree.  When nil, kill without remorse."
 	  (const :tag "Never kill a hidden subtree with C-k" error)))
 
 (defcustom org-special-ctrl-o t
-  "Non-nil means, make `C-o' insert a row in tables."
+  "Non-nil means, make `open-line' (\\[open-line]) insert a row in tables."
   :group 'org-edit-structure
   :type 'boolean)
 
@@ -3119,7 +3120,7 @@ Replace format-specifiers in the command as noted below and use
 %i:     The LaTeX fragment to be converted.
 
 For example, this could be used with LaTeXML as
-\"latexmlc 'literal:%i' --profile=math --preload=siunitx.sty 2>/dev/null\"."
+\"latexmlc \\='literal:%i\\=' --profile=math --preload=siunitx.sty 2>/dev/null\"."
   :group 'org-latex
   :package-version '(Org . "9.4")
   :type '(choice
