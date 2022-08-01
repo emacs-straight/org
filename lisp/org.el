@@ -4708,6 +4708,10 @@ The following commands are available:
 
 \\{org-mode-map}"
   (setq-local org-mode-loading t)
+  ;; Apply file-local and directory-local variables, so that Org
+  ;; startup respects them.  See
+  ;; https://list.orgmode.org/587be554-906c-5370-2cf2-f08b14fa58ff@gmail.com/T/#u
+  (hack-local-variables 'ignore-mode-settings)
   (org-load-modules-maybe)
   (org-install-agenda-files-menu)
   (when (and org-link-descriptive
@@ -6911,7 +6915,7 @@ case."
      (move-marker ins-point nil)
      (if folded
 	 (org-fold-subtree t)
-       (org-fold-show-entry)
+       (org-fold-show-entry 'hide-drawers)
        (org-fold-show-children))
      (org-clean-visibility-after-subtree-move)
      ;; move back to the initial column we were at
@@ -7054,7 +7058,7 @@ When REMOVE is non-nil, remove the subtree from the clipboard."
        ;; is inserted and then promoted.
        (combine-change-calls beg beg
          (when (fboundp 'org-id-paste-tracker) (org-id-paste-tracker txt))
-         (insert-before-markers txt)
+         (insert txt)
          (unless (string-suffix-p "\n" txt) (insert "\n"))
          (setq newend (point))
          (org-reinstall-markers-in-region beg)
@@ -10397,8 +10401,9 @@ EXTRA is additional text that will be inserted into the notes buffer."
 	   (let ((ind (org-list-item-body-column (line-beginning-position))))
 	     (dolist (line lines)
 	       (insert-and-inherit "\n")
-	       (indent-line-to ind)
-	       (insert-and-inherit line)))
+               (unless (string-empty-p line)
+	         (indent-line-to ind)
+	         (insert-and-inherit line))))
 	   (message "Note stored")
 	   (org-back-to-heading t))))))
   ;; Don't add undo information when called from `org-agenda-todo'.
@@ -16492,6 +16497,10 @@ Calls `org-promote-subtree', `org-outdent-item-tree', or
 individual commands for more information."
   (interactive)
   (cond
+   ((and (eq system-type 'darwin)
+         (or (eq org-support-shift-select 'always)
+             (and org-support-shift-select (org-region-active-p))))
+    (org-call-for-shift-select 'backward-char))
    ((run-hook-with-args-until-success 'org-shiftmetaleft-hook))
    ((org-at-table-p) (call-interactively 'org-table-delete-column))
    ((org-at-heading-p) (call-interactively 'org-promote-subtree))
@@ -16508,6 +16517,10 @@ Calls `org-demote-subtree', `org-indent-item-tree', or
 individual commands for more information."
   (interactive)
   (cond
+   ((and (eq system-type 'darwin)
+         (or (eq org-support-shift-select 'always)
+             (and org-support-shift-select (org-region-active-p))))
+    (org-call-for-shift-select 'forward-char))
    ((run-hook-with-args-until-success 'org-shiftmetaright-hook))
    ((org-at-table-p) (call-interactively 'org-table-insert-column))
    ((org-at-heading-p) (call-interactively 'org-demote-subtree))
@@ -17447,7 +17460,7 @@ object (e.g., within a comment).  In these case, you need to use
 	 (org-auto-align-tags (org-align-tags))
 	 (t (org--align-tags-here tags-column))) ;preserve tags column
 	(end-of-line)
-	(org-fold-show-entry)
+	(org-fold-show-entry 'hide-drawers)
 	(org--newline indent arg interactive)
 	(when string (save-excursion (insert (org-trim string))))))
      ;; In a list, make sure indenting keeps trailing text within.

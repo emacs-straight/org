@@ -239,7 +239,7 @@ This behaviour can be changed by supplying a =:align= parameter.
 
 The tabbing environment can be useful when generating simple tables which
 can be span multiple pages and when table cells are allowed to overflow.
-*** Support for =nocite= citations in the "csl" export processor
+*** Support for =nocite= citations and sub-bibliographies in the "csl" export processor
 
 The "csl" citation export processor now supports =nocite= style
 citations that add items to the printed bibliography without visible
@@ -251,7 +251,55 @@ instance,
 #+end_src
 
 includes all available items in the printed bibliography.
+
+The "csl" export processor now also supports sub-bibliographies that
+show only a subset of the references based on some criterion.  For
+example,
+
+#+begin_src org
+#+print_bibliography: :type book :keyword ai
+#+end_src
+
+prints a sub-bibliography containing the book entries with =ai= among
+their keywords.
+** New options
+*** A new custom setting =org-hide-drawer-startup= to control initial folding state of drawers
+
+Previously, all the drawers were always folded when opening an Org
+file.  This only had an effect on the drawers outside folded
+headlines.  The drawers inside folded headlines were re-folded because
+=org-cycle-hide-drawers= was present inside =org-cycle-hook=.
+
+With the new folding backend, running =org-cycle-hide-drawers= is no
+longer needed if all the drawers are truly folded on startup: [[*Folding
+state of the drawers is now preserved when cycling headline
+visibility]].  However, this has an unwanted effect when a user does
+not want the drawers to be folded (see [[https://orgmode.org/list/m2r14f407q.fsf@ntnu.no][this bug report]]).
+
+The new custom setting gives more control over initial folding state
+of the drawers.  When set to =nil= (default is =t=), the drawers are
+not folded on startup.
+
+The folding state can also be controlled on per-file basis using
+=STARTUP= keyword:
+
+: #+startup: hidedrawers
+: #+startup: nohidedrawers
+
+*** New custom setting ~org-icalendar-force-alarm~
+
+The new setting, when set to non-nil, makes Org create alarm at the
+event time when the alarm time is set to 0.  The default value is 
+nil -- do not create alarms at the event time.
+
 ** New functions and changes in function arguments
+*** ~org-fold-show-entry~ does not fold drawers by default anymore
+
+~org-fold-show-entry~ now accepts an optional argument HIDE-DRAWERS.
+When the argument is non-nil, the function folds all the drawers
+inside entry.  This was the default previously.
+
+Now, ~org-fold-show-entry~ does not fold drawers by default.
 
 *** New function ~org-element-cache-map~ for quick mapping across Org elements
 
@@ -302,29 +350,6 @@ The new variable name is =org-plantuml-args=.  It now applies to both
 jar PlantUML file and executable.
 
 ** Miscellaneous
-*** A new custom setting =org-hide-drawer-startup= to control initial folding state of drawers
-
-Previously, all the drawers were always folded when opening an Org
-file.  This only had an effect on the drawers outside folded
-headlines.  The drawers inside folded headlines were re-folded because
-=org-cycle-hide-drawers= was present inside =org-cycle-hook=.
-
-With the new folding backend, running =org-cycle-hide-drawers= is no
-longer needed if all the drawers are truly folded on startup: [[*Folding
-state of the drawers is now preserved when cycling headline
-visibility]].  However, this has an unwanted effect when a user does
-not want the drawers to be folded (see [[https://orgmode.org/list/m2r14f407q.fsf@ntnu.no][this bug report]]).
-
-The new custom setting gives more control over initial folding state
-of the drawers.  When set to =nil= (default is =t=), the drawers are
-not folded on startup.
-
-The folding state can also be controlled on per-file basis using
-=STARTUP= keyword:
-
-: #+startup: hidedrawers
-: #+startup: nohidedrawers
-
 *** Styles are customizable in ~biblatex~ citation processor
 
 It is now possible to add new styles or modify old ones in ~biblatex~
