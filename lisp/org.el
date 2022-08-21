@@ -6401,10 +6401,11 @@ Set it to HEADING when provided."
   (interactive)
   (org-insert-heading '(4) invisible-ok))
 
-(defun org-insert-todo-heading-respect-content (&optional force-state)
+(defun org-insert-todo-heading-respect-content (&optional _)
   "Insert TODO heading with `org-insert-heading-respect-content' set to t."
   (interactive)
-  (org-insert-todo-heading force-state '(4)))
+  (let ((org-insert-heading-respect-content t))
+    (org-insert-todo-heading '(4) t)))
 
 (defun org-insert-todo-heading (arg &optional force-heading)
   "Insert a new heading with the same level and TODO state as current heading.
@@ -11520,8 +11521,12 @@ visible part of the buffer."
   (let ((get-indent-column
 	 (lambda ()
 	   (let ((offset (if (bound-and-true-p org-indent-mode)
-			     (* (1- org-indent-indentation-per-level)
-				(1- (org-current-level)))
+                             (save-excursion
+                               (org-back-to-heading-or-point-min)
+                               (length
+                                (get-text-property
+                                 (line-end-position)
+                                 'line-prefix)))
 			   0)))
 	     (+ org-tags-column
 		(if (> org-tags-column 0) (- offset) offset))))))
