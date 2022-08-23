@@ -17147,7 +17147,30 @@ following values:
 :exports    => "code"
 :cache      => "no"
 :noweb      => "no"
+:hlines     => "no"
+:tangle     => "no"
 #+end_example
+
+#+vindex: org-babel-default-inline-header-args
+Inline source blocks (see [[*Structure of Code Blocks]]) use slightly
+different default header arguments defined in
+~org-babel-default-inline-header-args~:
+
+#+begin_example
+:session    => "none"
+:results    => "replace"
+:exports    => "results"
+:hlines     => "yes"
+#+end_example
+
+The most notable difference between default header arguments for
+inline and normal source blocks is =:exports= argument.  For inline
+source blocks, results of evaluation are exported by default; not the
+code.
+
+Unlike the default values, header arguments set using Org mode
+properties (see [[*Header arguments in Org mode properties]]) do apply to
+both the normal source blocks and inline source blocks.
 
 The example below sets =:noweb= header arguments to =yes=, which makes
 Org expand =:noweb= references by default.
@@ -18345,6 +18368,36 @@ file is exported to, say, HTML or LaTeX formats.
   Neither the code nor the results of evaluation is included in the
   exported file.  Whether the code is evaluated at all depends on
   other options.  Example: =:exports none=.
+
+If a source block is named using =NAME= keyword, the same name will be
+assigned to the results of evaluation.  This way, fuzzy links pointing
+to the named source blocks exported using =:exports results= will
+remain valid and point to the results of evaluation.
+
+Results of evaluation of a named block can also be explicitly named
+using a separate =NAME= keyword.  The name value set via =NAME=
+keyword will be preferred over the parent source block.
+
+: #+NAME: code name
+: #+BEGIN_SRC emacs-lisp :exports both value
+: (+ 1 2)
+: #+END_SRC
+:
+: #+NAME: results name
+: #+RESULTS: code name
+: 3
+:
+: This [[code name][link]] will point to the code block.
+: Another [[results name][link]] will point to the results.
+
+Explicit setting of the result name may be necessary when a named code
+block is exported using =:exports both=.  Links to such block may
+arbitrarily point either to the code block or to its results when
+results do not have a distinct name.
+
+Note that all the links pointing to a source block exported using
+=:exports none= will be broken.  This will make export process fail,
+unless broken links are allowed during export (see [[*Export Settings]]). 
 
 #+vindex: org-export-use-babel
 To stop Org from evaluating code blocks to speed exports, use the
@@ -22479,9 +22532,9 @@ semantic relevance.
 
 [fn:130] Please note that exported formulas are part of an HTML
 document, and that signs such as =<=, =>=, or =&= have special
-meanings.  See [[http://docs.mathjax.org/en/latest/tex.html#tex-and-latex-in-html-documents][MathJax TeX and LaTeX support]].
+meanings.  See [[http://docs.mathjax.org/en/latest/input/tex/html.html#tex-and-latex-in-html-documents][MathJax TeX and LaTeX in HTML documents]].
 
-[fn:131] See [[http://docs.mathjax.org/en/latest/tex.html#tex-extensions][TeX and LaTeX extensions]] in the [[http://docs.mathjax.org][MathJax manual]] to learn
+[fn:131] See [[http://docs.mathjax.org/en/latest/input/tex/extensions.html#tex-and-latex-extensions][TeX and LaTeX extensions]] in the [[http://docs.mathjax.org][MathJax manual]] to learn
 about extensions.
 
 [fn:132] If the classes on TODO keywords and tags lead to conflicts,
