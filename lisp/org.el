@@ -71,6 +71,9 @@
 
 ;;;; Require other packages
 
+(require 'org-compat)
+(org-assert-version)
+
 (require 'cl-lib)
 
 (eval-when-compile (require 'gnus-sum))
@@ -10799,7 +10802,7 @@ headlines matching this string."
 			 ;; Get the correct level to match
 			 (concat "\\*\\{" (number-to-string start-level) "\\} ")
 		       org-outline-regexp)
-		     " *\\(" (regexp-opt org-todo-keywords-1 'words) "\\)?"
+		     " *\\(" (regexp-opt org-todo-keywords-1 'words) " \\)?"
 		     " *\\(.*?\\)\\([ \t]:\\(?:" org-tag-re ":\\)+\\)?[ \t]*$"))
 	 (props (list 'face 'default
 		      'done-face 'org-agenda-done
