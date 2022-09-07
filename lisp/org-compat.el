@@ -331,6 +331,10 @@ Counting starts at 1."
 (define-obsolete-function-alias 'org-string-match-p 'string-match-p "9.0")
 
 ;;;; Functions and variables from previous releases now obsolete.
+(define-obsolete-variable-alias 'org-export-before-processing-hook
+  'org-export-before-processing-functions "Org 9.6")
+(define-obsolete-variable-alias 'org-export-before-parsing-hook
+  'org-export-before-parsing-functions "Org 9.6")
 (define-obsolete-function-alias 'org-element-remove-indentation
   'org-remove-indentation "9.0")
 (define-obsolete-variable-alias 'org-latex-create-formula-image-program
@@ -1222,7 +1226,7 @@ To get rid of the restriction, use `\\[org-agenda-remove-restriction-lock]'."
   (require 'org-agenda)
   (let (p m tp np dir txt)
     (cond
-     ((setq p (text-property-any (point-at-bol) (point-at-eol)
+     ((setq p (text-property-any (line-beginning-position) (line-end-position)
 				 'org-imenu t))
       (setq m (get-text-property p 'org-imenu-marker))
       (with-current-buffer (marker-buffer m)
@@ -1232,7 +1236,7 @@ To get rid of the restriction, use `\\[org-agenda-remove-restriction-lock]'."
 			 (overlays-at (point))))
 	    (org-agenda-remove-restriction-lock 'noupdate)
 	  (org-agenda-set-restriction-lock 'subtree))))
-     ((setq p (text-property-any (point-at-bol) (point-at-eol)
+     ((setq p (text-property-any (line-beginning-position) (line-end-position)
 				 'speedbar-function 'speedbar-find-file))
       (setq tp (previous-single-property-change
 		(1+ p) 'speedbar-function)
@@ -1249,7 +1253,7 @@ To get rid of the restriction, use `\\[org-agenda-remove-restriction-lock]'."
 	(org-agenda-set-restriction-lock 'file)))
      (t (user-error "Don't know how to restrict Org mode agenda")))
     (move-overlay org-speedbar-restriction-lock-overlay
-		  (point-at-bol) (point-at-eol))
+		  (line-beginning-position) (line-end-position))
     (setq current-prefix-arg nil)
     (org-agenda-maybe-redo)))
 
@@ -1469,19 +1473,23 @@ key."
 ;; Folding in outline-mode is not compatible with org-mode folding
 ;; anymore. Working around to avoid breakage of external packages
 ;; assuming the compatibility.
-(define-advice outline-flag-region (:around (oldfun from to flag) fix-for-org-fold)
+(define-advice outline-flag-region (:around (oldfun from to flag &rest extra) fix-for-org-fold)
   "Run `org-fold-region' when in org-mode."
   (if (derived-mode-p 'org-mode)
       (org-fold-region (max from (point-min)) (min to (point-max)) flag 'headline)
-    (funcall oldfun from to flag)))
+    ;; Apply EXTRA to avoid breakages if adviced function definition
+    ;; changes.
+    (apply oldfun from to flag extra)))
 
-(define-advice outline-next-visible-heading (:around (oldfun arg) fix-for-org-fold)
+(define-advice outline-next-visible-heading (:around (oldfun arg &rest extra) fix-for-org-fold)
   "Run `org-next-visible-heading' when in org-mode."
   (if (derived-mode-p 'org-mode)
       (org-next-visible-heading arg)
-    (funcall oldfun arg)))
+    ;; Apply EXTRA to avoid breakages if adviced function definition
+    ;; changes.
+    (apply oldfun arg extra)))
 
-(define-advice outline-back-to-heading (:around (oldfun &optional invisible-ok) fix-for-org-fold)
+(define-advice outline-back-to-heading (:around (oldfun &optional invisible-ok &rest extra) fix-for-org-fold)
   "Run `org-back-to-heading' when in org-mode."
   (if (derived-mode-p 'org-mode)
       (progn
@@ -1497,21 +1505,27 @@ key."
 			           (point)))))
 	      (goto-char found)
 	      found)))
-    (funcall oldfun invisible-ok)))
+    ;; Apply EXTRA to avoid breakages if adviced function definition
+    ;; changes.
+    (apply oldfun invisible-ok extra)))
 
-(define-advice outline-on-heading-p (:around (oldfun &optional invisible-ok) fix-for-org-fold)
+(define-advice outline-on-heading-p (:around (oldfun &optional invisible-ok &rest extra) fix-for-org-fold)
   "Run `org-at-heading-p' when in org-mode."
   (if (derived-mode-p 'org-mode)
       (org-at-heading-p (not invisible-ok))
-    (funcall oldfun invisible-ok)))
+    ;; Apply EXTRA to avoid breakages if adviced function definition
+    ;; changes.
+    (apply oldfun invisible-ok extra)))
 
-(define-advice outline-hide-sublevels (:around (oldfun levels) fix-for-org-fold)
+(define-advice outline-hide-sublevels (:around (oldfun levels &rest extra) fix-for-org-fold)
   "Run `org-fold-hide-sublevels' when in org-mode."
   (if (derived-mode-p 'org-mode)
       (org-fold-hide-sublevels levels)
-    (funcall oldfun levels)))
+    ;; Apply EXTRA to avoid breakages if adviced function definition
+    ;; changes.
+    (apply oldfun levels extra)))
 
-(define-advice outline-toggle-children (:around (oldfun) fix-for-org-fold)
+(define-advice outline-toggle-children (:around (oldfun &rest extra) fix-for-org-fold)
   "Run `org-fold-hide-sublevels' when in org-mode."
   (if (derived-mode-p 'org-mode)
       (save-excursion
@@ -1520,7 +1534,9 @@ key."
             (org-fold-hide-subtree)
           (org-fold-show-children)
           (org-fold-show-entry 'hide-drawers)))
-    (funcall oldfun)))
+    ;; Apply EXTRA to avoid breakages if adviced function definition
+    ;; changes.
+    (apply oldfun extra)))
 
 ;; TODO: outline-headers-as-kill
 
