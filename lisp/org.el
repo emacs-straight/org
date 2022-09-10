@@ -282,9 +282,10 @@ byte-compiled before it is loaded."
 (defcustom org-babel-load-languages '((emacs-lisp . t))
   "Languages which can be evaluated in Org buffers.
 \\<org-mode-map>
-This list can be used to load support for any of the languages
-below.  Each language will depend on a different set of system
-executables and/or Emacs modes.
+This list can be used to load support for any of the available
+languages with babel support (see info node `(org) Languages').  Each
+language will depend on a different set of system executables and/or
+Emacs modes.
 
 When a language is \"loaded\", code blocks in that language can
 be evaluated with `org-babel-execute-src-block', which is bound
@@ -7988,7 +7989,7 @@ This is saved in case the need arises to restore it.")
     (`windows-nt org-file-apps-windowsnt)
     (_ org-file-apps-gnu)))
 
-(defun org--file-apps-entry-dlink-p (entry)
+(defun org--file-apps-entry-locator-p (entry)
   "Non-nil if ENTRY should be matched against the link by `org-open-file'.
 
 It assumes that is the case when the entry uses a regular
@@ -8002,7 +8003,7 @@ a parameter."
 	  (> (regexp-opt-depth selector) 0)
 	  (or (and (stringp action)
 		   (string-match "%[0-9]" action))
-	      (consp action))))
+	      (functionp action))))
     (_ nil)))
 
 (defun org--file-apps-regexp-alist (list &optional add-auto-mode)
@@ -8119,9 +8120,9 @@ If the file does not exist, throw an error."
   (let* ((file (if (equal path "") buffer-file-name
 		 (substitute-in-file-name (expand-file-name path))))
 	 (file-apps (append org-file-apps (org--file-default-apps)))
-	 (apps (cl-remove-if #'org--file-apps-entry-dlink-p file-apps))
-	 (apps-dlink (cl-remove-if-not #'org--file-apps-entry-dlink-p
-				       file-apps))
+	 (apps (cl-remove-if #'org--file-apps-entry-locator-p file-apps))
+	 (apps-locator (cl-remove-if-not #'org--file-apps-entry-locator-p
+                                         file-apps))
 	 (remp (and (assq 'remote apps) (file-remote-p file)))
 	 (dirp (unless remp (file-directory-p file)))
 	 (file (if (and dirp org-open-directory-means-index-dot-org)
@@ -8134,7 +8135,6 @@ If the file does not exist, throw an error."
 	 (link (cond (line (concat file "::" (number-to-string line)))
 		     (search (concat file "::" search))
 		     (t file)))
-	 (dlink (downcase link))
 	 (ext
 	  (and (string-match "\\`.*?\\.\\([a-zA-Z0-9]+\\(\\.gz\\)?\\)\\'" dfile)
 	       (match-string 1 dfile)))
@@ -8156,16 +8156,17 @@ If the file does not exist, throw an error."
      (t
       (setq cmd (or (and remp (cdr (assq 'remote apps)))
 		    (and dirp (cdr (assq 'directory apps)))
-		    ;; First, try matching against apps-dlink if we
+		    ;; First, try matching against apps-locator if we
 		    ;; get a match here, store the match data for
 		    ;; later.
-		    (let ((match (assoc-default dlink apps-dlink
-						'string-match)))
+		    (let* ((case-fold-search t)
+                           (match (assoc-default link apps-locator
+                                                 'string-match)))
 		      (if match
 			  (progn (setq link-match-data (match-data))
 				 match)
 			(progn (setq in-emacs (or in-emacs line search))
-			       nil))) ; if we have no match in apps-dlink,
+			       nil))) ; if we have no match in apps-locator,
 					; always open the file in emacs if line or search
 					; is given (for backwards compatibility)
 		    (assoc-default dfile
@@ -8191,7 +8192,7 @@ If the file does not exist, throw an error."
       (user-error "No such file: %s" file))
     (cond
      ((org-string-nw-p cmd)
-      (setq cmd (org--open-file-format-command cmd file dlink link-match-data))
+      (setq cmd (org--open-file-format-command cmd file link link-match-data))
 
       (save-window-excursion
 	(message "Running %s...done" cmd)
