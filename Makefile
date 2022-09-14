@@ -1,97 +1,93 @@
-# Makefile - for the org-mode distribution
-# GNU make is required
-#
-# This file is not part of GNU Emacs
+.NOTPARALLEL:	# always run this make serially
+.SUFFIXES:	# we don't need default suffix rules
+ifeq ($(MAKELEVEL), 0)
+  $(error This make needs to be started as a sub-make from the toplevel directory.)
+endif
 
-# set up environment
- include mk/default.mk	# defaults, customizable via "local.mk"
--include local.mk	# optional local customization, use default.mk as template
+ifneq ($(ORG_ADD_CONTRIB),)
+  _ORG_ADD_EL_ := \
+	$(notdir \
+	$(wildcard \
+	$(addsuffix .el, \
+	$(addprefix ../contrib/lisp/, \
+	$(basename \
+	$(notdir $(ORG_ADD_CONTRIB)))))))
+endif
 
-# default target is "all" unless overridden in local.mk
-all::
+LISPV 	:= org-version.el
+LISPI 	:= org-loaddefs.el
+LISPA 	:= $(LISPV) $(LISPI)
+LISPB 	:= $(LISPA:%el=%elc) org-install.elc
+LISPF 	:= $(filter-out $(LISPA),$(sort $(wildcard *.el) $(_ORG_ADD_EL_)))
+LISPC 	:= $(filter-out $(LISPB) $(LISPN:%el=%elc),$(LISPF:%el=%elc))
+_ORGCM_ := dirall single source slint1 slint2
+-include local.mk
 
-# Describe valid make targets for org-mode.
-.PHONY:	targets help helpall
-targets:	help
-help helpall::
-	$(info )
-	$(info Getting Help)
-	$(info ============)
-	$(info make help           - show brief help)
-	$(info make targets        - ditto)
-	$(info make helpall        - show extended help)
-	$(info )
-	$(info Build and Check)
-	$(info ===============)
-	$(info make                - build Org ELisp and all documentation)
-	$(info make all            - ditto)
-	$(info make compile        - build Org ELisp files)
-	$(info make single         - build Org ELisp files, single Emacs per source)
-	$(info make autoloads      - create org-loaddefs.el to load Org in-place)
-	$(info make test           - build Org ELisp files and run test suite)
-	$(info make vanilla        - run Emacs with this Org-mode and no personal config)
-helpall::
-	$(info make test-dirty     - check without building first)
-	$(info make compile-dirty  - build only stale Org ELisp files)
-	$(info )
-	$(info Compatibility)
-	$(info =============)
-	$(info make oldorg         - what the old make did: compile autoloads info)
-	$(info )
-	$(info Cleaning)
-	$(info ========)
-	$(info make clean          - remove built Org ELisp files and documentation)
-	$(info make cleanall       - remove everything that can be built and all remnants)
-	$(info make clean-install  - remove previous Org installation)
-	$(info )
-	$(info Configuration Check)
-	$(info ===================)
-help helpall::
-	$(info make config         - check main configuration)
-helpall::
-	$(info make config-version - check Org version)
-	$(info make config-test    - check test configuration)
-	$(info make config-exe     - check executables configuration)
-	$(info make config-cmd     - check command configuration)
-	$(info make config-all     - check all configuration)
-	$(info )
-	$(info Documentation)
-	$(info =============)
-help helpall::
-	$(info make doc            - build all documentation)
-helpall::
-	$(info make docs           - ditto)
-help helpall::
-	$(info make info           - build Info documentation)
-helpall::
-	$(info make html           - build HTML documentation)
-	$(info make pdf            - build PDF documentation)
-	$(info make card           - build reference cards)
-	$(info make refcard        - ditto)
-help helpall::
-	$(info )
-	$(info Installation)
-	$(info ============)
-	$(info make install        - build and install Org)
-helpall::
-	$(info make install-etc    - build and install files in /etc)
-	$(info make install-lisp   - build and install Org Elisp files)
-	$(info make install-info   - build and install Info documentation)
-	$(info )
-	$(info Convenience)
-	$(info ===========)
-	$(info make up0            - pull from upstream)
-	$(info make up1            - pull from upstream, build and check)
-	$(info make up2            - pull from upstream, build, check and install)
-	$(info make update         - pull from upstream and build)
-	$(info make update2        - pull from upstream, build and install)
-	$(info make uncompiled     - combine cleanlisp and autoloads)
-	$(info make local.mk       - create new local.mk as template for adaptation)
-help helpall::
-	$(info )
-	$(info Full documentation on Worg)
-	$(info ==========================)
-	$(info https://orgmode.org/worg/dev/org-build-system.html)
-	@echo ""
+.PHONY:	all compile compile-dirty \
+	$(_ORGCM_) $(_ORGCM_:%=compile-%) \
+	autoloads addcontrib \
+	install clean cleanauto cleanall cleanelc clean-install
 
- include mk/targets.mk	# toplevel make machinery
+# do not clean here, done in toplevel make
+all compile compile-dirty::	 autoloads
+ifeq ($(filter-out $(_ORGCM_),$(ORGCM)),)
+	$(MAKE) compile-$(ORGCM)
+else
+	$(error ORGCM has illegal value $(ORGCM) (valid: $(_ORGCM_)))
+endif
+
+compile-dirall:	dirall
+compile-single: single $(LISPC)
+compile-source:	source dirall
+compile-slint1:	dirall slint1
+compile-slint2:	source dirall slint1
+
+# internal
+dirall:
+	@$(info ==================== $@ ====================)
+	@$(ELCDIR)
+single:
+	@$(info ==================== $@ ====================)
+source: cleanelc
+	@$(info ==================== $@ ====================)
+	@$(foreach elc,$(LISPC),$(MAKE) $(elc) && $(RM) $(elc);)
+slint1:
+	@$(info ==================== $@ ====================)
+	@$(foreach elc,$(LISPC),$(RM) $(elc); $(MAKE) $(elc);)
+
+%.elc:	%.el
+	@$(info Compiling single $(abspath $<)...)
+	-@$(ELC) $<
+
+addcontrib:
+ifneq ($(ORG_ADD_CONTRIB),)
+	$(CP) $(addprefix ../contrib/lisp/,$(_ORG_ADD_EL_)) .
+endif
+
+autoloads:	cleanauto addcontrib $(LISPI) $(LISPV)
+
+$(LISPV):	$(LISPF)
+	@echo "org-version: $(ORGVERSION) ($(GITVERSION))"
+	@$(RM) $(@)
+	@$(MAKE_ORG_VERSION)
+
+$(LISPI):	$(LISPV) $(LISPF)
+	@echo "org-loaddefs: $(ORGVERSION) ($(GITVERSION))"
+	@$(RM) $(@)
+	@$(MAKE_ORG_INSTALL)
+
+install:	 compile $(LISPF)
+	if [ ! -d $(DESTDIR)$(lispdir) ] ; then \
+	  $(MKDIR) $(DESTDIR)$(lispdir) ; \
+	fi ;
+	$(CP) $(LISPC) $(LISPF) $(LISPA) $(DESTDIR)$(lispdir)
+
+cleanauto clean cleanall::
+	$(RM) $(LISPA) $(LISPB)
+clean cleanall cleanelc::
+	$(RM) *.elc
+
+clean-install:
+	if [ -d $(DESTDIR)$(lispdir) ] ; then \
+	  $(RM) $(DESTDIR)$(lispdir)/org*.el* $(DESTDIR)$(lispdir)/ob*.el* $(DESTDIR)$(lispdir)/ol*.el* $(DESTDIR)$(lispdir)/ox*.el* ; \
+	fi ;
