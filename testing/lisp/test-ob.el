@@ -1,4 +1,4 @@
-;;; test-ob.el --- tests for ob.el
+;;; test-ob.el --- tests for ob.el  -*- lexical-binding: t; -*-
 
 ;; Copyright (c) 2010-2015, 2019 Eric Schulte
 ;; Authors: Eric Schulte, Martyn Jago
@@ -20,6 +20,10 @@
 
 ;;; Code:
 
+(require 'ob-core)
+(require 'org-src)
+(require 'ob-ref)
+(require 'org-table)
 (eval-and-compile (require 'cl-lib))
 
 (ert-deftest test-ob/indented-cached-org-bracket-link ()
@@ -733,16 +737,17 @@ x
       (should (looking-at ": 2")))))
 
 (ert-deftest test-ob/eval-header-argument ()
+  (defvar test-ob--foo)
   (cl-flet ((check-eval (eval runp)
 			(org-test-with-temp-text (format "#+begin_src emacs-lisp :eval %s
-  (setq foo :evald)
+  (setq test-ob--foo :evald)
 #+end_src" eval)
-			  (let ((foo :not-run))
+			  (let ((test-ob--foo :not-run))
 			    (if runp
 				(progn (should (org-babel-execute-src-block))
-				       (should (eq foo :evald)))
+				       (should (eq test-ob--foo :evald)))
 			      (progn (should-not (org-babel-execute-src-block))
-				     (should-not (eq foo :evald))))))))
+				     (should-not (eq test-ob--foo :evald))))))))
     (check-eval "never" nil)
     (check-eval "no" nil)
     (check-eval "never-export" t)
@@ -878,7 +883,52 @@ x
 #+begin_src emacs-lisp :noweb yes<point>
 <<AA>>
 #+end_src"
-	    (org-babel-expand-noweb-references)))))
+	    (org-babel-expand-noweb-references))))
+  ;; Test :noweb-ref expansion.
+  (should
+   (equal "(message \"!! %s\" \"Running confpkg-test-setup\")
+
+(message \"- Ran `%s'\" 'confpkg-test-strip-package-statements)
+
+(message \"!! %s\" \"Still running confpkg-test-setup\")
+
+(message \"- Ran elisp blocks in `%s'\" 'confpkg-test-dependency-analysis)
+
+(message \"!! %s\" \"End of confpkg-test-setup\")"
+          (org-test-with-temp-text "
+* Setup
+
+#+name: confpkg-test-setup
+#+begin_src emacs-lisp :results silent :noweb no-export
+(message \"!! %s\" \"Running confpkg-test-setup\")
+
+<<confpkg-test-strip-package-statements>>
+
+(message \"!! %s\" \"Still running confpkg-test-setup\")
+
+<<confpkg-test-dependency-analysis>>
+
+(message \"!! %s\" \"End of confpkg-test-setup\")
+#+end_src
+
+#+call: confpkg-test-setup[:results none]()
+
+* Identify cross-package dependencies
+
+#+begin_src emacs-lisp :noweb-ref confpkg-test-dependency-analysis
+(message \"- Ran elisp blocks in `%s'\" 'confpkg-test-dependency-analysis)
+#+end_src
+
+* Commenting out ~package!~ statements
+
+#+name: confpkg-test-strip-package-statements
+#+begin_src emacs-lisp
+(message \"- Ran `%s'\" 'confpkg-test-strip-package-statements)
+#+end_src
+"
+            (goto-char (point-min))
+            (search-forward "begin_src")
+            (org-babel-expand-noweb-references)))))
 
 (ert-deftest test-ob/splitting-variable-lists-in-references ()
   (org-test-with-temp-text ""
@@ -1384,7 +1434,7 @@ Line 3\"
 	  (org-test-with-temp-text "#+BEGIN_SRC emacs-lisp
 \(+ 1 2)
 #+END_SRC\n\n\n"
-	    (let ((org-babel-next-src-block "RESULTS"))
+	    (let ((org-babel-results-keyword "RESULTS"))
 	      (org-babel-execute-src-block))
 	    (buffer-string))))
   ;; Do not add spurious blank lines after results.
@@ -1537,7 +1587,7 @@ echo \"$data\"
 	    (should (re-search-forward org-babel-src-block-regexp nil t))
 	    (goto-char (match-beginning 0))
 	    ;; now that we've located the code block, it may be evaluated
-	    (let ((org-babel-execute-src-block "RESULTS"))
+	    (let ((org-babel-results-keyword "RESULTS"))
 	      (org-babel-execute-src-block))
 	    (buffer-string)))))
 
@@ -1719,6 +1769,7 @@ line 1
 
 (ert-deftest test-ob/noweb-expansions-in-cache ()
   "Ensure that noweb expansions are expanded before caching."
+  (defvar noweb-expansions-in-cache-var)
   (let ((noweb-expansions-in-cache-var 0))
     (org-test-with-temp-text "
 #+name: foo

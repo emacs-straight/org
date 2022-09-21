@@ -83,6 +83,8 @@
 (declare-function org-element-property "org-element" (property element))
 (declare-function org-element--cache-active-p "org-element"
                   (&optional called-from-cache-change-func-p))
+(declare-function org-element-lineage "org-element"
+                  (datum &optional types with-self))
 (declare-function org-habit-insert-consistency-graphs
 		  "org-habit" (&optional line))
 (declare-function org-is-habit-p "org-habit" (&optional pom))
@@ -4224,7 +4226,7 @@ Optional argument ELEMENT contains element at point."
 	   (and (setq to (or (org-agenda-skip-eval org-agenda-skip-function-global)
 			     (org-agenda-skip-eval org-agenda-skip-function)))
 		(goto-char to))
-	   (org-in-src-block-p t))
+	   (org-in-src-block-p t element))
       (throw :skip t))))
 
 (defun org-agenda-skip-eval (form)
@@ -5908,7 +5910,7 @@ displayed in agenda view."
     (goto-char (point-min))
     (while (re-search-forward regexp nil t)
       (catch :skip
-	(org-agenda-skip)
+	(org-agenda-skip (org-element-at-point))
 	(setq beg (match-beginning 0))
 	(goto-char (1- (match-end 0)))
 	(setq b (point))
