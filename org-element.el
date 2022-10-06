@@ -126,7 +126,15 @@ Key is located in match group 1.")
 Style, if any, is located in match group 1.")
 
 (defconst org-element-clock-line-re
-  (rx line-start (0+ (or ?\t ?\s)) "CLOCK:")
+  (rx line-start (0+ (or ?\t ?\s))
+      "CLOCK: "
+      (regexp org-ts-regexp-inactive)
+      (opt "--"
+           (regexp org-ts-regexp-inactive)
+           (1+ (or ?\t ?\s)) "=>" (1+ (or ?\t ?\s))
+           (1+ digit) ":" digit digit)
+      (0+ (or ?\t ?\s))
+      line-end)
   "Regexp matching a clock line.")
 
 (defconst org-element-comment-string "COMMENT"
@@ -219,7 +227,7 @@ specially in `org-element--object-lex'.")
 		;; LaTeX environments.
 		"\\\\begin{\\([A-Za-z0-9*]+\\)}" "\\|"
 		;; Clock lines.
-		"CLOCK:" "\\|"
+		org-element-clock-line-re "\\|"
 		;; Lists.
 		(let ((term (pcase org-plain-list-ordered-item-terminator
 			      (?\) ")") (?. "\\.") (_ "[.)]")))
@@ -2414,7 +2422,7 @@ CDR is a plist containing `:key', `:value', `:begin', `:end',
 	  (key (progn (looking-at "[ \t]*#\\+\\(\\S-*\\):")
 		      (upcase (match-string-no-properties 1))))
 	  (value (org-trim (buffer-substring-no-properties
-			    (match-end 0) (line-end-position))))
+                            (match-end 0) (line-end-position))))
 	  (pos-before-blank (progn (forward-line) (point)))
 	  (end (progn (skip-chars-forward " \r\t\n" limit)
 		      (if (eobp) (point) (line-beginning-position)))))
