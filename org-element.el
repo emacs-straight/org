@@ -126,15 +126,17 @@ Key is located in match group 1.")
 Style, if any, is located in match group 1.")
 
 (defconst org-element-clock-line-re
-  (rx line-start (0+ (or ?\t ?\s))
-      "CLOCK: "
-      (regexp org-ts-regexp-inactive)
-      (opt "--"
-           (regexp org-ts-regexp-inactive)
-           (1+ (or ?\t ?\s)) "=>" (1+ (or ?\t ?\s))
-           (1+ digit) ":" digit digit)
-      (0+ (or ?\t ?\s))
-      line-end)
+  (rx-to-string
+   `(seq
+     line-start (0+ (or ?\t ?\s))
+     "CLOCK: "
+     (regexp ,org-ts-regexp-inactive)
+     (opt "--"
+          (regexp ,org-ts-regexp-inactive)
+          (1+ (or ?\t ?\s)) "=>" (1+ (or ?\t ?\s))
+          (1+ digit) ":" digit digit)
+     (0+ (or ?\t ?\s))
+     line-end))
   "Regexp matching a clock line.")
 
 (defconst org-element-comment-string "COMMENT"
@@ -7236,23 +7238,27 @@ Each element indicates the latest `org-element--cache-change-tic' when
 change did not contain gaps.")
 
 ;;;###autoload
-(defun org-element-cache-reset (&optional all)
+(defun org-element-cache-reset (&optional all no-persistance)
   "Reset cache in current buffer.
 When optional argument ALL is non-nil, reset cache in all Org
-buffers."
+buffers.
+When optional argument NO-PERSISTANCE is non-nil, do not try to update
+the cache persistence in the buffer."
   (interactive "P")
   (dolist (buffer (if all (buffer-list) (list (current-buffer))))
     (with-current-buffer (or (buffer-base-buffer buffer) buffer)
       (when (and org-element-use-cache (derived-mode-p 'org-mode))
-        (when (not org-element-cache-persistent)
-          (org-persist-unregister 'org-element--headline-cache (current-buffer))
-          (org-persist-unregister 'org-element--cache (current-buffer)))
-        (when (and org-element-cache-persistent
-                   (buffer-file-name (current-buffer)))
-          (org-persist-register 'org-element--cache (current-buffer))
-          (org-persist-register 'org-element--headline-cache
-                                (current-buffer)
-                                :inherit 'org-element--cache))
+        ;; Only persist cache in file buffers.
+        (when (and (buffer-file-name) (not no-persistance))
+          (when (not org-element-cache-persistent)
+            (org-persist-unregister 'org-element--headline-cache (current-buffer))
+            (org-persist-unregister 'org-element--cache (current-buffer)))
+          (when (and org-element-cache-persistent
+                     (buffer-file-name (current-buffer)))
+            (org-persist-register 'org-element--cache (current-buffer))
+            (org-persist-register 'org-element--headline-cache
+                                  (current-buffer)
+                                  :inherit 'org-element--cache)))
         (setq-local org-element--cache-change-tic (buffer-chars-modified-tick))
         (setq-local org-element--cache-last-buffer-size (buffer-size))
         (setq-local org-element--cache-gapless nil)
