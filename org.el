@@ -12187,8 +12187,11 @@ a *different* entry, you cannot use these techniques."
 
 	  (if (not scope)
 	      (progn
-		(org-agenda-prepare-buffers
-		 (and buffer-file-name (list buffer-file-name)))
+                ;; Agenda expects a file buffer.  Skip over refreshing
+                ;; agenda cache for non-file buffers.
+                (when buffer-file-name
+		  (org-agenda-prepare-buffers
+		   (and buffer-file-name (list buffer-file-name))))
 		(setq res
 		      (org-scan-tags
 		       func matcher org--matcher-tags-todo-only start-level)))
@@ -17307,7 +17310,12 @@ This command does many different things, depending on context:
 	((or `babel-call `inline-babel-call)
 	 (let ((info (org-babel-lob-get-info context)))
 	   (when info (org-babel-execute-src-block nil info nil type))))
-	(`clock (org-clock-update-time-maybe))
+	(`clock
+         (if (org-at-timestamp-p 'lax)
+             ;; Update the timestamp as well.  `org-timestamp-change'
+             ;; will call `org-clock-update-time-maybe'.
+             (org-timestamp-change 0 'day)
+           (org-clock-update-time-maybe)))
 	(`dynamic-block
 	 (save-excursion
 	   (goto-char (org-element-property :post-affiliated context))
