@@ -7423,10 +7423,26 @@ the default is \"/\"."
 	(setf (substring fpath (- width 2)) "..")))
     fpath))
 
-(defun org-display-outline-path (&optional file current separator just-return-string)
+(defun org-get-title (&optional buffer-or-file)
+  "Collect title from the provided `org-mode' BUFFER-OR-FILE.
+
+Returns nil if there are no #+TITLE property."
+  (let ((buffer (cond ((bufferp buffer-or-file) buffer-or-file)
+                      ((stringp buffer-or-file) (find-file-noselect
+                                                 buffer-or-file))
+                      (t (current-buffer)))))
+    (with-current-buffer buffer
+      (org-macro-initialize-templates)
+      (let ((title (assoc-default "title" org-macro-templates)))
+        (unless (string= "" title)
+          title)))))
+
+(defun org-display-outline-path (&optional file-or-title current separator just-return-string)
   "Display the current outline path in the echo area.
 
-If FILE is non-nil, prepend the output with the file name.
+If FILE-OR-TITLE is 'title, prepend outline with file title.  If
+it is non-nil or title is not present in document, prepend
+outline path with the file name.
 If CURRENT is non-nil, append the current heading to the output.
 SEPARATOR is passed through to `org-format-outline-path'.  It separates
 the different parts of the path and defaults to \"/\".
@@ -7434,6 +7450,7 @@ If JUST-RETURN-STRING is non-nil, return a string, don't display a message."
   (interactive "P")
   (let* (case-fold-search
 	 (bfn (buffer-file-name (buffer-base-buffer)))
+         (title-prop (when (eq file-or-title 'title) (org-get-title)))
 	 (path (and (derived-mode-p 'org-mode) (org-get-outline-path)))
 	 res)
     (when current (setq path (append path
@@ -7445,7 +7462,10 @@ If JUST-RETURN-STRING is non-nil, return a string, don't display a message."
 	  (org-format-outline-path
 	   path
 	   (1- (frame-width))
-	   (and file bfn (concat (file-name-nondirectory bfn) separator))
+	   (and file-or-title bfn (concat (if (and (eq file-or-title 'title) title-prop)
+					      title-prop
+					    (file-name-nondirectory bfn))
+				 separator))
 	   separator))
     (add-face-text-property 0 (length res)
 			    `(:height ,(face-attribute 'default :height))
@@ -11317,7 +11337,7 @@ See also `org-scan-tags'."
 			     (pv (match-string 7 term))
 			     (regexp (eq (string-to-char pv) ?{))
 			     (strp (eq (string-to-char pv) ?\"))
-			     (timep (string-match-p "^\"[[<].*[]>]\"$" pv))
+			     (timep (string-match-p "^\"[[<][0-9]+.*[]>]\"$" pv))
 			     (po (org-op-to-function (match-string 6 term)
 						     (if timep 'time strp))))
 			(setq pv (if (or regexp strp) (substring pv 1 -1) pv))
