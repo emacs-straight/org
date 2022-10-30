@@ -1070,7 +1070,7 @@ current item's tree, in an indirect buffer."
 (defcustom org-agenda-show-outline-path t
   "Non-nil means show outline path in echo area after line motion.
 
-If set to 'title, show outline path with prepended document
+If set to `title', show outline path with prepended document
 title.  Fallback to file name is no title is present."
   :group 'org-agenda-startup
   :type '(choice
@@ -5393,7 +5393,7 @@ of what a project is and how to check if it stuck, customize the variable
   "Hook run when the fancy diary buffer is cleaned up.")
 
 (defun org-agenda-cleanup-fancy-diary ()
-  "Remove unwanted stuff in buffer created by `fancy-diary-display'.
+  "Remove unwanted stuff in buffer created by `diary-fancy-display'.
 This gets rid of the date, the underline under the date, and the
 dummy entry installed by Org mode to ensure non-empty diary for
 each date.  It also removes lines that contain only whitespace."

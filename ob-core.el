@@ -76,6 +76,7 @@
 (declare-function org-list-struct "org-list" ())
 (declare-function org-list-to-generic "org-list" (LIST PARAMS))
 (declare-function org-list-to-lisp "org-list" (&optional delete))
+(declare-function org-list-to-org "org-list" (list &optional params))
 (declare-function org-macro-escape-arguments "org-macro" (&rest args))
 (declare-function org-mark-ring-push "org" (&optional pos buffer))
 (declare-function org-narrow-to-subtree "org" (&optional element))
@@ -805,7 +806,7 @@ guess will be made."
                          (format "at position %d" (nth 5 info)))))
 	    (setq exec-start-time (current-time)
                   result
-		  (let ((r (funcall cmd body params)))
+		  (let ((r (save-current-buffer (funcall cmd body params))))
 		    (if (and (eq (cdr (assq :result-type params)) 'value)
 			     (or (member "vector" result-params)
 				 (member "table" result-params))
