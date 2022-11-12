@@ -415,7 +415,7 @@ then run `org-babel-switch-to-session'."
     (mkdirp	. ((yes no)))
     (no-expand)
     (noeval)
-    (noweb	. ((yes no tangle no-export strip-export)))
+    (noweb	. ((yes no tangle strip-tangle no-export strip-export)))
     (noweb-ref	. :any)
     (noweb-sep  . :any)
     (noweb-prefix . ((no yes)))
@@ -2596,7 +2596,7 @@ INFO may provide the values of these header arguments (in the
                           (message "Code block returned no value%s." time-info)
                         (message "Code block produced no output%s." time-info))
                     (message "Code block evaluation complete%s." time-info))))
-	    (set-marker end nil)
+	    (when end (set-marker end nil))
 	    (when outside-scope (narrow-to-region visible-beg visible-end))
 	    (set-marker visible-beg nil)
 	    (set-marker visible-end nil)))))))
@@ -2885,9 +2885,9 @@ parameters when merging lists."
   "Check if PARAMS require expansion in CONTEXT.
 CONTEXT may be one of :tangle, :export or :eval."
   (let ((allowed-values (cl-case context
-			  (:tangle '("yes" "tangle" "no-export" "strip-export"))
-			  (:eval   '("yes" "no-export" "strip-export" "eval"))
-			  (:export '("yes")))))
+			  (:tangle '("yes" "tangle" "no-export" "strip-export" "strip-tangle"))
+			  (:eval   '("yes" "no-export" "strip-export" "eval" "strip-tangle"))
+			  (:export '("yes" "strip-tangle")))))
     (cl-some (lambda (v) (member v allowed-values))
 	     (split-string (or (cdr (assq :noweb params)) "")))))
 
@@ -3170,7 +3170,16 @@ situations in which is it not appropriate."
 	((and (not inhibit-lisp-eval)
 	      (or (memq (string-to-char cell) '(?\( ?' ?` ?\[))
 		  (string= cell "*this*")))
-	 (eval (read cell) t))
+         ;; Prevent arbitrary function calls.
+         (if (and (memq (string-to-char cell) '(?\( ?`))
+                  (not (org-babel-confirm-evaluate
+                      ;; See `org-babel-get-src-block-info'.
+                      (list "emacs-lisp" (format "%S" cell)
+                            '((:eval . yes)) nil (format "%S" cell)
+                            nil nil))))
+             ;; Not allowed.
+             (user-error "Evaluation of elisp code %S aborted." cell)
+	   (eval (read cell) t)))
 	((save-match-data
            (and (string-match "^[[:space:]]*\"\\(.*\\)\"[[:space:]]*$" cell)
                 (not (string-match "[^\\]\"" (match-string 1 cell)))))

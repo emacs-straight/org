@@ -95,7 +95,6 @@
 (defvar org-property-re)
 (defvar org-src-preserve-indentation)
 (defvar org-tags-column)
-(defvar org-time-stamp-formats)
 (defvar org-todo-regexp)
 (defvar org-ts-regexp-both)
 
@@ -603,7 +602,8 @@ Return parent element."
     ;; Link every child to PARENT. If PARENT is nil, it is a secondary
     ;; string: parent is the list itself.
     (dolist (child children)
-      (org-element-put-property child :parent (or parent children)))
+      (when child
+        (org-element-put-property child :parent (or parent children))))
     ;; Add CHILDREN at the end of PARENT contents.
     (when parent
       (apply #'org-element-set-contents
@@ -4032,8 +4032,7 @@ Assume point is at the beginning of the timestamp."
 	  ;; the repeater string, if any.
 	  (lambda (time activep &optional with-time-p hour-end minute-end)
 	    (let ((ts (format-time-string
-		       (funcall (if with-time-p #'cdr #'car)
-				org-time-stamp-formats)
+                       (org-time-stamp-format with-time-p)
 		       time)))
 	      (when (and hour-end minute-end)
 		(string-match "[012]?[0-9]:[0-5][0-9]" ts)
