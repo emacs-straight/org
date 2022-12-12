@@ -4596,8 +4596,8 @@ is available.  This option applies only if FILE is a URL."
 This checks every pattern in `org-safe-remote-resources', and
 returns non-nil if any of them match."
   (let ((uri-patterns org-safe-remote-resources)
-        (file-uri (and buffer-file-name
-                       (concat "file://" (file-truename buffer-file-name))))
+        (file-uri (and (buffer-file-name (buffer-base-buffer))
+                       (concat "file://" (file-truename (buffer-file-name (buffer-base-buffer))))))
         match-p)
     (while (and (not match-p) uri-patterns)
       (setq match-p (or (string-match-p (car uri-patterns) uri)
@@ -4608,7 +4608,8 @@ returns non-nil if any of them match."
 (defun org--confirm-resource-safe (uri)
   "Ask the user if URI should be considered safe, returning non-nil if so."
   (unless noninteractive
-    (let ((current-file (and buffer-file-name (file-truename buffer-file-name)))
+    (let ((current-file (and (buffer-file-name (buffer-base-buffer))
+                             (file-truename (buffer-file-name (buffer-base-buffer)))))
           (domain (and (string-match
                         (rx (seq "http" (? "s") "://")
                             (optional (+ (not (any "@/\n"))) "@")
@@ -16363,6 +16364,10 @@ buffer boundaries with possible narrowing."
   "Remove inline-display overlay if a corresponding region is modified."
   (when (and ov after)
     (delete ov org-inline-image-overlays)
+    ;; Clear image from cache to avoid image not updating upon
+    ;; changing on disk.  See Emacs bug#59902.
+    (when (overlay-get ov 'org-image-overlay)
+      (image-flush (overlay-get ov 'display)))
     (delete-overlay ov)))
 
 (defun org-remove-inline-images (&optional beg end)
