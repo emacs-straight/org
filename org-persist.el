@@ -75,7 +75,8 @@
 ;;    ;; Save buffer-local variable (buffer-local will not be
 ;;    ;; autoloaded!)
 ;;    (org-persist-register 'org-element--cache (current-buffer))
-;;    ;; Save buffer-local variable preserving circular links:
+;;    ;; Save several buffer-local variables preserving circular links
+;;    ;; between:
 ;;    (org-persist-register 'org-element--headline-cache (current-buffer)
 ;;               :inherit 'org-element--cache)
 ;;
@@ -110,7 +111,7 @@
 ;; data-cells and we want to preserve their circular structure.
 ;;
 ;; Each data collection can be associated with a local or remote file,
-;; its inode number, or contents hash.  The persistent data collection
+;; its inode number, contents hash.  The persistent data collection
 ;; can later be accessed using either file buffer, file, inode, or
 ;; contents hash.
 ;;
@@ -126,28 +127,30 @@
 ;;    Lisp variable value.  Similarly, (version "2.0") container
 ;;    will store version number.
 ;;
-;;    Container can also refer to a list of simple containers:
+;;    Container can also refer to a group of containers:
 ;;
 ;;    ;; Three containers stored together.
 ;;    '((elisp variable) (file "/path") (version "x.x"))
 ;;
 ;;    Providing a single container from the list to `org-persist-read'
-;;    is sufficient to retrieve all the containers.
+;;    is sufficient to retrieve all the containers (with appropriate
+;;    optional parameter).
 ;;
 ;;    Example:
 ;;
 ;;    (org-persist-register '((version "My data") (file "/path/to/file")) '(:key "key") :write-immediately t)
-;;    (org-persist-read '(version "My data") '(:key "key")) ;; => '("My data" "/path/to/file/copy")
+;;    (org-persist-read '(version "My data") '(:key "key") :read-related t) ;; => '("My data" "/path/to/file/copy")
 ;;
-;;    Containers can also take a short form:
+;;    Individual containers can also take a short form (not a list):
 ;;
 ;;    '("String" file '(quoted elisp "value") :keyword)
-;;    is the same as
+;;    is the same with
 ;;    '((elisp-data "String") (file nil)
 ;;      (elisp-data '(quoted elisp "value")) (elisp-data :keyword))
 ;;
 ;;    Note that '(file "String" (elisp value)) would be interpreted as
-;;    `file' container with "String" path and extra options.
+;;    `file' container with "String" path and extra options.  See
+;;    `org-persist--normalize-container'.
 ;;
 ;; 2. Associated :: an object the container is associated with.  The
 ;;    object can be a buffer, file, inode number, file contents hash,
@@ -159,12 +162,15 @@
 ;;
 ;;    When several objects are associated with a single container, it
 ;;    is not necessary to provide them all to access the container.
-;;    Just using a single :file/:inode/:hash/:key is sufficient.
+;;    Just using a single :file/:inode/:hash/:key is sufficient.  This
+;;    way, one can retrieve cached data even when the file has moved -
+;;    by contents hash.
 ;;
-;; 3. Data collection :: a list of containers linked to an associated
-;;    object/objects.  Each data collection can also have auxiliary
-;;    records.  Their only purpose is readability of the collection
-;;    index.
+;; 3. Data collection :: a list of containers, the associated
+;;    object/objects, expiry, access time, and information about where
+;;    the cache is stored.  Each data collection can also have
+;;    auxiliary records.  Their only purpose is readability of the
+;;    collection index.
 ;;
 ;;    Example:
 ;;
@@ -180,6 +186,11 @@
 ;;    actual data values for a single data collection.  This file
 ;;    contains an alist associating each data container in data
 ;;    collection with its value or a reference to the actual value.
+;;
+;;    Example (persist file storing two elisp container values):
+;;
+;;    (((elisp org-element--headline-cache) . #s(avl-tree- ...))
+;;     ((elisp org-element--cache)  . #s(avl-tree- ...)))
 ;;
 ;; All the persistent data is stored in `org-persist-directory'.  The data
 ;; collections are listed in `org-persist-index-file' and the actual data is
@@ -255,6 +266,8 @@
 (declare-function org-next-visible-heading "org" (arg))
 (declare-function org-at-heading-p "org" (&optional invisible-not-ok))
 
+;; Silence byte-compiler (used in `org-persist--write-elisp-file').
+(defvar pp-use-max-width)
 
 (defconst org-persist--storage-version "3.2"
   "Persistent storage layout version.")
@@ -264,18 +277,19 @@
   :tag "Org persist"
   :group 'org)
 
-(defcustom org-persist-directory (expand-file-name
-                       (org-file-name-concat
-                        (let ((cache-dir (when (fboundp 'xdg-cache-home)
-                                           (xdg-cache-home))))
-                          (if (or (seq-empty-p cache-dir)
-                                  (not (file-exists-p cache-dir))
-                                  (file-exists-p (org-file-name-concat
-                                                  user-emacs-directory
-                                                  "org-persist")))
+(defcustom org-persist-directory
+  (expand-file-name
+   (org-file-name-concat
+    (let ((cache-dir (when (fboundp 'xdg-cache-home)
+                       (xdg-cache-home))))
+      (if (or (seq-empty-p cache-dir)
+              (not (file-exists-p cache-dir))
+              (file-exists-p (org-file-name-concat
                               user-emacs-directory
-                            cache-dir))
-                        "org-persist/"))
+                              "org-persist")))
+          user-emacs-directory
+        cache-dir))
+    "org-persist/"))
   "Directory where the data is stored."
   :group 'org-persist
   :package-version '(Org . "9.6")
@@ -355,7 +369,7 @@ properties:
 
 (defvar org-persist--index-hash nil
   "Hash table storing `org-persist--index'.  Used for quick access.
-They keys are conses of (container . associated).")
+The keys are conses of (container . associated).")
 
 (defvar org-persist--index-age nil
   "The modification time of the index file, when it was loaded.")
@@ -364,7 +378,7 @@ They keys are conses of (container . associated).")
   "Whether to report read/write time.
 
 When the value is a number, it is a threshold number of seconds.  If
-the read/write time of a single variable exceeds the threshold, a
+the read/write time of a single persist file exceeds the threshold, a
 message is displayed.
 
 When the value is a non-nil non-number, always display the message.
@@ -386,41 +400,57 @@ FORMAT and ARGS are passed to `message'."
 
 (defun org-persist--read-elisp-file (&optional buffer-or-file)
   "Read elisp data from BUFFER-OR-FILE or current buffer."
-  (unless buffer-or-file (setq buffer-or-file (current-buffer)))
-  (with-temp-buffer
-    (if (bufferp buffer-or-file)
-        (set-buffer buffer-or-file)
-      (insert-file-contents buffer-or-file))
-    (condition-case err
-        (let ((coding-system-for-read 'utf-8)
-              (read-circle t)
-              (start-time (float-time)))
-          ;; FIXME: Reading sometimes fails to read circular objects.
-          ;; I suspect that it happens when we have object reference
-          ;; #N# read before object definition #N=.  If it is really
-          ;; so, it should be Emacs bug - either in `read' or in
-          ;; `prin1'.  Meanwhile, just fail silently when `read'
-          ;; fails to parse the saved cache object.
-          (prog1
-              (read (current-buffer))
-            (org-persist--display-time
-             (- (float-time) start-time)
-             "Reading from %S" buffer-or-file)))
-      ;; Recover gracefully if index file is corrupted.
-      (error
-       ;; Remove problematic file.
-       (unless (bufferp buffer-or-file) (delete-file buffer-or-file))
-       ;; Do not report the known error to user.
-       (if (string-match-p "Invalid read syntax" (error-message-string err))
-           (message "Emacs reader failed to read data in %S. The error was: %S"
-                    buffer-or-file (error-message-string err))
-         (warn "Emacs reader failed to read data in %S. The error was: %S"
-               buffer-or-file (error-message-string err)))
-       nil))))
+  (let (;; UTF-8 is explicitly used in `org-persist--write-elisp-file'.
+        (coding-system-for-read 'utf-8)
+        (buffer-or-file (or buffer-or-file (current-buffer))))
+    (with-temp-buffer
+      (if (bufferp buffer-or-file)
+          (set-buffer buffer-or-file)
+        (insert-file-contents buffer-or-file))
+      (condition-case err
+          (let ((read-circle t)
+                (start-time (float-time)))
+            ;; FIXME: Reading sometimes fails to read circular objects.
+            ;; I suspect that it happens when we have object reference
+            ;; #N# read before object definition #N=.  If it is really
+            ;; so, it should be Emacs bug - either in `read' or in
+            ;; `prin1'.  Meanwhile, just fail silently when `read'
+            ;; fails to parse the saved cache object.
+            (prog1
+                (read (current-buffer))
+              (org-persist--display-time
+               (- (float-time) start-time)
+               "Reading from %S" buffer-or-file)))
+        ;; Recover gracefully if index file is corrupted.
+        (error
+         ;; Remove problematic file.
+         (unless (bufferp buffer-or-file) (delete-file buffer-or-file))
+         ;; Do not report the known error to user.
+         (if (string-match-p "Invalid read syntax" (error-message-string err))
+             (message "Emacs reader failed to read data in %S. The error was: %S"
+                      buffer-or-file (error-message-string err))
+           (warn "Emacs reader failed to read data in %S. The error was: %S"
+                 buffer-or-file (error-message-string err)))
+         nil)))))
 
 (defun org-persist--write-elisp-file (file data &optional no-circular pp)
   "Write elisp DATA to FILE."
-  (let ((print-circle (not no-circular))
+  ;; Fsync slightly reduces the chance of an incomplete filesystem
+  ;; write, however on modern hardware its effectiveness is
+  ;; questionable and it is insufficient to garantee complete writes.
+  ;; Coupled with the significant performance hit if writing many
+  ;; small files, it simply does not make sense to use fsync here,
+  ;; particularly as cache corruption is only a minor inconvenience.
+  ;; With all this in mind, we ensure `write-region-inhibit-fsync' is
+  ;; set.
+  ;;
+  ;; To read more about this, see the comments in Emacs' fileio.c, in
+  ;; particular the large comment block in init_fileio.
+  (let ((write-region-inhibit-fsync t)
+        ;; We set UTF-8 here and in `org-persist--read-elisp-file'
+        ;; to avoid the overhead from `find-auto-coding'.
+        (coding-system-for-write 'utf-8)
+        (print-circle (not no-circular))
         print-level
         print-length
         print-quoted
@@ -434,7 +464,8 @@ FORMAT and ARGS are passed to `message'."
     (with-temp-file file
       (insert ";;   -*- mode: lisp-data; -*-\n")
       (if pp
-          (pp data (current-buffer))
+          (let ((pp-use-max-width nil)) ; Emacs bug#58687
+            (pp data (current-buffer)))
         (prin1 data (current-buffer))))
     (org-persist--display-time
      (- (float-time) start-time)

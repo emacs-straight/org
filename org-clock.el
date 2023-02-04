@@ -347,7 +347,7 @@ For more information, see `org-clocktable-write-default'."
 ;; FIXME: translate es and nl last string "Clock summary at"
 (defcustom org-clock-clocktable-language-setup
   '(("en" "File"     "L"  "Timestamp"  "Headline" "Time"  "ALL"   "Total time"   "File time" "Clock summary at")
-    ("es" "Archivo"  "N"  "Fecha y hora" "Tarea" "Tiempo" "TODO" "Tiempo total" "Tiempo archivo" "Clock summary at")
+    ("es" "Archivo"  "N"  "Fecha y hora" "Tarea" "Duración" "TODO" "Duración total" "Tiempo archivo" "Generado el")
     ("fr" "Fichier"  "N"  "Horodatage" "En-tête"  "Durée" "TOUT"  "Durée totale" "Durée fichier" "Horodatage sommaire à")
     ("nl" "Bestand"  "N"  "Tijdstip"   "Rubriek" "Duur"  "ALLES" "Totale duur"  "Bestandstijd" "Klok overzicht op")
     ("de" "Datei"    "E"  "Zeitstempel" "Kopfzeile" "Dauer" "GESAMT" "Gesamtdauer"  "Dateizeit" "Erstellt am")
@@ -439,7 +439,9 @@ This uses the same format as `frame-title-format', which see."
   :group 'org-clock
   :type 'sexp)
 
-(defcustom org-clock-x11idle-program-name "x11idle"
+(defcustom org-clock-x11idle-program-name
+  (if (executable-find "xprintidle")
+      "xprintidle" "x11idle")
   "Name of the program which prints X11 idle time in milliseconds.
 
 you can do \"~$ sudo apt-get install xprintidle\" if you are using
@@ -448,8 +450,7 @@ a Debian-based distribution.
 Alternatively, can find x11idle.c in
 https://orgmode.org/worg/code/scripts/x11idle.c"
   :group 'org-clock
-  :version "24.4"
-  :package-version '(Org . "8.0")
+  :package-version '(Org . "9.7")
   :type 'string)
 
 (defcustom org-clock-goto-before-context 2
@@ -1801,17 +1802,25 @@ Optional argument N tells to change by that many units."
 		(time-subtract
 		 (org-time-string-to-time org-last-changed-timestamp)
 		 (org-time-string-to-time ts)))
-	  (save-excursion
-	    (goto-char begts)
-	    (org-timestamp-change
-	     (round (/ (float-time tdiff)
-		       (pcase timestamp?
-			 (`minute 60)
-			 (`hour 3600)
-			 (`day (* 24 3600))
-			 (`month (* 24 3600 31))
-			 (`year (* 24 3600 365.2)))))
-	     timestamp? 'updown)))))))
+          ;; `save-excursion' won't work because
+          ;; `org-timestamp-change' deletes and re-inserts the
+          ;; timestamp.
+	  (let ((origin (point)))
+            (save-excursion
+	      (goto-char begts)
+	      (org-timestamp-change
+	       (round (/ (float-time tdiff)
+		         (pcase timestamp?
+			   (`minute 60)
+			   (`hour 3600)
+			   (`day (* 24 3600))
+			   (`month (* 24 3600 31))
+			   (`year (* 24 3600 365.2)))))
+	       timestamp? 'updown))
+            ;; Move back to initial position, but never beyond updated
+            ;; clock.
+            (unless (< (point) origin)
+              (goto-char origin))))))))
 
 ;;;###autoload
 (defun org-clock-cancel ()
@@ -1923,17 +1932,30 @@ PROPNAME lets you set a custom text property instead of :org-clock-minutes."
       (save-excursion
 	(goto-char (point-max))
 	(while (re-search-backward re nil t)
-          (let ((element-type
-                 (org-element-type
-                  (save-match-data
-                    (org-element-at-point)))))
+          (let* ((element (save-match-data (org-element-at-point)))
+                 (element-type (org-element-type element)))
 	    (cond
 	     ((and (eq element-type 'clock) (match-end 2))
 	      ;; Two time stamps.
-	      (let* ((ss (match-string 2))
-		     (se (match-string 3))
-		     (ts (org-time-string-to-seconds ss))
-		     (te (org-time-string-to-seconds se))
+	      (let* ((timestamp (org-element-property :value element))
+		     (ts (float-time
+                          (encode-time
+                           (list 0
+                                 (org-element-property :minute-start timestamp)
+                                 (org-element-property :hour-start timestamp)
+                                 (org-element-property :day-start timestamp)
+                                 (org-element-property :month-start timestamp)
+                                 (org-element-property :year-start timestamp)
+                                 nil -1 nil))))
+		     (te (float-time
+                          (encode-time
+                           (list 0
+                                 (org-element-property :minute-end timestamp)
+                                 (org-element-property :hour-end timestamp)
+                                 (org-element-property :day-end timestamp)
+                                 (org-element-property :month-end timestamp)
+                                 (org-element-property :year-end timestamp)
+                                 nil -1 nil))))
 		     (dt (- (if tend (min te tend) te)
 			    (if tstart (max ts tstart) ts))))
 	        (when (> dt 0) (cl-incf t1 (floor dt 60)))))

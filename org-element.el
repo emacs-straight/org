@@ -5985,7 +5985,7 @@ It is a symbol among nil, t, or a number representing smallest level of
 modified headline.  The level considers headline levels both before
 and after the modification.")
 
-(defun org-element--cache-sync (buffer &optional threshold future-change offset)
+(defun org-element--cache-sync (buffer &optional threshold future-change offset force)
   "Synchronize cache with recent modification in BUFFER.
 
 When optional argument THRESHOLD is non-nil, do the
@@ -5998,13 +5998,18 @@ FUTURE-CHANGE, when non-nil, is a buffer position where changes
 not registered yet in the cache are going to happen.  OFFSET is the
 change offset.  It is used in `org-element--cache-submit-request',
 where cache is partially updated before current modification are
-actually submitted."
+actually submitted.
+
+FORCE, when non-nil will force the synchronization even when
+`org-element--cache-active-p' returns nil."
   (when (buffer-live-p buffer)
     (org-with-base-buffer buffer
       ;; Do not sync when, for example, in the middle of
       ;; `combine-change-calls'.  See the commentary inside
-      ;; `org-element--cache-active-p'.
-      (when (and org-element--cache-sync-requests (org-element--cache-active-p))
+      ;; `org-element--cache-active-p'.  Such situation may occur when
+      ;; sync timer triggers in the middle of `combine-change-calls'.
+      (when (and org-element--cache-sync-requests
+                 (or force (org-element--cache-active-p)))
         ;; Check if the buffer have been changed outside visibility of
         ;; `org-element--cache-before-change' and `org-element--cache-after-change'.
         (if (/= org-element--cache-last-buffer-size (buffer-size))
@@ -7072,7 +7077,7 @@ change, as an integer."
         ;; yet to the otherwise correct part of the cache (i.e, before
         ;; the first request).
         (org-element--cache-log-message "Adding new phase 0 request")
-        (when next (org-element--cache-sync (current-buffer) end beg offset))
+        (when next (org-element--cache-sync (current-buffer) end beg offset 'force))
         (let ((first (org-element--cache-for-removal beg end offset)))
 	  (if first
 	      (push (let ((first-beg (org-element-property :begin first))
@@ -7208,9 +7213,9 @@ The element is: %S\n The real element is: %S\n Cache around :begin:\n%S\n%S\n%S"
                                        "no" "yes")
                                    (org-element--format-element element)
                                    (org-element--format-element real-element)
-                                   (org-element--cache-find (1- (org-element-property :begin real-element)))
-                                   (car (org-element--cache-find (org-element-property :begin real-element) 'both))
-                                   (cdr (org-element--cache-find (org-element-property :begin real-element) 'both)))
+                                   (org-element--format-element (org-element--cache-find (1- (org-element-property :begin real-element))))
+                                   (org-element--format-element (car (org-element--cache-find (org-element-property :begin real-element) 'both)))
+                                   (org-element--format-element (cdr (org-element--cache-find (org-element-property :begin real-element) 'both))))
           (org-element-cache-reset))))))
 
 ;;; Cache persistence
@@ -7406,14 +7411,16 @@ the cache."
         (org-element-at-point to-pos)
         (cl-macrolet ((cache-root
                         ;; Use the most optimal version of cache available.
-                        () `(if (memq granularity '(headline headline+inlinetask))
-                                (org-element--headline-cache-root)
-                              (org-element--cache-root)))
+                        () `(org-with-base-buffer nil
+                              (if (memq granularity '(headline headline+inlinetask))
+                                  (org-element--headline-cache-root)
+                                (org-element--cache-root))))
                       (cache-size
                         ;; Use the most optimal version of cache available.
-                        () `(if (memq granularity '(headline headline+inlinetask))
-                                org-element--headline-cache-size
-                              org-element--cache-size))
+                        () `(org-with-base-buffer nil
+                              (if (memq granularity '(headline headline+inlinetask))
+                                  org-element--headline-cache-size
+                                org-element--cache-size)))
                       (cache-walk-restart
                         ;; Restart tree traversal after AVL tree re-balance.
                         () `(when node
@@ -7443,8 +7450,9 @@ the cache."
                               ;; Avoid extra staff like timer cancels et al
                               ;; and only call `org-element--cache-sync-requests' when
                               ;; there are pending requests.
-                              (when org-element--cache-sync-requests
-                                (org-element--cache-sync (current-buffer)))
+                              (org-with-base-buffer nil
+                                (when org-element--cache-sync-requests
+                                  (org-element--cache-sync (current-buffer))))
                               ;; Call `org-element--parse-to' directly avoiding any
                               ;; kind of `org-element-at-point' overheads.
                               (if restrict-elements
@@ -7515,8 +7523,9 @@ the cache."
                               tmpnext-start))
                       ;; Check if cache does not have gaps.
                       (cache-gapless-p
-                        () `(eq org-element--cache-change-tic
-                                (alist-get granularity org-element--cache-gapless))))
+                        () `(org-with-base-buffer nil
+                              (eq org-element--cache-change-tic
+                                  (alist-get granularity org-element--cache-gapless)))))
           ;; The core algorithm is simple walk along binary tree.  However,
           ;; instead of checking all the tree elements from first to last
           ;; (like in `avl-tree-mapcar'), we begin from FROM-POS skipping
@@ -7644,7 +7653,9 @@ the cache."
                         ;; In the process, we may alter the buffer,
                         ;; so also keep track of the cache state.
                         (progn
-                          (setq modified-tic org-element--cache-change-tic)
+                          (setq modified-tic
+                                (org-with-base-buffer nil
+                                  org-element--cache-change-tic))
                           (setq cache-size (cache-size))
                           ;; When NEXT-RE/FAIL-RE is provided, skip to
                           ;; next regexp match after :begin of the current
@@ -7678,7 +7689,7 @@ the cache."
                               ;;
                               ;; Call FUNC.  FUNC may move point.
                               (setq org-element-cache-map-continue-from nil)
-                              (if org-element--cache-map-statistics
+                              (if (org-with-base-buffer nil org-element--cache-map-statistics)
                                   (progn
                                     (setq before-time (float-time))
                                     (push (funcall func data) result)
@@ -7697,7 +7708,15 @@ the cache."
                               (when org-element-cache-map-continue-from
                                 (goto-char org-element-cache-map-continue-from))
                               (when (> (point) start)
-                                (move-start-to-next-match nil))
+                                (move-start-to-next-match nil)
+                                ;; (point) inside matching element.
+                                ;; Go further.
+                                (when (> (point) start)
+                                  (setq data (element-match-at-point))
+                                  (if (not data)
+                                      (cache-walk-abort)
+                                    (goto-char (next-element-start))
+                                    (move-start-to-next-match next-element-re))))
                               ;; Drop nil.
                               (unless (car result) (pop result)))
                             ;; If FUNC did not move the point and we
@@ -7710,8 +7729,9 @@ the cache."
                                            start))
                               (setq start nil))
                             ;; Check if the buffer has been modified.
-                            (unless (and (eq modified-tic org-element--cache-change-tic)
-                                         (eq cache-size (cache-size)))
+                            (unless (org-with-base-buffer nil
+                                      (and (eq modified-tic org-element--cache-change-tic)
+                                           (eq cache-size (cache-size))))
                               ;; START may no longer be valid, update
                               ;; it to beginning of real element.
                               ;; Upon modification, START may lay

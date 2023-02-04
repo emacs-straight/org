@@ -7,7 +7,7 @@
 ;; Maintainer: Bastien Guerry <bzg@gnu.org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; URL: https://orgmode.org
-;; Package-Requires: ((emacs "25.1"))
+;; Package-Requires: ((emacs "26.1"))
 
 ;; Version: 9.6.1
 
@@ -723,6 +723,10 @@ defined in org-duration.el.")
   (set-default-toplevel-value var value)
   (when (featurep 'org)
     (org-load-modules-maybe 'force)
+    ;; FIXME: We can't have all the requires at top-level due to
+    ;; circular dependencies.  Yet, this function might sometimes be
+    ;; called when 'org-element is not loaded.
+    (require 'org-element)
     (org-element-cache-reset 'all)))
 
 (defcustom org-modules '(ol-doi ol-w3m ol-bbdb ol-bibtex ol-docview ol-gnus ol-info ol-irc ol-mhe ol-rmail ol-eww)
@@ -7100,6 +7104,7 @@ When REMOVE is non-nil, remove the subtree from the clipboard."
 	    (old-level (if (string-match org-outline-regexp-bol txt)
 			   (- (match-end 0) (match-beginning 0) 1)
 		         -1))
+            level-indicator?
 	    (force-level
 	     (cond
 	      (level (prefix-numeric-value level))
@@ -7107,7 +7112,7 @@ When REMOVE is non-nil, remove the subtree from the clipboard."
 	      ;; headline, use the number of stars as the forced level.
 	      ((and (org-match-line "^\\*+[ \t]*$")
 		    (not (eq ?* (char-after))))
-	       (org-outline-level))
+	       (setq level-indicator? (org-outline-level)))
 	      ((looking-at-p org-outline-regexp-bol) (org-outline-level))))
 	    (previous-level
 	     (save-excursion
@@ -7129,8 +7134,8 @@ When REMOVE is non-nil, remove the subtree from the clipboard."
 	    (org-odd-levels-only nil)
 	    beg end newend)
        ;; Remove the forced level indicator.
-       (when (and force-level (not level))
-         (delete-region (line-beginning-position) (point)))
+       (when level-indicator?
+         (delete-region (line-beginning-position) (line-beginning-position 2)))
        ;; Paste before the next visible heading or at end of buffer,
        ;; unless point is at the beginning of a headline.
        (unless (and (bolp) (org-at-heading-p))
@@ -8615,6 +8620,7 @@ or to another Org file, automatically push the old position onto the ring."
 (defvar org-agenda-buffer-name)
 (defun org-follow-timestamp-link ()
   "Open an agenda view for the time-stamp date/range at point."
+  (require 'org-agenda)
   ;; Avoid changing the global value.
   (let ((org-agenda-buffer-name org-agenda-buffer-name))
     (cond
@@ -8657,12 +8663,12 @@ or to another Org file, automatically push the old position onto the ring."
   "Check if the current file should receive notes in reversed order."
   (cond
    ((not org-reverse-note-order) nil)
-   ((eq t org-reverse-note-order) t)
-   ((not (listp org-reverse-note-order)) nil)
-   (t (catch 'exit
+   ((listp org-reverse-note-order)
+    (catch 'exit
         (dolist (entry org-reverse-note-order)
           (when (string-match (car entry) buffer-file-name)
-	    (throw 'exit (cdr entry))))))))
+	    (throw 'exit (cdr entry))))))
+   (t org-reverse-note-order)))
 
 (defvar org-agenda-new-buffers nil
   "Buffers created to visit agenda files.")
@@ -8799,7 +8805,9 @@ the correct writing function."
     (let* ((win (selected-window))
 	   (pos (point))
 	   (line (org-current-line))
-	   (params (org-prepare-dblock))
+	   (params
+            ;; Called for side effect.
+            (org-prepare-dblock))
 	   (name (plist-get params :name))
 	   (indent (plist-get params :indentation-column))
 	   (cmd (intern (concat "org-dblock-write:" name))))
@@ -13179,7 +13187,11 @@ Optional argument DEFAULT provides a default value for PROPERTY."
 			 (if (org-string-nw-p current)
 			     (format " [%s]" current)
 			   "")))
-	 (set-function (org-set-property-function property)))
+	 (set-function (org-set-property-function property))
+         (default (cond
+                   ((not allowed) default)
+                   ((member default allowed) default)
+                   (t nil))))
     (org-trim
      (if allowed
 	 (funcall set-function
@@ -13191,7 +13203,7 @@ Optional argument DEFAULT provides a default value for PROPERTY."
 				  (and pom
 				       (org-with-point-at pom
 					 (org-property-values property)))))))
-	 (funcall set-function prompt all nil nil "" nil current))))))
+	 (funcall set-function prompt all nil nil default nil current))))))
 
 (defvar org-last-set-property nil)
 (defvar org-last-set-property-value nil)
@@ -14845,6 +14857,12 @@ When SUPPRESS-TMP-DELAY is non-nil, suppress delays like
       (setq timestamp? (or what timestamp?)
 	    inactive (= (char-after (match-beginning 0)) ?\[)
 	    ts (match-string 0))
+      ;; FIXME: Instead of deleting everything and then inserting
+      ;; later, we should make use of `replace-match', which preserves
+      ;; markers.  The current implementation suffers from
+      ;; `save-excursion' not preserving point inside the timestamp
+      ;; once we delete the timestamp here.  The point moves to the
+      ;; updated timestamp end.
       (replace-match "")
       (when (string-match
 	     "\\(\\(-[012][0-9]:[0-5][0-9]\\)?\\( +[.+]?-?[-+][0-9]+[hdwmy]\\(/[0-9]+[hdwmy]\\)?\\)*\\)[]>]"
@@ -15794,21 +15812,7 @@ Some of the options can be changed using the variable
 		    (unless (file-exists-p movefile)
 		      (org-create-formula-image
 		       value movefile options forbuffer processing-type))
-		    (if overlays
-			(progn
-			  (dolist (o (overlays-in beg end))
-			    (when (eq (overlay-get o 'org-overlay-type)
-				      'org-latex-overlay)
-			      (delete-overlay o)))
-			  (org--make-preview-overlay beg end movefile imagetype)
-			  (goto-char end))
-		      (delete-region beg end)
-		      (insert
-		       (org-add-props link
-			   (list 'org-latex-src
-				 (replace-regexp-in-string "\"" "" value)
-				 'org-latex-src-embed-type
-				 (if block-type 'paragraph 'character)))))))
+                    (org-place-formula-image link block-type beg end value overlays movefile imagetype)))
 		 ((eq processing-type 'mathml)
 		  ;; Process to MathML.
 		  (unless (org-format-latex-mathml-available-p)
@@ -15822,6 +15826,25 @@ Some of the options can be changed using the variable
 		 (t
 		  (error "Unknown conversion process %s for LaTeX fragments"
 			 processing-type)))))))))))
+
+(defun org-place-formula-image (link block-type beg end value overlays movefile imagetype)
+  "Place an overlay from BEG to END showing MOVEFILE.
+The overlay will be above BEG if OVERLAYS is non-nil."
+  (if overlays
+      (progn
+        (dolist (o (overlays-in beg end))
+          (when (eq (overlay-get o 'org-overlay-type)
+                    'org-latex-overlay)
+            (delete-overlay o)))
+        (org--make-preview-overlay beg end movefile imagetype)
+        (goto-char end))
+    (delete-region beg end)
+    (insert
+     (org-add-props link
+         (list 'org-latex-src
+               (replace-regexp-in-string "\"" "" value)
+               'org-latex-src-embed-type
+               (if block-type 'paragraph 'character))))))
 
 (defun org-create-math-formula (latex-frag &optional mathml-file)
   "Convert LATEX-FRAG to MathML and store it in MATHML-FILE.

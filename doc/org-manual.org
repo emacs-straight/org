@@ -5295,7 +5295,7 @@ The following commands help to work with properties:
   Set a property in the current entry.  Both the property and the
   value can be inserted using completion.
 
-- {{{kbd(S-RIGHT)}}} (~org-property-next-allowed-values~),  {{{kbd(S-LEFT)}}} (~org-property-previous-allowed-value~) ::
+- {{{kbd(S-RIGHT)}}} (~org-property-next-allowed-value~),  {{{kbd(S-LEFT)}}} (~org-property-previous-allowed-value~) ::
 
   #+kindex: S-RIGHT
   #+kindex: S-LEFT
@@ -8792,7 +8792,9 @@ a ~day~, ~week~, ~month~ or ~year~.  For weekly agendas, the default
 is to start on the previous Monday (see
 ~org-agenda-start-on-weekday~).  You can also set the start date using
 a date shift: =(setq org-agenda-start-day "+10d")= starts the agenda
-ten days from today in the future.
+ten days from today in the future.  ~org-agenda-start-on-weekday~
+takes precedence over ~org-agenda-start-day~ in weekly and bi-weekly
+agendas.
 
 Remote editing from the agenda buffer means, for example, that you can
 change the dates of deadlines and appointments from the agenda buffer.
@@ -10254,9 +10256,9 @@ the other commands, point needs to be in the desired line.
 
   Unmark entry for bulk action.
 
-- {{{kbd(U)}}} (~org-agenda-bulk-remove-all-marks~) ::
+- {{{kbd(U)}}} (~org-agenda-bulk-unmark-all~) ::
   #+kindex: U
-  #+findex: org-agenda-bulk-remove-all-marks
+  #+findex: org-agenda-bulk-unmark-all
 
   Unmark all marked entries for bulk action.
 
@@ -11694,9 +11696,9 @@ When the variable ~org-export-dispatch-use-expert-ui~ is set to
 a non-~nil~ value, Org prompts in the minibuffer.  To switch back to
 the hierarchical menu, press {{{kbd(?)}}}.
 
-- {{{kbd(C-c C-e)}}} (~org-export~) ::
+- {{{kbd(C-c C-e)}}} (~org-export-dispatch~) ::
   #+kindex: C-c C-e
-  #+findex: org-export
+  #+findex: org-export-dispatch
 
   Invokes the export dispatcher interface.  The options show default
   settings.  The {{{kbd(C-u)}}} prefix argument preserves options from
@@ -12178,16 +12180,15 @@ example, to include your =.emacs= file, you could use:
 : #+INCLUDE: "~/.emacs" src emacs-lisp
 
 #+texinfo: @noindent
-The first parameter is the file name to include.  The optional second
-parameter specifies the block type: =example=, =export= or =src=.  The
-optional third parameter specifies the source code language to use for
-formatting the contents.  This is relevant to both =export= and =src=
-block types.
-
-If an included file is specified as having a markup language, Org
-neither checks for valid syntax nor changes the contents in any way.
-For example and source blocks, Org code-escapes the contents before
-inclusion.
+There are three positional arguments after the include keyword, they are:
+1. The file name, this is the sole mandatory argument.  Org neither
+   checks for correctness or validates the content in any way.
+2. The block name to wrap the file content in.  When this is
+   =example=, =export=, or =src= the content is escaped by
+   ~org-escape-code-in-string~.  Arbitrary block names may be given,
+   however block names starting with =:= must be quoted, i.e. =":name"=.
+3. The source code language to use for formatting the contents.  This is relevant
+   to both =export= and =src= block types.
 
 #+cindex: @samp{minlevel}, include
 If an included file is not specified as having any markup language,
@@ -12234,7 +12235,7 @@ with the custom ID =theory=, you can use
 
 The following command allows navigating to the included document:
 
-- {{{kbd(C-c ')}}} (~org-edit~special~) ::
+- {{{kbd(C-c ')}}} (~org-edit-special~) ::
   #+kindex: C-c '
   #+findex: org-edit-special
 
@@ -14365,10 +14366,10 @@ executable.  Without it, export cannot finish.
 :DESCRIPTION: Invoking export.
 :END:
 
-- {{{kbd(C-c C-e o o)}}} (~org-export-to-odt~) ::
+- {{{kbd(C-c C-e o o)}}} (~org-odt-export-to-odt~) ::
 
   #+kindex: C-c C-e o o
-  #+findex: org-export-to-odt
+  #+findex: org-odt-export-to-odt
   Export as OpenDocument Text file.
 
   #+cindex: @samp{EXPORT_FILE_NAME}, property
@@ -17012,6 +17013,9 @@ more "bibliography" keywords.
 #+bibliography: "/some/file/with spaces/in its name.bib"
 #+end_example
 
+Org mode uses all the local and global bibliographies combined to
+search for citation keys.
+
 #+kindex: C-c C-x @@
 #+findex: org-cite-insert
 One can then insert and edit citations using ~org-cite-insert~, called
@@ -17131,13 +17135,13 @@ The "biblatex" and "csl" export processors support bibliography
 options through a property list attached to the =PRINT_BIBLIOGRAPHY=
 keyword.  For example,
 
-: #print_bibliography: :keyword algebra :type book
+: #+print_bibliography: :keyword algebra :type book
 
 Values including spaces must be surrounded with double quotes.  If you
 need to use a key multiple times, you can separate its values with
 commas, but without any space in-between:
 
-: #print_bibliography: :keyword "algebraic logic" :nottype article,book
+: #+print_bibliography: :keyword "algebraic logic" :nottype article,book
 
 The "biblatex" export processor accepts all options supported by
 BibLaTeX's ~\printbibliography~ command, while the "csl" processor
@@ -17313,8 +17317,15 @@ or
 - =<language>= ::
 
   #+cindex: language, in code blocks
-  Mandatory.  It is the identifier of the source code language in the
+  Optional.  It is the identifier of the source code language in the
   block.  See [[*Languages]], for identifiers of supported languages.
+
+  When =<language>= identifier is omitted, the block also cannot
+  have =<switches>= and =<header arguments>=.
+
+  Language identifier is also used to fontify code blocks in Org
+  buffers, when ~org-src-fontify-natively~ is set to non-~nil~.  See
+  [[*Editing Source Code]].
 
 - =<switches>= ::
 
@@ -18951,6 +18962,9 @@ group ~org-edit-structure~.
   header line, then the edit buffer uses that major mode.  Use this
   variable to arbitrarily map language identifiers to major modes.
 
+  When language identifier is omitted in the src block, Org mode's
+  behavior is undefined.
+
 - ~org-src-window-setup~ ::
 
   #+vindex: org-src-window-setup
@@ -18976,10 +18990,13 @@ group ~org-edit-structure~.
 
 #+vindex: org-src-fontify-natively
 #+vindex: org-src-block-faces
-Set ~org-src-fontify-natively~ to non-~nil~ to turn on native code
-fontification in the /Org/ buffer.  Fontification of code blocks can
-give visual separation of text and code on the display page.  To
-further customize the appearance of ~org-block~ for specific
+Fontification of code blocks can give visual separation of text and
+code on the display page.  Set ~org-src-fontify-natively~ to non-~nil~
+to turn on native code fontification in the /Org/ buffer.  The
+fontification follows the major mode used to edit the code block (see
+~org-src-lang-modes~ above).
+
+To further customize the appearance of ~org-block~ for specific
 languages, customize ~org-src-block-faces~.  The following example
 shades the background of regular blocks, and colors source blocks only
 for Python and Emacs Lisp languages.
@@ -22508,7 +22525,8 @@ level.
 ,*** 2022-10-08 Saturday
 #+end_example
 
-Tags are allowed in the tree structure.
+TODO state, priority, tags, statistics cookies, and COMMENT keywords
+are allowed in the tree structure.
 
 [fn:31] This is always the other, not the user.  See the variable
 ~org-link-from-user-regexp~.
