@@ -6583,7 +6583,8 @@ headings in the region."
   (interactive)
   (save-excursion
     (if (org-region-active-p)
-	(org-map-region 'org-promote (region-beginning) (region-end))
+        (let ((deactivate-mark nil))
+          (org-map-region 'org-promote (region-beginning) (region-end)))
       (org-promote)))
   (org-fix-position-after-promote))
 
@@ -6594,7 +6595,8 @@ headings in the region."
   (interactive)
   (save-excursion
     (if (org-region-active-p)
-	(org-map-region 'org-demote (region-beginning) (region-end))
+        (let ((deactivate-mark nil))
+          (org-map-region 'org-demote (region-beginning) (region-end)))
       (org-demote)))
   (org-fix-position-after-promote))
 
@@ -16899,23 +16901,51 @@ for more information."
   (interactive "P")
   (cond
    ((run-hook-with-args-until-success 'org-metaup-hook))
+   ((and (org-region-active-p)
+         (org-with-limited-levels
+          (save-excursion
+            (goto-char (region-beginning))
+            (org-at-heading-p))))
+    (when (org-check-for-hidden 'headlines) (org-hidden-tree-error))
+    (let ((beg (region-beginning))
+          (end (region-end)))
+      (save-excursion
+        (goto-char end)
+        (setq end (point-marker))
+        (goto-char beg)
+        (let ((level (org-current-level)))
+          (when (or (and (> level 1) (re-search-forward (format "^\\*\\{1,%s\\} " (1- level)) end t))
+                    ;; Search previous subtree.
+                    (progn
+                      (goto-char beg)
+                      (beginning-of-line)
+                      (not (re-search-backward (format "^\\*\\{%s\\} " level) nil t))))
+            (user-error "Cannot move past superior level or buffer limit"))
+          ;; Drag first subtree above below the selected.
+          (while (< (point) end)
+            (let ((deactivate-mark nil))
+              (call-interactively 'org-move-subtree-down)))))))
    ((org-region-active-p)
     (let* ((a (save-excursion
-		(goto-char (region-beginning))
-		(line-beginning-position)))
-	   (b (save-excursion
-		(goto-char (region-end))
-		(if (bolp) (1- (point)) (line-end-position))))
-	   (c (save-excursion
-		(goto-char a)
-		(move-beginning-of-line 0)
-		(point)))
-	   (d (save-excursion
-		(goto-char a)
-		(move-end-of-line 0)
-		(point))))
+                (goto-char (region-beginning))
+                (line-beginning-position)))
+           (b (save-excursion
+                (goto-char (region-end))
+                (if (bolp) (1- (point)) (line-end-position))))
+           (c (save-excursion
+                (goto-char a)
+                (move-beginning-of-line 0)
+                (point)))
+           (d (save-excursion
+                (goto-char a)
+                (move-end-of-line 0)
+                (point)))
+           (deactivate-mark nil)
+           (swap? (< (point) (mark))))
       (transpose-regions a b c d)
-      (goto-char c)))
+      (set-mark c)
+      (goto-char (+ c (- b a)))
+      (when swap? (exchange-point-and-mark))))
    ((org-at-table-p) (org-call-with-arg 'org-table-move-row 'up))
    ((and (featurep 'org-inlinetask)
          (org-inlinetask-in-task-p))
@@ -16932,23 +16962,49 @@ commands for more information."
   (interactive "P")
   (cond
    ((run-hook-with-args-until-success 'org-metadown-hook))
+   ((and (org-region-active-p)
+         (org-with-limited-levels
+          (save-excursion
+            (goto-char (region-beginning))
+            (org-at-heading-p))))
+    (when (org-check-for-hidden 'headlines) (org-hidden-tree-error))
+    (let ((beg (region-beginning))
+          (end (region-end)))
+      (save-excursion
+        (goto-char beg)
+        (setq beg (point-marker))
+        (let ((level (org-current-level)))
+          (when (or (and (> level 1) (re-search-forward (format "^\\*\\{1,%s\\} " (1- level)) end t))
+                    ;; Search next subtree.
+                    (progn
+                      (goto-char end)
+                      (not (re-search-forward (format "^\\*\\{%s\\} " level) nil t))))
+            (user-error "Cannot move past superior level or buffer limit"))
+          ;; Drag first subtree below above the selected.
+          (while (> (point) beg)
+            (let ((deactivate-mark nil))
+              (call-interactively 'org-move-subtree-up)))))))
    ((org-region-active-p)
     (let* ((a (save-excursion
-		(goto-char (region-beginning))
-		(line-beginning-position)))
+                (goto-char (region-beginning))
+                (line-beginning-position)))
 	   (b (save-excursion
-		(goto-char (region-end))
-		(if (bolp) (1- (point)) (line-end-position))))
+                (goto-char (region-end))
+                (if (bolp) (1- (point)) (line-end-position))))
 	   (c (save-excursion
-		(goto-char b)
-		(move-beginning-of-line (if (bolp) 1 2))
-		(point)))
+                (goto-char b)
+                (move-beginning-of-line (if (bolp) 1 2))
+                (point)))
 	   (d (save-excursion
-		(goto-char b)
-		(move-end-of-line (if (bolp) 1 2))
-		(point))))
+                (goto-char b)
+                (move-end-of-line (if (bolp) 1 2))
+                (point)))
+           (deactivate-mark nil)
+           (swap? (< (point) (mark))))
       (transpose-regions a b c d)
-      (goto-char d)))
+      (set-mark (+ 1 a (- d c)))
+      (goto-char (+ 1 a (- d c) (- b a)))
+      (when swap? (exchange-point-and-mark))))
    ((org-at-table-p) (call-interactively 'org-table-move-row))
    ((and (featurep 'org-inlinetask)
          (org-inlinetask-in-task-p))
