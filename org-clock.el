@@ -344,12 +344,12 @@ For more information, see `org-clocktable-write-default'."
   :version "24.1"
   :type 'function)
 
-;; FIXME: translate es and nl last string "Clock summary at"
 (defcustom org-clock-clocktable-language-setup
   '(("en" "File"     "L"  "Timestamp"  "Headline" "Time"  "ALL"   "Total time"   "File time" "Clock summary at")
     ("es" "Archivo"  "N"  "Fecha y hora" "Tarea" "Duración" "TODO" "Duración total" "Tiempo archivo" "Generado el")
     ("fr" "Fichier"  "N"  "Horodatage" "En-tête"  "Durée" "TOUT"  "Durée totale" "Durée fichier" "Horodatage sommaire à")
     ("nl" "Bestand"  "N"  "Tijdstip"   "Rubriek" "Duur"  "ALLES" "Totale duur"  "Bestandstijd" "Klok overzicht op")
+    ("nn" "Fil"      "N"  "Tidspunkt" "Overskrift" "Tid" "ALLE" "Total tid" "Filtid" "Tidsoversyn")
     ("de" "Datei"    "E"  "Zeitstempel" "Kopfzeile" "Dauer" "GESAMT" "Gesamtdauer"  "Dateizeit" "Erstellt am")
     ("pt-BR" "Arquivo" "N" "Data e hora" "Título" "Hora" "TODOS" "Hora total" "Hora do arquivo" "Resumo das horas em")
     ("sk" "Súbor" "L" "Časová značka" "Záhlavie" "Čas" "VŠETKO" "Celkový čas" "Čas súboru" "Časový súhrn pre"))
