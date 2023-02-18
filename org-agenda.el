@@ -3635,8 +3635,7 @@ the agenda to write."
 		(kill-buffer (current-buffer))
 		(message "Org file written to %s" file)))
 	     ((member extension '("html" "htm"))
-	      (or (require 'htmlize nil t)
-		  (error "Please install htmlize from https://github.com/hniksic/emacs-htmlize"))
+              (org-require-package 'htmlize)
 	      (declare-function htmlize-buffer "htmlize" (&optional buffer))
 	      (set-buffer (htmlize-buffer (current-buffer)))
 	      (when org-agenda-export-html-style
@@ -7333,7 +7332,7 @@ Any match of REMOVE-RE will be removed from TXT."
 			      (let ((s (org-format-outline-path (org-get-outline-path)
 								(1- (frame-width))
 								nil org-agenda-breadcrumbs-separator)))
-				(if (eq "" s) "" (concat s org-agenda-breadcrumbs-separator))))))
+				(if (equal "" s) "" (concat s org-agenda-breadcrumbs-separator))))))
 	(setq time (cond (s2 (concat
 			      (org-agenda-time-of-day-to-ampm-maybe s1)
 			      "-" (org-agenda-time-of-day-to-ampm-maybe s2)
