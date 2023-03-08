@@ -141,7 +141,7 @@ exporting the literal LaTeX source."
   (org-trim body))
 
 (defun org-babel-execute:latex (body params)
-  "Execute a block of Latex code with Babel.
+  "Execute a block of LaTeX code with Babel.
 This function is called by `org-babel-execute-src-block'."
   (setq body (org-babel-expand-body:latex body params))
   (if (cdr (assq :file params))
@@ -180,7 +180,7 @@ This function is called by `org-babel-execute-src-block'."
 	                     tmp-pdf
                              (list org-babel-latex-pdf-svg-process)
                              extension err-msg log-buf)))
-              (shell-command (format "mv %s %s" img-out out-file)))))
+              (rename-file img-out out-file t))))
          ((string-suffix-p ".tikz" out-file)
 	  (when (file-exists-p out-file) (delete-file out-file))
 	  (with-temp-file out-file
