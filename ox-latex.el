@@ -1290,7 +1290,7 @@ used.  When nil, no theme is applied."
 (defun org-latex-generate-engraved-preamble (info)
   "Generate the preamble to setup engraved code.
 The result is constructed from the :latex-engraved-preamble and
-:latex-engraved-optionsn export options, the default values of
+:latex-engraved-options export options, the default values of
 which are given by `org-latex-engraved-preamble' and
 `org-latex-engraved-options' respectively."
   (let* ((engraved-options
@@ -2980,7 +2980,14 @@ information."
   "Transcode a PARAGRAPH element from Org to LaTeX.
 CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
-  contents)
+  ;; Ensure that we do not create multiple paragraphs, when a single
+  ;; paragraph is expected.
+  ;; Multiple newlines may appear in CONTENTS, for example, when
+  ;; certain objects are stripped from export, leaving single newlines
+  ;; before and after.
+  (replace-regexp-in-string
+   (rx "\n" (1+ (0+ space) "\n")) "\n"
+   contents))
 
 
 ;;;; Plain List
