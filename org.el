@@ -5415,9 +5415,9 @@ by a #."
 	    (org-remove-flyspell-overlays-in beg bol-after-beginline)
 	    (org-remove-flyspell-overlays-in nl-before-endline end-of-endline)
 	    (cond
-	     ((and lang (not (string= lang "")) org-src-fontify-natively)
+	     (org-src-fontify-natively
 	      (save-match-data
-                (org-src-font-lock-fontify-block lang block-start block-end))
+                (org-src-font-lock-fontify-block (or lang "") block-start block-end))
 	      (add-text-properties bol-after-beginline block-end '(src-block t)))
 	     (quoting
 	      (add-text-properties
@@ -16920,7 +16920,9 @@ for more information."
     (let ((beg (region-beginning))
           (end (region-end)))
       (save-excursion
-        (goto-char end)
+        ;; Go a little earlier because `org-move-subtree-down' will
+        ;; insert before markers and we may overshoot in some cases.
+        (goto-char (max beg (1- end)))
         (setq end (point-marker))
         (goto-char beg)
         (let ((level (org-current-level)))
