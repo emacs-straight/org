@@ -1,4 +1,4 @@
-;;; ox-org.el --- Org Back-End for Org Export Engine -*- lexical-binding: t; -*-
+;;; ox-org.el --- Org Backend for Org Export Engine -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013-2023 Free Software Foundation, Inc.
 
@@ -345,9 +345,7 @@ Return output file name."
                 t t)))
 	(write-file (concat pub-dir (file-name-nondirectory filename) html-ext)))
       (kill-buffer newbuf)
-      (unless visitingp (kill-buffer work-buffer)))
-    ;; FIXME: Why?  Which buffer is this supposed to apply to?
-    (set-buffer-modified-p nil)))
+      (unless visitingp (kill-buffer work-buffer)))))
 
 
 (provide 'ox-org)
