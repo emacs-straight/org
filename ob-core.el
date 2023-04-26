@@ -212,7 +212,7 @@ When matching, reference is stored in match group 1."
    ;; (4) header arguments
    "\\([^\n]*\\)\n"
    ;; (5) body
-   "\\([^\000]*?\n\\)??[ \t]*#\\+end_src")
+   "\\(\\(?:.\\|\n\\)*?\n\\)??[ \t]*#\\+end_src")
   "Regexp used to identify code blocks.")
 
 (defun org-babel--get-vars (params)
@@ -1662,9 +1662,11 @@ shown below.
   (let (results)
     (mapc (lambda (pair)
 	    (if (eq (car pair) :var)
-		(mapcar (lambda (v) (push (cons :var (org-trim v)) results))
-			(org-babel-join-splits-near-ch
-			 61 (org-babel-balanced-split (cdr pair) 32)))
+                (or
+	         (mapcar (lambda (v) (push (cons :var (org-trim v)) results))
+		         (org-babel-join-splits-near-ch
+		          61 (org-babel-balanced-split (or (cdr pair) "") 32)))
+                 (push `(:var) results))
 	      (push pair results)))
 	  header-arguments)
     (nreverse results)))
