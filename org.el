@@ -471,7 +471,8 @@ The time stamps may be either active or inactive.")
   "Regular expression for specifying repeated events.
 After a match, group 1 contains the repeat expression.")
 
-(defconst org-time-stamp-formats '("%Y-%m-%d %a" . "%Y-%m-%d %a %H:%M")
+(defvaralias 'org-time-stamp-formats 'org-timestamp-formats)
+(defconst org-timestamp-formats '("%Y-%m-%d %a" . "%Y-%m-%d %a %H:%M")
   "Formats for `format-time-string' which are used for time stamps.
 
 The value is a cons cell containing two strings.  The `car' and `cdr'
@@ -1208,7 +1209,7 @@ are matched against file names, and values."
   :group 'org)
 
 (defcustom org-closed-keep-when-no-todo nil
-  "Remove CLOSED: time-stamp when switching back to a non-todo state?"
+  "Remove CLOSED: timestamp when switching back to a non-todo state?"
   :group 'org-todo
   :group 'org-keywords
   :version "24.4"
@@ -2397,7 +2398,8 @@ string as an argument and return the numeric priority."
   :tag "Org Time"
   :group 'org)
 
-(defcustom org-time-stamp-rounding-minutes '(0 5)
+(defvaralias 'org-time-stamp-rounding-minutes 'org-timestamp-rounding-minutes)
+(defcustom org-timestamp-rounding-minutes '(0 5)
   "Number of minutes to round time stamps to.
 \\<org-mode-map>\
 These are two values, the first applies when first creating a time stamp.
@@ -2410,7 +2412,7 @@ numbers should be factors of 60, so for example 5, 10, 15.
 
 When this is larger than 1, you can still force an exact time stamp by using
 a double prefix argument to a time stamp command like \
-`\\[org-time-stamp]' or `\\[org-time-stamp-inactive],
+`\\[org-timestamp]' or `\\[org-timestamp-inactive],
 and by using a prefix arg to `S-up/down' to specify the exact number
 of minutes to shift."
   :group 'org-time
@@ -2423,21 +2425,22 @@ of minutes to shift."
 	  (integer :tag "when modifying times")))
 
 ;; Normalize old customizations of this variable.
-(when (integerp org-time-stamp-rounding-minutes)
-  (setq org-time-stamp-rounding-minutes
-	(list org-time-stamp-rounding-minutes
-	      org-time-stamp-rounding-minutes)))
+(when (integerp org-timestamp-rounding-minutes)
+  (setq org-timestamp-rounding-minutes
+	(list org-timestamp-rounding-minutes
+	      org-timestamp-rounding-minutes)))
 
 (defcustom org-display-custom-times nil
   "Non-nil means overlay custom formats over all time stamps.
-The formats are defined through the variable `org-time-stamp-custom-formats'.
+The formats are defined through the variable `org-timestamp-custom-formats'.
 To turn this on on a per-file basis, insert anywhere in the file:
    #+STARTUP: customtime"
   :group 'org-time
   :type 'sexp)
 (make-variable-buffer-local 'org-display-custom-times)
 
-(defcustom org-time-stamp-custom-formats
+(defvaralias 'org-time-stamp-custom-formats 'org-timestamp-custom-formats)
+(defcustom org-timestamp-custom-formats
   '("%m/%d/%y %a" . "%m/%d/%y %a %H:%M") ; american
   "Custom formats for time stamps.
 
@@ -2459,8 +2462,8 @@ strings."
 (defun org-time-stamp-format (&optional with-time inactive custom)
   "Get timestamp format for a time string.
 
-The format is based on `org-time-stamp-formats' (if CUSTOM is nil) or or
-`org-time-stamp-custom-formats' (if CUSTOM if non-nil).
+The format is based on `org-timestamp-formats' (if CUSTOM is nil) or or
+`org-timestamp-custom-formats' (if CUSTOM if non-nil).
 
 When optional argument WITH-TIME is non-nil, the timestamp will contain
 time.
@@ -2471,8 +2474,8 @@ Otherwise, format inactive timestamp."
   (let ((format (funcall
                  (if with-time #'cdr #'car)
                  (if custom
-                     org-time-stamp-custom-formats
-                   org-time-stamp-formats))))
+                     org-timestamp-custom-formats
+                   org-timestamp-formats))))
     ;; Strip brackets, if any.
     (when (or (and (string-prefix-p "<" format)
                    (string-suffix-p ">" format))
@@ -4411,8 +4414,7 @@ directory."
             (let ((value (org-element-property :value element)))
               (pcase (org-element-property :key element)
 		("SETUPFILE"
-		 (when (and (org-string-nw-p value)
-			    (not buffer-read-only)) ;FIXME: bug in Gnus?
+		 (when (org-string-nw-p value)
 		   (let* ((uri (org-strip-quotes value))
 			  (uri-is-url (org-url-p uri))
 			  (uri (if uri-is-url
@@ -5002,10 +5004,10 @@ The following commands are available:
 (defun org-current-time (&optional rounding-minutes past)
   "Current time, possibly rounded to ROUNDING-MINUTES.
 When ROUNDING-MINUTES is not an integer, fall back on the car of
-`org-time-stamp-rounding-minutes'.  When PAST is non-nil, ensure
+`org-timestamp-rounding-minutes'.  When PAST is non-nil, ensure
 the rounding returns a past time."
   (let ((r (or (and (integerp rounding-minutes) rounding-minutes)
-	       (car org-time-stamp-rounding-minutes)))
+	       (car org-timestamp-rounding-minutes)))
 	(now (current-time)))
     (if (< r 1)
 	now
@@ -8350,10 +8352,10 @@ If the file does not exist, throw an error."
 
 ;;;###autoload
 (defun org-open-at-point-global ()
-  "Follow a link or a time-stamp like Org mode does.
+  "Follow a link or a timestamp like Org mode does.
 Also follow links and emails as seen by `thing-at-point'.
 This command can be called in any mode to follow an external
-link or a time-stamp that has Org mode syntax.  Its behavior
+link or a timestamp that has Org mode syntax.  Its behavior
 is undefined when called on internal links like fuzzy links.
 Raise a user error when there is nothing to follow."
   (interactive)
@@ -8403,7 +8405,7 @@ entry, so it is possible to pick one, or all, of them.  If point
 is on a tag, call `org-tags-view' instead.
 
 On top of syntactically correct links, this function also tries
-to open links and time-stamps in comments, node properties, and
+to open links and timestamps in comments, node properties, and
 keywords if point is on something looking like a timestamp or
 a link."
   (interactive "P")
@@ -8636,7 +8638,7 @@ or to another Org file, automatically push the old position onto the ring."
 (defvar org-agenda-start-on-weekday)
 (defvar org-agenda-buffer-name)
 (defun org-follow-timestamp-link ()
-  "Open an agenda view for the time-stamp date/range at point."
+  "Open an agenda view for the timestamp date/range at point."
   (require 'org-agenda)
   ;; Avoid changing the global value.
   (let ((org-agenda-buffer-name org-agenda-buffer-name))
@@ -9902,7 +9904,7 @@ on INACTIVE-OK."
       nil)))
 
 (defun org-get-repeat (&optional timestamp)
-  "Check if there is a time-stamp with repeater in this entry.
+  "Check if there is a timestamp with repeater in this entry.
 
 Return the repeater, as a string, or nil.  Also return nil when
 this function is called before first heading.
@@ -9932,7 +9934,7 @@ repeater from there instead."
 (defvar org-log-note-extra)
 (defvar org-log-setup nil)
 (defun org-auto-repeat-maybe (done-word)
-  "Check if the current headline contains a repeated time-stamp.
+  "Check if the current headline contains a repeated timestamp.
 
 If yes, set TODO state back to what it was and change the base date
 of repeating deadline/scheduled time stamps to new date.
@@ -9982,14 +9984,14 @@ This function is run automatically after each state change to a DONE state."
 			     (or done-word (car org-done-keywords))
 			     org-last-state
 			     org-log-repeat)))
-      ;; Time-stamps without a repeater are usually skipped.  However,
-      ;; a SCHEDULED time-stamp without one is removed, as they are no
+      ;; Timestamps without a repeater are usually skipped.  However,
+      ;; a SCHEDULED timestamp without one is removed, as they are no
       ;; longer relevant.
       (save-excursion
 	(let ((scheduled (org-entry-get (point) "SCHEDULED")))
 	  (when (and scheduled (not (string-match-p org-repeat-re scheduled)))
 	    (org-remove-timestamp-with-keyword org-scheduled-string))))
-      ;; Update every time-stamp with a repeater in the entry.
+      ;; Update every timestamp with a repeater in the entry.
       (let ((planning-re (regexp-opt
 			  (list org-scheduled-string org-deadline-string))))
 	(while (re-search-forward org-repeat-re end t)
@@ -10021,7 +10023,7 @@ This function is run automatically after each state change to a DONE state."
 		      ;; repeater is by hours.
 		      (if (equal what "h")
 			  (org-timestamp-change
-			   (floor (- (org-time-stamp-to-now ts t)) 60) 'minute)
+			   (floor (- (org-timestamp-to-now ts t)) 60) 'minute)
 			(org-timestamp-change
 			 (- (org-today) (time-to-days time)) 'day)))
 		     ((equal "+" repeater-type)
@@ -10357,7 +10359,7 @@ WHAT entry will also be removed."
 		               (otherwise (error "Invalid planning type: %s" what)))
 	                     " ")
          ;; Insert associated timestamp.
-         (let ((ts (org-insert-time-stamp
+         (let ((ts (org-insert-timestamp
 		    time
 		    (or org-time-was-given
 		        (and (eq what 'closed) org-log-done-with-time))
@@ -10657,7 +10659,7 @@ D      Show deadlines and scheduled items between a date range."
 	     (deadline "only deadline")
 	     (active "only active timestamps")
 	     (inactive "only inactive timestamps")
-	     (closed "with a closed time-stamp")
+	     (closed "with a closed timestamp")
 	     (otherwise "scheduled/deadline")))
   (let ((answer (read-char-exclusive)))
     (cl-case answer
@@ -11663,6 +11665,9 @@ in Lisp code use `org-set-tags' instead."
 	 (lambda () (when (org-invisible-p) (org-end-of-subtree nil t))))))
      (t
       (save-excursion
+        ;; FIXME: We need to add support setting #+FILETAGS.
+        (when (org-before-first-heading-p)
+          (user-error "Setting file tags is not supported yet"))
 	(org-back-to-heading)
 	(let* ((all-tags (org-get-tags))
                (local-table (or org-current-tag-alist (org-get-buffer-tags)))
@@ -12585,8 +12590,8 @@ strings."
 		      (member specific '("TIMESTAMP" "TIMESTAMP_IA")))
 	      (let ((find-ts
 		     (lambda (end ts)
-		       ;; Fix next time-stamp before END.  TS is the
-		       ;; list of time-stamps found so far.
+		       ;; Fix next timestamp before END.  TS is the
+		       ;; list of timestamps found so far.
 		       (let ((ts ts)
 			     (regexp (cond
 				      ((string= specific "TIMESTAMP")
@@ -13522,9 +13527,10 @@ Return the position where this entry starts, or nil if there is no such entry."
 
 (defvar org-last-changed-timestamp nil)
 (defvar org-last-inserted-timestamp nil
-  "The last time stamp inserted with `org-insert-time-stamp'.")
+  "The last time stamp inserted with `org-insert-timestamp'.")
 
-(defun org-time-stamp (arg &optional inactive)
+(defalias 'org-time-stamp #'org-timestamp)
+(defun org-timestamp (arg &optional inactive)
   "Prompt for a date/time and insert a time stamp.
 
 If the user specifies a time like HH:MM or if this command is
@@ -13566,10 +13572,12 @@ non-nil."
 	       inactive)))))
     (cond
      ((and ts
-           (memq last-command '(org-time-stamp org-time-stamp-inactive))
-           (memq this-command '(org-time-stamp org-time-stamp-inactive)))
+           (memq last-command '( org-time-stamp org-time-stamp-inactive
+                                 org-timestamp org-timestamp-inactive))
+           (memq this-command '( org-time-stamp org-time-stamp-inactive
+                                 org-timestamp org-timestamp-inactive)))
       (insert "--")
-      (org-insert-time-stamp time (or org-time-was-given arg) inactive))
+      (org-insert-timestamp time (or org-time-was-given arg) inactive))
      (ts
       ;; Make sure we're on a timestamp.  When in the middle of a date
       ;; range, move arbitrarily to range end.
@@ -13578,7 +13586,7 @@ non-nil."
 	(org-at-timestamp-p 'lax))
       (replace-match "")
       (setq org-last-changed-timestamp
-	    (org-insert-time-stamp
+	    (org-insert-timestamp
 	     time (or org-time-was-given arg)
 	     inactive nil nil (list org-end-time-was-given)))
       (when repeater
@@ -13588,8 +13596,8 @@ non-nil."
 	      (concat (substring org-last-inserted-timestamp 0 -1)
 		      " " repeater ">")))
       (message "Timestamp updated"))
-     ((equal arg '(16)) (org-insert-time-stamp time t inactive))
-     (t (org-insert-time-stamp
+     ((equal arg '(16)) (org-insert-timestamp time t inactive))
+     (t (org-insert-timestamp
 	 time (or org-time-was-given arg) inactive nil nil
 	 (list org-end-time-was-given))))))
 
@@ -13610,7 +13618,8 @@ non-nil."
 	(concat t1 "+" (number-to-string dh)
 		(and (/= 0 dm) (format ":%02d" dm)))))))
 
-(defun org-time-stamp-inactive (&optional arg)
+(defalias 'org-time-stamp-inactive #'org-timestamp-inactive)
+(defun org-timestamp-inactive (&optional arg)
   "Insert an inactive time stamp.
 
 An inactive time stamp is enclosed in square brackets instead of
@@ -13625,7 +13634,7 @@ Otherwise, only the date is included.
 When called with two universal prefix arguments, insert an inactive time stamp
 with the current time without prompting the user."
   (interactive "P")
-  (org-time-stamp arg 'inactive))
+  (org-timestamp arg 'inactive))
 
 (defvar org-date-ovl (make-overlay 1 1))
 (overlay-put org-date-ovl 'face 'org-date-selected)
@@ -13706,10 +13715,10 @@ the time/date that is used for everything that is not specified by the
 user."
   (require 'parse-time)
   (let* ((org-with-time with-time)
-	 (org-time-stamp-rounding-minutes
+	 (org-timestamp-rounding-minutes
 	  (if (equal org-with-time '(16))
 	      '(0 0)
-	    org-time-stamp-rounding-minutes))
+	    org-timestamp-rounding-minutes))
 	 (ct (org-current-time))
 	 (org-def (or org-overriding-default-time default-time ct))
 	 (org-defdecode (decode-time org-def))
@@ -14157,7 +14166,8 @@ This is used by `org-read-date' in a temporary keymap for the calendar buffer."
       (setq org-ans1 (format-time-string "%Y-%m-%d" time)))
     (when (active-minibuffer-window) (exit-minibuffer))))
 
-(defun org-insert-time-stamp (time &optional with-hm inactive pre post extra)
+(defalias 'org-insert-time-stamp #'org-insert-timestamp)
+(defun org-insert-timestamp (time &optional with-hm inactive pre post extra)
   "Insert a date stamp for the date given by the internal TIME.
 See `format-time-string' for the format of TIME.
 WITH-HM means use the stamp format that includes the time of the day.
@@ -14184,7 +14194,8 @@ The command returns the inserted time stamp."
       (insert-before-markers-and-inherit (or post ""))
       (setq org-last-inserted-timestamp stamp))))
 
-(defun org-toggle-time-stamp-overlays ()
+(defalias 'org-toggle-time-stamp-overlays #'org-toggle-timestamp-overlays)
+(defun org-toggle-timestamp-overlays ()
   "Toggle the use of custom time stamp formats."
   (interactive)
   (setq org-display-custom-times (not org-display-custom-times))
@@ -14226,7 +14237,8 @@ Don't touch the rest."
   (let ((n 0))
     (mapcar (lambda (x) (if (< (setq n (1+ n)) 7) (or x 0) x)) time)))
 
-(defun org-time-stamp-to-now (timestamp-string &optional seconds)
+(defalias 'org-time-stamp-to-now #'org-timestamp-to-now)
+(defun org-timestamp-to-now (timestamp-string &optional seconds)
   "Difference between TIMESTAMP-STRING and now in days.
 If SECONDS is non-nil, return the difference in seconds."
   (let ((fdiff (if seconds #'float-time #'time-to-days)))
@@ -14236,7 +14248,7 @@ If SECONDS is non-nil, return the difference in seconds."
 (defun org-deadline-close-p (timestamp-string &optional ndays)
   "Is the time in TIMESTAMP-STRING close to the current date?"
   (setq ndays (or ndays (org-get-wdays timestamp-string)))
-  (and (<= (org-time-stamp-to-now timestamp-string) ndays)
+  (and (<= (org-timestamp-to-now timestamp-string) ndays)
        (not (org-entry-is-done-p))))
 
 (defun org-get-wdays (ts &optional delay zero-delay)
@@ -14304,7 +14316,7 @@ Allowed values for TYPE are:
    inactive: only inactive timestamps ([...])
   scheduled: only scheduled timestamps
    deadline: only deadline timestamps
-     closed: only closed time-stamps
+     closed: only closed timestamps
 
 When TYPE is nil, fall back on returning a regexp that matches
 both scheduled and deadline timestamps."
@@ -14406,7 +14418,7 @@ days in order to avoid rounding problems."
        (goto-char (line-beginning-position))
        (re-search-forward org-tr-regexp-both (line-end-position) t))
      (unless (org-at-date-range-p t)
-       (user-error "Not at a time-stamp range, and none found in current line")))
+       (user-error "Not at a timestamp range, and none found in current line")))
    (let* ((ts1 (match-string 1))
 	  (ts2 (match-string 2))
 	  (havetime (or (> (length ts1) 15) (> (length ts2) 15)))
@@ -14852,7 +14864,7 @@ The date is changed by N times WHAT.  WHAT can be `day', `month',
 position in the timestamp determines what is changed.
 
 When optional argument UPDOWN is non-nil, minutes are rounded
-according to `org-time-stamp-rounding-minutes'.
+according to `org-timestamp-rounding-minutes'.
 
 When SUPPRESS-TMP-DELAY is non-nil, suppress delays like
 \"--2d\"."
@@ -14860,14 +14872,14 @@ When SUPPRESS-TMP-DELAY is non-nil, suppress delays like
 	(timestamp? (org-at-timestamp-p 'lax))
 	origin-cat
 	with-hm inactive
-	(dm (max (nth 1 org-time-stamp-rounding-minutes) 1))
+	(dm (max (nth 1 org-timestamp-rounding-minutes) 1))
 	extra rem
 	ts time time0 fixnext clrgx)
     (unless timestamp? (user-error "Not at a timestamp"))
     (if (and (not what) (eq timestamp? 'bracket))
 	(org-toggle-timestamp-type)
-      ;; Point isn't on brackets.  Remember the part of the time-stamp
-      ;; the point was in.  Indeed, size of time-stamps may change,
+      ;; Point isn't on brackets.  Remember the part of the timestamp
+      ;; the point was in.  Indeed, size of timestamps may change,
       ;; but point must be kept in the same category nonetheless.
       (setq origin-cat timestamp?)
       (when (and (not what) (not (eq timestamp? 'day))
@@ -14930,13 +14942,13 @@ When SUPPRESS-TMP-DELAY is non-nil, suppress delays like
 	  (setcar (nthcdr 1 time0) (or (nth 1 time0) 0))
 	  (setcar (nthcdr 2 time0) (or (nth 2 time0) 0))
 	  (setq time (org-encode-time time0))))
-      ;; Insert the new time-stamp, and ensure point stays in the same
+      ;; Insert the new timestamp, and ensure point stays in the same
       ;; category as before (i.e. not after the last position in that
       ;; category).
       (let ((pos (point)))
 	;; Stay before inserted string. `save-excursion' is of no use.
 	(setq org-last-changed-timestamp
-	      (org-insert-time-stamp time with-hm inactive nil nil extra))
+	      (org-insert-timestamp time with-hm inactive nil nil extra))
 	(goto-char pos))
       (save-match-data
 	(looking-at org-ts-regexp3)
@@ -14948,8 +14960,8 @@ When SUPPRESS-TMP-DELAY is non-nil, suppress delays like
 	   (`hour (min (match-end 7) origin))
 	   (`minute (min (1- (match-end 8)) origin))
 	   ((pred integerp) (min (1- (match-end 0)) origin))
-	   ;; Point was right after the time-stamp.  However, the
-	   ;; time-stamp length might have changed, so refer to
+	   ;; Point was right after the timestamp.  However, the
+	   ;; timestamp length might have changed, so refer to
 	   ;; (match-end 0) instead.
 	   (`after (match-end 0))
 	   ;; `year' and `month' have both fixed size: point couldn't
@@ -15074,7 +15086,7 @@ If there is already a time stamp at the cursor position, update it."
   (if (org-at-timestamp-p 'lax)
       (org-timestamp-change 0 'calendar)
     (let ((cal-date (org-get-date-from-calendar)))
-      (org-insert-time-stamp
+      (org-insert-timestamp
        (org-encode-time 0 0 0 (nth 1 cal-date) (car cal-date) (nth 2 cal-date))))))
 
 (defcustom org-image-actual-width t
@@ -17332,8 +17344,8 @@ When in a LaTeX environment, call `org-edit-latex-environment'.
 When at an INCLUDE, SETUPFILE or BIBLIOGRAPHY keyword, visit the included file.
 When at a footnote reference, call `org-edit-footnote-reference'.
 When at a planning line call, `org-deadline' and/or `org-schedule'.
-When at an active timestamp, call `org-time-stamp'.
-When at an inactive timestamp, call `org-time-stamp-inactive'.
+When at an active timestamp, call `org-timestamp'.
+When at an inactive timestamp, call `org-timestamp-inactive'.
 On a link, call `ffap' to visit the link at point.
 Otherwise, return a user error."
   (interactive "P")
@@ -17393,8 +17405,8 @@ Otherwise, return a user error."
 	   (`inline-src-block (org-edit-inline-src-code))
 	   (`latex-fragment (org-edit-latex-fragment))
 	   (`timestamp (if (eq 'inactive (org-element-property :type context))
-			   (call-interactively #'org-time-stamp-inactive)
-			 (call-interactively #'org-time-stamp)))
+			   (call-interactively #'org-timestamp-inactive)
+			 (call-interactively #'org-timestamp)))
 	   (`link (call-interactively #'ffap))
 	   (_ (user-error "No special environment to edit here"))))))))
 
@@ -17681,41 +17693,50 @@ Use `\\[org-edit-special]' to edit table.el tables")))
 	   (org-fold-show-branches)
 	   (org-fold-hide-archived-subtrees beg end)))))
 
-(defun org-delete-indentation (&optional arg)
+(defun org-delete-indentation (&optional arg beg end)
   "Join current line to previous and fix whitespace at join.
 
 If previous line is a headline add to headline title.  Otherwise
 the function calls `delete-indentation'.
 
-I.e. with a non-nil optional argument, join the line with the
-following one.  If there is a region then join the lines in that
-region."
-  (interactive "*P")
+If there is a region (BEG END), then join the lines in that region.
+
+With a non-nil prefix ARG, join the line with the following one,
+ignoring region."
+  (interactive
+   (cons current-prefix-arg
+         (when (and (not current-prefix-arg) (use-region-p))
+           (list (region-beginning) (region-end)))))
+  (unless (and beg end)
+    ;; No region selected or BEG/END arguments not passed.
+    (setq beg (line-beginning-position (if arg 1 0))
+          end (line-end-position (if arg 2 1))))
   (if (save-excursion
-	(beginning-of-line (if arg 1 0))
-	(let ((case-fold-search nil))
-	  (looking-at org-complex-heading-regexp)))
+        (goto-char beg)
+        (beginning-of-line)
+        (and (< (line-end-position) end)
+             (let ((case-fold-search nil))
+	       (looking-at org-complex-heading-regexp))))
       ;; At headline.
       (let ((tags-column (when (match-beginning 5)
 			   (save-excursion (goto-char (match-beginning 5))
 					   (current-column))))
-	    (string (concat " " (progn (when arg (forward-line 1))
-				       (org-trim (delete-and-extract-region
-						  (line-beginning-position)
-						  (line-end-position)))))))
-	(unless (bobp) (delete-region (point) (1- (point))))
+	    string)
+        (goto-char beg)
+        ;; Join all but headline.
+        (save-excursion (save-match-data (delete-indentation nil (line-beginning-position 2) end)))
+        (setq string (org-trim (delete-and-extract-region (line-end-position) (line-end-position 2))))
 	(goto-char (or (match-end 4)
 		       (match-beginning 5)
 		       (match-end 0)))
 	(skip-chars-backward " \t")
-	(save-excursion (insert string))
+	(save-excursion (insert " " string))
 	;; Adjust alignment of tags.
 	(cond
 	 ((not tags-column))		;no tags
 	 (org-auto-align-tags (org-align-tags))
 	 (t (org--align-tags-here tags-column)))) ;preserve tags column
-    (let ((current-prefix-arg arg))
-      (call-interactively #'delete-indentation))))
+    (funcall-interactively #'delete-indentation arg beg end)))
 
 (defun org-open-line (n)
   "Insert a new row in tables, call `open-line' elsewhere.
@@ -18113,8 +18134,8 @@ an argument, unconditionally call `org-insert-heading'."
      ["Column view of properties" org-columns t]
      ["Insert Column View DBlock" org-columns-insert-dblock t])
     ("Dates and Scheduling"
-     ["Timestamp" org-time-stamp (not (org-before-first-heading-p))]
-     ["Timestamp (inactive)" org-time-stamp-inactive (not (org-before-first-heading-p))]
+     ["Timestamp" org-timestamp (not (org-before-first-heading-p))]
+     ["Timestamp (inactive)" org-timestamp-inactive (not (org-before-first-heading-p))]
      ("Change Date"
       ["1 Day Later" org-shiftright (org-at-timestamp-p 'lax)]
       ["1 Day Earlier" org-shiftleft (org-at-timestamp-p 'lax)]
@@ -18124,7 +18145,7 @@ an argument, unconditionally call `org-insert-heading'."
      ["Schedule Item" org-schedule (not (org-before-first-heading-p))]
      ["Deadline" org-deadline (not (org-before-first-heading-p))]
      "--"
-     ["Custom time format" org-toggle-time-stamp-overlays
+     ["Custom time format" org-toggle-timestamp-overlays
       :style radio :selected org-display-custom-times]
      "--"
      ["Goto Calendar" org-goto-calendar t]
@@ -18677,6 +18698,10 @@ block from point."
 	      (throw 'exit n)))))
       nil)))
 
+;; Defined in org-agenda.el
+(defvar org-agenda-restrict)
+(defvar org-agenda-restrict-begin)
+(defvar org-agenda-restrict-end)
 (defun org-occur-in-agenda-files (regexp &optional _nlines)
   "Call `multi-occur' with buffers for all agenda files."
   (interactive "sOrg-files matching: ")
@@ -19958,7 +19983,7 @@ Return a new timestamp object."
 (defun org-timestamp-translate (timestamp &optional boundary)
   "Translate TIMESTAMP object to custom format.
 
-Format string is defined in `org-time-stamp-custom-formats',
+Format string is defined in `org-timestamp-custom-formats',
 which see.
 
 When optional argument BOUNDARY is non-nil, it is either the

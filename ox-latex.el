@@ -1988,7 +1988,7 @@ holding export options."
   (let ((title (org-export-data (plist-get info :title) info))
 	(spec (org-latex--format-spec info)))
     (concat
-     ;; Time-stamp.
+     ;; Timestamp.
      (and (plist-get info :time-stamp-file)
 	  (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
      ;; LaTeX compiler.
@@ -4307,11 +4307,15 @@ produced."
                  (?L . ,(shell-quote-argument compiler))))
 	 (log-buf-name "*Org PDF LaTeX Output*")
          (log-buf (and (not snippet) (get-buffer-create log-buf-name)))
-         (outfile (org-compile-file texfile process "pdf"
-				    (format "See %S for details" log-buf-name)
-				    log-buf spec)))
+         outfile)
+    ;; Erase compile buffer at the start.
     (with-current-buffer log-buf
       (erase-buffer))
+    (setq outfile
+          (org-compile-file
+           texfile process "pdf"
+	   (format "See %S for details" log-buf-name)
+	   log-buf spec))
     (org-latex-compile--postprocess outfile log-buf snippet)
     ;; Return output file name.
     outfile))

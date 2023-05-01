@@ -889,7 +889,7 @@ style from the list."
 
 When nil, export timestamps as plain text.
 
-When non-nil, map `org-time-stamp-custom-formats' to a pair of
+When non-nil, map `org-timestamp-custom-formats' to a pair of
 OpenDocument date-styles with names \"OrgDate1\" and \"OrgDate2\"
 respectively.  A timestamp with no time component is formatted
 with style \"OrgDate1\" while one with explicit hour and minutes
@@ -2920,24 +2920,25 @@ contextual information."
       ;; FIXME: The unnecessary spacing may still remain when a newline
       ;; is at a boundary between Org objects (e.g. italics markup
       ;; followed by newline).
-      (setq output
-            (with-temp-buffer
-              (save-match-data
-                (let ((leading (and (string-match (rx bos (1+ blank)) output)
-                                    (match-string 0 output)))
-                      (trailing (and (string-match (rx (1+ blank) eos) output)
-                                     (match-string 0 output))))
-                  (insert
-                   (substring
-                    output
-                    (length leading)
-                    (pcase (length trailing)
-                      (0 nil)
-                      (n (- n)))))
-                  ;; Unfill, retaining leading/trailing space.
-                  (let ((fill-column most-positive-fixnum))
-                    (fill-region (point-min) (point-max)))
-                  (concat leading (buffer-string) trailing))))))
+      (when (org-string-nw-p output) ; blank string needs not to be re-filled
+        (setq output
+              (with-temp-buffer
+                (save-match-data
+                  (let ((leading (and (string-match (rx bos (1+ blank)) output)
+                                      (match-string 0 output)))
+                        (trailing (and (string-match (rx (1+ blank) eos) output)
+                                       (match-string 0 output))))
+                    (insert
+                     (substring
+                      output
+                      (length leading)
+                      (pcase (length trailing)
+                        (0 nil)
+                        (n (- n)))))
+                    ;; Unfill, retaining leading/trailing space.
+                    (let ((fill-column most-positive-fixnum))
+                      (fill-region (point-min) (point-max)))
+                    (concat leading (buffer-string) trailing)))))))
     ;; Return value.
     output))
 
@@ -3711,7 +3712,8 @@ contextual information."
 
 (defun org-odt--translate-latex-fragments (tree _backend info)
   (let ((processing-type (plist-get info :with-latex))
-	(count 0))
+	(count 0)
+        (warning nil))
     ;; Normalize processing-type to one of dvipng, mathml or verbatim.
     ;; If the desired converter is not available, force verbatim
     ;; processing.
@@ -3720,17 +3722,24 @@ contextual information."
        (if (and (fboundp 'org-format-latex-mathml-available-p)
 		(org-format-latex-mathml-available-p))
 	   (setq processing-type 'mathml)
-	 (warn "LaTeX to MathML converter not available.  Falling back to verbatim.")
+         (setq warning "`org-odt-with-latex': LaTeX to MathML converter not available.  Falling back to verbatim.")
 	 (setq processing-type 'verbatim)))
       ((dvipng imagemagick)
        (unless (and (org-check-external-command "latex" "" t)
 		    (org-check-external-command
 		     (if (eq processing-type 'dvipng) "dvipng" "convert") "" t))
-	 (warn "LaTeX to PNG converter not available.  Falling back to verbatim.")
+	 (setq warning "`org-odt-with-latex': LaTeX to PNG converter not available.  Falling back to verbatim.")
 	 (setq processing-type 'verbatim)))
       (otherwise
-       (warn "Unknown LaTeX option.  Forcing verbatim.")
+       (setq warning "`org-odt-with-latex': Unknown LaTeX option.  Forcing verbatim.")
        (setq processing-type 'verbatim)))
+
+    ;; Display warning if the selected PROCESSING-TYPE is not
+    ;; available, but there are fragments to be converted.
+    (when warning
+      (org-element-map tree '(latex-fragment latex-environment)
+        (lambda (_) (warn warning))
+        info 'first-match nil t))
 
     ;; Store normalized value for later use.
     (when (plist-get info :with-latex)
@@ -4089,8 +4098,8 @@ contextual information."
        (error
 	;; Cleanup work directory and work files.
 	(funcall --cleanup-xml-buffers)
-	(warn "OpenDocument export failed: %s"
-	      (error-message-string err))))))
+	(error "OpenDocument export failed: %s"
+	       (error-message-string err))))))
 
 
 ;;;; Export to OpenDocument formula
