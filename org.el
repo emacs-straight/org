@@ -6512,19 +6512,22 @@ Set it to HEADING when provided."
   (interactive)
   (org-insert-heading '(4) invisible-ok))
 
-(defun org-insert-todo-heading-respect-content (&optional _)
-  "Insert TODO heading with `org-insert-heading-respect-content' set to t."
-  (interactive)
+(defun org-insert-todo-heading-respect-content (&optional arg)
+  "Call `org-insert-todo-heading', inserting after current subtree.
+ARG is passed to `org-insert-todo-heading'.
+This command temporarily sets `org-insert-heading-respect-content' to t."
+  (interactive "P")
   (let ((org-insert-heading-respect-content t))
-    (org-insert-todo-heading '(4) t)))
+    (org-insert-todo-heading arg t)))
 
 (defun org-insert-todo-heading (arg &optional force-heading)
   "Insert a new heading with the same level and TODO state as current heading.
 
 If the heading has no TODO state, or if the state is DONE, use
-the first state (TODO by default).  Also with one prefix arg,
-force first state.  With two prefix args, force inserting at the
-end of the parent subtree.
+the first state (TODO by default).  Also with `\\[universal-argument]'
+prefix, force first state.  With a `\\[universal-argument]
+\\[universal-argument]' prefix, force inserting at the end of the
+parent subtree.
 
 When called at a plain list item, insert a new item with an
 unchecked check box."
@@ -16304,7 +16307,8 @@ conventions:
 
   2. Its description consists in a single link of the previous
      type.  In this case, that link must be a well-formed plain
-     or angle link, i.e., it must have an explicit \"file\" type.
+     or angle link, i.e., it must have an explicit \"file\" or
+     \"attachment\" type.
 
 Equip each image with the key-map `image-map'.
 
@@ -16335,7 +16339,7 @@ buffer boundaries with possible narrowing."
 	       ;; "file:" links.  Also check link abbreviations since
 	       ;; some might expand to "file" links.
 	       (file-types-re
-		(format "\\[\\[\\(?:file%s:\\|attachment:\\|[./~]\\)\\|\\]\\[\\(<?file:\\)"
+		(format "\\[\\[\\(?:file%s:\\|attachment:\\|[./~]\\)\\|\\]\\[\\(<?\\(?:file\\|attachment\\):\\)"
 			(if (not link-abbrevs) ""
 			  (concat "\\|" (regexp-opt link-abbrevs))))))
 	  (while (re-search-forward file-types-re end t)
@@ -16374,7 +16378,9 @@ buffer boundaries with possible narrowing."
 			     ;; description.
 			     (= (org-element-property :contents-end link)
 				(match-end 0))
-			     (match-string 2)))))))
+			     (progn
+                               (setq linktype (match-string 1))
+                               (match-string 2))))))))
 	      (when (and path (string-match-p file-extension-re path))
 		(let ((file (if (equal "attachment" linktype)
 				(progn
