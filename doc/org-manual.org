@@ -13213,6 +13213,32 @@ a postamble from looking up author's name, email address, creator's
 name, and date.
 
 
+*** Exporting to minimal HTML
+:PROPERTIES:
+:DESCRIPTION: Exporting HTML without CSS, Javascript, etc.
+:ALT_TITLE: Bare HTML
+:END:
+
+If you want to output a minimal HTML file, with no CSS, no Javascript,
+no preamble or postamble, here are the variable you would need to set:
+
+#+vindex: org-html-head
+#+vindex: org-html-head-extra
+#+vindex: org-html-head-include-default-style
+#+vindex: org-html-head-include-scripts
+#+vindex: org-html-preamble
+#+vindex: org-html-postamble
+#+vindex: org-html-use-infojs
+#+begin_src emacs-lisp
+(setq org-html-head ""
+      org-html-head-extra ""
+      org-html-head-include-default-style nil
+      org-html-head-include-scripts nil
+      org-html-preamble nil
+      org-html-postamble nil
+      org-html-use-infojs nil)
+#+end_src
+
 *** Quoting HTML tags
 :PROPERTIES:
 :DESCRIPTION: Using direct HTML in Org files.
@@ -16365,76 +16391,55 @@ Further steps to consider would be an interactive function,
 self-installing an item in the export dispatcher menu, and other
 user-friendly improvements.
 
-** Export in Foreign Buffers
+** Export Region
 :PROPERTIES:
 :DESCRIPTION: Author tables and lists in Org syntax.
 :END:
 
-The export backends in Org often include commands to convert selected
-regions.  A convenient feature of this in-place conversion is that the
-exported output replaces the original source.  Here are such
-functions:
+Some export backends include commands to convert a region of Org
+formatted text to another format, such as HTML or LaTeX.  The
+conversion replaces the original source.  Here are such commands:
 
-- ~org-ascii-convert-region-to-ascii~ ::
+- ~org-export-region-to-ascii~ ::
 
   #+findex: org-ascii-convert-region-to-ascii
+  #+findex: org-export-region-to-ascii
   Convert the selected region into ASCII.
 
-- ~org-ascii-convert-region-to-utf8~ ::
+- ~org-export-region-to-utf8~ ::
 
   #+findex: org-ascii-convert-region-to-utf8
+  #+findex: org-export-region-to-utf8
   Convert the selected region into UTF-8.
 
-- ~org-html-convert-region-to-html~ ::
+- ~org-export-region-to-html~ ::
 
   #+findex: org-html-convert-region-to-html
+  #+findex: org-export-region-to-html
   Convert the selected region into HTML.
 
-- ~org-latex-convert-region-to-latex~ ::
+- ~org-export-region-to-latex~ ::
 
   #+findex: org-latex-convert-region-to-latex
+  #+findex: org-export-region-to-latex
   Convert the selected region into LaTeX.
 
-- ~org-texinfo-convert-region-to-texinfo~ ::
+- ~org-export-region-to-texinfo~ ::
 
   #+findex: org-texinfo-convert-region-to-texinfo
+  #+findex: org-export-region-to-texinfo
   Convert the selected region into Texinfo.
 
-- ~org-md-convert-region-to-md~ ::
+- ~org-export-region-to-md~ ::
 
   #+findex: org-md-convert-region-to-md
+  #+findex: org-export-region-to-md
   Convert the selected region into Markdown.
 
-In-place conversions are particularly handy for quick conversion of
-tables and lists in foreign buffers.  For example, in an HTML buffer,
+The in-place conversion is particularly handy for quick conversion of
+tables and lists in non-Org buffers.  For example, in an HTML buffer,
 write a list in Org syntax, select it, and convert it to HTML with
 {{{kbd(M-x org-html-convert-region-to-html)}}}.
-
-*** Exporting to minimal HTML
-:PROPERTIES:
-:DESCRIPTION: Exporting HTML without CSS, Javascript, etc.
-:ALT_TITLE: Bare HTML
-:END:
-
-If you want to output a minimal HTML file, with no CSS, no Javascript,
-no preamble or postamble, here are the variable you would need to set:
-
-#+vindex: org-html-head
-#+vindex: org-html-head-extra
-#+vindex: org-html-head-include-default-style
-#+vindex: org-html-head-include-scripts
-#+vindex: org-html-preamble
-#+vindex: org-html-postamble
-#+vindex: org-html-use-infojs
-#+begin_src emacs-lisp
-(setq org-html-head ""
-      org-html-head-extra ""
-      org-html-head-include-default-style nil
-      org-html-head-include-scripts nil
-      org-html-preamble nil
-      org-html-postamble nil
-      org-html-use-infojs nil)
-#+end_src
 
 * Publishing
 :PROPERTIES:
