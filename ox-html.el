@@ -1849,7 +1849,7 @@ produce code that uses these same face definitions."
     (delete-region (point-min) (match-beginning 0)))
   (when (re-search-forward "</style>" nil t)
     (delete-region (1+ (match-end 0)) (point-max)))
-  (beginning-of-line 1)
+  (forward-line 0)
   (when (looking-at " +") (replace-match ""))
   (goto-char (point-min)))
 
@@ -2721,7 +2721,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (concat
    ;; Insert separator between two footnotes in a row.
    (let ((prev (org-export-get-previous-element footnote-reference info)))
-     (when (eq (org-element-type prev) 'footnote-reference)
+     (when (org-element-type-p prev 'footnote-reference)
        (plist-get info :html-footnote-separator)))
    (let* ((n (org-export-get-footnote-number footnote-reference info))
 	  (id (format "fnr.%d%s"
@@ -2805,7 +2805,7 @@ holding contextual information."
                   ;; empty one to get the correct <div
                   ;; class="outline-...> which is needed by
                   ;; `org-info.js'.
-                  (if (eq (org-element-type first-content) 'section) contents
+                  (if (org-element-type-p first-content 'section) contents
                     (concat (org-html-section first-content "" info) contents))
                   (org-html--container headline info)))))))
 
@@ -2942,7 +2942,7 @@ INFO is a plist holding contextual information.  See
   "Transcode an ITEM element from Org to HTML.
 CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
-  (let* ((plain-list (org-export-get-parent item))
+  (let* ((plain-list (org-element-parent item))
 	 (type (org-element-property :type plain-list))
 	 (counter (org-element-property :counter item))
 	 (checkbox (org-element-property :checkbox item))
@@ -3169,10 +3169,10 @@ images, set it to:
   (lambda (paragraph) (org-element-property :caption paragraph))"
   (let ((paragraph (pcase (org-element-type element)
 		     (`paragraph element)
-		     (`link (org-export-get-parent element)))))
-    (and (eq (org-element-type paragraph) 'paragraph)
+		     (`link (org-element-parent element)))))
+    (and (org-element-type-p paragraph 'paragraph)
 	 (or (not (and (boundp 'org-html-standalone-image-predicate)
-                       (fboundp org-html-standalone-image-predicate)))
+                     (fboundp org-html-standalone-image-predicate)))
 	     (funcall org-html-standalone-image-predicate paragraph))
 	 (catch 'exit
 	   (let ((link-count 0))
@@ -3247,9 +3247,9 @@ INFO is a plist holding contextual information.  See
 	   ;; do this for the first link in parent (inner image link
 	   ;; for inline images).  This is needed as long as
 	   ;; attributes cannot be set on a per link basis.
-	   (let* ((parent (org-export-get-parent-element link))
-		  (link (let ((container (org-export-get-parent link)))
-			  (if (and (eq 'link (org-element-type container))
+	   (let* ((parent (org-element-parent-element link))
+		  (link (let ((container (org-element-parent link)))
+			  (if (and (org-element-type-p container 'link)
 				   (org-html-inline-image-p link info))
 			      container
 			    link))))
@@ -3324,7 +3324,7 @@ INFO is a plist holding contextual information.  See
 	  (_
            (if (and destination
                     (memq (plist-get info :with-latex) '(mathjax t))
-                    (eq 'latex-environment (org-element-type destination))
+                    (org-element-type-p destination 'latex-environment)
                     (eq 'math (org-latex--environment-type destination)))
                ;; Caption and labels are introduced within LaTeX
 	       ;; environment.  Use "ref" or "eqref" macro, depending on user
@@ -3335,7 +3335,7 @@ INFO is a plist holding contextual information.  See
                     (org-html-standalone-image-predicate
                      #'org-html--has-caption-p)
                     (counter-predicate
-                     (if (eq 'latex-environment (org-element-type destination))
+                     (if (org-element-type-p destination 'latex-environment)
                          #'org-html--math-environment-p
                        #'org-html--has-caption-p))
                     (number
@@ -3396,7 +3396,7 @@ information."
   "Transcode a PARAGRAPH element from Org to HTML.
 CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
-  (let* ((parent (org-export-get-parent paragraph))
+  (let* ((parent (org-element-parent paragraph))
 	 (parent-type (org-element-type parent))
 	 (style '((footnote-definition " class=\"footpara\"")
 		  (org-data " class=\"footpara\"")))
@@ -3408,7 +3408,7 @@ the plist used as a communication channel."
 	   (not (org-export-get-previous-element paragraph info))
 	   (let ((followers (org-export-get-next-element paragraph info 2)))
 	     (and (not (cdr followers))
-		  (memq (org-element-type (car followers)) '(nil plain-list)))))
+		  (org-element-type-p (car followers) '(nil plain-list)))))
       ;; First paragraph in an item has no tag if it is alone or
       ;; followed, at most, by a sub-list.
       contents)
@@ -3554,7 +3554,7 @@ holding contextual information."
   "Transcode a SECTION element from Org to HTML.
 CONTENTS holds the contents of the section.  INFO is a plist
 holding contextual information."
-  (let ((parent (org-export-get-parent-headline section)))
+  (let ((parent (org-element-lineage section 'headline)))
     ;; Before first headline: no container, just return CONTENTS.
     (if (not parent) contents
       ;; Get div's class and id references.
@@ -3691,8 +3691,8 @@ contextual information."
   "Transcode a TABLE-CELL element from Org to HTML.
 CONTENTS is nil.  INFO is a plist used as a communication
 channel."
-  (let* ((table-row (org-export-get-parent table-cell))
-	 (table (org-export-get-parent-table table-cell))
+  (let* ((table-row (org-element-parent table-cell))
+	 (table (org-element-lineage table-cell 'table))
 	 (cell-attrs
 	  (if (not (plist-get info :html-table-align-individual-fields)) ""
 	    (format (if (and (boundp 'org-html-format-table-no-css)
@@ -3756,7 +3756,7 @@ communication channel."
 	     ((not (= 1 group)) '("<tbody>" . "\n</tbody>"))
 	     ;; Row is from first group.  Table has >=1 groups.
 	     ((org-export-table-has-header-p
-	       (org-export-get-parent-table table-row) info)
+	       (org-element-lineage table-row 'table) info)
 	      '("<thead>" . "\n</thead>"))
 	     ;; Row is from first and only group.
 	     (t '("<tbody>" . "\n</tbody>")))))

@@ -53,10 +53,11 @@
 (declare-function org-element-at-point "org-element" (&optional pom cached-only))
 (declare-function org-element-cache-refresh "org-element" (pos))
 (declare-function org-element-context "org-element" (&optional element))
-(declare-function org-element-lineage "org-element" (datum &optional types with-self))
+(declare-function org-element-lineage "org-element-ast" (datum &optional types with-self))
 (declare-function org-element-link-parser "org-element" ())
-(declare-function org-element-property "org-element" (property element))
-(declare-function org-element-type "org-element" (element))
+(declare-function org-element-property "org-element-ast" (property node))
+(declare-function org-element-begin "org-element" (node))
+(declare-function org-element-type-p "org-element-ast" (node types))
 (declare-function org-element-update-syntax "org-element" ())
 (declare-function org-entry-get "org" (pom property &optional inherit literal-nil))
 (declare-function org-find-property "org" (property &optional value))
@@ -754,8 +755,8 @@ White spaces are not significant."
       (while (re-search-forward re nil t)
 	(forward-char -1)
 	(let ((object (org-element-context)))
-	  (when (eq (org-element-type object) 'radio-target)
-	    (goto-char (org-element-property :begin object))
+	  (when (org-element-type-p object 'radio-target)
+	    (goto-char (org-element-begin object))
 	    (org-fold-show-context 'link-search)
 	    (throw :radio-match nil))))
       (goto-char origin)
@@ -1118,7 +1119,7 @@ for internal and \"file\" links, or stored as a parameter in
 		      (_ path))
 		    ;; Prevent fuzzy links from matching themselves.
 		    (and (equal type "fuzzy")
-			 (+ 2 (org-element-property :begin link)))))
+			 (+ 2 (org-element-begin link)))))
 		 (point))))
 	   (unless (and (<= (point-min) destination)
 			(>= (point-max) destination))
@@ -1198,8 +1199,7 @@ of matched result, which is either `dedicated' or `fuzzy'."
 	(catch :coderef-match
 	  (while (re-search-forward re nil t)
 	    (let ((element (org-element-at-point)))
-	      (when (and (memq (org-element-type element)
-			       '(example-block src-block))
+	      (when (and (org-element-type-p element '(example-block src-block))
 			 (org-match-line
 			  (concat ".*?" (org-src-coderef-regexp
 					 (org-src-coderef-format element)
@@ -1223,9 +1223,9 @@ of matched result, which is either `dedicated' or `fuzzy'."
 	       (while (re-search-forward target nil t)
 		 (backward-char)
 		 (let ((context (org-element-context)))
-		   (when (eq (org-element-type context) 'target)
+		   (when (org-element-type-p context 'target)
 		     (setq type 'dedicated)
-		     (goto-char (org-element-property :begin context))
+		     (goto-char (org-element-begin context))
 		     (throw :target-match t))))
 	       nil))))
      ;; Look for elements named after S, only if not in a headline
@@ -1239,7 +1239,7 @@ of matched result, which is either `dedicated' or `fuzzy'."
 			(name (org-element-property :name element)))
 		   (when (and name (equal words (split-string name)))
 		     (setq type 'dedicated)
-		     (beginning-of-line)
+		     (forward-line 0)
 		     (throw :name-match t))))
 	       nil))))
      ;; Regular text search.  Prefer headlines in Org mode buffers.
@@ -1260,7 +1260,7 @@ of matched result, which is either `dedicated' or `fuzzy'."
 				(org-get-heading t t t t))))
 		   (throw :found t)))
 	       nil)))
-      (beginning-of-line)
+      (forward-line 0)
       (setq type 'dedicated))
      ;; Offer to create non-existent headline depending on
      ;; `org-link-search-must-match-exact-headline'.
@@ -1271,7 +1271,7 @@ of matched result, which is either `dedicated' or `fuzzy'."
       (unless (bolp) (newline))
       (org-insert-heading nil t t)
       (insert s "\n")
-      (beginning-of-line 0))
+      (forward-line -1))
      ;; Only headlines are looked after.  No need to process
      ;; further: throw an error.
      ((and (derived-mode-p 'org-mode)
@@ -1294,7 +1294,7 @@ of matched result, which is either `dedicated' or `fuzzy'."
 			       (<= (match-end 3) (point)))
 			   (org-element-lineage
 			    (save-match-data (org-element-context))
-			    '(link) t)))
+			    'link t)))
 	    (goto-char (match-beginning 0))
 	    (setq type 'fuzzy)
 	    (throw :fuzzy-match t)))
@@ -1473,10 +1473,10 @@ is non-nil, move backward."
 	(let ((context (save-excursion
 			 (unless search-backward (forward-char -1))
 			 (org-element-context))))
-	  (pcase (org-element-lineage context '(link) t)
+	  (pcase (org-element-lineage context 'link t)
 	    (`nil nil)
 	    (link
-	     (goto-char (org-element-property :begin link))
+	     (goto-char (org-element-begin link))
 	     (when (org-invisible-p) (org-fold-show-context 'link-search))
 	     (throw :found t)))))
       (goto-char pos)
@@ -1590,7 +1590,7 @@ non-nil."
 	    (setq link nil))
 	   ;; A code reference exists.  Use it.
 	   ((save-excursion
-	      (beginning-of-line)
+	      (forward-line 0)
 	      (re-search-forward (org-src-coderef-regexp coderef-format)
 				 (line-end-position)
 				 t))
@@ -2058,7 +2058,7 @@ Also refresh fontification if needed."
 	      ;; Make sure point is really within the object.
 	      (backward-char)
 	      (let ((obj (org-element-context)))
-		(when (eq (org-element-type obj) 'radio-target)
+		(when (org-element-type-p obj 'radio-target)
 		  (cl-pushnew (org-element-property :value obj) rtn
 			      :test #'equal))))
 	    rtn))))
