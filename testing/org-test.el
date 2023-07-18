@@ -547,6 +547,48 @@ TIME can be a non-nil Lisp time value, or a string specifying a date and time."
        ,@body)
      (nreverse messages)))
 
+(defconst org-test-day-of-weeks-seconds
+  [121223891                            ; Sun
+   30000000                             ; Mon
+   2222222                              ; Tue
+   500000                               ; Wed
+   1000                                 ; Thu
+   89173                                ; Fri
+   666666666]                           ; Sat
+  "Epoch seconds for generating days of week strings.
+Starts at Sunday, ends at Saturday.")
+
+(defconst org-test-day-of-weeks-abbrev
+  (apply #'vector
+         (seq-map (apply-partially #'format-time-string "%a")
+                  org-test-day-of-weeks-seconds))
+  "Vector of abbreviated names of days of week.
+See `org-test-day-of-weeks-seconds'.")
+
+(defconst org-test-day-of-weeks-full
+  (apply #'vector
+         (seq-map (apply-partially #'format-time-string "%A")
+                  org-test-day-of-weeks-seconds))
+  "Vector of full names for days of week.
+See `org-test-day-of-weeks-seconds'.")
+
+(defun org-test-get-day-name (day &optional full)
+  "Return string containing locale-specific DAY abbrev.
+DAY Should be Mon, Tue, ...
+When FULL is non-nil, return the full name like Monday, Tuesday, ..."
+  (aref
+   (if full org-test-day-of-weeks-full
+     org-test-day-of-weeks-abbrev)
+   (pcase day
+     ((or "Sun" "Sunday") 0)
+     ((or "Mon" "Monday") 1)
+     ((or "Tue" "Tuesday") 2)
+     ((or "Wed" "Wednesday") 3)
+     ((or "Thu" "Thursday") 4)
+     ((or "Fri" "Friday") 5)
+     ((or "Sat" "Saturday") 6)
+     (_ (error "Unknown day of week: %s" day)))))
+
 (provide 'org-test)
 
 ;;; org-test.el ends here
