@@ -109,7 +109,7 @@ Version mismatch is commonly encountered in the following situations:
 (declare-function org-fold-core-with-forced-fontification "org-fold" (&rest body))
 (declare-function org-fold-folded-p "org-fold" (&optional pos limit ignore-hidden-p previous-p))
 (declare-function string-collate-lessp "org-compat" (s1 s2 &optional locale ignore-case))
-(declare-function org-time-convert-to-integer "org-compat" (time))
+(declare-function org-time-convert-to-list "org-compat" (time))
 
 (defvar org-ts-regexp0)
 (defvar ffap-url-regexp)
@@ -1306,7 +1306,7 @@ so values can contain further %-escapes if they are define later in TABLE."
       (setq re (concat "%-?[0-9.]*" (substring (car e) 1)))
       (when (and (cdr e) (string-match re (cdr e)))
         (let ((sref (substring (cdr e) (match-beginning 0) (match-end 0)))
-              (safe "SREF"))
+              (safe (copy-sequence "SREF")))
           (add-text-properties 0 3 (list 'sref sref) safe)
           (setcdr e (replace-match safe t t (cdr e)))))
       (while (string-match re string)
