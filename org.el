@@ -5942,6 +5942,8 @@ needs to be inserted at a specific position in the font-lock sequence.")
 
 (defvar-local org-custom-properties-overlays nil
   "List of overlays used for custom properties.")
+;; Preserve when switching modes or when restarting Org.
+(put 'org-custom-properties-overlays 'permanent-local t)
 
 (defun org-toggle-custom-properties-visibility ()
   "Display or hide properties in `org-custom-properties'."
@@ -10756,6 +10758,7 @@ D      Show deadlines and scheduled items between a date range."
 
 (defvar-local org-occur-highlights nil
   "List of overlays used for occur matches.")
+(put 'org-occur-highlights 'permanent-local t)
 (defvar-local org-occur-parameters nil
   "Parameters of the active org-occur calls.
 This is a list, each call to org-occur pushes as cons cell,
@@ -13106,7 +13109,17 @@ Point is left between drawer's boundaries."
 		   (or drawer (read-from-minibuffer "Drawer: ")))))
     (cond
      ;; With C-u, fall back on `org-insert-property-drawer'
-     (arg (org-insert-property-drawer))
+     (arg
+      (org-insert-property-drawer)
+      (org-back-to-heading-or-point-min t)
+      ;; Move inside.
+      (re-search-forward org-property-end-re)
+      (forward-line 0)
+      (unless (org-element-contents-begin (org-element-at-point))
+        ;; Empty drawer.
+        (insert "\n")
+        (forward-char -1))
+      (org-reveal))
      ;; Check validity of suggested drawer's name.
      ((not (string-match-p org-drawer-regexp (format ":%s:" drawer)))
       (user-error "Invalid drawer name"))
@@ -13143,7 +13156,10 @@ Point is left between drawer's boundaries."
 	      (insert "\n:END:")
 	      (deactivate-mark t)
 	      (indent-for-tab-command)
-	      (unless (eolp) (insert "\n")))
+	      (unless (eolp) (insert "\n"))
+              ;; Leave point inside drawer boundaries.
+              (search-backward ":END:")
+              (forward-char -1))
 	  ;; Clear marker, whatever the outcome of insertion is.
 	  (set-marker rend nil)))))))
 
@@ -16149,6 +16165,10 @@ SNIPPETS-P indicates if this is run to create snippet images for HTML."
 ;; Image display
 
 (defvar-local org-inline-image-overlays nil)
+;; Preserve when switching modes or when restarting Org.
+;; If we clear the overlay list and later enable Or mode, the existing
+;; image overlays will never be cleared by `org-toggle-inline-images'.
+(put 'org-inline-image-overlays 'permanent-local t)
 
 (defun org--inline-image-overlays (&optional beg end)
   "Return image overlays between BEG and END."
@@ -20617,7 +20637,7 @@ point before the first headline or at point-min."
 	(< l level)))))
 
 (defun org-goto-sibling (&optional previous)
-  "Goto the next sibling, even if it is invisible.
+  "Goto the next sibling heading, even if it is invisible.
 When PREVIOUS is set, go to the previous sibling instead.  Returns t
 when a sibling was found.  When none is found, return nil and don't
 move point."
@@ -20626,6 +20646,8 @@ move point."
 	(re org-outline-regexp-bol)
 	level l)
     (when (ignore-errors (org-back-to-heading t))
+      (when (org-element-type-p (org-element-at-point) 'inlinetask)
+        (org-up-heading-safe))
       (setq level (funcall outline-level))
       (catch 'exit
 	(or previous (forward-char 1))
