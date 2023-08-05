@@ -312,11 +312,15 @@ environment, to override this check."
 
 ;;;###autoload
 (defun org-babel-execute-safely-maybe ()
+  "Maybe `org-babel-execute-maybe'.
+This function does nothing unless `org-babel-no-eval-on-ctrl-c-ctrl-c'
+is non-nil."
   (unless org-babel-no-eval-on-ctrl-c-ctrl-c
     (org-babel-execute-maybe)))
 
 ;;;###autoload
 (defun org-babel-execute-maybe ()
+"Execute src block or babel call at point."
   (interactive)
   (or (org-babel-execute-src-block-maybe)
       (org-babel-lob-execute-maybe)))
@@ -737,7 +741,9 @@ a list with the following pattern:
 	info))))
 
 (defun org-babel--expand-body (info)
-  "Expand noweb references in body and remove any coderefs."
+  "Expand noweb references in src block and remove any coderefs.
+The src block is defined by its INFO, as returned by
+`org-babel-get-src-block-info'."
   (let ((coderef (nth 6 info))
 	(expand
 	 (if (org-babel-noweb-p (nth 2 info) :eval)
@@ -1169,6 +1175,7 @@ evaluation mechanisms."
 (defvar org-link-bracket-re)
 
 (defun org-babel-active-location-p ()
+  "Return non-nil, when at executable element."
   (org-element-type-p
    (save-match-data (org-element-context))
    '(babel-call inline-babel-call inline-src-block src-block)))
@@ -1866,7 +1873,7 @@ its current beginning instead.
 
 Return the point at the beginning of the current source block.
 Specifically at the beginning of the #+BEGIN_SRC line.  Also set
-match-data relatively to `org-babel-src-block-regexp', which see.
+`match-data' relatively to `org-babel-src-block-regexp', which see.
 If the point is not on a source block or within blank lines after an
 src block, then return nil."
   (let ((element (or src-block (org-element-at-point))))
@@ -2347,7 +2354,7 @@ silent -- no results are inserted into the Org buffer but
           process).
 
 none ---- no results are inserted into the Org buffer nor
-          echoed to the minibuffer. they are not processed into
+          echoed to the minibuffer.  They are not processed into
           Emacs-lisp objects at all.
 
 file ---- the results are interpreted as a file path, and are
@@ -3369,8 +3376,8 @@ Emacs shutdown.")
 (defun org-babel-temp-file (prefix &optional suffix)
   "Create a temporary file in the `org-babel-temporary-directory'.
 Passes PREFIX and SUFFIX directly to `make-temp-file' with the
-value of `temporary-file-directory' temporarily set to the value
-of `org-babel-temporary-directory'."
+value of function `temporary-file-directory' temporarily set to the
+value of `org-babel-temporary-directory'."
   (make-temp-file
    (concat (file-name-as-directory (org-babel-temp-directory)) prefix)
    nil
