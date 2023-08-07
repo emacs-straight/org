@@ -15755,6 +15755,8 @@ Some of the options can be changed using the variable
 	   (cnt 0)
 	   checkdir-flag)
       (goto-char (or beg (point-min)))
+      ;; FIXME: `overlay-recenter' is not needed (and has no effect)
+      ;; since Emacs 29.
       ;; Optimize overlay creation: (info "(elisp) Managing Overlays").
       (when (and overlays (memq processing-type '(dvipng imagemagick)))
 	(overlay-recenter (or end (point-max))))
@@ -17839,7 +17841,19 @@ ignoring region."
 	    string)
         (goto-char beg)
         ;; Join all but headline.
-        (save-excursion (save-match-data (delete-indentation nil (line-beginning-position 2) end)))
+        (save-excursion
+          (save-match-data
+            (if (version<= "27" emacs-version)
+                (delete-indentation nil (line-beginning-position 2) end)
+              ;; FIXME: Emacs 26.  `delete-indentation' does not yet
+              ;; accept BEG/END arguments.
+              (save-restriction
+                (narrow-to-region beg end)
+                (goto-char beg)
+                (forward-line 2)
+                (while (< (point) (point-max))
+                  (delete-indentation)
+                  (forward-line 1))))))
         (setq string (org-trim (delete-and-extract-region (line-end-position) (line-end-position 2))))
 	(goto-char (or (match-end 4)
 		       (match-beginning 5)
@@ -17851,7 +17865,17 @@ ignoring region."
 	 ((not tags-column))		;no tags
 	 (org-auto-align-tags (org-align-tags))
 	 (t (org--align-tags-here tags-column)))) ;preserve tags column
-    (funcall-interactively #'delete-indentation arg beg end)))
+    (if (version<= "27" emacs-version)
+        (funcall-interactively #'delete-indentation arg beg end)
+      ;; FIXME: Emacs 26.  `delete-indentation' does not yet
+      ;; accept BEG/END arguments.
+      (save-restriction
+        (narrow-to-region beg end)
+        (goto-char beg)
+        (forward-line 1)
+        (while (< (point) (point-max))
+          (delete-indentation)
+          (forward-line 1))))))
 
 (defun org-open-line (n)
   "Insert a new row in tables, call `open-line' elsewhere.
@@ -20717,12 +20741,16 @@ When TO-HEADING is non-nil, go to the next heading or `point-max'."
   (when element
     (setq element (org-element-lineage
                    element
-                   '(headline inlinetask)
+                   '(headline)
                    'include-self))
     (goto-char (org-element-begin element)))
   (unless (and invisible-ok element)
     (org-back-to-heading-or-point-min invisible-ok)
-    (setq element (org-element-at-point)))
+    (setq element
+          (org-element-lineage
+           (org-element-at-point)
+           '(headline)
+           'include-self)))
   (if (org-element-type-p element 'headline)
       (goto-char (org-element-end element))
     (goto-char (point-max)))
