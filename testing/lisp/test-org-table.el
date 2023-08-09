@@ -3369,9 +3369,10 @@ See also `test-org-table/copy-field'."
 	    (org-table-get-field 3 " foo ")
 	    (buffer-string))))
   (should
-   (equal " 4 "
+   (equal " foo "
 	  (org-test-with-temp-text "| 1 | 2 |\n<point>| 3 | 4 |"
-	    (org-table-get-field 2))))
+	    (org-table-get-field 2 " foo ")
+            (org-table-get-field 2))))
   ;; An empty REPLACE string clears the field.
   (should
    (equal "| |"

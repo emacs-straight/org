@@ -304,7 +304,7 @@ See https://github.com/yantar92/org/issues/4."
   (should
    (let ((org-stored-links nil)
 	 (org-context-in-file-links t))
-     (org-test-with-temp-text-in-file "# two"
+     (org-test-with-temp-text-in-file "#two"
        (fundamental-mode)
        (let ((file (buffer-file-name)))
 	 (equal (format "[[file:%s::two]]" file file)
