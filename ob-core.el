@@ -966,7 +966,7 @@ arguments and pop open the results in a preview buffer."
       expanded)))
 
 (defun org-babel-combine-header-arg-lists (original &rest others)
-  "Combine a number of lists of header argument names and arguments."
+  "Combine ORIGINAL and OTHERS lists of header argument names and arguments."
   (let ((results (copy-sequence original)))
     (dolist (new-list others)
       (dolist (arg-pair new-list)
@@ -1001,7 +1001,10 @@ arguments and pop open the results in a preview buffer."
 
 ;;;###autoload
 (defun org-babel-insert-header-arg (&optional header-arg value)
-  "Insert a header argument selecting from lists of common args and values."
+  "Insert a header argument and its value.
+HEADER-ARG and VALUE, when provided, are the header argument name and
+its value.  When HEADER-ARG or VALUE are nil, offer interactive
+completion from lists of common args and values."
   (interactive)
   (let* ((info (org-babel-get-src-block-info 'no-eval))
 	 (lang (car info))
