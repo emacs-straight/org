@@ -3328,13 +3328,14 @@ Assume point is at the beginning of the snippet."
                  (- contents-end begin))))
 	     (post-blank (skip-chars-forward " \t"))
 	     (end (point)))
-	(org-element-create
-         'export-snippet
-	 (list :back-end backend
-	       :value value
-	       :begin begin
-	       :end end
-	       :post-blank post-blank))))))
+        (when contents-end ; No match when no trailing "@@".
+	  (org-element-create
+           'export-snippet
+	   (list :back-end backend
+	         :value value
+	         :begin begin
+	         :end end
+	         :post-blank post-blank)))))))
 
 (defun org-element-export-snippet-interpreter (export-snippet _)
   "Interpret EXPORT-SNIPPET object as Org syntax."
@@ -8048,7 +8049,7 @@ This function may modify the match data."
         (setq cached-only nil))
       (let (element)
         (when (org-element--cache-active-p)
-          (if (not org-element--cache) (org-element-cache-reset)
+          (if (not (org-with-base-buffer nil org-element--cache)) (org-element-cache-reset)
             (unless cached-only (org-element--cache-sync (current-buffer) epom))))
         (setq element (if cached-only
                           (when (and (org-element--cache-active-p)
