@@ -6812,19 +6812,7 @@ The function returns the new value of `org-element--cache-change-warning'."
        (setq org-element--cache-last-buffer-size (buffer-size))
        (goto-char beg)
        (forward-line 0)
-       (let ((bottom (save-excursion
-                       (goto-char end)
-                       (if (and (bolp)
-                                ;; When beg == end, still extent to eol.
-                                (> (point) beg))
-                           ;; FIXME: Potential pitfall.
-                           ;; We are appending to an element end.
-                           ;; Unless the last inserted char is not
-                           ;; newline, the next element is not broken
-                           ;; and does not need to be purged from the
-                           ;; cache.
-                           end
-                         (line-end-position)))))
+       (let ((bottom (save-excursion (goto-char end) (line-end-position))))
          (prog1
              ;; Use the worst change warning to not miss important edits.
              ;; This function is called before edit and after edit by
@@ -8140,9 +8128,9 @@ This function may modify match data."
 	 (let ((case-fold-search t)) (looking-at org-element--affiliated-re))
 	 (cond
 	  ((not (member-ignore-case (match-string 1)
-				    org-element-parsed-keywords))
+				  org-element-parsed-keywords))
 	   (throw 'objects-forbidden element))
-	  ((< (match-end 0) pos)
+	  ((<= (match-end 0) pos)
 	   (narrow-to-region (match-end 0) (line-end-position)))
 	  ((and (match-beginning 2)
 		(>= pos (match-beginning 2))

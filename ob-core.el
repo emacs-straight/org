@@ -1096,8 +1096,8 @@ session."
 
 ;;;###autoload
 (defun org-babel-initiate-session (&optional arg info)
-  "Initiate session for current code block.
-If called with a prefix argument then resolve any variable
+  "Initiate session for current code block or the block defined by INFO.
+If called with a prefix argument ARG, then resolve any variable
 references in the header arguments and assign these variables in
 the session.  Copy the body of the code block to the kill ring."
   (interactive "P")
@@ -1125,9 +1125,9 @@ the session.  Copy the body of the code block to the kill ring."
 
 ;;;###autoload
 (defun org-babel-switch-to-session (&optional arg info)
-  "Switch to the session of the current code block.
+  "Switch to the session of the current code block or block defined by INFO.
 Uses `org-babel-initiate-session' to start the session.  If called
-with a prefix argument then this is passed on to
+with a prefix argument ARG, then this is passed on to
 `org-babel-initiate-session'."
   (interactive "P")
   (pop-to-buffer (org-babel-initiate-session arg info))
@@ -1139,7 +1139,8 @@ with a prefix argument then this is passed on to
 
 ;;;###autoload
 (defun org-babel-switch-to-session-with-code (&optional arg _info)
-  "Switch to code buffer and display session."
+  "Switch to code buffer and display session.
+Prefix argument ARG is passed to `org-babel-switch-to-session'."
   (interactive "P")
   (let ((swap-windows
 	 (lambda ()
@@ -2187,11 +2188,8 @@ to HASH."
 	 ((or `inline-babel-call `inline-src-block)
 	  ;; Results for inline objects are located right after them.
 	  ;; There is no RESULTS line to insert either.
-	  (let ((limit (pcase (org-element-type (org-element-parent context))
-                         (`section (org-element-end
-                                    (org-element-parent context)))
-                         (_ (org-element-contents-end
-		             (org-element-parent context))))))
+	  (let ((limit (or (org-element-contents-end (org-element-parent context))
+                           (org-element-end (org-element-parent context)))))
 	    (goto-char (org-element-end context))
 	    (skip-chars-forward " \t\n" limit)
 	    (throw :found
@@ -2450,6 +2448,7 @@ INFO may provide the values of these header arguments (in the
       (when inline
 	(let ((warning
 	       (or (and (member "table" result-params) "`:results table'")
+                   (and (member "drawer" result-params) "`:results drawer'")
 		   (and result (listp result) "list result")
 		   (and result (string-match-p "\n." result) "multiline result")
 		   (and (member "list" result-params) "`:results list'"))))
@@ -2458,10 +2457,6 @@ INFO may provide the values of these header arguments (in the
       (save-excursion
 	(let* ((visible-beg (point-min-marker))
 	       (visible-end (copy-marker (point-max) t))
-	       (inline (let ((context (org-element-context)))
-			 (and (org-element-type-p
-                               context '(inline-babel-call inline-src-block))
-			      context)))
 	       (existing-result (org-babel-where-is-src-block-result t nil hash))
 	       (results-switches (cdr (assq :results_switches (nth 2 info))))
 	       ;; When results exist outside of the current visible
