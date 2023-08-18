@@ -274,6 +274,7 @@ CHECKERS is the list of checkers used."
   (interactive)
   (let ((mk (org-lint--current-marker)))
     (switch-to-buffer-other-window org-lint--source-buffer)
+    (unless (<= (point-min) mk (point-max)) (widen))
     (goto-char mk)
     (org-fold-show-set-visibility 'local)
     (recenter)))
@@ -584,11 +585,16 @@ Use :header-args: instead"
 			       path)))))))))
 
 (defun org-lint-invalid-id-link (ast)
+  (org-id-update-id-locations nil t)
   (org-element-map ast 'link
     (lambda (link)
       (let ((id (org-element-property :path link)))
 	(and (equal (org-element-property :type link) "id")
-	     (not (org-id-find id))
+             ;; The locations are up-to-date with file changes after
+             ;; the call to `org-id-update-id-locations'.  We do not
+             ;; need to double-check if recorded ID is still present
+             ;; in the file.
+	     (not (org-id-find-id-file id))
 	     (list (org-element-begin link)
 		   (format "Unknown ID \"%s\"" id)))))))
 
