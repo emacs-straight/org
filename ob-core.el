@@ -175,7 +175,7 @@ This string must include a \"%s\" which will be replaced by the results."
      'safe-local-variable
      (lambda (value)
        (and (stringp value)
-	    (string-search "%s" value))))
+	    (string-match-p "%s" value))))
 
 (defcustom org-babel-hash-show-time nil
   "Non-nil means show the time the code block was evaluated in the result hash."
@@ -1381,6 +1381,7 @@ buffer."
 ;;;###autoload
 (defun org-babel-execute-buffer (&optional arg)
   "Execute source code blocks in a buffer.
+Prefix argument ARG is passed to `org-babel-execute-src-block'.
 Call `org-babel-execute-src-block' on every source block in
 the current buffer."
   (interactive "P")
@@ -2060,7 +2061,7 @@ block of the same language with the previous."
 	 (stars (concat (make-string (or (org-current-level) 1) ?*) " "))
 	 (upper-case-p (and block
 			    (let (case-fold-search)
-			      (string-search "#+BEGIN_SRC" block)))))
+			      (string-match-p "#\\+BEGIN_SRC" block)))))
     (if (and info start) ;; At src block, but not within blank lines after it.
         (mapc
          (lambda (place)

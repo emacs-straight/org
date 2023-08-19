@@ -6335,6 +6335,11 @@ specification like [h]h:mm."
     (org-element-cache-map
      (lambda (el)
        (when (and (org-element-property :deadline el)
+                  ;; Only consider active timestamp values.
+                  (memq (org-element-property
+                         :type
+                         (org-element-property :deadline el))
+                        '(diary active active-range))
                   (or (not with-hour)
                       (org-element-property
                        :hour-start
@@ -6536,6 +6541,11 @@ scheduled items with an hour specification like [h]h:mm."
     (org-element-cache-map
      (lambda (el)
        (when (and (org-element-property :scheduled el)
+                  ;; Only consider active timestamp values.
+                  (memq (org-element-property
+                         :type
+                         (org-element-property :scheduled el))
+                        '(diary active active-range))
                   (or (not with-hour)
                       (org-element-property
                        :hour-start
@@ -8288,7 +8298,7 @@ also press `-' or `+' to switch between filtering and excluding."
 	  (setq org-agenda-represented-categories
 		;; Enclose category names with a hyphen in double
 		;; quotes to process them specially in `org-agenda-filter'.
-		(mapcar (lambda (s) (if (string-search "-" s) (format "\"%s\"" s) s))
+		(mapcar (lambda (s) (if (string-match-p "-" s) (format "\"%s\"" s) s))
 			(nreverse (org-uniquify (delq nil categories)))))))))
 
 (defvar org-tag-groups-alist-for-agenda)

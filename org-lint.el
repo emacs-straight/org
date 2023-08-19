@@ -585,18 +585,23 @@ Use :header-args: instead"
 			       path)))))))))
 
 (defun org-lint-invalid-id-link (ast)
-  (org-id-update-id-locations nil t)
-  (org-element-map ast 'link
-    (lambda (link)
-      (let ((id (org-element-property :path link)))
-	(and (equal (org-element-property :type link) "id")
-             ;; The locations are up-to-date with file changes after
-             ;; the call to `org-id-update-id-locations'.  We do not
-             ;; need to double-check if recorded ID is still present
-             ;; in the file.
-	     (not (org-id-find-id-file id))
-	     (list (org-element-begin link)
-		   (format "Unknown ID \"%s\"" id)))))))
+  (let ((id-locations-updated nil))
+    (org-element-map ast 'link
+      (lambda (link)
+        (let ((id (org-element-property :path link)))
+	  (and (equal (org-element-property :type link) "id")
+               (progn
+                 (unless id-locations-updated
+                   (org-id-update-id-locations nil t)
+                   (setq id-locations-updated t))
+                 t)
+               ;; The locations are up-to-date with file changes after
+               ;; the call to `org-id-update-id-locations'.  We do not
+               ;; need to double-check if recorded ID is still present
+               ;; in the file.
+	       (not (org-id-find-id-file id))
+	       (list (org-element-begin link)
+		     (format "Unknown ID \"%s\"" id))))))))
 
 (defun org-lint-confusing-brackets (ast)
   (org-element-map ast 'link
@@ -1431,6 +1436,19 @@ AST is the buffer parse tree."
         (unless (equal expected actual)
           (list (org-element-property :begin timestamp)
                 (format "Potentially malformed timestamp %s.  Parsed as: %s" actual expected)))))))
+(defun org-lint-inactive-planning (ast)
+  "Report inactive timestamp in SCHEDULED/DEADLINE.
+AST is the buffer parse tree."
+  (org-element-map ast 'planning
+    (lambda (planning)
+      (let ((scheduled (org-element-property :scheduled planning))
+            (deadline (org-element-property :deadline planning)))
+        (cond
+         ((memq (org-element-property :type scheduled) '(inactive inactive-range))
+          (list (org-element-begin planning) "Inactive timestamp in SCHEDULED will not appear in agenda."))
+         ((memq (org-element-property :type deadline) '(inactive inactive-range))
+          (list (org-element-begin planning) "Inactive timestamp in DEADLINE will not appear in agenda."))
+         (t nil))))))
 
 ;;; Checkers declaration
 
@@ -1701,6 +1719,10 @@ AST is the buffer parse tree."
   "Report malformed timestamps."
   #'org-lint-timestamp-syntax
   :categories '(timestamp) :trust 'low)
+(org-lint-add-checker 'planning-inactive
+  "Report inactive timestamps in SCHEDULED/DEADLINE."
+  #'org-lint-inactive-planning
+  :categories '(timestamp) :trust 'high)
 
 (provide 'org-lint)
 
