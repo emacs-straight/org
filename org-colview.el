@@ -118,6 +118,9 @@ in `org-columns-summary-types-default', which see."
   "Holds the list of current column overlays.")
 (put 'org-columns-overlays 'permanent-local t)
 
+(defvar-local org-columns-global nil
+  "Local variable, holds non-nil when current columns are global.")
+
 (defvar-local org-columns-current-fmt nil
   "Local variable, holds the currently active column format.")
 
@@ -210,6 +213,8 @@ See `org-columns-summary-types' for details.")
 (org-defkey org-columns-map ">" #'org-columns-widen)
 (org-defkey org-columns-map [(meta right)] #'org-columns-move-right)
 (org-defkey org-columns-map [(meta left)]  #'org-columns-move-left)
+(org-defkey org-columns-map [(meta down)]  #'org-columns-move-row-down)
+(org-defkey org-columns-map [(meta up)]  #'org-columns-move-row-up)
 (org-defkey org-columns-map [(shift meta right)] #'org-columns-new)
 (org-defkey org-columns-map [(shift meta left)]  #'org-columns-delete)
 (dotimes (i 10)
@@ -231,6 +236,8 @@ See `org-columns-summary-types' for details.")
     "--"
     ["Move column right" org-columns-move-right t]
     ["Move column left" org-columns-move-left t]
+    ["Move row up" org-columns-move-row-up t]
+    ["Move row down" org-columns-move-row-down t]
     ["Add column" org-columns-new t]
     ["Delete column" org-columns-delete t]
     "--"
@@ -866,6 +873,7 @@ turn on column view for the whole buffer unconditionally.
 When COLUMNS-FMT-STRING is non-nil, use it as the column format."
   (interactive "P")
   (org-columns-remove-overlays)
+  (setq-local org-columns-global global)
   (save-excursion
     (when global (goto-char (point-min)))
     (if (markerp org-columns-begin-marker)
@@ -888,7 +896,7 @@ When COLUMNS-FMT-STRING is non-nil, use it as the column format."
 	       ;; Collect contents of columns ahead of time so as to
 	       ;; compute their maximum width.
                (org-scan-tags
-		(lambda () (cons (point) (org-columns--collect-values))) t org--matcher-tags-todo-only)))
+		(lambda () (cons (point-marker) (org-columns--collect-values))) t org--matcher-tags-todo-only)))
 	  (when cache
 	    (org-columns--set-widths cache)
 	    (org-columns--display-here-title)
@@ -902,6 +910,7 @@ When COLUMNS-FMT-STRING is non-nil, use it as the column format."
                 (setq truncate-lines t))
 	    (dolist (entry cache)
 	      (goto-char (car entry))
+              (move-marker (car entry) nil)
 	      (org-columns--display-here (cdr entry)))))))))
 
 (defun org-columns-new (&optional spec &rest attributes)
@@ -1020,6 +1029,27 @@ details."
     (org-columns-move-right)
     (backward-char 1)))
 
+(defun org-columns--move-row (&optional up)
+  "Move the current table row down.
+With non-nil optional argument UP, move it up."
+  (let ((inhibit-read-only t)
+        (col (current-column)))
+    (if up (org-move-subtree-up)
+      (org-move-subtree-down))
+    (let ((org-columns-inhibit-recalculation t))
+      (org-columns-redo)
+      (move-to-column col))))
+
+(defun org-columns-move-row-down ()
+  "Move the current table row down."
+  (interactive)
+  (org-columns--move-row))
+
+(defun org-columns-move-row-up ()
+  "Move the current table row up."
+  (interactive)
+  (org-columns--move-row 'up))
+
 (defun org-columns-store-format ()
   "Store the text version of the current columns format.
 The format is stored either in the COLUMNS property of the node
@@ -1087,7 +1117,7 @@ the current buffer."
       (if (derived-mode-p 'org-mode)
 	  ;; Since we already know the columns format, provide it
 	  ;; instead of computing again.
-	  (call-interactively #'org-columns org-columns-current-fmt)
+	  (funcall-interactively #'org-columns org-columns-global org-columns-current-fmt)
 	(org-agenda-redo)
 	(call-interactively #'org-agenda-columns)))
     (message "Recomputing columns...done")))

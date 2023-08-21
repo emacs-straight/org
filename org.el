@@ -6387,7 +6387,9 @@ unconditionally."
         (backward-char))
       (unless (and blank? (org-previous-line-empty-p))
 	(org-N-empty-lines-before-current (if blank? 1 0)))
-      (insert stars " ")
+      (insert stars " " "\n")
+      ;; Move point after stars.
+      (backward-char)
       ;; When INVISIBLE-OK is non-nil, ensure newly created headline
       ;; is visible.
       (unless invisible-ok
@@ -12100,7 +12102,8 @@ Returns the new tags string, or nil to not change the current settings."
 		    ((or ?\C-g
 		         (and ?q (guard (not (rassoc input-char tag-table-local)))))
 		     (delete-overlay org-tags-overlay)
-		     (throw 'quit nil))
+                     ;; Quit as C-g does.
+		     (keyboard-quit))
                     ;; Clear tags.
 		    (?\s
 		     (setq current-tags nil)
@@ -16275,6 +16278,7 @@ Possible values of this option are:
 
 skip        Don't display remote images.
 download    Always download and display remote images.
+t
 cache       Display remote images, and open them in separate buffers
             for caching.  Silently update the image buffer when a file
             change is detected."
@@ -16298,9 +16302,10 @@ according to the value of `org-display-remote-inline-images'."
 			 (set-buffer-multibyte nil)
 			 (insert-file-contents-literally file)
 			 (buffer-string)))
-	    (`cache (let ((revert-without-query '(".")))
-		      (with-current-buffer (find-file-noselect file)
-			(buffer-string))))
+	    ((or `cache `t)
+             (let ((revert-without-query '(".")))
+	       (with-current-buffer (find-file-noselect file)
+		 (buffer-string))))
 	    (`skip nil)
 	    (other
 	     (message "Invalid value of `org-display-remote-inline-images': %S"
