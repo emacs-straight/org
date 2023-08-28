@@ -1309,9 +1309,9 @@ buffer."
 	 (setq ,to-be-removed (current-buffer))
 	 (goto-char (point-min))
 	 (while (re-search-forward "src_\\S-" nil t)
-	   (let ((,datum (save-match-data (org-element-context))))
+	   (let ((,datum (org-element-context)))
 	     (when (org-element-type-p ,datum 'inline-src-block)
-	       (goto-char (match-beginning 0))
+	       (goto-char (org-element-begin ,datum))
 	       (let ((,end (copy-marker (org-element-end ,datum))))
 		 ,@body
 		 (goto-char ,end)
@@ -1337,9 +1337,10 @@ buffer."
 	 (setq ,to-be-removed (current-buffer))
 	 (goto-char (point-min))
 	 (while (re-search-forward "call_\\S-\\|^[ \t]*#\\+CALL:" nil t)
-	   (let ((,datum (save-match-data (org-element-context))))
+	   (let ((,datum (org-element-context)))
 	     (when (org-element-type-p ,datum '(babel-call inline-babel-call))
-	       (goto-char (match-beginning 0))
+	       (goto-char (or (org-element-post-affiliated datum)
+                              (org-element-begin datum)))
 	       (let ((,end (copy-marker (org-element-end ,datum))))
 		 ,@body
 		 (goto-char ,end)
@@ -1366,11 +1367,12 @@ buffer."
 	 (goto-char (point-min))
 	 (while (re-search-forward
 		 "\\(call\\|src\\)_\\|^[ \t]*#\\+\\(BEGIN_SRC\\|CALL:\\)" nil t)
-	   (let ((,datum (save-match-data (org-element-context))))
+	   (let ((,datum (org-element-context)))
 	     (when (org-element-type-p
                     ,datum
                     '(babel-call inline-babel-call inline-src-block src-block))
-	       (goto-char (match-beginning 0))
+	       (goto-char (or (org-element-post-affiliated ,datum)
+                              (org-element-begin ,datum)))
 	       (let ((,end (copy-marker (org-element-end ,datum))))
 		 ,@body
 		 (goto-char ,end)
@@ -2714,7 +2716,7 @@ INFO may provide the values of these header arguments (in the
 	   (progn (forward-line) (org-babel-result-end))))))))
 
 (defun org-babel-remove-inline-result (&optional datum)
-  "Remove the result of the current inline-src-block or babel call.
+  "Remove the result of DATUM or the current inline-src-block or babel call.
 The result must be wrapped in a `results' macro to be removed.
 Leading white space is trimmed."
   (interactive)
