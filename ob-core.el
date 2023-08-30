@@ -3319,7 +3319,8 @@ SEPARATOR is passed to `org-table-convert-region', which see."
       (_ result))))
 
 (defun org-babel-string-read (cell)
-  "Strip nested \"s from around strings."
+  "Strip nested \"s from around CELL string.
+When CELL is not a string, return CELL."
   (org-babel-read (or (and (stringp cell)
                            (string-match "^[[:space:]]*\"\\(.+\\)\"[[:space:]]*$" cell)
                            (match-string 1 cell))
@@ -3418,7 +3419,7 @@ value of `org-babel-temporary-directory'."
 (defun org-babel-temp-stable-file (data prefix &optional suffix)
   "Create a temporary file in the `org-babel-remove-temporary-stable-directory'.
 The file name is stable with respect to DATA.  The file name is
-constructed like the following: PREFIXDATAhashSUFFIX."
+constructed like the following: <PREFIX><DATAhash><SUFFIX>."
   (let ((path
          (format
           "%s%s%s%s"
