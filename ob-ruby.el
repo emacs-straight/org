@@ -140,7 +140,7 @@ This function is called by `org-babel-execute-src-block'."
 Convert an elisp value into a string of ruby source code
 specifying a variable of the same value."
   (if (listp var)
-      (concat "[" (mapconcat #'org-babel-ruby-var-to-ruby var ", ") "]")
+      (concat "[" (mapconcat #'org-babel-ruby-var-to-ruby var ", \n") "]")
     (if (eq var 'hline)
 	org-babel-ruby-hline-to
       (format "%S" var))))
@@ -192,7 +192,7 @@ then create one.  Return the initialized session."
                 (setq-local comint-prompt-regexp (concat "^" org-babel-ruby-prompt))
                 (insert org-babel-ruby-define-prompt ";")
                 (insert "_org_prompt_mode=conf.prompt_mode;conf.prompt_mode=:CUSTOM;")
-                (insert "conf.echo=false")
+                (insert "conf.echo=false\n")
                 (comint-send-input nil t)))
             session-buffer)
 	(sit-for .5)
@@ -289,7 +289,7 @@ return the value of the last statement in BODY, as elisp."
 		"results=_" "require 'pp'" "orig_out = $stdout"
 		(format org-babel-ruby-pp-f-write
 			(org-babel-process-file-name tmp-file 'noquote))))
-	     (list org-babel-ruby-eoe-indicator)))
+	     (list (format "puts \"%s\"" org-babel-ruby-eoe-indicator))))
 	   (comint-send-input nil t))
 	 (org-babel-eval-read-file tmp-file))))))
 
