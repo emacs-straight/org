@@ -11899,6 +11899,26 @@ Also insert END."
     (put-text-property 0 (length s) 'face '(secondary-selection org-tag) s)
     (org-overlay-display org-tags-overlay (concat prefix s))))
 
+(defun org--add-or-remove-tag (tag current-tags &optional groups)
+  "Add or remove TAG entered by user to/from CURRENT-TAGS.
+Return the modified CURRENT-TAGS.
+
+When TAG is present in CURRENT-TAGS, remove it.  Otherwise, add it.
+When TAG is a part of a tag group from GROUPS, make sure that no
+exclusive tags from the same group remain in CURRENT-TAGS.
+
+CURRENT-TAGS may be modified by side effect."
+  (if (member tag current-tags)
+      ;; Remove the tag.
+      (delete tag current-tags)
+    ;; Add the tag.  If the tag is from a tag
+    ;; group, exclude selected alternative tags
+    ;; from the group, if any.
+    (dolist (g groups)
+      (when (member tag g)
+	(dolist (x g) (setq current-tags (delete x current-tags)))))
+    (cons tag current-tags)))
+
 (defvar org-last-tag-selection-key nil)
 (defun org-fast-tag-selection (current-tags inherited-tags tag-table &optional todo-table)
   "Fast tag selection with single keys.
@@ -12141,9 +12161,7 @@ Returns the new tags string, or nil to not change the current settings."
                      (setq current-tag (completing-read "Tag: " tab-tags))
 		     (when (string-match "\\S-" current-tag)
 		       (cl-pushnew (list current-tag) tab-tags :test #'equal)
-		       (if (member current-tag current-tags)
-			   (setq current-tags (delete current-tag current-tags))
-		         (push current-tag current-tags)))
+                       (setq current-tags (org--add-or-remove-tag current-tag current-tags groups)))
 		     (when exit-after-next (setq exit-after-next 'now)))
                     ;; INPUT-CHAR is for a todo keyword.
 		    ((let (and todo-keyword (guard todo-keyword))
@@ -12154,16 +12172,7 @@ Returns the new tags string, or nil to not change the current settings."
                     ;; INPUT-CHAR is for a tag.
 		    ((let (and tag (guard tag))
                        (car (rassoc input-char tag-table-local)))
-		     (if (member tag current-tags)
-                         ;; Remove the tag.
-		         (setq current-tags (delete tag current-tags))
-                       ;; Add the tag.  If the tag is from a tag
-                       ;; group, exclude selected alternative tags
-                       ;; from the group, if any.
-		       (dolist (g groups)
-			 (when (member tag g)
-			   (dolist (x g) (setq current-tags (delete x current-tags)))))
-		       (push tag current-tags))
+                     (setq current-tags (org--add-or-remove-tag tag current-tags groups))
 		     (when exit-after-next (setq exit-after-next 'now))))
 		  ;; Create a sorted tag list.
 		  (setq current-tags
@@ -14971,30 +14980,42 @@ When SUPPRESS-TMP-DELAY is non-nil, suppress delays like
       (when (string-match "^.\\{10\\}.*?[0-9]+:[0-9][0-9]" ts)
 	(setq with-hm t))
       (setq time0 (org-parse-time-string ts))
-      (when (and updown
-		 (eq timestamp? 'minute)
-		 (not current-prefix-arg))
-	;; This looks like s-up and s-down.  Change by one rounding step.
-	(setq n (* dm (cond ((> n 0) 1) ((< n 0) -1) (t 0))))
-	(unless (= 0 (setq rem (% (nth 1 time0) dm)))
-	  (setcar (cdr time0) (+ (nth 1 time0)
-				 (if (> n 0) (- rem) (- dm rem))))))
-      (setq time
-	    (org-encode-time
-             (apply #'list
-                    (or (car time0) 0)
-                    (+ (if (eq timestamp? 'minute) n 0) (nth 1 time0))
-                    (+ (if (eq timestamp? 'hour) n 0)   (nth 2 time0))
-                    (+ (if (eq timestamp? 'day) n 0)    (nth 3 time0))
-                    (+ (if (eq timestamp? 'month) n 0)  (nth 4 time0))
-                    (+ (if (eq timestamp? 'year) n 0)   (nth 5 time0))
-                    (nthcdr 6 time0))))
+      (let ((increment n))
+        (if (and updown
+	         (eq timestamp? 'minute)
+	         (not current-prefix-arg))
+	    ;; This looks like s-up and s-down.  Change by one rounding step.
+            (progn
+	      (setq increment (* dm (cond ((> n 0) 1) ((< n 0) -1) (t 0))))
+	      (unless (= 0 (setq rem (% (nth 1 time0) dm)))
+	        (setcar (cdr time0) (+ (nth 1 time0)
+				       (if (> n 0) (- rem) (- dm rem))))))
+          ;; Do not round anything in `org-modify-ts-extra' when prefix
+          ;; argument is supplied - just use whatever is provided by the
+          ;; prefix argument.
+          (setq dm 1))
+        (setq time
+	      (org-encode-time
+               (apply #'list
+                      (or (car time0) 0)
+                      (+ (if (eq timestamp? 'minute) increment 0) (nth 1 time0))
+                      (+ (if (eq timestamp? 'hour) increment 0)   (nth 2 time0))
+                      (+ (if (eq timestamp? 'day) increment 0)    (nth 3 time0))
+                      (+ (if (eq timestamp? 'month) increment 0)  (nth 4 time0))
+                      (+ (if (eq timestamp? 'year) increment 0)   (nth 5 time0))
+                      (nthcdr 6 time0)))))
       (when (and (memq timestamp? '(hour minute))
 		 extra
 		 (string-match "-\\([012][0-9]\\):\\([0-5][0-9]\\)" extra))
+        ;; When modifying the start time in HH:MM-HH:MM range, update
+        ;; end time as well.
 	(setq extra (org-modify-ts-extra
-		     extra
-		     (if (eq timestamp? 'hour) 2 5)
+		     extra ;; -HH:MM ...
+                     ;; Fake position in EXTRA to force changing hours
+                     ;; or minutes as needed.
+		     (if (eq timestamp? 'hour)
+                         2 ;; -H<H>:MM
+                       5) ;; -HH:M<M>
 		     n dm)))
       (when (integerp timestamp?)
 	(setq extra (org-modify-ts-extra extra timestamp? n dm)))
@@ -15074,42 +15095,61 @@ When SUPPRESS-TMP-DELAY is non-nil, suppress delays like
 		 (memq timestamp? '(day month year)))
 	(org-recenter-calendar (time-to-days time))))))
 
-(defun org-modify-ts-extra (s pos n dm)
-  "Change the different parts of the lead-time and repeat fields in timestamp."
-  (let ((idx '(("d" . 0) ("w" . 1) ("m" . 2) ("y" . 3) ("d" . -1) ("y" . 4)))
-	ng h m new rem)
-    (when (string-match "\\(-\\([012][0-9]\\):\\([0-5][0-9]\\)\\)?\\( +\\+\\([0-9]+\\)\\([dmwy]\\)\\)?\\( +-\\([0-9]+\\)\\([dmwy]\\)\\)?" s)
+(defun org-modify-ts-extra (ts-string pos nincrements increment-step)
+  "Change the lead-time/repeat fields at POS in timestamp string TS-STRING.
+POS is the position in the timestamp string to be changed.
+NINCREMENTS is the number of incremenets/decrements.
+
+INCREMENT-STEP is step used for a single increment when POS in on
+minutes.  Before incrementing minutes, they are rounded to
+INCREMENT-STEP divisor."
+  (let (;; increment order for dwmy: d-1=d; d+1=w; w+1=m; m+1=y; y+1=y.
+        (idx '(("d" . 0) ("w" . 1) ("m" . 2) ("y" . 3) ("d" . -1) ("y" . 4)))
+	pos-match-group hour minute new rem)
+    (when (string-match "\\(-\\([012][0-9]\\):\\([0-5][0-9]\\)\\)?\\( +\\+\\([0-9]+\\)\\([dmwy]\\)\\)?\\( +-\\([0-9]+\\)\\([dmwy]\\)\\)?" ts-string)
       (cond
-       ((or (org-pos-in-match-range pos 2)
-	    (org-pos-in-match-range pos 3))
-	(setq m (string-to-number (match-string 3 s))
-	      h (string-to-number (match-string 2 s)))
-	(if (org-pos-in-match-range pos 2)
-	    (setq h (+ h n))
-	  (setq n (* dm (with-no-warnings (cl-signum n))))
-	  (unless (= 0 (setq rem (% m dm)))
-	    (setq m (+ m (if (> n 0) (- rem) (- dm rem)))))
-	  (setq m (+ m n)))
-	(when (< m 0) (setq m (+ m 60) h (1- h)))
-	(when (> m 59) (setq m (- m 60) h (1+ h)))
-	(setq h (mod h 24))
-	(setq ng 1 new (format "-%02d:%02d" h m)))
-       ((org-pos-in-match-range pos 6)
-	(setq ng 6 new (car (rassoc (+ n (cdr (assoc (match-string 6 s) idx))) idx))))
-       ((org-pos-in-match-range pos 5)
-	(setq ng 5 new (format "%d" (max 1 (+ n (string-to-number (match-string 5 s)))))))
+       ((or (org-pos-in-match-range pos 2) ;; POS in end hours
+	    (org-pos-in-match-range pos 3)) ;; POS in end minutes
+	(setq minute (string-to-number (match-string 3 ts-string))
+	      hour (string-to-number (match-string 2 ts-string)))
+	(if (org-pos-in-match-range pos 2) ;; POS in end hours
+            ;; INCREMENT-STEP is only applicable to MINUTE.
+	    (setq hour (+ hour nincrements))
+	  (setq nincrements (* increment-step nincrements))
+	  (unless (= 0 (setq rem (% minute increment-step)))
+            ;; Round the MINUTE to INCREMENT-STEP.
+	    (setq minute (+ minute (if (> nincrements 0) (- rem) (- increment-step rem)))))
+	  (setq minute (+ minute nincrements)))
+	(when (< minute 0) (setq minute (+ minute 60) hour (1- hour)))
+	(when (> minute 59) (setq minute (- minute 60) hour (1+ hour)))
+	(setq hour (mod hour 24))
+	(setq pos-match-group 1
+              new (format "-%02d:%02d" hour minute)))
+       
+       ((org-pos-in-match-range pos 6) ;; POS on "dmwy" repeater char.
+	(setq pos-match-group 6
+              new (car (rassoc (+ nincrements (cdr (assoc (match-string 6 ts-string) idx))) idx))))
+       
+       ((org-pos-in-match-range pos 5) ;; POS on X in "Xd" repeater.
+	(setq pos-match-group 5
+              ;; Never drop below X=1.
+              new (format "%d" (max 1 (+ nincrements (string-to-number (match-string 5 ts-string)))))))
+       
+       ((org-pos-in-match-range pos 9) ;; POS on "dmwy" repeater in warning interval.
+	(setq pos-match-group 9
+              new (car (rassoc (+ nincrements (cdr (assoc (match-string 9 ts-string) idx))) idx))))
+       
+       ((org-pos-in-match-range pos 8) ;; POS on X in "Xd" in warning interval.
+	(setq pos-match-group 8
+              ;; Never drop below X=0.
+              new (format "%d" (max 0 (+ nincrements (string-to-number (match-string 8 ts-string))))))))
 
-       ((org-pos-in-match-range pos 9)
-	(setq ng 9 new (car (rassoc (+ n (cdr (assoc (match-string 9 s) idx))) idx))))
-       ((org-pos-in-match-range pos 8)
-	(setq ng 8 new (format "%d" (max 0 (+ n (string-to-number (match-string 8 s))))))))
-
-      (when ng
-	(setq s (concat
-		 (substring s 0 (match-beginning ng))
-		 new
-		 (substring s (match-end ng))))))
-    s))
+      (when pos-match-group
+	(setq ts-string (concat
+		         (substring ts-string 0 (match-beginning pos-match-group))
+		         new
+		         (substring ts-string (match-end pos-match-group))))))
+    ts-string))
 
 (defun org-recenter-calendar (d)
   "If the calendar is visible, recenter it to date D."
