@@ -548,8 +548,7 @@ The function assumes BUFFER's major mode is `org-mode'."
 	  (pos (point))
 	  (varvals
            (unless drop-locals
-	     (let ((bound-variables (org-export--list-bound-variables))
-		   (varvals nil))
+	     (let ((varvals nil))
 	       (dolist (entry (buffer-local-variables (buffer-base-buffer)))
 	         (when (consp entry)
 		   (let ((var (car entry))
@@ -565,7 +564,6 @@ The function assumes BUFFER's major mode is `org-mode'."
 				      buffer-file-coding-system
                                       ;; Needed to preserve folding state
                                       char-property-alias-alist))
-			      (assq var bound-variables)
 			      (string-match-p "^\\(org-\\|orgtbl-\\)"
 					      (symbol-name var)))
 			  ;; Skip unreadable values, as they cannot be
@@ -1139,8 +1137,9 @@ CONTENTS is the contents of the footnote-definition."
 
 ;;;; Headline
 
-(defun org-element--get-node-properties (&optional at-point-p?)
+(defun org-element--get-node-properties (&optional at-point-p? parent)
   "Return node properties for headline or property drawer at point.
+The property values a deferred relative to PARENT element.
 Upcase property names.  It avoids confusion between properties
 obtained through property drawer and default properties from the
 parser (e.g. `:end' and :END:).  Return value is a plist.
@@ -1148,7 +1147,7 @@ parser (e.g. `:end' and :END:).  Return value is a plist.
 When AT-POINT-P? is nil, assume that point as at a headline.  Otherwise
 parse properties for property drawer at point."
   (save-excursion
-    (let ((begin (point)))
+    (let ((begin (or (org-element-begin parent) (point))))
       (unless at-point-p?
         (forward-line)
         (when (looking-at-p org-element-planning-line-re) (forward-line)))
@@ -1251,7 +1250,7 @@ Return value is a plist."
      (setcar (cdr element)
              (nconc
               (nth 1 element)
-              (org-element--get-node-properties)))))
+              (org-element--get-node-properties nil element)))))
   ;; Return nil.
   nil)
 
@@ -1529,8 +1528,10 @@ Alter DATA by side effect."
   (with-current-buffer (org-element-property :buffer data)
     (org-with-wide-buffer
      (goto-char (point-min))
+     (org-skip-whitespace)
+     (forward-line 0)
      (while (and (org-at-comment-p) (bolp)) (forward-line))
-     (let ((props (org-element--get-node-properties t))
+     (let ((props (org-element--get-node-properties t data))
            (has-category? nil))
        (while props
          (org-element-put-property data (car props) (cadr props))
@@ -1569,6 +1570,8 @@ Return a new syntax node of `org-data' type containing `:begin',
                           (or
                            (org-with-wide-buffer
                             (goto-char (point-min))
+                            (org-skip-whitespace)
+                            (forward-line 0)
                             (while (and (org-at-comment-p) (bolp)) (forward-line))
                             (when (looking-at org-property-drawer-re)
                               (goto-char (match-end 0))
@@ -4593,7 +4596,9 @@ element it has to parse."
                  (save-excursion
                    (forward-line -1)   ; faster than beginning-of-line
                    (skip-chars-forward "[:blank:]") ; faster than looking-at-p
-                   (not (eolp)))) ; very cheap
+                   (or (not (eolp)) ; very cheap
+                       ;; Document-wide property drawer may be preceded by blank lines.
+                       (progn (skip-chars-backward " \t\n\r") (bobp)))))
 	        (_ nil))
 	      (looking-at-p org-property-drawer-re))
 	 (org-element-property-drawer-parser limit))
@@ -4647,7 +4652,7 @@ element it has to parse."
 		 (org-element-dynamic-block-parser limit affiliated))
 	        ((match-beginning 8)
 		 (org-element-keyword-parser limit affiliated))
-	        ((match-beginning 4)
+	        ((match-beginning 4) ;; #+, not matching a specific element.
 		 (org-element-paragraph-parser limit affiliated))
 	        ;; Footnote Definition.
 	        ((match-beginning 9)
@@ -4785,7 +4790,10 @@ When PARSE is non-nil, values from keywords belonging to
 	  (forward-line)))
       ;; If affiliated keywords are orphaned: move back to first one.
       ;; They will be parsed as a paragraph.
-      (when (looking-at-p "[ \t]*$") (goto-char origin) (setq output nil))
+      (when (or (looking-at-p "[ \t]*$")
+                ;; Affiliated keywords are not allowed before comments.
+                (looking-at-p org-comment-regexp))
+        (goto-char origin) (setq output nil))
       ;; Return value.
       (cons origin output))))
 
@@ -6385,7 +6393,11 @@ The buffer is: %s\n Current command: %S\n Backtrace:\n%S"
 	    ;; Otherwise, reset keys.
 	    (if org-element--cache-sync-requests
 	        (org-element--cache-set-timer buffer)
-              (setq org-element--cache-change-warning nil)
+              ;; NOTE: We cannot reset
+              ;; `org-element--cache-change-warning' here as it might
+              ;; still be needed when synchronization is called by
+              ;; `org-element--cache-submit-request' before
+              ;; `org-element--cache-for-removal'.
               (setq org-element--cache-sync-keys-value (1+ org-element--cache-sync-keys-value)))))))))
 
 (defun org-element--cache-process-request
