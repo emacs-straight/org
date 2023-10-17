@@ -3124,10 +3124,10 @@ Agenda views are separated by `org-agenda-block-separator'."
 			  "Press key for an agenda command:
 --------------------------------        <   Buffer, subtree/region restriction
 a   Agenda for current week or day      >   Remove restriction
-t   List of all TODO entries            e   Export agenda views
-m   Match a TAGS/PROP/TODO query        T   Entries with special TODO kwd
-s   Search for keywords                 M   Like m, but only TODO entries
-/   Multi-occur                         S   Like s, but only TODO entries
+/   Multi-occur                         e   Export agenda views
+t   List of all TODO entries            T   Entries with special TODO kwd
+m   Match a TAGS/PROP/TODO query        M   Like m, but only TODO entries
+s   Search for keywords                 S   Like s, but only TODO entries
 ?   Find :FLAGGED: entries              C   Configure custom agenda commands
 *   Toggle sticky agenda views          #   List stuck projects (!=configure)
 "))
@@ -6122,7 +6122,7 @@ then those holidays will be skipped."
 	      statep (equal (string-to-char (match-string 1)) ?-)
 	      clockp (not (or closedp statep))
 	      state (and statep (match-string 2))
-	      category (org-get-category (match-beginning 0))
+	      category (save-match-data (org-get-category (match-beginning 0)))
 	      timestr (buffer-substring (match-beginning 0) (line-end-position))
               effort (save-match-data (or (get-text-property (point) 'effort)
                                           (org-entry-get (point) org-effort-property))))
