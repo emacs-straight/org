@@ -197,6 +197,16 @@ link.
   :type '(alist :tag "Link display parameters"
 		:value-type plist))
 
+(defun org-link--set-link-display (symbol value)
+  "Set `org-link-descriptive' (SYMBOL) to VALUE.
+Also, ensure that links are updated in current buffer.
+
+This function is intended to be used as a :set function."
+  (set symbol value)
+  (dolist (buf (org-buffer-list))
+    (with-current-buffer buf
+      (org-link-descriptive-ensure))))
+
 (defcustom org-link-descriptive t
   "Non-nil means Org displays descriptive links.
 
@@ -208,6 +218,7 @@ literally.
 You can interactively set the value of this variable by calling
 `org-toggle-link-display' or from the \"Org > Hyperlinks\" menu."
   :group 'org-link
+  :set #'org-link--set-link-display
   :type 'boolean
   :safe #'booleanp)
 
@@ -929,7 +940,7 @@ according to FMT (default from `org-link-email-description-format')."
     (org-replace-escapes fmt table)))
 
 (defun org-link-store-props (&rest plist)
-  "Store link properties.
+  "Store link properties PLIST.
 The properties are pre-processed by extracting names, addresses
 and dates."
   (let ((x (plist-get plist :from)))
@@ -961,7 +972,7 @@ and dates."
   (setq org-store-link-plist plist))
 
 (defun org-link-add-props (&rest plist)
-  "Add these properties to the link property list."
+  "Add these properties to the link property list PLIST."
   (let (key value)
     (while plist
       (setq key (pop plist) value (pop plist))
@@ -1140,8 +1151,8 @@ for internal and \"file\" links, or stored as a parameter in
 
 (defun org-link-open-from-string (s &optional arg)
   "Open a link in the string S, as if it was in Org mode.
-Optional argument is passed to `org-open-file' when S is
-a \"file\" link."
+Optional argument ARG is passed to `org-open-file' when S is a
+\"file\" link."
   (interactive "sLink: \nP")
   (pcase (with-temp-buffer
 	   (let ((org-inhibit-startup nil))
