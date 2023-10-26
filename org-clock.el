@@ -350,14 +350,15 @@ For more information, see `org-clocktable-write-default'."
   :type 'function)
 
 (defcustom org-clock-clocktable-language-setup
-  '(("en" "File"     "L"  "Timestamp"  "Headline" "Time"  "ALL"   "Total time"   "File time" "Clock summary at")
-    ("es" "Archivo"  "N"  "Fecha y hora" "Tarea" "Duración" "TODO" "Duración total" "Tiempo archivo" "Generado el")
-    ("fr" "Fichier"  "N"  "Horodatage" "En-tête"  "Durée" "TOUT"  "Durée totale" "Durée fichier" "Horodatage sommaire à")
-    ("nl" "Bestand"  "N"  "Tijdstip"   "Rubriek" "Duur"  "ALLES" "Totale duur"  "Bestandstijd" "Klok overzicht op")
-    ("nn" "Fil"      "N"  "Tidspunkt" "Overskrift" "Tid" "ALLE" "Total tid" "Filtid" "Tidsoversyn")
-    ("de" "Datei"    "E"  "Zeitstempel" "Kopfzeile" "Dauer" "GESAMT" "Gesamtdauer"  "Dateizeit" "Erstellt am")
+  '(("en" "File"     "L" "Timestamp" "Headline" "Time" "ALL" "Total time" "File time" "Clock summary at")
+    ("de" "Datei"    "E" "Zeitstempel" "Kopfzeile" "Dauer" "GESAMT" "Gesamtdauer" "Dateizeit" "Erstellt am")
+    ("es" "Archivo"  "N" "Fecha y hora" "Tarea" "Duración" "TODO" "Duración total" "Tiempo archivo" "Generado el")
+    ("fr" "Fichier"  "N" "Horodatage" "En-tête"  "Durée" "TOUT"  "Durée totale" "Durée fichier" "Horodatage sommaire à")
+    ("nl" "Bestand"  "N" "Tijdstip" "Rubriek" "Duur" "ALLES" "Totale duur" "Bestandstijd" "Klok overzicht op")
+    ("nn" "Fil"      "N" "Tidspunkt" "Overskrift" "Tid" "ALLE" "Total tid" "Filtid" "Tidsoversyn")
+    ("pl" "Plik"     "P" "Data i godzina" "Nagłówek" "Czas" "WSZYSTKO" "Czas całkowity" "Czas pliku" "Poddumowanie zegara na")
     ("pt-BR" "Arquivo" "N" "Data e hora" "Título" "Hora" "TODOS" "Hora total" "Hora do arquivo" "Resumo das horas em")
-    ("sk" "Súbor" "L" "Časová značka" "Záhlavie" "Čas" "VŠETKO" "Celkový čas" "Čas súboru" "Časový súhrn pre"))
+    ("sk" "Súbor"    "L" "Časová značka" "Záhlavie" "Čas" "VŠETKO" "Celkový čas" "Čas súboru" "Časový súhrn pre"))
   "Terms used in clocktable, translated to different languages."
   :group 'org-clocktable
   :version "24.1"
@@ -513,7 +514,11 @@ to add an effort property.")
 (defvar org-clock-in-hook nil
   "Hook run when starting the clock.")
 (defvar org-clock-out-hook nil
-  "Hook run when stopping the current clock.")
+  "Hook run when stopping the current clock.
+The point is at the current clock line when the hook is executed.
+
+The hook functions can access `org-clock-out-removed-last-clock' to
+check whether the latest CLOCK line has been cleared.")
 
 (defvar org-clock-cancel-hook nil
   "Hook run when canceling the current clock.")
@@ -1696,6 +1701,11 @@ and current `frame-title-format' is equal to `org-clock-frame-title-format'."
 	     (equal frame-title-format org-clock-frame-title-format))
     (setq frame-title-format org-frame-title-format-backup)))
 
+(defvar org-clock-out-removed-last-clock nil
+  "When non-nil, the last `org-clock-out' removed the clock line.
+This can happen when `org-clock-out-remove-zero-time-clocks' is set to
+non-nil and the latest clock took 0 minutes.")
+
 ;;;###autoload
 (defun org-clock-out (&optional switch-to-state fail-quietly at-time)
   "Stop the currently running clock.
@@ -1786,6 +1796,7 @@ to, overriding the existing value of `org-clock-out-switch-to-state'."
 		   te (org-duration-from-minutes (+ (* 60 h) m)))
           (unless (org-clocking-p)
 	    (setq org-clock-current-task nil))
+          (setq org-clock-out-removed-last-clock remove)
           (run-hooks 'org-clock-out-hook)
           ;; Add a note, but only if we didn't remove the clock line.
           (when (and org-log-note-clock-out (not remove))

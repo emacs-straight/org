@@ -24,6 +24,10 @@
 ;;
 ;;; Commentary:
 
+;; This file implements links to man pages from within Org mode.
+
+;;; Code:
+
 (require 'org-macs)
 (org-assert-version)
 
@@ -91,7 +95,7 @@ BACKEND is the current export backend."
      ((eq backend 'html) (format "<a target=\"_blank\" href=\"%s\">%s</a>" path desc))
      ((eq backend 'latex) (format "\\href{%s}{%s}" path desc))
      ((eq backend 'texinfo) (format "@uref{%s,%s}" path desc))
-     ((eq backend 'ascii) (format "%s (%s)" desc path))
+     ((eq backend 'ascii) (format "[%s] (<%s>)" desc path))
      ((eq backend 'md) (format "[%s](%s)" desc path))
      (t path))))
 
