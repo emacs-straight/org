@@ -2864,7 +2864,12 @@ list, `literal' is for the format specifier L."
       (if lispp
 	  (if (eq lispp 'literal)
 	      elements
-	    (if (and (equal elements "") (not keep-empty))
+	    (if (and (eq elements "") (not keep-empty))
+                ;; FIXME: This branch of `if' is never used because
+                ;; strings are never `eq' here.  But changing to
+                ;; `equal' breaks tests.
+                ;; See
+                ;; https://list.orgmode.org/orgmode/20230827214320.46754-1-salutis@me.com/
 		""
 	      (prin1-to-string
 	       (if numbers (string-to-number elements) elements))))
