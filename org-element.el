@@ -6228,7 +6228,7 @@ If this warning appears regularly, please report the warning text to Org mode ma
        (org-element-begin element)
        (org-element-property :org-element--cache-sync-key element))
       (org-element-cache-reset)
-      (throw 'quit nil))
+      (throw 'org-element--cache-quit nil))
     (or (avl-tree-delete org-element--cache element)
         (progn
           ;; This should not happen, but if it is, would be better to know
@@ -6241,7 +6241,7 @@ If this warning appears regularly, please report the warning text to Org mode ma
            (org-element-begin element)
            (org-element-property :org-element--cache-sync-key element))
           (org-element-cache-reset)
-          (throw 'quit nil)))))
+          (throw 'org-element--cache-quit nil)))))
 
 ;;;; Synchronization
 
@@ -8287,8 +8287,8 @@ This function may modify the match data."
     (setq epom (or epom (point)))
     (org-with-point-at epom
       (unless (derived-mode-p 'org-mode)
-        (error "`org-element-at-point' cannot be used in non-Org buffer %S (%s)"
-               (current-buffer) major-mode))
+        (warn "`org-element-at-point' cannot be used in non-Org buffer %S (%s)"
+              (current-buffer) major-mode))
       ;; Allow re-parsing when the command can benefit from it.
       (when (and cached-only
                  (memq this-command org-element--cache-non-modifying-commands))
