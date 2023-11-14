@@ -838,7 +838,7 @@ COLLECTION is the plist holding data collection."
             (make-directory (file-name-directory file-copy) t))
           (if (org--should-fetch-remote-resource-p path)
               (url-copy-file path file-copy 'overwrite)
-            (error "The remote resource %S is considered unsafe, and will not be downloaded."
+            (error "The remote resource %S is considered unsafe, and will not be downloaded"
                    path)))
         (format "%s-%s.%s" persist-file (md5 path) ext)))))
 
@@ -1036,7 +1036,8 @@ CONTAINER as well.  For example:
 
 (cl-defun org-persist-load (container &optional associated hash-must-match &key read-related)
   "Load CONTAINER data for ASSOCIATED.
-The arguments have the same meaning as in `org-persist-read'."
+The arguments CONTAINER, ASSOCIATED, HASH-MUST-MATCH, and READ-RELATED
+have the same meaning as in `org-persist-read'."
   (org-persist-read container associated hash-must-match t :read-related read-related))
 
 (defun org-persist-load-all (&optional associated)
