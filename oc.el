@@ -52,7 +52,7 @@
 ;; through the "cite_export" keyword.
 
 ;; Eventually, this library provides some tools, mainly targeted at
-;; processor implementors.  Most are export-specific and are located
+;; processor implementers.  Most are export-specific and are located
 ;; in the "Tools only available during export" and "Tools generating
 ;; or operating on parsed data" sections.
 
@@ -1162,14 +1162,23 @@ the same object, call `org-cite-adjust-note' first."
 The return value is suitable as a replacement for a
 \"print_bibliography\" keyword.  As a consequence, the function
 raises an error if S contains a headline."
-  (with-temp-buffer
-    (insert s)
-    (pcase (org-element-contents (org-element-parse-buffer))
-      ('nil nil)
-      (`(,(and section (guard (org-element-type-p section 'section))))
-       (org-element-contents section))
-      (_
-       (error "Headlines cannot replace a keyword")))))
+  (org-element-with-buffer-copy
+   :to-buffer (org-get-buffer-create " *Org parse*" t)
+   :drop-contents t
+   :drop-visibility t
+   :drop-narrowing t
+   :drop-locals t
+   ;; Transferring local variables may put the temporary buffer
+   ;; into a read-only state.  Make sure we can insert STRING.
+   (let ((inhibit-read-only t)) (erase-buffer) (insert s))
+   ;; Prevent "Buffer *temp* modified; kill anyway?".
+   (restore-buffer-modified-p nil)
+   (pcase (org-element-contents (org-element-parse-buffer))
+     ('nil nil)
+     (`(,(and section (guard (org-element-type-p section 'section))))
+      (org-element-contents section))
+     (_
+      (error "Headlines cannot replace a keyword")))))
 
 (defun org-cite-parse-objects (s &optional affix)
   "Parse string S as a secondary string.
@@ -1225,6 +1234,15 @@ and must return either a string, an object, or a secondary string."
            (setq result
                  (org-cite-concat result separator (funcall function datum))))
          result)))
+
+(defun org-cite-capitalize (str)
+  "Capitalize string of raw string object STR."
+  (cond
+   ((stringp str) (capitalize str))
+   ((org-element-type-p str 'raw)
+    (org-export-raw-string
+     (upcase (org-element-contents str))))
+   (t (error "%S must be either a string or raw string object" str))))
 
 
 ;;; Internal interface with fontification (activate capability)

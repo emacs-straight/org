@@ -144,8 +144,11 @@ back to `window-text-pixel-size' otherwise."
   (if (fboundp 'buffer-text-pixel-size)
       (car (buffer-text-pixel-size nil nil t))
     (if (get-buffer-window (current-buffer))
+        ;; FIXME: 10000 because `most-positive-fixnum' ain't working
+        ;; (tests failing) and this call will be removed after we drop
+        ;; Emacs 28 support anyway.
         (car (window-text-pixel-size
-              nil (point-min) (point-max)))
+              nil (point-min) (point-max) 10000))
       (let ((dedicatedp (window-dedicated-p))
             (oldbuffer (window-buffer)))
         (unwind-protect
@@ -154,7 +157,7 @@ back to `window-text-pixel-size' otherwise."
               (set-window-dedicated-p nil nil)
               (set-window-buffer nil (current-buffer))
               (car (window-text-pixel-size
-                    nil (point-min) (point-max))))
+                    nil (point-min) (point-max) 10000)))
           (set-window-buffer nil oldbuffer)
           (set-window-dedicated-p nil dedicatedp))))))
 
@@ -177,7 +180,7 @@ Ignore optional argument."
 Elements in COMPONENTS must be a string or nil.
 DIRECTORY or the non-final elements in COMPONENTS may or may not end
 with a slash -- if they don't end with a slash, a slash will be
-inserted before contatenating."
+inserted before concatenating."
     (save-match-data
       (mapconcat
        #'identity
@@ -1196,6 +1199,10 @@ context.  See the individual commands for more information."
   'org-element-parent "9.7")
 (define-obsolete-function-alias 'org-export-get-parent-element
   'org-element-parent-element "9.7")
+
+(define-obsolete-function-alias 'org-print-speed-command
+  'org--print-speed-command "9.7"
+  "Internal function.  Subject of unannounced changes.")
 
 ;;;; Obsolete link types
 

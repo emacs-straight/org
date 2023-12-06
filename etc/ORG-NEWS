@@ -13,11 +13,53 @@ Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
 
 * Version 9.7 (not released yet)
 ** Important announcements and breaking changes
+*** ~org-print-speed-command~ is now an internal function
+
+The old name is marked obsolete and the new name is
+~org--print-speed-command~.
+
+This function was always aimed for internal use when building speed
+command help buffer.  Now, it is stated explicitly.
+
 *** Babel references =FILE:REFERENCE= now search current buffer when =FILE= does not exist
 
 When =FILE= does not exist, the reference is searched in the current
 file, using the verbatim reference.  This way,
 =:var table=tbl:example= will be searched inside the current buffer.
+
+*** ~tab-width~ value is now assumed to be 8
+
+Org mode now assumes tab width to be 8 characters, when calculating
+list and other indentation.  ~tab-width~ is also set to 8 when Org
+major mode is loaded.
+
+This is done to improve consistency of the markup for lists, where
+indentation affects list items.
+
+Users with non-default values of ~tab-width~ should avoid overriding
+the value of 8 set by Org mode.  If the custom ~tab-width~ value is
+_smaller_ than 8, the existing Org documents can be converted to the
+new standard tab width using the following helper command:
+
+#+begin_src emacs-lisp
+(defun org-compat-adjust-tab-width-in-buffer (old-width)
+  "Adjust visual indentation from `tab-width' equal OLD-WIDTH to 8."
+  (interactive "nOld `tab-width': ")
+  (cl-assert (derived-mode-p 'org-mode))
+  (unless (= old-width 8)
+    (org-with-wide-buffer
+     (goto-char (point-min))
+     (let (bound
+	   (repl (if (< old-width 8)
+		     (make-string old-width ?\s)
+                   (concat "\t" (make-string (- old-width 8) ?\s)))))
+       (while (re-search-forward "^ *\t" nil t)
+	 (skip-chars-forward " \t")
+	 (setq bound (point-marker))
+	 (forward-line 0)
+	 (while (search-forward "\t" bound t)
+	   (replace-match repl)))))))
+#+end_src
 
 *** New export option ~org-export-expand-links~
 
@@ -1857,7 +1899,7 @@ Conversion to SVG exposes a number of additional customizations that
 give the user full control over the contents of the latex source
 block. ~org-babel-latex-preamble~, ~org-babel-latex-begin-env~ and
 ~org-babel-latex-end-env~ are new customization options added to allow
-the user to specify the preamble and code that preceedes and proceeds
+the user to specify the preamble and code that precedes and proceeds
 the contents of the source block.
 
 *** New option ~org-html-meta-tags~ allows for HTML meta tags customization

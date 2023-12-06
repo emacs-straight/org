@@ -273,7 +273,7 @@ therefore you'll have to restart Emacs to apply it after changing."
 
 (defcustom org-mouse-1-follows-link
   (if (boundp 'mouse-1-click-follows-link) mouse-1-click-follows-link t)
-  "Non-nil means mouse-1 on a link will follow the link.
+  "Non-nil means Mouse-1 on a link will follow the link.
 A longer mouse click will still set point.  Needs to be set
 before org.el is loaded."
   :group 'org-link-follow
@@ -309,7 +309,7 @@ In tables, the special behavior of RET has precedence."
 
 ;;;; Base functions
 (defun org-key (key)
-  "Select key according to `org-replace-disputed-keys' and `org-disputed-keys'.
+  "Select KEY according to `org-replace-disputed-keys' and `org-disputed-keys'.
 Or return the original if not disputed."
   (when org-replace-disputed-keys
     (let* ((nkey (key-description key))
@@ -319,7 +319,7 @@ Or return the original if not disputed."
   key)
 
 (defun org-defkey (keymap key def)
-  "Define a key, possibly translated, as returned by `org-key'."
+  "Define KEY, possibly translated, as returned by `org-key' in KEYMAP to DEF."
   (define-key keymap (org-key key) def))
 
 (defun org-remap (map &rest commands)
@@ -789,19 +789,22 @@ command."
 				(function)
 				(sexp))))))
 
-(defun org-print-speed-command (e)
-  (if (> (length (car e)) 1)
+(defun org--print-speed-command (speed-command)
+  "Print information about SPEED-COMMAND in help buffer.
+SPEED-COMMAND is an element of `org-speed-commands' or
+`org-speed-commands-user'."
+  (if (> (length (car speed-command)) 1)
       (progn
 	(princ "\n")
-	(princ (car e))
+	(princ (car speed-command))
 	(princ "\n")
-	(princ (make-string (length (car e)) ?-))
+	(princ (make-string (length (car speed-command)) ?-))
 	(princ "\n"))
-    (princ (car e))
+    (princ (car speed-command))
     (princ "   ")
-    (if (symbolp (cdr e))
-	(princ (symbol-name (cdr e)))
-      (prin1 (cdr e)))
+    (if (symbolp (cdr speed-command))
+	(princ (symbol-name (cdr speed-command)))
+      (prin1 (cdr speed-command)))
     (princ "\n")))
 
 (defun org-speed-command-help ()
@@ -811,7 +814,7 @@ command."
     (user-error "Speed commands are not activated, customize `org-use-speed-commands'"))
   (with-output-to-temp-buffer "*Help*"
     (princ "Speed commands\n==============\n")
-    (mapc #'org-print-speed-command
+    (mapc #'org--print-speed-command
           ;; FIXME: don't check `org-speed-commands-user' past 9.6
           (if (boundp 'org-speed-commands-user)
               (append org-speed-commands
@@ -832,6 +835,7 @@ If not, return to the original position and throw an error."
 
 (defun org-speed-command-activate (keys)
   "Hook for activating single-letter speed commands.
+KEYS is the keys vector as returned by `this-command-keys-vector'.
 See `org-speed-commands' for configuring them."
   (when (or (and (bolp) (looking-at org-outline-regexp))
 	    (and (functionp org-use-speed-commands)
@@ -911,7 +915,8 @@ a-list placed behind the generic `org-babel-key-prefix'.")
   (define-key org-babel-map key def))
 
 (defun org-babel-speed-command-activate (keys)
-  "Hook for activating single-letter code block commands."
+  "Hook for activating single-letter code block commands.
+KEYS is the keys vector as returned by `this-command-keys-vector'."
   (when (and (bolp)
 	     (let ((case-fold-search t)) (looking-at "[ \t]*#\\+begin_src"))
 	     (org-element-type-p (org-element-at-point) 'src-block))
