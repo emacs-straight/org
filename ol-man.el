@@ -34,6 +34,7 @@
 (require 'ol)
 
 (org-link-set-parameters "man"
+                         :complete #'org-man-complete
 			 :follow #'org-man-open
 			 :export #'org-man-export
 			 :store #'org-man-store-link)
@@ -41,7 +42,7 @@
 (defcustom org-man-command 'man
   "The Emacs command to be used to display a man page."
   :group 'org-link
-  :type '(choice (const man) (const woman)))
+  :type '(choice (const man) (const :tag "WoMan (obsolete)" woman)))
 
 (defun org-man-open (path _)
   "Visit the manpage on PATH.
@@ -98,6 +99,17 @@ BACKEND is the current export backend."
      ((eq backend 'ascii) (format "[%s] (<%s>)" desc path))
      ((eq backend 'md) (format "[%s](%s)" desc path))
      (t path))))
+
+(defun org-man-complete (&optional _arg)
+  "Complete man pages for `org-insert-link'."
+  (require 'man)
+  (concat
+   "man:"
+   (let ((completion-ignore-case t) ; See `man' comments.
+         (Man-completion-cache)) ; See `man' implementation.
+     (completing-read
+      "Manual entry: "
+      'Man-completion-table))))
 
 (provide 'ol-man)
 
