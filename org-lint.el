@@ -452,6 +452,19 @@ called with one argument, the key used for comparison."
 	       (list (org-element-post-affiliated k)
 		     (format "Orphaned affiliated keyword: \"%s\"" key))))))))
 
+(defun org-lint-regular-keyword-before-affiliated (ast)
+  (org-element-map ast 'keyword
+    (lambda (keyword)
+      (when (= (org-element-post-blank keyword) 0)
+        (let ((next-element (org-with-point-at (org-element-end keyword)
+                              (org-element-at-point))))
+          (when (< (org-element-begin next-element) (org-element-post-affiliated next-element))
+            ;; A keyword followed without blank lines by an element with affiliated keywords.
+            ;; The keyword may be confused with affiliated keywords.
+            (list (org-element-begin keyword)
+                  (format "Independent keyword %s may be confused with affiliated keywords below"
+                          (org-element-property :key keyword)))))))))
+
 (defun org-lint-obsolete-affiliated-keywords (_)
   (let ((regexp (format "^[ \t]*#\\+%s:"
 			(regexp-opt '("DATA" "LABEL" "RESNAME" "SOURCE"
@@ -1346,6 +1359,14 @@ Use \"export %s\" instead"
 			   reports))))))))))))
     reports))
 
+(defun org-lint-named-result (ast)
+  (org-element-map ast org-element-all-elements
+    (lambda (el)
+      (when (and (org-element-property :results el)
+                 (org-element-property :name el))
+        (list (org-element-begin el)
+              "#+name: in results of evaluation will be replaced by re-evaluating the src block.  Use #+name in the block instead.")))))
+
 (defun org-lint-spurious-colons (ast)
   (org-element-map ast '(headline inlinetask)
     (lambda (h)
@@ -1508,6 +1529,11 @@ AST is the buffer parse tree."
   #'org-lint-orphaned-affiliated-keywords
   :trust 'low)
 
+(org-lint-add-checker 'combining-keywords-with-affiliated
+  "Report independent keywords preceding affiliated keywords."
+  #'org-lint-regular-keyword-before-affiliated
+  :trust 'low)
+
 (org-lint-add-checker 'obsolete-affiliated-keywords
   "Report obsolete affiliated keywords"
   #'org-lint-obsolete-affiliated-keywords
@@ -1552,6 +1578,11 @@ AST is the buffer parse tree."
   "Report invalid value in babel headers"
   #'org-lint-wrong-header-value
   :categories '(babel) :trust 'low)
+
+(org-lint-add-checker 'named-result
+  "Report results evaluation with #+name keyword."
+  #'org-lint-named-result
+  :categories '(babel) :trust 'high)
 
 (org-lint-add-checker 'empty-header-argument
   "Report empty values in babel headers"
