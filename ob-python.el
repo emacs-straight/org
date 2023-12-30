@@ -237,6 +237,15 @@ results as a string."
 	(substring name 1 (- (length name) 1))
       name)))
 
+(defun org-babel-python--python-util-comint-end-of-output-p ()
+  "Return non-nil if the last prompt matches input prompt.
+Backport of `python-util-comint-end-of-output-p' to emacs28.  To
+be removed after minimum supported version reaches emacs29."
+  (when-let ((prompt (python-util-comint-last-prompt)))
+    (python-shell-comint-end-of-output-p
+     (buffer-substring-no-properties
+      (car prompt) (cdr prompt)))))
+
 (defvar-local org-babel-python--initialized nil
   "Flag used to mark that python session has been initialized.")
 (defun org-babel-python--setup-session ()
@@ -248,8 +257,12 @@ unless the Python session was created outside Org."
   (setq-local org-babel-python--initialized t))
 (defun org-babel-python-initiate-session-by-key (&optional session)
   "Initiate a python session.
-If there is not a current inferior-process-buffer in SESSION
-then create.  Return the initialized session."
+If there is not a current inferior-process-buffer matching
+SESSION then create it. If inferior process already
+exists (e.g. if it was manually started with `run-python'), make
+sure it's configured to work with ob-python.  If session has
+already been configured as such, do nothing.  Return the
+initialized session."
   (save-window-excursion
     (let* ((session (if session (intern session) :default))
            (py-buffer (or (org-babel-python-session-buffer session)
@@ -266,6 +279,10 @@ then create.  Return the initialized session."
             ;; Session was created outside Org.  Assume first prompt
             ;; already happened; run session setup code directly
             (unless org-babel-python--initialized
+              ;; Ensure first prompt. Based on python-tests.el
+              ;; (`python-tests-shell-wait-for-prompt')
+              (while (not (org-babel-python--python-util-comint-end-of-output-p))
+                (sit-for 0.1))
               (org-babel-python--setup-session))
           ;; Adding to `python-shell-first-prompt-hook' immediately
           ;; after `run-python' should be safe from race conditions,
@@ -288,7 +305,12 @@ then create.  Return the initialized session."
       session)))
 
 (defun org-babel-python-initiate-session (&optional session _params)
-  "Create a session named SESSION according to PARAMS."
+  "Initiate Python session named SESSION according to PARAMS.
+If there is not a current inferior-process-buffer matching
+SESSION then create it. If inferior process already
+exists (e.g. if it was manually started with `run-python'), make
+sure it's configured to work with ob-python.  If session has
+already been configured as such, do nothing."
   (unless (string= session "none")
     (org-babel-python-session-buffer
      (org-babel-python-initiate-session-by-key session))))

@@ -4081,9 +4081,6 @@ contextual information."
 	     (message "Created %s" (expand-file-name target))
 	     ;; Cleanup work directory and work files.
 	     (funcall --cleanup-xml-buffers)
-	     ;; Open the OpenDocument file in archive-mode for
-	     ;; examination.
-	     (find-file-noselect target t)
 	     ;; Return exported file.
 	     (cond
 	      ;; Case 1: Conversion desired on exported file.  Run the
@@ -4351,11 +4348,6 @@ is non-nil then the newly converted file is opened using
   (org-odt-do-convert in-file out-fmt open))
 
 ;;; Library Initializations
-
-(dolist (desc org-odt-file-extensions)
-  ;; Let Emacs open all OpenDocument files in archive mode.
-  (add-to-list 'auto-mode-alist
-	       (cons (concat  "\\." (car desc) "\\'") 'archive-mode)))
 
 (provide 'ox-odt)
 
