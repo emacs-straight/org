@@ -918,9 +918,6 @@ See also `org-src-mode-hook'."
 
 ;;; Babel related functions
 
-;; FIXME: This block is to be removed in the following release.
-;; `org-babel-edit-pre:<lang>' can be used in place.
-
 (defun org-src-associate-babel-session (info)
   "Associate edit buffer with comint session.
 INFO should be a list similar in format to the return value of
@@ -936,15 +933,9 @@ INFO should be a list similar in format to the return value of
 (defun org-src-babel-configure-edit-buffer ()
   "Configure src editing buffer."
   (when org-src--babel-info
-    (with-no-warnings
-      ;; FIXME: We intentionally use obsolete function.  This code is
-      ;; to be removed later.
-      (org-src-associate-babel-session org-src--babel-info))))
+    (org-src-associate-babel-session org-src--babel-info)))
 
-;; FIXME: We intentionally use obsolete function.  This code is
-;; to be removed later.
-(with-no-warnings
-  (add-hook 'org-src-mode-hook #'org-src-babel-configure-edit-buffer))
+(add-hook 'org-src-mode-hook #'org-src-babel-configure-edit-buffer)
 
 
 ;;; Public API
@@ -1319,16 +1310,18 @@ name of the sub-editing buffer."
        element
        (or edit-buffer-name
 	   (org-src--construct-edit-buffer-name (buffer-name) lang))
-       lang-f
+       (lambda ()
+         (when lang-f (funcall lang-f))
+         (setq-local org-coderef-label-format
+		     (or (org-element-property :label-fmt element)
+		         org-coderef-label-format))
+         (when (eq type 'src-block)
+	   (setq org-src--babel-info babel-info)))
        (and (null code)
 	    (lambda () (org-escape-code-in-region (point-min) (point-max))))
        (and code (org-unescape-code-in-string code)))
       ;; Finalize buffer.
-      (setq-local org-coderef-label-format
-		  (or (org-element-property :label-fmt element)
-		      org-coderef-label-format))
       (when (eq type 'src-block)
-	(setq org-src--babel-info babel-info)
 	(let ((edit-prep-func (intern (concat "org-babel-edit-prep:" lang))))
 	  (when (fboundp edit-prep-func)
 	    (funcall edit-prep-func babel-info))))
