@@ -5312,10 +5312,10 @@ disks in a box like this:
   :END:
 #+end_example
 
-Properties can be inserted on buffer level.  That means they apply
+Properties can be inserted at the buffer level.  That means they apply
 before the first headline and can be inherited by all entries in a
-file.  Property blocks defined before first headline needs to be
-located at the top of the buffer, allowing only comments above.
+file.  Property blocks defined before the first headline must be at
+the top of the buffer with only comments above them.
 
 Properties can also be defined using lines like:
 
@@ -16368,6 +16368,15 @@ information.  The iCalendar standard defines three visibility classes:
 - =PRIVATE= :: The entry can be retrieved only by its owner.
 The server should treat unknown class properties the same as
 =PRIVATE=.
+
+#+cindex: @samp{ICAL-TTL}, keyword
+#+vindex: org-icalendar-ttl
+The exported iCalendar file can advise clients how often to check for
+updates.  This duration can be set globally with the
+~org-icalendar-ttl~ variable, or on a per-document basis with the
+=ICAL-TTL= keyword.  This option should be set using the iCalendar
+notation for time durations; consult the docstring of
+~org-icalendar-ttl~ for more details.
 
 Exporting to iCalendar format depends in large part on the
 capabilities of the destination application.  Some are more lenient
