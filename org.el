@@ -4732,7 +4732,7 @@ returns non-nil if any of them match."
                               (if (and (= char ?f) current-file)
                                   (concat "file://" current-file) uri))
                              "\\'")))))
-          (prog1 (memq char '(?y ?n ?! ?d ?\s ?f))
+          (prog1 (memq char '(?y ?! ?d ?\s ?f))
             (quit-window t)))))))
 
 (defun org-extract-log-state-settings (x)
@@ -17716,18 +17716,11 @@ this numeric value."
   (interactive "r")
   (let ((result ""))
     (while (/= beg end)
-      (if (eq org-fold-core-style 'text-properties)
-          (progn
-            (while (org-invisible-p beg)
-	      (setq beg (org-fold-next-visibility-change beg end)))
-            (let ((next (org-fold-next-visibility-change beg end)))
-	      (setq result (concat result (buffer-substring beg next)))
-	      (setq beg next)))
-        (when (invisible-p beg)
-	  (setq beg (next-single-char-property-change beg 'invisible nil end)))
-        (let ((next (next-single-char-property-change beg 'invisible nil end)))
-	  (setq result (concat result (buffer-substring beg next)))
-	  (setq beg next))))
+      (while (org-invisible-p beg)
+	(setq beg (org-fold-next-visibility-change beg end)))
+      (let ((next (org-fold-next-visibility-change beg end)))
+	(setq result (concat result (buffer-substring beg next)))
+	(setq beg next)))
     ;; Prevent Emacs from adding full selected text to `kill-ring'
     ;; when `select-enable-primary' is non-nil.  This special value of
     ;; `deactivate-mark' only works since Emacs 29.
