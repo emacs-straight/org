@@ -484,11 +484,11 @@ its subdirectories contain large numbers of taggable files."
       (setq exitcode
             (shell-command
              (format (concat "%s --langdef=orgmode --langmap=orgmode:.org "
-                             "--regex-orgmode=\"%s\" -f \"%s\" -e -R \"%s\"")
+                             "--regex-orgmode=\"%s\" -f \"%s\" -e -R %s")
                      org-ctags-path-to-ctags
                      org-ctags-tag-regexp
                      (expand-file-name (concat dir-name "/TAGS"))
-                     (expand-file-name (concat dir-name "/*")))))
+                     (expand-file-name (concat (shell-quote-argument dir-name) "/*")))))
       (cond
        ((eql 0 exitcode)
         (setq-local org-ctags-tag-list
