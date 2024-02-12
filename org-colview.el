@@ -365,13 +365,15 @@ ORIGINAL is the real string, i.e., before it is modified by
   "Store the relative remapping of column header-line.
 This is needed to later remove this relative remapping.")
 
+(defvar org-columns--read-only-string nil)
 (defun org-columns--display-here (columns &optional dateline)
   "Overlay the current line with column display.
 COLUMNS is an alist (SPEC VALUE DISPLAYED).  Optional argument
 DATELINE is non-nil when the face used should be
 `org-agenda-column-dateline'."
-  (when (and (ignore-errors (require 'face-remap))
-             org-columns-header-line-remap)
+  (when (and (not org-columns-header-line-remap)
+             (or (fboundp 'face-remap-add-relative)
+                 (ignore-errors (require 'face-remap))))
     (setq org-columns-header-line-remap
 	  (face-remap-add-relative 'header-line '(:inherit default))))
   (save-excursion
@@ -438,9 +440,11 @@ DATELINE is non-nil when the face used should be
 	   (line-end-position 0)
 	   (line-beginning-position 2)
 	   'read-only
-	   (substitute-command-keys
-	    "Type \\<org-columns-map>`\\[org-columns-edit-value]' \
-to edit property")))))))
+           (or org-columns--read-only-string
+	       (setq org-columns--read-only-string
+                     (substitute-command-keys
+	              "Type \\<org-columns-map>`\\[org-columns-edit-value]' \
+to edit property")))))))))
 
 (defun org-columns--truncate-below-width (string width)
   "Return a substring of STRING no wider than WIDTH.
@@ -893,7 +897,6 @@ When COLUMNS-FMT-STRING is non-nil, use it as the column format."
                 (setq truncate-lines t))
 	    (dolist (entry cache)
 	      (goto-char (car entry))
-              (move-marker (car entry) nil)
 	      (org-columns--display-here (cdr entry)))))))))
 
 (defun org-columns-new (&optional spec &rest attributes)
@@ -1213,8 +1216,8 @@ Return the result as a duration."
 SPEC is a column format specification.  When optional argument
 UPDATE is non-nil, summarized values can replace existing ones in
 properties drawers."
-  (let* ((lmax (if (bound-and-true-p org-inlinetask-min-level)
-		   org-inlinetask-min-level
+  (let* ((lmax (if (bound-and-true-p org-inlinetask-max-level)
+		   org-inlinetask-max-level
 		 29))			;Hard-code deepest level.
 	 (lvals (make-vector (1+ lmax) nil))
 	 (level 0)
