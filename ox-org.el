@@ -3,7 +3,6 @@
 ;; Copyright (C) 2013-2024 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou@gmail.com>
-;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: org, wp
 
 ;; This file is part of GNU Emacs.
@@ -57,7 +56,16 @@ setting of `org-html-htmlize-output-type' is `css'."
 (defcustom org-org-with-special-rows t
   "Non-nil means export special table rows.
 Special rows are the rows containing special marking characters, as
-described in the Info node `(org)Advanced features'.")
+described in the Info node `(org)Advanced features'."
+  :group 'org-export-org
+  :type 'boolean
+  :package-version '(Org . "9.7"))
+
+(defcustom org-org-with-cite-processors nil
+  "Non-nil means use citation processors when exporting citations."
+  :group 'org-export-org
+  :type 'boolean
+  :package-version '(Org . "9.7"))
 
 (org-export-define-backend 'org
   '((babel-call . org-org-identity)
@@ -80,6 +88,8 @@ described in the Info node `(org)Advanced features'.")
     (inline-src-block . org-org-identity)
     (inlinetask . org-org-identity)
     (italic . org-org-identity)
+    (citation . org-org-identity)
+    (citation-reference . org-org-identity)
     (item . org-org-identity)
     (keyword . org-org-keyword)
     (latex-environment . org-org-identity)
@@ -120,7 +130,8 @@ described in the Info node `(org)Advanced features'.")
   :filters-alist '((:filter-parse-tree . org-org--add-missing-sections))
   :options-alist
   ;; Export special table rows.
-  '((:with-special-rows nil nil org-org-with-special-rows)))
+  '((:with-special-rows nil nil org-org-with-special-rows)
+    (:with-cite-processors nil nil org-org-with-cite-processors)))
 
 (defun org-org--add-missing-sections (tree _backend _info)
   "Ensure each headline has an associated section.

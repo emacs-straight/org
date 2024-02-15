@@ -3,7 +3,7 @@
 ;; Copyright (C) 2012-2024 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <mail@nicolasgoaziou.fr>
-;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
+;; Maintainer: Ihor Radchenko <yantar92 at posteo dot net>
 ;; Keywords: outlines, hypermedia, calendar, wp
 
 ;; This file is part of GNU Emacs.
@@ -151,6 +151,7 @@
     (:with-title nil "title" org-export-with-title)
     (:with-todo-keywords nil "todo" org-export-with-todo-keywords)
     ;; Citations processing.
+    (:with-cite-processors nil nil org-export-process-citations)
     (:cite-export "CITE_EXPORT" nil org-cite-export-processors))
   "Alist between export properties and ways to set them.
 
@@ -384,6 +385,14 @@ This option can also be set with the OPTIONS keyword,
 e.g. \"date:nil\"."
   :group 'org-export-general
   :type 'boolean
+  :safe #'booleanp)
+
+(defcustom org-export-process-citations t
+  "Non-nil means process citations using citation processors.
+nil will leave citation processing to export backend."
+  :group 'org-export-general
+  :type 'boolean
+  :package-version '(Org . "9.7")
   :safe #'booleanp)
 
 (defcustom org-export-date-timestamp-format nil
@@ -3004,7 +3013,8 @@ Return code as a string."
                    (if (or (not (functionp template)) body-only) full-body
 	             (funcall template full-body info))))
              ;; Call citation export finalizer.
-             (setq output (org-cite-finalize-export output info))
+             (when (plist-get info :with-cite-processors)
+               (setq output (org-cite-finalize-export output info)))
 	     ;; Remove all text properties since they cannot be
 	     ;; retrieved from an external process.  Finally call
 	     ;; final-output filter and return result.
@@ -3074,8 +3084,9 @@ still inferior to file-local settings."
            info (org-export-get-environment backend subtreep ext-plist)))
     ;; Pre-process citations environment, i.e. install
     ;; bibliography list, and citation processor in INFO.
-    (org-cite-store-bibliography info)
-    (org-cite-store-export-processor info)
+    (when (plist-get info :with-cite-processors)
+      (org-cite-store-bibliography info)
+      (org-cite-store-export-processor info))
     ;; De-activate uninterpreted data from parsed keywords.
     (dolist (entry (append (org-export-get-all-options backend)
                            org-export-options-alist))
@@ -3115,8 +3126,9 @@ still inferior to file-local settings."
     ;; Process citations and bibliography.  Replace each citation
     ;; and "print_bibliography" keyword in the parse tree with
     ;; the output of the selected citation export processor.
-    (org-cite-process-citations info)
-    (org-cite-process-bibliography info)
+    (when (plist-get info :with-cite-processors)
+      (org-cite-process-citations info)
+      (org-cite-process-bibliography info))
     info))
 
 ;;;###autoload
