@@ -3267,7 +3267,7 @@ When using LaTeXML set this option to
 	  (string :tag "\nShell command")))
 
 (defcustom org-latex-to-html-convert-command nil
-  "Command to convert LaTeX fragments to HTML.
+  "Shell command to convert LaTeX fragments to HTML.
 This command is very open-ended: the output of the command will
 directly replace the LaTeX fragment in the resulting HTML.
 Replace format-specifiers in the command as noted below and use
@@ -3275,7 +3275,12 @@ Replace format-specifiers in the command as noted below and use
 %i:     The LaTeX fragment to be converted.
 
 For example, this could be used with LaTeXML as
-\"latexmlc \\='literal:%i\\=' --profile=math --preload=siunitx.sty 2>/dev/null\"."
+\"latexmlc \\='literal:%i\\=' --profile=math --preload=siunitx.sty 2>/dev/null\".
+
+The LaTeX fragment is replaced as is, without escaping special shell
+syntax.  It may be necessary to use single-quotes around \\='%i\\=', not
+double-quotes.  Else a math fragment such as \"$y = 200$\" may be
+expanded to \" = 200\"."
   :group 'org-latex
   :package-version '(Org . "9.4")
   :type '(choice
@@ -8933,7 +8938,7 @@ TYPE is the dynamic block type, as a string."
 (defun org-dynamic-block-define (type func)
   "Define dynamic block TYPE with FUNC.
 TYPE is a string.  FUNC is the function creating the dynamic
-block of such type."
+block of such type.  FUNC must be able to accept zero arguments."
   (pcase (assoc type org-dynamic-block-alist)
     (`nil (push (cons type func) org-dynamic-block-alist))
     (def (setcdr def func))))
@@ -8949,7 +8954,7 @@ is non-nil, call the dynamic block function interactively."
   (pcase (org-dynamic-block-function type)
     (`nil (error "No such dynamic block: %S" type))
     ((and f (pred functionp))
-     (if interactive-p (call-interactively f) (funcall f)))
+     (if (and interactive-p (commandp f)) (call-interactively f) (funcall f)))
     (_ (error "Invalid function for dynamic block %S" type))))
 
 (defun org-dblock-update (&optional arg)
