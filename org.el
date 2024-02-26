@@ -5526,7 +5526,16 @@ by a #."
 	    (org-remove-flyspell-overlays-in nl-before-endline end-of-endline)
             (cond
 	     ((and org-src-fontify-natively
-                   (string= block-type "src"))
+                   ;; Technically, according to
+                   ;; `org-src-fontify-natively' docstring, we should
+                   ;; only fontify src blocks.  However, it is common
+                   ;; to use undocumented fontification of example
+                   ;; blocks with undocumented language specifier.
+                   ;; Keep this undocumented feature for user
+                   ;; convenience.
+                   t
+                   ;; (string= block-type "src")
+                   )
 	      (save-match-data
                 (org-src-font-lock-fontify-block (or lang "") block-start block-end))
 	      (add-text-properties bol-after-beginline block-end '(src-block t)))
@@ -5797,6 +5806,24 @@ highlighting was done, nil otherwise."
     (org-rear-nonsticky-at (match-end 1))
     t))
 
+(defun org-activate-folds (limit)
+  "Arrange trailing newlines after folds to inherit face before the fold."
+  (let ((next-unfolded-newline (search-forward "\n" limit 'move)))
+    (while (and next-unfolded-newline (org-fold-folded-p) (not (eobp)))
+      (setq next-unfolded-newline (search-forward "\n" limit 'move)))
+    (when next-unfolded-newline
+      (org-with-wide-buffer
+       (when (and (> (match-beginning 0) (point-min))
+                  (org-fold-folded-p (1- (match-beginning 0))))
+         (put-text-property
+          (match-beginning 0) (match-end 0)
+          'face
+          (get-text-property
+           (org-fold-previous-visibility-change
+            (1- (match-beginning 0)))
+           'face)))
+       t))))
+
 (defun org-outline-level ()
   "Compute the outline level of the heading at point.
 
@@ -5978,7 +6005,8 @@ needs to be inserted at a specific position in the font-lock sequence.")
           (progn
             (unless (null org-cite-activate-processor)
               (org-cite-try-load-processor org-cite-activate-processor))
-            '(org-cite-activate)))))
+            '(org-cite-activate))
+          '(org-activate-folds))))
     (setq org-font-lock-extra-keywords (delq nil org-font-lock-extra-keywords))
     (run-hooks 'org-font-lock-set-keywords-hook)
     ;; Now set the full font-lock-keywords
@@ -8466,7 +8494,7 @@ If the file does not exist, throw an error."
 		      ;; Save position before error-ing out so user
 		      ;; can easily move back to the original buffer.
 		      (error (funcall save-position-maybe)
-			     (error (nth 1 err)))))))
+			     (error "%s" (error-message-string err)))))))
      ((functionp cmd)
       (save-match-data
 	(set-match-data link-match-data)
