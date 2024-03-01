@@ -5710,7 +5710,9 @@ by a #."
       ;; `org-target-link-regexp' matches one character before the
       ;; actual target.
       (unless (bolp) (forward-char -1))
-      (when (re-search-forward org-target-link-regexp limit t)
+      (when (if org-target-link-regexps
+                (org--re-list-search-forward org-target-link-regexps limit t)
+              (re-search-forward org-target-link-regexp limit t))
 	(org-remove-flyspell-overlays-in (match-beginning 1) (match-end 1))
 	(add-text-properties (match-beginning 1) (match-end 1)
 			     (list 'mouse-face 'highlight
@@ -21246,14 +21248,15 @@ With argument, move up ARG levels."
 
 (defun org-up-heading-safe ()
   "Move to the heading line of which the present line is a subheading.
-Return the heading level, as number or nil when there is no such heading.
+Return the true heading level, as number or nil when there is no such
+heading.
 
 When point is not at heading, go to the parent of the current heading.
 When point is at or inside an inlinetask, go to the containing
 heading.
 
-This version will not throw an error.  It will return the level of the
-headline found, or nil if no higher level is found.
+This version will not throw an error.  It will return the true level
+of the headline found, or nil if no higher level is found.
 
 When no higher level is found, the still move point to the containing
 heading, if there is any in the accessible portion of the buffer.
@@ -21269,7 +21272,7 @@ available portion of the buffer."
              (<= (point-min) (org-element-begin parent)))
         (progn
           (goto-char (org-element-begin parent))
-          (org-element-property :level parent))
+          (org-element-property :true-level parent))
       (when (and current-heading
                  (<= (point-min) (org-element-begin current-heading)))
         (goto-char (org-element-begin current-heading))

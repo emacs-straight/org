@@ -755,6 +755,15 @@ Some other text
 		   (text (org-element-map tree 'plain-text 'identity nil t)))
 	      (org-element-set text "b")
 	      (org-element-map tree 'plain-text 'identity nil t)))))
+  ;; Replace string inside anonymous element with another string.
+  (let* ((parent (org-element-create 'anonymous nil "test"))
+	 (str (car (org-element-contents parent))))
+    (let ((return (org-element-set str "repl"))
+          (new (car (org-element-contents parent))))
+      ;; Return the modified value.
+      (should (eq return new))
+      (should (equal new "repl"))
+      (should (eq (org-element-parent new) parent))))
   ;; KEEP-PROPS
   (should
    (org-element-property
@@ -2378,6 +2387,23 @@ e^{i\\pi}+1=0
       (org-element-property
        :type
        (org-element-map (org-element-parse-buffer) 'link #'identity nil t)))))
+  (should
+   (equal
+    "radio"
+    (org-test-with-temp-text "<<<radio>>><<<radio2>>><<<foo>>>A radio link"
+      (org-update-radio-target-regexp)
+      (org-element-property
+       :type
+       (org-element-map (org-element-parse-buffer) 'link #'identity nil t)))))
+  (should
+   (equal
+    "radio"
+    (let ((org-target-link-regexp-limit 9))
+      (org-test-with-temp-text "<<<radio>>><<<radio2>>><<<foo>>>A radio link"
+        (org-update-radio-target-regexp)
+        (org-element-property
+         :type
+         (org-element-map (org-element-parse-buffer) 'link #'identity nil t))))))
   ;; Pathological case: radio target of length 1 at beginning of line
   ;; not followed by spaces.
   (should
