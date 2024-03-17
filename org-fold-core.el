@@ -554,7 +554,10 @@ and the setup appears to be created for different buffer,
 copy the old invisibility state into new buffer-local text properties,
 unless RETURN-ONLY is non-nil."
   (if (eq org-fold-core-style 'overlays)
-      (org-fold-core-get-folding-property-symbol spec nil 'global)
+      (or (gethash (cons 'global spec) org-fold-core--property-symbol-cache)
+          (puthash (cons 'global spec)
+                   (org-fold-core-get-folding-property-symbol spec nil 'global)
+                   org-fold-core--property-symbol-cache))
     (let* ((buf (or buffer (current-buffer))))
       ;; Create unique property symbol for SPEC in BUFFER
       (let ((local-prop (or (gethash (cons buf spec) org-fold-core--property-symbol-cache)
@@ -1068,8 +1071,9 @@ If SPEC-OR-ALIAS is omitted and FLAG is nil, unfold everything in the region."
                     (when org-fold-core--isearch-active
                       (cl-pushnew ov org-fold-core--isearch-overlays)))))
               (overlays-in from to))
-           (remove-overlays from to 'org-invisible spec)
-           (remove-overlays from to 'invisible spec)))
+           (when spec
+             (remove-overlays from to 'org-invisible spec)
+             (remove-overlays from to 'invisible spec))))
        (if flag
 	   (if (not spec)
                (error "Calling `org-fold-core-region' with missing SPEC")
