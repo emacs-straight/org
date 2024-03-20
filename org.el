@@ -5533,9 +5533,7 @@ by a #."
                    ;; blocks with undocumented language specifier.
                    ;; Keep this undocumented feature for user
                    ;; convenience.
-                   t
-                   ;; (string= block-type "src")
-                   )
+                   (member block-type '("src" "example")))
 	      (save-match-data
                 (org-src-font-lock-fontify-block (or lang "") block-start block-end))
 	      (add-text-properties bol-after-beginline block-end '(src-block t)))
@@ -10922,6 +10920,9 @@ D      Show deadlines and scheduled items between a date range."
       ((?p ?P)
        (let* ((kwd (completing-read
 		    "Property: " (mapcar #'list (org-buffer-property-keys))))
+              (kwd
+               ;; Escape "-" in property names.
+               (replace-regexp-in-string "-" "\\\\-" kwd))
 	      (value (completing-read
 		      "Value: " (mapcar #'list (org-property-values kwd)))))
 	 (unless (string-match "\\`{.*}\\'" value)
@@ -16222,14 +16223,15 @@ inspection."
     (setq shell-command-output (shell-command-to-string cmd))
     (setq mathml
 	  (when (file-readable-p tmp-out-file)
-	    (with-current-buffer (find-file-noselect tmp-out-file t)
+	    (with-temp-buffer
+              (insert-file-contents tmp-out-file)
 	      (goto-char (point-min))
 	      (when (re-search-forward
 		     (format "<math[^>]*?%s[^>]*?>\\(.\\|\n\\)*</math>"
 			     (regexp-quote
 			      "xmlns=\"http://www.w3.org/1998/Math/MathML\""))
 		     nil t)
-		(prog1 (match-string 0) (kill-buffer))))))
+		(match-string 0)))))
     (cond
      (mathml
       (setq mathml
