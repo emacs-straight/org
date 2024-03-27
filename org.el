@@ -1449,7 +1449,7 @@ This affects keywords like #+setupfile and #+include on export,
 Emacs sessions.
 
 This recognizes four possible values:
-- t, remote resources should always be downloaded.
+- t (dangerous), remote resources should always be downloaded.
 - prompt, you will be prompted to download resources not considered safe.
 - safe, only resources considered safe will be downloaded.
 - nil, never download remote resources.
@@ -1458,7 +1458,7 @@ A resource is considered safe if it matches one of the patterns
 in `org-safe-remote-resources'."
   :group 'org
   :package-version '(Org . "9.6")
-  :type '(choice (const :tag "Always download remote resources" t)
+  :type '(choice (const :tag "Always download remote resources (dangerous)" t)
                  (const :tag "Prompt before downloading an unsafe resource" prompt)
                  (const :tag "Only download resources considered safe" safe)
                  (const :tag "Never download any resources" nil)))
@@ -12610,7 +12610,7 @@ a *different* entry, you cannot use these techniques."
                 ;; agenda cache for non-file buffers.
                 (when buffer-file-name
 		  (org-agenda-prepare-buffers
-		   (and buffer-file-name (list buffer-file-name))))
+		   (and buffer-file-name (list (current-buffer)))))
 		(setq res
 		      (org-scan-tags
 		       func matcher org--matcher-tags-todo-only start-level)))
@@ -14442,6 +14442,92 @@ Unless KEEPDATE is non-nil, update `org-ans2' to the cursor date."
     (move-overlay org-date-ovl (1- (point)) (1+ (point)) (current-buffer))
     (select-window sw)
     (select-frame-set-input-focus sf)))
+
+(defun org-calendar-goto-today-or-insert-dot ()
+  "Go to the current date, or insert a dot.
+
+If at the beginning of the prompt, behave as `org-calendar-goto-today' else
+insert \".\"."
+  (interactive)
+  ;; Are we at the beginning of the prompt?
+  (if (looking-back "^[^:]+: "
+		    (let ((inhibit-field-text-motion t))
+		      (line-beginning-position)))
+      (org-eval-in-calendar '(calendar-goto-today))
+    (insert ".")))
+
+(defun org-calendar-goto-today ()
+  "Reposition the calendar window so the current date is visible."
+  (interactive)
+  (org-eval-in-calendar '(calendar-goto-today)))
+
+(defun org-calendar-backward-month ()
+  "Move the cursor backward by one month."
+  (interactive)
+  (org-eval-in-calendar '(calendar-backward-month 1)))
+
+(defun org-calendar-forward-month ()
+  "Move the cursor forward by one month."
+  (interactive)
+  (org-eval-in-calendar '(calendar-forward-month 1)))
+
+(defun org-calendar-backward-year ()
+  "Move the cursor backward by one year."
+  (interactive)
+  (org-eval-in-calendar '(calendar-backward-year 1)))
+
+(defun org-calendar-forward-year ()
+  "Move the cursor forward by one year."
+  (interactive)
+  (org-eval-in-calendar '(calendar-forward-year 1)))
+
+(defun org-calendar-backward-week ()
+  "Move the cursor backward by one week."
+  (interactive)
+  (org-eval-in-calendar '(calendar-backward-week 1)))
+
+(defun org-calendar-forward-week ()
+  "Move the cursor forward by one week."
+  (interactive)
+  (org-eval-in-calendar '(calendar-forward-week 1)))
+
+(defun org-calendar-backward-day ()
+  "Move the cursor backward by one day."
+  (interactive)
+  (org-eval-in-calendar '(calendar-backward-day 1)))
+
+(defun org-calendar-forward-day ()
+  "Move the cursor forward by one day."
+  (interactive)
+  (org-eval-in-calendar '(calendar-forward-day 1)))
+
+(defun org-calendar-view-entries ()
+  "Prepare and display a buffer with diary entries."
+  (interactive)
+  (org-eval-in-calendar '(diary-view-entries))
+  (message ""))
+
+(defun org-calendar-scroll-month-left ()
+  "Scroll the displayed calendar left by one month."
+  (interactive)
+  (org-eval-in-calendar '(calendar-scroll-left 1)))
+
+(defun org-calendar-scroll-month-right ()
+  "Scroll the displayed calendar right by one month."
+  (interactive)
+  (org-eval-in-calendar '(calendar-scroll-right 1)))
+
+(defun org-calendar-scroll-three-months-left ()
+  "Scroll the displayed calendar left by three months."
+  (interactive)
+  (org-eval-in-calendar
+   '(calendar-scroll-left-three-months 1)))
+
+(defun org-calendar-scroll-three-months-right ()
+  "Scroll the displayed calendar right by three months."
+  (interactive)
+  (org-eval-in-calendar
+   '(calendar-scroll-right-three-months 1)))
 
 (defun org-calendar-select ()
   "Return to `org-read-date' with the date currently selected.
