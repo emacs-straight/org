@@ -74,6 +74,31 @@ This is useful when prompt unexpectedly changes."
       (setq comint-prompt-regexp org-babel-comint-prompt-regexp-old
             org-babel-comint-prompt-regexp-old tmp))))
 
+(defun org-babel-comint--prompt-filter (string &optional prompt-regexp)
+  "Remove PROMPT-REGEXP from STRING.
+
+PROMPT-REGEXP defaults to `comint-prompt-regexp'."
+  (let* ((prompt-regexp (or prompt-regexp comint-prompt-regexp))
+         ;; We need newline in case if we do progressive replacement
+         ;; of agglomerated comint prompts with `comint-prompt-regexp'
+         ;; containing ^.
+         (separator "org-babel-comint--prompt-filter-separator\n"))
+    (while (string-match-p prompt-regexp string)
+      (setq string
+            (replace-regexp-in-string
+             (format "\\(?:%s\\)?\\(?:%s\\)[ \t]*" separator prompt-regexp)
+             separator string)))
+    (delete "" (split-string string separator))))
+
+(defun org-babel-comint--echo-filter (string &optional echo)
+  "Remove ECHO from STRING."
+  (and echo string
+       (string-match
+        (replace-regexp-in-string "\n" "[\r\n]+" (regexp-quote echo))
+        string)
+       (setq string (substring string (match-end 0))))
+  string)
+
 (defmacro org-babel-comint-with-output (meta &rest body)
   "Evaluate BODY in BUFFER and return process output.
 Will wait until EOE-INDICATOR appears in the output, then return
@@ -90,12 +115,7 @@ or user `keyboard-quit' during execution of body."
   (let ((buffer (nth 0 meta))
 	(eoe-indicator (nth 1 meta))
 	(remove-echo (nth 2 meta))
-	(full-body (nth 3 meta))
-        (org-babel-comint-prompt-separator
-         ;; We need newline in case if we do progressive replacement
-         ;; of agglomerated comint prompts with `comint-prompt-regexp'
-         ;; containing ^.
-         "org-babel-comint-prompt-separator\n"))
+	(full-body (nth 3 meta)))
     `(org-babel-comint-in-buffer ,buffer
        (let* ((string-buffer "")
 	      (comint-output-filter-functions
@@ -139,31 +159,12 @@ or user `keyboard-quit' during execution of body."
 	 (goto-char (process-mark (get-buffer-process (current-buffer))))
 	 (insert dangling-text)
 
+         ;; remove echo'd FULL-BODY from input
+         (and ,remove-echo ,full-body
+              (setq string-buffer (org-babel-comint--echo-filter string-buffer ,full-body)))
+
          ;; Filter out prompts.
-         (while (string-match-p comint-prompt-regexp string-buffer)
-           (setq string-buffer
-                 (replace-regexp-in-string
-                  ;; Sometimes, we get multiple agglomerated
-                  ;; prompts together in a single output:
-                  ;; "prompt prompt prompt output"
-                  ;; Or even "<whitespace>prompt<whitespace>prompt ...>.
-                  ;; Remove them progressively, so that
-                  ;; possible "^" in the prompt regexp gets to
-                  ;; work as we remove the heading prompt
-                  ;; instance.
-                  (format "\\(?:%s\\)?\\(?:%s\\)[ \t]*" ,org-babel-comint-prompt-separator comint-prompt-regexp)
-                  ,org-babel-comint-prompt-separator
-                  string-buffer)))
-	 ;; remove echo'd FULL-BODY from input
-	 (when (and ,remove-echo ,full-body
-		    (string-match
-		     (replace-regexp-in-string
-		      "\n" "[\r\n]+" (regexp-quote (or ,full-body "")))
-		     string-buffer))
-	   (setq string-buffer (substring string-buffer (match-end 0))))
-         (delete "" (split-string
-                     string-buffer
-                     ,org-babel-comint-prompt-separator))))))
+         (org-babel-comint--prompt-filter string-buffer)))))
 
 (defun org-babel-comint-input-command (buffer cmd)
   "Pass CMD to BUFFER.
@@ -324,9 +325,10 @@ STRING contains the output originally inserted into the comint buffer."
 		      until (and (equal (match-string 1) "start")
 				 (equal (match-string 2) uuid))
 		      finally return (+ 1 (match-end 0)))))
-		   ;; Apply callback to clean up the result
-		   (res-str (funcall org-babel-comint-async-chunk-callback
-                                     res-str-raw)))
+                   ;; Remove prompt
+                   (res-promptless (org-trim (string-join (mapcar #'org-trim (org-babel-comint--prompt-filter res-str-raw)) "\n") "\n"))
+		   ;; Apply user callback
+		   (res-str (funcall org-babel-comint-async-chunk-callback res-promptless)))
 	      ;; Search for uuid in associated org-buffers to insert results
 	      (cl-loop for buf in org-buffers
 		       until (with-current-buffer buf
