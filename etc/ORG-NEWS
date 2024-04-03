@@ -13,6 +13,31 @@ Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
 
 * Version 9.7 (not released yet)
 ** Important announcements and breaking changes
+*** Underline syntax now takes priority over subscript when both are applicable
+
+Previously, Org mode interpreted =(_text_)= as subscript.
+Now, the interpretation is changed to underline.
+
+=(_text_)= matches both subscript and underline markup.  The
+interpretation is changed to keep consistency with other emphasis like
+=(*bold*)=.
+
+Most of the users should not be affected by this change - it only applies when character immediately preceding =_= is one of =-=, =(=, ='=, and ={=.
+
+*** ~org-latex-to-mathml-convert-command~ and ~org-latex-to-html-convert-command~ may need to be adjusted
+
+Previously, =%i= placeholders in the
+~org-latex-to-mathml-convert-command~ and
+~org-latex-to-html-convert-command~ user options were replaced with
+raw LaTeX fragment text, potentially triggering shell-expansion and
+incorrect result.
+
+Now, the =%i= placeholders are shell-escaped to prevent shell
+expansion.
+
+If you have single or double quotes around =%i= then update
+customizations and remove quotes.
+
 *** Org mode faces are now consistently combined, with markup faces taking precedence over the containing element faces
 
 Previously, fontification of inline source blocks, macros, footnotes,
