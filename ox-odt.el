@@ -1945,7 +1945,16 @@ contextual information."
     (format "\n<text:list-item%s>\n%s\n%s"
 	    (if count (format " text:start-value=\"%s\"" count) "")
 	    contents
-	    (if (org-element-map item 'table #'identity info 'first-match)
+	    (if (org-element-map item
+                    'table #'identity info 'first-match
+                    ;; Ignore tables inside sub-lists.
+                    '(plain-list))
+                ;; `org-odt-table' will splice forced list ending (all
+                ;; the way up to the topmost list parent), table, and
+                ;; forced list re-opening in the middle of the item,
+                ;; marking text after table with <text:list-header>
+                ;; So, we must match close </text:list-header> instead
+                ;; of the original </text:list-item>.
 		"</text:list-header>"
 	      "</text:list-item>"))))
 
@@ -3472,6 +3481,16 @@ pertaining to indentation here."
 	 (--walk-list-genealogy-and-collect-tags
 	  (lambda (table info)
 	    (let* ((genealogy (org-element-lineage table))
+                   ;; FIXME: This will fail when the table is buried
+                   ;; inside non-list parent greater element, like
+                   ;; special block.  The parent block will not be
+                   ;; closed properly.
+                   ;; Example:
+                   ;; 1. List item
+                   ;;    - Sub-item
+                   ;;      #+begin_textbox
+                   ;;      | Table |
+                   ;;      #+end_textbox
 		   (list-genealogy
 		    (when (org-element-type-p (car genealogy) 'item)
 		      (cl-loop for el in genealogy

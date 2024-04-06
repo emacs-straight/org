@@ -5086,8 +5086,7 @@ A table has a header when it contains at least two row groups."
 		 cache)))))
 
 (defun org-export-table-row-is-special-p (table-row _)
-  "Non-nil if TABLE-ROW is considered special.
-All special rows will be ignored during export."
+  "Non-nil if TABLE-ROW is considered special."
   (when (eq (org-element-property :type table-row) 'standard)
     (let ((first-cell (org-element-contents
 		       (car (org-element-contents table-row)))))
@@ -5417,10 +5416,11 @@ INFO is a plist used as a communication channel."
        (org-export-table-row-ends-rowgroup-p table-row info)))
 
 (defun org-export-table-row-number (table-row info)
-  "Return TABLE-ROW number.
+  "Return TABLE-ROW number in the exported table.
 INFO is a plist used as a communication channel.  Return value is
 zero-indexed and ignores separators.  The function returns nil
-for special rows and separators."
+when TABLE-ROW is a separator or when it is listed in :ignore-list
+property of the INFO plist."
   (when (eq (org-element-property :type table-row) 'standard)
     (let* ((cache (or (plist-get info :table-row-number-cache)
 		      (let ((table (make-hash-table :test #'eq)))
