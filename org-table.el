@@ -494,6 +494,11 @@ This may be useful when columns have been shrunk."
           (redisplay)
           (let* ((ws (window-start))
                  (beg (save-excursion
+                        ;; Check table at window start, not at point.
+                        ;; Point might be after the table, or at
+                        ;; another table located below the one visible
+                        ;; on top.
+                        (goto-char ws)
                         (goto-char (org-table-begin))
                         (while (or (org-at-table-hline-p)
                                    (looking-at-p ".*|\\s-+<[rcl]?\\([0-9]+\\)?>"))
@@ -2657,11 +2662,16 @@ location of point."
 		       form
 		     (calc-eval (cons form calc-modes)
 				(when (and (not keep-empty) numbers) 'num)))
-		ev (if duration (org-table-time-seconds-to-string
-				 (if (string-match "^[0-9]+:[0-9]+\\(?::[0-9]+\\)?$" ev)
-				     (string-to-number (org-table-time-string-to-seconds ev))
-				   (string-to-number ev))
-				 duration-output-format)
+		ev (if (and duration
+                            ;; When the result is an empty string,
+                            ;; keep it empty.
+                            ;; See https://list.orgmode.org/orgmode/CAF_DUeEFpNU5UXjE80yB1MB9xj5oVLqG=XadnkqCdzWtakWdPg@mail.gmail.com/
+                            (not (string-empty-p ev)))
+                       (org-table-time-seconds-to-string
+			(if (string-match "^[0-9]+:[0-9]+\\(?::[0-9]+\\)?$" ev)
+			    (string-to-number (org-table-time-string-to-seconds ev))
+			  (string-to-number ev))
+			duration-output-format)
 		     ev)))
 
 	(when org-table-formula-debug
