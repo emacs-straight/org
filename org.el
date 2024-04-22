@@ -1107,19 +1107,26 @@ will be parsed as single sub- or superscripts:
  10^-12  or   10^-tau    a leading sign with digits or a word
  x^2-y^3                 will be read as x^2 - y^3, because items are
 			 terminated by almost any nonword/nondigit char.
- x_{i^2} or   x^(2-i)    braces or parenthesis do grouping.
+ x^(2 - i)               expression inside round braces, including the
+                         braces is read as a sub/superscript.
+ x_{i^2}                 curly braces do grouping; braces are not
+                         considered a part of the sub/superscript.
 
 Still, ambiguity is possible.  So when in doubt, use {} to enclose
 the sub/superscript.  If you set this variable to the symbol `{}',
-the braces are *required* in order to trigger interpretations as
+the curly braces are *required* in order to trigger interpretations as
 sub/superscript.  This can be helpful in documents that need \"_\"
-frequently in plain text."
+frequently in plain text.
+
+Setting this variable does not change Org mode markup.  Org mode will
+still parse the matching text as sub/superscript internally.  It is
+only the visual appearance that will be changed."
   :group 'org-startup
   :version "24.4"
   :package-version '(Org . "8.0")
   :type '(choice
 	  (const :tag "Always interpret" t)
-	  (const :tag "Only with braces" {})
+	  (const :tag "Only with curly braces" {})
 	  (const :tag "Never interpret" nil)))
 
 (defcustom org-startup-with-beamer-mode nil
@@ -7287,7 +7294,13 @@ The entire subtree is promoted or demoted in order to match a new headline
 level.
 
 If the cursor is at the beginning of a headline, the same level as
-that headline is used to paste the tree.
+that headline is used to paste the tree before current headline.
+
+With `\\[universal-argument]' prefix, force inserting at the same level
+as current headline, after subtree at point.
+
+With `\\[universal-argument]' `\\[universal-argument]' prefix, force
+inserting as a child headline, as the first child.
 
 If not, the new level is derived from the *visible* headings
 before and after the insertion point, and taken to be the inferior headline
@@ -7323,12 +7336,15 @@ When REMOVE is non-nil, remove the subtree from the clipboard."
             level-indicator?
 	    (force-level
 	     (cond
-	      (level (prefix-numeric-value level))
 	      ;; When point is after the stars in an otherwise empty
 	      ;; headline, use the number of stars as the forced level.
-	      ((and (org-match-line "^\\*+[ \t]*$")
+	      ((and (or (not level) (member level '((4) (16))))
+                    (org-match-line "^\\*+[ \t]*$")
 		    (not (eq ?* (char-after))))
 	       (setq level-indicator? (org-outline-level)))
+              ((equal level '(4)) (org-outline-level))
+              ((equal level '(16)) nil) ; handle later
+	      (level (prefix-numeric-value level))
 	      ((looking-at-p org-outline-regexp-bol) (org-outline-level))))
 	    (previous-level
 	     (save-excursion
@@ -7338,7 +7354,12 @@ When REMOVE is non-nil, remove the subtree from the clipboard."
 	     (save-excursion
 	       (org-next-visible-heading 1)
 	       (if (org-at-heading-p) (org-outline-level) 1)))
-	    (new-level (or force-level (max previous-level next-level)))
+	    (new-level (or force-level
+                           (max
+                            ;; C-u C-u forces child.
+                            (if (equal level '(16)) (1+ previous-level) 0)
+                            previous-level
+                            next-level)))
 	    (shift (if (or (= old-level -1)
 			   (= new-level -1)
 			   (= old-level new-level))
@@ -7353,7 +7374,8 @@ When REMOVE is non-nil, remove the subtree from the clipboard."
          (delete-region (line-beginning-position) (line-beginning-position 2)))
        ;; Paste before the next visible heading or at end of buffer,
        ;; unless point is at the beginning of a headline.
-       (unless (and (bolp) (org-at-heading-p))
+       (unless (and (bolp) (org-at-heading-p) (not (member level '((4) (16)))))
+         (when (equal level '(4)) (org-end-of-subtree t))
          (org-next-visible-heading 1)
          (unless (bolp) (insert "\n")))
        (setq beg (point))
