@@ -6009,10 +6009,22 @@ This dynamic block has the following parameters:
 
   When non-~nil~, indent each =ITEM= field according to its level.
 
+- =:link= ::
+
+  When non-~nil~, link the =ITEM= headlines in the table to their
+  origins.
+
 - =:format= ::
 
   Specify a column attribute (see [[*Column attributes]]) for the dynamic
   block.
+
+- =:formatter= ::
+
+  #+cindex: @samp{formatter}, dynamic block parameter
+  #+vindex: org-columns-dblock-formatter
+  A function to format column view data and insert it into the buffer.
+  See the option ~org-columns-dblock-formatter~.
 
 The following commands insert or update the dynamic block:
 
@@ -17631,9 +17643,14 @@ your LaTeX installation, it won't export to anything but PDF.
 specifies the =biblatex= export processor with the default =numeric=
 style and the =bibtex= backend. Always define the style first and then
 the rest of load-time options for the =biblatex=
-package. Alternatively, use the ~org-cite-biblatex-options~ variable
-in your Emacs configuration. It will only export to PDF, since it
-relies on the ~biblatex~ processor of your LaTeX installation;
+package. Alternatively, you can use the ~key=val,key=val~ format for
+the options as documented in the =biblatex= package documentation:
+
+: #+cite_export: biblatex backend=bibtex,style=numeric
+
+The ~org-cite-biblatex-options~ variable in your Emacs configuration
+uses this format. It will only export to PDF, since it relies on the
+~biblatex~ processor of your LaTeX installation.
 
 ** Bibliography printing
 

@@ -123,6 +123,12 @@ in `org-columns-summary-types-default', which see."
 			      (function :tag "Summarize")
 			      (function :tag "Collect")))))
 
+(defcustom org-columns-dblock-formatter #'org-columns-dblock-write-default
+  "Function to format data in column view dynamic blocks.
+For more information, see `org-columns-dblock-write-default'."
+  :group 'org-properties
+  :package-version '(Org . "9.7")
+  :type 'function)
 
 
 ;;; Column View
@@ -1442,9 +1448,13 @@ that will be excluded from the resulting view.  FORMAT is a
 format string for columns, or nil.  When LOCAL is non-nil, only
 capture headings in current subtree.
 
-This function returns a list containing the title row and all
-other rows.  Each row is a list of fields, as strings, or
-`hline'."
+This function returns a list containing the title row and all other
+rows.  Each row is either a list, or the symbol `hline'.  The first list
+is the heading row as a list of strings with the column titles according
+to FORMAT.  All subsequent lists each represent a body row as a list
+whose first element is an integer indicating the outline level of the
+entry, and whose remaining elements are strings with the contents for
+the columns according to FORMAT."
   (org-columns (not local) format)
   (goto-char org-columns-top-level-marker)
   (let ((columns (length org-columns-current-fmt-compiled))
@@ -1457,11 +1467,10 @@ other rows.  Each row is a list of fields, as strings, or
 	   (dotimes (i columns)
 	     (let* ((col (+ (line-beginning-position) i))
 		    (p (get-char-property col 'org-columns-key)))
-	       (push (org-quote-vert
-		      (get-char-property col
-					 (if (string= p "ITEM")
-					     'org-columns-value
-					   'org-columns-value-modified)))
+	       (push (get-char-property col
+					(if (string= p "ITEM")
+					    'org-columns-value
+					  'org-columns-value-modified))
 		     row)))
 	   (unless (or
 		    (and skip-empty
@@ -1493,7 +1502,9 @@ an inline src-block."
 	'(footnote-reference inline-babel-call inline-src-block target
 			     radio-target statistics-cookie)
       #'org-element-extract)
-    (org-no-properties (org-element-interpret-data data))))
+    (org-quote-vert
+     (org-no-properties
+      (org-element-interpret-data data)))))
 
 ;;;###autoload
 (defun org-dblock-write:columnview (params)
@@ -1545,7 +1556,17 @@ PARAMS is a property list of parameters:
 `:vlines'
 
     When non-nil, make each column a column group to enforce
-    vertical lines."
+    vertical lines.
+
+`:link'
+
+    Link the item headlines in the table to their origins.
+
+`:formatter'
+
+    A function to format the data and insert it into the
+    buffer.  Overrides the default formatting function set in
+    `org-columns-dblock-formatter'."
   (let ((table
 	 (let ((id (plist-get params :id))
 	       view-file view-pos)
@@ -1573,9 +1594,20 @@ PARAMS is a property list of parameters:
 					 (plist-get params :exclude-tags)
 					 (plist-get params :format)
 					 view-pos)))))
-        (width-specs
-         (mapcar (lambda (spec) (nth 2 spec))
-                 org-columns-current-fmt-compiled)))
+        (formatter (or (plist-get params :formatter)
+                       org-columns-dblock-formatter
+                       #'org-columns-dblock-write-default)))
+    (funcall formatter (point) table params)))
+
+(defun org-columns-dblock-write-default (ipos table params)
+  "Write out a columnview table at position IPOS in the current buffer.
+TABLE is a table with data as produced by `org-columns--capture-view'.
+PARAMS is the parameter property list obtained from the dynamic block
+definition."
+  (let ((link (plist-get params :link))
+	(width-specs
+	 (mapcar (lambda (spec) (nth 2 spec))
+		 org-columns-current-fmt-compiled)))
     (when table
       ;; Prune level information from the table.  Also normalize
       ;; headings: remove stars, add indentation entities, if
@@ -1599,7 +1631,14 @@ PARAMS is a property list of parameters:
 			   (and (numberp hlines) (<= level hlines))))
 	      (push 'hline new-table))
 	    (when item-index
-	      (let ((item (org-columns--clean-item (nth item-index (cdr row)))))
+	      (let* ((raw (nth item-index (cdr row)))
+		     (cleaned (org-columns--clean-item raw))
+		     (item (if (not link) cleaned
+			     (let ((search (org-link-heading-search-string raw)))
+			       (org-link-make-string
+				(if (not (buffer-file-name)) search
+				  (format "file:%s::%s" (buffer-file-name) search))
+				cleaned)))))
 		(setf (nth item-index (cdr row))
 		      (if (and indent (> level 1))
 			  (concat "\\_" (make-string (* 2 (1- level)) ?\s) item)
@@ -1616,6 +1655,8 @@ PARAMS is a property list of parameters:
         ;; to the resulting table, adding alignment field as the first
         ;; row.
         (push (mapcar (lambda (width) (when width (format "<%d>" width))) width-specs) table))
+      ;; now insert the table into the buffer
+      (goto-char ipos)
       (let ((content-lines (org-split-string (plist-get params :content) "\n"))
 	    recalc)
 	;; Insert affiliated keywords before the table.

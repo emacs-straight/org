@@ -1398,6 +1398,13 @@
 
 ;;; Dynamic block
 
+(defun test-org-colview/dblock-formatter (ipos table params)
+  "User-defined columnview dblock formatting function."
+  (goto-char ipos)
+  (insert-before-markers "Hello columnview!" "\n")
+  (insert-before-markers (format "table has %d rows" (length table)) "\n")
+  (insert-before-markers (format "there are %d parameters" (/ (length params) 2))))
+
 (ert-deftest test-org-colview/dblock ()
   "Test the column view table."
   (should
@@ -1703,6 +1710,31 @@ SCHEDULED: <2020-05-11 Mon> DEADLINE: <2020-05-14 Thu>
      (let ((org-columns-default-format
 	    "%ITEM %DEADLINE(d) %SCHEDULED(s) %TIMESTAMP(t)"))
        (org-update-dblock))
+     (buffer-substring-no-properties (point) (point-max)))))
+  ;; custom formatting function
+  (should
+   (equal
+    "#+BEGIN: columnview :formatter test-org-colview/dblock-formatter
+Hello columnview!
+table has 3 rows
+there are 4 parameters
+#+END:"
+    (org-test-with-temp-text
+     "* H\n<point>#+BEGIN: columnview :formatter test-org-colview/dblock-formatter\n#+END:"
+     (let ((org-columns-default-format "%ITEM"))
+       (org-update-dblock))
+     (buffer-substring-no-properties (point) (point-max)))))
+  ;; test headline linkification
+  (should
+   (equal
+    "#+BEGIN: columnview :link t
+| ITEM |
+|------|
+| [[*H][H]]    |
+#+END:"
+    (org-test-with-temp-text
+     "* H\n<point>#+BEGIN: columnview :link t\n#+END:"
+     (let ((org-columns-default-format "%ITEM")) (org-update-dblock))
      (buffer-substring-no-properties (point) (point-max))))))
 
 (provide 'test-org-colview)
