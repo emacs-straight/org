@@ -4952,16 +4952,11 @@ The following commands are available:
      (current-buffer)
      'match-hash :read-related t))
   (org-set-regexps-and-options)
-  (when (and org-link-descriptive
-             (eq org-fold-core-style 'overlays))
-    (add-to-invisibility-spec '(org-link)))
+  (add-to-invisibility-spec '(org-link))
   (org-fold-initialize (or (and (stringp org-ellipsis) (not (equal "" org-ellipsis)) org-ellipsis)
                            "..."))
   (make-local-variable 'org-link-descriptive)
   (when (eq org-fold-core-style 'overlays) (add-to-invisibility-spec '(org-hide-block . t)))
-  (if org-link-descriptive
-      (org-fold-core-set-folding-spec-property (car org-link--link-folding-spec) :visible nil)
-    (org-fold-core-set-folding-spec-property (car org-link--link-folding-spec) :visible t))
   (when (and (stringp org-ellipsis) (not (equal "" org-ellipsis)))
     (unless org-display-table
       (setq org-display-table (make-display-table)))
@@ -5243,10 +5238,6 @@ stacked delimiters is N.  Escaping delimiters is not possible."
 	      (when verbatim?
 		(org-remove-flyspell-overlays-in
 		 (match-beginning 0) (match-end 0))
-                (when (and (org-fold-core-folding-spec-p 'org-link)
-                           (org-fold-core-folding-spec-p 'org-link-description))
-                  (org-fold-region (match-beginning 0) (match-end 0) nil 'org-link)
-                  (org-fold-region (match-beginning 0) (match-end 0) nil 'org-link-description))
 		(remove-text-properties (match-beginning 2) (match-end 2)
 					'(display t invisible t intangible t)))
 	      (add-text-properties (match-beginning 2) (match-end 2)
@@ -5314,7 +5305,7 @@ prompted for."
     (insert string)
     (and move (backward-char 1))))
 
-(defun org-activate-links--overlays (limit)
+(defun org-activate-links (limit)
   "Add link properties to links.
 This includes angle, plain, and bracket links."
   (catch :exit
@@ -5370,10 +5361,12 @@ This includes angle, plain, and bracket links."
 	      ;; Handle invisible parts in bracket links.
 	      (remove-text-properties start end '(invisible nil))
 	      (let ((hidden
-		     (append `(invisible
-			       ,(or (org-link-get-parameter type :display)
-				    'org-link))
-			     properties)))
+                     (if org-link-descriptive
+		         (append `(invisible
+			           ,(or (org-link-get-parameter type :display)
+				        'org-link))
+			         properties)
+                       properties)))
 		(add-text-properties start visible-start hidden)
                 (add-face-text-property start end face-property)
 		(add-text-properties visible-start visible-end properties)
@@ -5385,99 +5378,6 @@ This includes angle, plain, and bracket links."
 		(funcall f start end path (eq style 'bracket))))
 	    (throw :exit t)))))		;signal success
     nil))
-(defun org-activate-links--text-properties (limit)
-  "Add link properties to links.
-This includes angle, plain, and bracket links."
-  (catch :exit
-    (while (re-search-forward org-link-any-re limit t)
-      (let* ((start (match-beginning 0))
-	     (end (match-end 0))
-	     (visible-start (or (match-beginning 3) (match-beginning 2)))
-	     (visible-end (or (match-end 3) (match-end 2)))
-	     (style (cond ((eq ?< (char-after start)) 'angle)
-			  ((eq ?\[ (char-after (1+ start))) 'bracket)
-			  (t 'plain))))
-	(when (and (memq style org-highlight-links)
-		   ;; Do not span over paragraph boundaries.
-		   (not (string-match-p org-element-paragraph-separate
-					(match-string 0)))
-		   ;; Do not confuse plain links with tags.
-		   (not (and (eq style 'plain)
-			     (let ((face (get-text-property
-					  (max (1- start) (point-min)) 'face)))
-			       (if (consp face) (memq 'org-tag face)
-				 (eq 'org-tag face))))))
-	  (let* ((link-object (save-excursion
-				(goto-char start)
-				(save-match-data (org-element-link-parser))))
-		 (link (org-element-property :raw-link link-object))
-		 (type (org-element-property :type link-object))
-		 (path (org-element-property :path link-object))
-                 (face-property (pcase (org-link-get-parameter type :face)
-				  ((and (pred functionp) face) (funcall face path))
-				  ((and (pred facep) face) face)
-				  ((and (pred consp) face) face) ;anonymous
-				  (_ 'org-link)))
-		 (properties		;for link's visible part
-		  (list 'mouse-face (or (org-link-get-parameter type :mouse-face)
-					'highlight)
-			'keymap (or (org-link-get-parameter type :keymap)
-				    org-mouse-map)
-			'help-echo (pcase (org-link-get-parameter type :help-echo)
-				     ((and (pred stringp) echo) echo)
-				     ((and (pred functionp) echo) echo)
-				     (_ (concat "LINK: " link)))
-			'htmlize-link (pcase (org-link-get-parameter type
-								  :htmlize-link)
-					((and (pred functionp) f) (funcall f))
-					(_ `(:uri ,link)))
-			'font-lock-multiline t)))
-	    (org-remove-flyspell-overlays-in start end)
-	    (org-rear-nonsticky-at end)
-	    (if (not (eq 'bracket style))
-		(progn
-                  (add-face-text-property start end face-property)
-		  (add-text-properties start end properties))
-              ;; Initialize folding when used outside org-mode.
-              (unless (or (derived-mode-p 'org-mode)
-			  (and (org-fold-folding-spec-p 'org-link-description)
-                               (org-fold-folding-spec-p 'org-link)))
-                (org-fold-initialize (or (and (stringp org-ellipsis) (not (equal "" org-ellipsis)) org-ellipsis)
-                                      "...")))
-	      ;; Handle invisible parts in bracket links.
-	      (let ((spec (or (org-link-get-parameter type :display)
-			      'org-link)))
-                (unless (org-fold-folding-spec-p spec)
-                  (org-fold-add-folding-spec spec
-                                          (cdr org-link--link-folding-spec)
-                                          nil
-                                          'append)
-                  (org-fold-core-set-folding-spec-property spec :visible t))
-                (org-fold-region start end nil 'org-link)
-                (org-fold-region start end nil 'org-link-description)
-                ;; We are folding the whole emphasized text with SPEC
-                ;; first.  It makes everything invisible (or whatever
-                ;; the user wants).
-                (org-fold-region start end t spec)
-                ;; The visible part of the text is folded using
-                ;; 'org-link-description, which is forcing this part of
-                ;; the text to be visible.
-                (org-fold-region visible-start visible-end t 'org-link-description)
-		(add-text-properties start end properties)
-                (add-face-text-property start end face-property)
-		(org-rear-nonsticky-at visible-start)
-		(org-rear-nonsticky-at visible-end)))
-	    (let ((f (org-link-get-parameter type :activate-func)))
-	      (when (functionp f)
-		(funcall f start end path (eq style 'bracket))))
-	    (throw :exit t)))))		;signal success
-    nil))
-(defsubst org-activate-links (limit)
-  "Add link properties to links.
-This includes angle, plain, and bracket links."
-  (if (eq org-fold-core-style 'text-properties)
-      (org-activate-links--text-properties limit)
-    (org-activate-links--overlays limit)))
 
 (defun org-activate-code (limit)
   (when (re-search-forward "^[ \t]*\\(:\\(?: .*\\|$\\)\n?\\)" limit t)
@@ -5856,8 +5756,7 @@ highlighting was done, nil otherwise."
     (when next-unfolded-newline
       (org-with-wide-buffer
        (when (and (> (match-beginning 0) (point-min))
-                  (org-fold-folded-p (1- (match-beginning 0)))
-                  (not (org-fold-folded-p (1- (match-beginning 0)) 'org-link)))
+                  (org-fold-folded-p (1- (match-beginning 0))))
          (put-text-property
           (match-beginning 0) (match-end 0)
           'face
@@ -6237,8 +6136,6 @@ If TAG is a number, get the corresponding match group."
 			    '(mouse-face t keymap t org-linked-text t
 					 invisible t intangible t
 					 org-emphasis t))
-    (org-fold-region beg end nil 'org-link)
-    (org-fold-region beg end nil 'org-link-description)
     (org-fold-core-update-optimisation beg end)
     (org-remove-font-lock-display-properties beg end)))
 
@@ -15544,10 +15441,29 @@ When set to a number in a list, try to get the width from any
 
 and fall back on that number if none is found.
 
-When set to nil, try to get the width from an #+ATTR.* keyword
-and fall back on the original width if none is found.
+When set to nil, first try to get the width from #+ATTR_ORG.  If
+that is not found, use the first #+ATTR_xxx :width specification.
+If that is also not found, fall back on the original image width.
 
-When set to any other non-nil value, always use the image width.
+Finally, Org mode is quite flexible in the width specifications it
+supports and intelligently interprets width specifications for other
+backends when rendering an image in an org buffer.  This behavior is
+described presently.
+
+1. A floating point value between 0 and 2 is interpreted as the
+   percentage of the text area that should be taken up by the image.
+2. A number followed by a percent sign is divided by 100 and then
+   interpreted as a floating point value.
+3. If a number is followed by other text, extract the number and
+   discard the remaining text.  That number is then interpreted as a
+   floating-point value.  For example,
+
+   #+ATTR_LATEX: :width 0.7\\linewidth
+
+   would be interpreted as 70% of the text width.
+4. If t is provided the original image width is used.  This is useful
+   when you want to specify a width for a backend, but still want to
+   use the original image width in the org buffer.
 
 This requires Emacs >= 24.1, built with imagemagick support."
   :group 'org-appearance
@@ -16879,18 +16795,22 @@ buffer boundaries with possible narrowing."
                                     ("right"  `(space :align-to (- right ,image)))))))
 			      (push ov org-inline-image-overlays))))))))))))))))
 
+(declare-function org-export-read-attribute "ox"
+                  (attribute element &optional property))
 (defvar visual-fill-column-width) ; Silence compiler warning
 (defun org-display-inline-image--width (link)
   "Determine the display width of the image LINK, in pixels.
 - When `org-image-actual-width' is t, the image's pixel width is used.
 - When `org-image-actual-width' is a number, that value will is used.
-- When `org-image-actual-width' is nil or a list, the first :width attribute
-  set (if it exists) is used to set the image width.  A width of X% is
-  divided by 100.
-  If no :width attribute is given and `org-image-actual-width' is a list with
-  a number as the car, then that number is used as the default value.
-  If the value is a float between 0 and 2, it interpreted as that proportion
-  of the text width in the buffer."
+- When `org-image-actual-width' is nil or a list, :width attribute of
+  #+attr_org or the first #+attr_...  (if it exists) is used to set the
+  image width.  A width of X% is divided by 100.  If the value is a
+  float between 0 and 2, it interpreted as that proportion of the text
+  width in the buffer.
+
+  If no :width attribute is given and `org-image-actual-width' is a
+  list with a number as the car, then that number is used as the
+  default value."
   ;; Apply `org-image-actual-width' specifications.
   ;; Support subtree-level property "ORG-IMAGE-ACTUAL-WIDTH" specified
   ;; width.
@@ -16898,16 +16818,29 @@ buffer boundaries with possible narrowing."
     (cond
      ((eq org-image-actual-width t) nil)
      ((listp org-image-actual-width)
-      (let* ((case-fold-search t)
-             (par (org-element-lineage link 'paragraph))
-             (attr-re "^[ \t]*#\\+attr_.*?: +.*?:width +\\(\\S-+\\)")
-             (par-end (org-element-post-affiliated par))
+      (require 'ox)
+      (let* ((par (org-element-lineage link 'paragraph))
              ;; Try to find an attribute providing a :width.
+             ;; #+ATTR_ORG: :width ...
+             (attr-width (org-export-read-attribute :attr_org par :width))
+             ;; #+ATTR_BACKEND: :width ...
+             (attr-other
+              (catch :found
+                (org-element-properties-map
+                 (lambda (prop _)
+                   (when (and
+                          (not (eq prop :attr_org))
+                          (string-match-p "^:attr_" (symbol-name prop)))
+                     (throw :found prop)))
+                 par)))
              (attr-width
-              (when (and par (org-with-point-at
-                                 (org-element-begin par)
-                               (re-search-forward attr-re par-end t)))
-                (match-string 1)))
+              (if (and (stringp attr-width)
+                       (or (string= attr-width "t")
+                           (string-match-p "\\`[0-9]" attr-width)))
+                  attr-width
+                ;; When #+attr_org: does not have readable :width
+                (and attr-other
+                     (org-export-read-attribute attr-other par :width))))
              (width
               (cond
                ;; Treat :width t as if `org-image-actual-width' were t.
@@ -19763,7 +19696,8 @@ Also align node properties according to `org-property-format'."
                       (org-with-point-at (org-element-property :begin element)
                         (+ (org-current-text-indentation)
                            org-edit-src-content-indentation)))))
-               (org-babel-do-key-sequence-in-edit-buffer (kbd "TAB"))
+               (ignore-errors ; do not err when there is no proper major mode
+                 (org-babel-do-in-edit-buffer (funcall indent-line-function)))
                (when (and block-content-ind (looking-at-p "^$"))
                  (indent-line-to block-content-ind))))
 	    (t
