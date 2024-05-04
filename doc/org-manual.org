@@ -120,6 +120,16 @@ visited, i.e., where no Org built-in function have been loaded.
 Otherwise autoload Org functions will mess up the installation.
 #+end_quote
 
+To avoid interference with built-in Org mode, you can use command line:
+
+#+begin_src sh
+emacs -Q -batch -eval "(progn (require 'package) (package-initialize) (package-refresh-contents) (package-upgrade 'org))"
+#+end_src
+
+This approach has the advantage of isolating the upgrade process from
+a running Emacs session, ensuring that version conflicts can not
+arise.
+
 *** Using Org's git repository
 :PROPERTIES:
 :UNNUMBERED: notoc
@@ -6156,7 +6166,7 @@ the agenda (see [[*Weekly/daily agenda]]).  We distinguish:
 
   #+begin_example
   ,* 22:00-23:00 The nerd meeting on every 2nd Thursday of the month
-    <%%(diary-float t 4 2)>
+    <%%(diary-float t 4 2) 22:00-23:00>
   #+end_example
 
 - Time range ::
