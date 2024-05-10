@@ -7732,7 +7732,7 @@ The time block to consider.  This block is specified either
 absolutely, or relative to the current time and may be any of these
 formats:
 
-@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaa}
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaa}
 @item @samp{2007-12-31}
 @tab New year eve 2007
 @item @samp{2007-12}
@@ -7751,7 +7751,8 @@ formats:
 @tab a relative month
 @item @samp{thisyear}, @samp{lastyear}, @samp{thisyear-N}
 @tab a relative year
-@item @samp{untilnow}@footnote{ When using @code{:step}, @code{untilnow} starts from the beginning of 2003, not the beginning of time.}
+@item @samp{untilnow}@footnote{When using @code{:step}, @code{untilnow} starts from the beginning of
+2003, not the beginning of time.}
 @tab all clocked time ever
 @end multitable
 
@@ -12559,7 +12560,7 @@ text.  Markers always start with @samp{fn:}.  For example:
 @example
 The Org website[fn:1] now looks a lot better than it used to.
 ...
-[fn:49] The link is: https://orgmode.org
+[fn:50] The link is: https://orgmode.org
 @end example
 
 Org mode extends the number-based syntax to @emph{named} footnotes and
@@ -17540,7 +17541,9 @@ property drawers, statistics cookies, timestamps, etc according
 to @samp{#+OPTIONS} keyword (see @ref{Export Settings});
 
 @item
-Table rows containing width and alignment markers (see @ref{Column Width and Alignment});
+Table rows containing width and alignment markers, unless the
+selected export backend changes @code{:with-special-rows} export option
+to non-nil (see @ref{Column Width and Alignment});
 
 @item
 Table columns containing recalc marks (see @ref{Advanced features}).
@@ -17581,8 +17584,8 @@ node contents;
 
 @item
 Convert the nodes with children to text, passing the nodes
-themselves and their contents to the corresponding transcoders
-and then to the export filters (see @ref{Filters}).
+themselves and their exported contents to the corresponding
+transcoders and then to the export filters (see @ref{Filters}).
 @end enumerate
 
 
