@@ -7490,8 +7490,8 @@ The optional argument TYPE tells the agenda type."
   "Compare the string values of categories of strings A and B."
   (let ((ca (or (get-text-property (1- (length a)) 'org-category a) ""))
 	(cb (or (get-text-property (1- (length b)) 'org-category b) "")))
-    (cond ((string-lessp ca cb) -1)
-	  ((string-lessp cb ca) +1))))
+    (cond ((org-string< ca cb) -1)
+	  ((org-string< cb ca) +1))))
 
 (defsubst org-cmp-todo-state (a b)
   "Compare the todo states of strings A and B."
@@ -7537,8 +7537,8 @@ The optional argument TYPE tells the agenda type."
     (cond ((not (or ta tb)) nil)
 	  ((not ta) +1)
 	  ((not tb) -1)
-	  ((string-lessp ta tb) -1)
-	  ((string-lessp tb ta) +1))))
+	  ((org-string< ta tb) -1)
+	  ((org-string< tb ta) +1))))
 
 (defsubst org-cmp-tag (a b)
   "Compare the string values of the first tags of A and B."
@@ -7547,8 +7547,8 @@ The optional argument TYPE tells the agenda type."
     (cond ((not (or ta tb)) nil)
 	  ((not ta) +1)
 	  ((not tb) -1)
-	  ((string-lessp ta tb) -1)
-	  ((string-lessp tb ta) +1))))
+	  ((funcall (or org-tags-sort-function #'org-string<) ta tb) -1)
+	  ((funcall (or org-tags-sort-function #'org-string<) tb ta) +1))))
 
 (defsubst org-cmp-time (a b)
   "Compare the time-of-day values of strings A and B."
@@ -9222,7 +9222,8 @@ When called with a prefix argument, include all archive files as well."
     (when (and (markerp m) (marker-buffer m))
       (and org-agenda-follow-mode
 	   (if org-agenda-follow-indirect
-	       (org-agenda-tree-to-indirect-buffer nil)
+               (let ((org-indirect-buffer-display 'other-window))
+	         (org-agenda-tree-to-indirect-buffer nil))
 	     (org-agenda-show)))
       (and org-agenda-show-outline-path
 	   (org-with-point-at m (org-display-outline-path org-agenda-show-outline-path))))))
@@ -9314,20 +9315,17 @@ Pass ARG, FORCE-ARG, DELETE and BODY to `org-agenda-do-in-region'."
 	  (marker (or (org-get-at-bol 'org-marker)
 		      (org-agenda-error)))
 	  (buffer (marker-buffer marker))
-	  (pos (marker-position marker))
 	  (type (org-get-at-bol 'type))
 	  dbeg dend (n 0))
      (org-with-remote-undo buffer
-       (with-current-buffer buffer
-	 (save-excursion
-	   (goto-char pos)
-	   (if (and (derived-mode-p 'org-mode) (not (member type '("sexp"))))
-	       (setq dbeg (progn (org-back-to-heading t) (point))
-		     dend (org-end-of-subtree t t))
-             (setq dbeg (line-beginning-position)
-                   dend (min (point-max) (1+ (line-end-position)))))
-	   (goto-char dbeg)
-	   (while (re-search-forward "^[ \t]*\\S-" dend t) (setq n (1+ n)))))
+       (org-with-point-at marker
+	 (if (and (derived-mode-p 'org-mode) (not (member type '("sexp"))))
+	     (setq dbeg (progn (org-back-to-heading t) (point))
+		   dend (org-end-of-subtree t t))
+           (setq dbeg (line-beginning-position)
+                 dend (min (point-max) (1+ (line-end-position)))))
+	 (goto-char dbeg)
+	 (while (re-search-forward "^[ \t]*\\S-" dend t) (setq n (1+ n))))
        (when (or (eq t org-agenda-confirm-kill)
 		 (and (numberp org-agenda-confirm-kill)
 		      (> n org-agenda-confirm-kill)))
@@ -9344,7 +9342,7 @@ Pass ARG, FORCE-ARG, DELETE and BODY to `org-agenda-do-in-region'."
 	     (set-window-configuration win-conf))))
        (let ((org-agenda-buffer-name bufname-orig))
 	 (org-remove-subtree-entries-from-agenda buffer dbeg dend))
-       (with-current-buffer buffer (delete-region dbeg dend))
+       (org-with-point-at marker (delete-region dbeg dend))
        (message "Agenda item and source killed")))))
 
 (defvar org-archive-default-command) ; defined in org-archive.el
@@ -9407,26 +9405,26 @@ Pass ARG, FORCE-ARG, DELETE and BODY to `org-agenda-do-in-region'."
 The subtree is the one in buffer BUF, starting at BEG and ending at END.
 If this information is not given, the function uses the tree at point."
   (let ((buf (or buf (current-buffer))) m p)
-    (save-excursion
-      (unless (and beg end)
-	(org-back-to-heading t)
-	(setq beg (point))
-	(org-end-of-subtree t)
-	(setq end (point)))
-      (set-buffer (get-buffer org-agenda-buffer-name))
-      (save-excursion
-	(goto-char (point-max))
-	(forward-line 0)
-	(while (not (bobp))
-	  (when (and (setq m (org-get-at-bol 'org-marker))
-		     (equal buf (marker-buffer m))
-		     (setq p (marker-position m))
-		     (>= p beg)
-		     (< p end))
-	    (let ((inhibit-read-only t))
-              (delete-region (line-beginning-position)
-                             (1+ (line-end-position)))))
-	  (forward-line -1))))))
+    (org-with-wide-buffer
+     (unless (and beg end)
+       (org-back-to-heading t)
+       (setq beg (point))
+       (org-end-of-subtree t)
+       (setq end (point)))
+     (set-buffer (get-buffer org-agenda-buffer-name))
+     (save-excursion
+       (goto-char (point-max))
+       (forward-line 0)
+       (while (not (bobp))
+	 (when (and (setq m (org-get-at-bol 'org-marker))
+		    (equal buf (marker-buffer m))
+		    (setq p (marker-position m))
+		    (>= p beg)
+		    (< p end))
+	   (let ((inhibit-read-only t))
+             (delete-region (line-beginning-position)
+                            (1+ (line-end-position)))))
+	 (forward-line -1))))))
 
 (defun org-agenda-refile (&optional goto rfloc no-update)
   "Refile the item at point.
@@ -9695,27 +9693,6 @@ With a `\\[universal-argument]' prefix, make a separate frame for this tree, \
 i.e. don't use
 the dedicated frame."
   (interactive "P")
-  (if current-prefix-arg
-      (org-agenda-do-tree-to-indirect-buffer arg)
-    (let ((agenda-buffer (buffer-name))
-	  (agenda-window (selected-window))
-          (indirect-window
-	   (and org-last-indirect-buffer
-		(get-buffer-window org-last-indirect-buffer))))
-      (save-window-excursion (org-agenda-do-tree-to-indirect-buffer arg))
-      (unless (or (eq org-indirect-buffer-display 'new-frame)
-		  (eq org-indirect-buffer-display 'dedicated-frame))
-	(unwind-protect
-	    (unless (and indirect-window (window-live-p indirect-window))
-	      (setq indirect-window (split-window agenda-window)))
-	  (and indirect-window (select-window indirect-window))
-	  (switch-to-buffer org-last-indirect-buffer :norecord)
-	  (fit-window-to-buffer indirect-window)))
-      (select-window (get-buffer-window agenda-buffer))
-      (setq org-agenda-last-indirect-buffer org-last-indirect-buffer))))
-
-(defun org-agenda-do-tree-to-indirect-buffer (arg)
-  "Same as `org-agenda-tree-to-indirect-buffer' without saving window."
   (org-agenda-check-no-diary)
   (let* ((marker (or (org-get-at-bol 'org-marker)
 		     (org-agenda-error)))
@@ -9724,7 +9701,8 @@ the dedicated frame."
     (with-current-buffer buffer
       (save-excursion
 	(goto-char pos)
-	(org-tree-to-indirect-buffer arg)))))
+	(org-tree-to-indirect-buffer arg))))
+  (setq org-agenda-last-indirect-buffer org-last-indirect-buffer))
 
 (defvar org-last-heading-marker (make-marker)
   "Marker pointing to the headline that last changed its TODO state

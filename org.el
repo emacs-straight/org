@@ -2944,8 +2944,8 @@ is better to limit inheritance to certain tags using the variables
   :group 'org-tags
   :type '(choice
 	  (const :tag "No sorting" nil)
-	  (const :tag "Alphabetical" string-collate-lessp)
-	  (const :tag "Reverse alphabetical" org-string-collate-greaterp)
+	  (const :tag "Alphabetical" org-string<)
+	  (const :tag "Reverse alphabetical" org-string>)
 	  (function :tag "Custom function" nil)))
 
 (defvar org-tags-history nil
@@ -6276,7 +6276,10 @@ frame is not changed."
   (let ((cbuf (current-buffer))
 	(cwin (selected-window))
 	(pos (point))
-	beg end level heading ibuf)
+	beg end level heading ibuf
+        (last-indirect-window
+         (and org-last-indirect-buffer
+              (get-buffer-window org-last-indirect-buffer))))
     (save-excursion
       (org-back-to-heading t)
       (when (numberp arg)
@@ -6312,7 +6315,10 @@ frame is not changed."
      ((eq org-indirect-buffer-display 'current-window)
       (pop-to-buffer-same-window ibuf))
      ((eq org-indirect-buffer-display 'other-window)
-      (pop-to-buffer ibuf))
+      (pop-to-buffer
+       ibuf
+       `(org-display-buffer-in-window (window . ,last-indirect-window)
+                                      (same-frame . t))))
      (t (error "Invalid value")))
     (narrow-to-region beg end)
     (org-fold-show-all '(headings drawers blocks))
@@ -7975,7 +7981,7 @@ function is being called interactively."
 	     (t (error "Invalid sorting type `%c'" sorting-type))))
 	  nil
 	  (cond
-	   ((= dcst ?a) 'string-collate-lessp)
+	   ((= dcst ?a) #'org-string<)
 	   ((= dcst ?f)
 	    (or compare-func
 		(and interactive?

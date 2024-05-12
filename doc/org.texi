@@ -20230,13 +20230,18 @@ Choose one of the options; they are mutually exclusive.  The default
 follows from the type specified above.
 
 @table @asis
+@item @samp{raw}
+Interpreted as raw Org mode.  Inserted directly into the buffer.
+Aligned if it is a table.  Usage example: @samp{:results value raw}.
+
 @item @samp{code}
 Result enclosed in a code block.  Useful for parsing.  Usage
 example: @samp{:results value code}.
 
 @item @samp{drawer}
-Result wrapped in a @samp{RESULTS} drawer.  Useful for containing @samp{raw}
-or @samp{org} results for later scripting and automated processing.
+Results are added directly to the Org file as with @samp{raw}, but are
+wrapped in a @samp{RESULTS} drawer or results macro (for inline code
+blocks), for later scripting and automated processing.
 Usage example: @samp{:results value drawer}.
 
 @item @samp{html}
@@ -20276,11 +20281,8 @@ example: @samp{:results value org}.
 Result converted to pretty-print source code.  Enclosed in a code
 block.  Languages supported: Emacs Lisp, Python, and Ruby.  Usage
 example: @samp{:results value pp}.
-
-@item @samp{raw}
-Interpreted as raw Org mode.  Inserted directly into the buffer.
-Aligned if it is a table.  Usage example: @samp{:results value raw}.
 @end table
+
 
 @cindex @samp{wrap}, header argument
 The @samp{wrap} header argument unconditionally marks the results block by

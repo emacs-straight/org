@@ -16753,14 +16753,19 @@ Format pertains to the type of the result returned by the code block.
 Choose one of the options; they are mutually exclusive.  The default
 follows from the type specified above.
 
+‘raw’
+     Interpreted as raw Org mode.  Inserted directly into the buffer.
+     Aligned if it is a table.  Usage example: ‘:results value raw’.
+
 ‘code’
      Result enclosed in a code block.  Useful for parsing.  Usage
      example: ‘:results value code’.
 
 ‘drawer’
-     Result wrapped in a ‘RESULTS’ drawer.  Useful for containing ‘raw’
-     or ‘org’ results for later scripting and automated processing.
-     Usage example: ‘:results value drawer’.
+     Results are added directly to the Org file as with ‘raw’, but are
+     wrapped in a ‘RESULTS’ drawer or results macro (for inline code
+     blocks), for later scripting and automated processing.  Usage
+     example: ‘:results value drawer’.
 
 ‘html’
      Results enclosed in a ‘BEGIN_EXPORT html’ block.  Usage example:
@@ -16797,10 +16802,6 @@ follows from the type specified above.
      Result converted to pretty-print source code.  Enclosed in a code
      block.  Languages supported: Emacs Lisp, Python, and Ruby.  Usage
      example: ‘:results value pp’.
-
-‘raw’
-     Interpreted as raw Org mode.  Inserted directly into the buffer.
-     Aligned if it is a table.  Usage example: ‘:results value raw’.
 
    The ‘wrap’ header argument unconditionally marks the results block by
 appending strings to ‘#+BEGIN_’ and ‘#+END_’.  If no string is
@@ -20699,7 +20700,7 @@ D Main Index
 * Menu:
 
 * *this*, in post header argument:       Results of Evaluation.
-                                                              (line 277)
+                                                              (line 278)
 * + suffix, in properties:               Property Syntax.     (line  52)
 * _ALL suffix, in properties:            Property Syntax.     (line  50)
 * abbreviation, links:                   Link Abbreviations.  (line   6)
@@ -21632,7 +21633,7 @@ D Main Index
 * plot tables using Gnuplot:             Org Plot.            (line   6)
 * PLOT, keyword:                         Org Plot.            (line  12)
 * post, header argument:                 Results of Evaluation.
-                                                              (line 277)
+                                                              (line 278)
 * presentation, of agenda items:         Presentation and Sorting.
                                                               (line   6)
 * print edition:                         Summary.             (line  63)
@@ -22091,7 +22092,7 @@ D Main Index
 * working directory, in a code block:    Environment of a Code Block.
                                                               (line 315)
 * wrap, header argument:                 Results of Evaluation.
-                                                              (line 222)
+                                                              (line 223)
 * xelatex:                               LaTeX/PDF export commands.
                                                               (line  25)
 * yasnippet.el:                          Conflicts.           (line  74)
@@ -24901,96 +24902,96 @@ Node: Results of Evaluation696921
 Ref: Collection697728
 Ref: Type699189
 Ref: Format703213
-Ref: Handling705748
-Ref: Post-processing707139
-Ref: Results of Evaluation-Footnote-1708889
-Node: Exporting Code Blocks709047
-Node: Extracting Source Code712718
-Ref: Header arguments713699
-Ref: Functions717934
-Ref: Tangle hooks718185
-Ref: Jumping between code and Org718961
-Node: Languages719471
-Node: Editing Source Code720472
-Node: Noweb Reference Syntax723414
-Ref: Noweb Reference Syntax-Footnote-1730141
-Ref: Noweb Reference Syntax-Footnote-2730232
-Ref: Noweb Reference Syntax-Footnote-3730850
-Node: Library of Babel730970
-Node: Key bindings and Useful Functions731688
-Node: Batch Execution734113
-Node: Miscellaneous734896
-Node: Completion736359
-Node: Structure Templates738284
-Ref: Structure Templates-Footnote-1740034
-Node: Speed Keys740126
-Node: Clean View741295
-Node: Org Indent Mode742497
-Ref: Org Indent Mode-Footnote-1743703
-Node: Hard indentation743927
-Ref: Hard indentation-Footnote-1745410
-Ref: Hard indentation-Footnote-2745516
-Node: Execute commands in the active region745660
-Node: Dynamic Headline Numbering746672
-Node: The Very Busy C-c C-c Key747838
-Node: In-buffer Settings749826
-Ref: In-buffer Settings-Footnote-1759774
-Node: Regular Expressions759972
-Node: Org Syntax760594
-Node: Documentation Access762243
-Node: Escape Character762664
-Node: Code Evaluation Security763525
-Node: Interaction766392
-Node: Cooperation766815
-Node: Conflicts769884
-Node: TTY Keys774486
-Node: Protocols776123
-Node: The store-link protocol777584
-Node: The capture protocol778727
-Node: The open-source protocol780360
-Node: Org Crypt783601
-Node: Org Mobile785476
-Node: Setting up the staging area786867
-Ref: Setting up the staging area-Footnote-1788107
-Ref: Setting up the staging area-Footnote-2788314
-Node: Pushing to the mobile application788486
-Ref: Pushing to the mobile application-Footnote-1789497
-Ref: Pushing to the mobile application-Footnote-2789588
-Ref: Pushing to the mobile application-Footnote-3789955
-Node: Pulling from the mobile application790031
-Ref: Pulling from the mobile application-Footnote-1792344
-Node: Drag and Drop & yank-media792397
-Ref: Drag and Drop & yank-media-Footnote-1794026
-Node: Hacking794174
-Node: Hooks795124
-Node: Add-on Packages795408
-Node: Adding Hyperlink Types795877
-Node: Adding Export Backends799689
-Node: Tables in Arbitrary Syntax800934
-Node: Radio tables802202
-Node: A LaTeX example804339
-Ref: A LaTeX example-Footnote-1808191
-Ref: A LaTeX example-Footnote-2808234
-Ref: A LaTeX example-Footnote-3808395
-Node: Translator functions808847
-Node: Dynamic Blocks811029
-Node: Special Agenda Views813275
-Ref: Special Agenda Views-Footnote-1816986
-Ref: Special Agenda Views-Footnote-2817192
-Node: Speeding Up Your Agendas817324
-Node: Extracting Agenda Information818547
-Node: Using the Property API822352
-Node: Using the Mapping API825701
-Node: History and Acknowledgments829734
-Ref: From Carsten829932
-Ref: From Bastien833371
-Ref: List of Contributions835503
-Node: GNU Free Documentation License844165
-Ref: ADDENDUM How to use this License for your documents868123
-Node: Main Index869516
-Node: Key Index970070
-Node: Command and Function Index1027293
-Node: Variable Index1076017
+Ref: Handling705805
+Ref: Post-processing707196
+Ref: Results of Evaluation-Footnote-1708946
+Node: Exporting Code Blocks709104
+Node: Extracting Source Code712775
+Ref: Header arguments713756
+Ref: Functions717991
+Ref: Tangle hooks718242
+Ref: Jumping between code and Org719018
+Node: Languages719528
+Node: Editing Source Code720529
+Node: Noweb Reference Syntax723471
+Ref: Noweb Reference Syntax-Footnote-1730198
+Ref: Noweb Reference Syntax-Footnote-2730289
+Ref: Noweb Reference Syntax-Footnote-3730907
+Node: Library of Babel731027
+Node: Key bindings and Useful Functions731745
+Node: Batch Execution734170
+Node: Miscellaneous734953
+Node: Completion736416
+Node: Structure Templates738341
+Ref: Structure Templates-Footnote-1740091
+Node: Speed Keys740183
+Node: Clean View741352
+Node: Org Indent Mode742554
+Ref: Org Indent Mode-Footnote-1743760
+Node: Hard indentation743984
+Ref: Hard indentation-Footnote-1745467
+Ref: Hard indentation-Footnote-2745573
+Node: Execute commands in the active region745717
+Node: Dynamic Headline Numbering746729
+Node: The Very Busy C-c C-c Key747895
+Node: In-buffer Settings749883
+Ref: In-buffer Settings-Footnote-1759831
+Node: Regular Expressions760029
+Node: Org Syntax760651
+Node: Documentation Access762300
+Node: Escape Character762721
+Node: Code Evaluation Security763582
+Node: Interaction766449
+Node: Cooperation766872
+Node: Conflicts769941
+Node: TTY Keys774543
+Node: Protocols776180
+Node: The store-link protocol777641
+Node: The capture protocol778784
+Node: The open-source protocol780417
+Node: Org Crypt783658
+Node: Org Mobile785533
+Node: Setting up the staging area786924
+Ref: Setting up the staging area-Footnote-1788164
+Ref: Setting up the staging area-Footnote-2788371
+Node: Pushing to the mobile application788543
+Ref: Pushing to the mobile application-Footnote-1789554
+Ref: Pushing to the mobile application-Footnote-2789645
+Ref: Pushing to the mobile application-Footnote-3790012
+Node: Pulling from the mobile application790088
+Ref: Pulling from the mobile application-Footnote-1792401
+Node: Drag and Drop & yank-media792454
+Ref: Drag and Drop & yank-media-Footnote-1794083
+Node: Hacking794231
+Node: Hooks795181
+Node: Add-on Packages795465
+Node: Adding Hyperlink Types795934
+Node: Adding Export Backends799746
+Node: Tables in Arbitrary Syntax800991
+Node: Radio tables802259
+Node: A LaTeX example804396
+Ref: A LaTeX example-Footnote-1808248
+Ref: A LaTeX example-Footnote-2808291
+Ref: A LaTeX example-Footnote-3808452
+Node: Translator functions808904
+Node: Dynamic Blocks811086
+Node: Special Agenda Views813332
+Ref: Special Agenda Views-Footnote-1817043
+Ref: Special Agenda Views-Footnote-2817249
+Node: Speeding Up Your Agendas817381
+Node: Extracting Agenda Information818604
+Node: Using the Property API822409
+Node: Using the Mapping API825758
+Node: History and Acknowledgments829791
+Ref: From Carsten829989
+Ref: From Bastien833428
+Ref: List of Contributions835560
+Node: GNU Free Documentation License844222
+Ref: ADDENDUM How to use this License for your documents868180
+Node: Main Index869573
+Node: Key Index970127
+Node: Command and Function Index1027350
+Node: Variable Index1076074
 
 End Tag Table
 
