@@ -15523,9 +15523,11 @@ Export as a text file with Markdown syntax, then open it.
 @vindex org-md-headline-style
 Based on @code{org-md-headline-style}, Markdown export can generate
 headlines of both @emph{atx} and @emph{setext} types.  @emph{setext} limits headline
-levels to two whereas @emph{atx} limits headline levels to six.  Beyond
-these limits, the export backend converts headlines to lists.  To set
-a limit to a level before the absolute limit (see @ref{Export Settings}).
+levels to two whereas @emph{atx} limits headline levels to six.  @emph{mixed}
+exports headline levels one and two in @emph{setext}-style, and headline
+levels three through six as @emph{atx}-style headlines.  Beyond these
+limits, the export backend converts headlines to lists.  To set a
+limit to a level before the absolute limit (see @ref{Export Settings}).
 
 @node OpenDocument Text Export
 @section OpenDocument Text Export
