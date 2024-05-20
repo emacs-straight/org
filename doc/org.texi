@@ -8721,14 +8721,12 @@ properties.  Please rewrite your date/week-tree targets using
 @code{file+olp+datetree} since the older targets are now deprecated.} creates a heading in a date tree@footnote{A date tree is an outline structure with years on the highest
 level, months or ISO weeks as sublevels and then dates on the lowest
 level.
-
 @example
 * 2022
 ** 2022-10 October
 *** 2022-10-07 Friday
 *** 2022-10-08 Saturday
 @end example
-
 TODO state, priority, tags, statistics cookies, and COMMENT keywords
 are allowed in the tree structure.} for
 today's date.  If the optional outline path is given, the tree
@@ -20899,24 +20897,19 @@ header arguments@footnote{In the following example, attempting to evaluate
 the second code block will give an error, because the variables
 defined in the first code block will not be defined in the second
 block.
-
 @example
 #+NAME: get-prompt
 #+BEGIN_SRC emacs-lisp :var prompt="root> " :var command="ls"
   (concat prompt command)
 #+END_SRC
-
 #+RESULTS: get-prompt
 : root> ls
-
 #+BEGIN_SRC emacs-lisp :noweb yes
   <<get-prompt>>
 #+END_SRC
 @end example
-
 The previous block is expanded without setting @code{prompt} and @code{command}
 values.
-
 @example
 #+BEGIN_SRC emacs-lisp
   (concat prompt command)
