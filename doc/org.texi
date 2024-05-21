@@ -439,7 +439,7 @@ Citation handling
 
 Bibliography printing
 
-* Bibliography options in the ``biblatex'' and ``csl'' export processors::
+* Bibliography options in the @samp{biblatex} and @samp{csl} export processors::
 
 Working with Source Code
 
@@ -18664,9 +18664,69 @@ keywords.
 @cindex citation
 @cindex citation processor
 
-The @samp{oc.el} library provides tooling to handle citations in Org via
-``citation processors'' that offer some or all of the following
-capabilities:
+While links (see @ref{Hyperlinks}) are often sufficient to refer to
+external or internal information from Org, they have their limitations
+when referring to multiple targets or typesetting printed
+publications.
+
+Org mode provides a more sophisticated markup to ``cite'' external
+resources.  For example, consider the following Org mode snippet
+
+@example
+#+bibliography: citationdata.bib
+
+Org mode is used by various communities [cite:teaching: @@orgteaching;
+and TeX: @@orgtex].  [cite/author/caps:@@orgtex] uses Org mode to simplify
+writing scientific publications, while [cite/author/caps:@@orgteaching]
+experiment with Org babel to improve teaching.
+
+#+print_bibliography:
+@end example
+
+
+Org mode will gather citation metadata from the @samp{#+bibliography}
+database and use it to typeset the exported document in arbitrary
+formats.  For example, the snippet below shows ASCII export output.
+
+@example
+Org mode is used by various communities (teaching: Birkenkrahe, Marcus,
+2023, and TeX: Somma, Emmanuele F, 2023).  Somma, Emmanuele F uses Org
+mode to simplify writing scientific publications, while Birkenkrahe,
+Marcus experiment with Org babel to improve teaching.
+
+Birkenkrahe, Marcus (2023). /Teaching Data Science with Literate
+Programming Tools/, MDPI.
+
+Somma, Emmanuele F (2023). /Simplifying LaTeX with ORG-mode in Emacs/,
+TUGboat volume.
+@end example
+
+
+In addition to export, users can use completion to search and insert
+citations from the bibliography (via @code{org-cite-insert}).  Citations
+also act like ordinary links, jumping to the citation metadata when
+``following'' them using @code{org-open-at-point}.
+
+You can customize every aspect (@emph{capability}) of citation handling
+using built-in or external @emph{citation processors}.
+
+Org mode ships with several built-in citation processors tailored to
+work with @LaTeX{} export and Bib@TeX{} bibliographies (@samp{bibtex},
+@samp{biblatex}, and @samp{natbib} processors), or with more generic formats
+described using @uref{https://citationstyles.org/, Citation Style
+Language} (@samp{csl} processor).
+The default citation processor is @samp{basic} - it works with arbitrary
+export formats and recognizes both Bib@TeX{} and CSL bibliographies.
+More citation processors are distributed as Emacs packages.
+
+@vindex org-cite-activate-processor
+@vindex org-cite-follow-processor
+@vindex org-cite-insert-processor
+@vindex org-cite-export-processor
+Multiple citation processors can be mixed to meet your preferences.
+Configure @code{org-cite-activate-processor}, @code{org-cite-follow-processor},
+@code{org-cite-insert-processor}, and @code{org-cite-export-processors} to
+select which processor to use for every citation capability:
 
 @table @asis
 @item activate
@@ -18678,22 +18738,6 @@ Add and edit citations via @code{org-cite-insert}.
 @item export
 Via different libraries for different target formats.
 @end table
-
-To use a ``citation processor'', the user must load them; for example;
-
-@lisp
-(require 'oc-bibtex)
-@end lisp
-
-@vindex org-cite-activate-processor
-@vindex org-cite-follow-processor
-@vindex org-cite-insert-processor
-@vindex org-cite-export-processor
-They can then configure them with @code{org-cite-activate-processor},
-@code{org-cite-follow-processor}, @code{org-cite-insert-processor}, and
-@code{org-cite-export-processors} respectively.
-
-The included ``basic'' processor provides all four capabilities.
 
 @menu
 * Citations::
@@ -18769,12 +18813,13 @@ colon; this usually makes sense only for the author-year styles.
 @end example
 
 
-When style is not specified, default style is used
+When @samp{style} is not specified, one of the two default styles are
+used
 
 @itemize
 @item
-either the default style specified in @samp{CITE_EXPORT} keyword (see
-@ref{Citation export processors})
+either the default style specified in the @samp{CITE_EXPORT} keyword
+(see @ref{Citation export processors})
 
 @example
 #+cite_export: basic numeric noauthor/bare
@@ -18782,7 +18827,7 @@ either the default style specified in @samp{CITE_EXPORT} keyword (see
 @end example
 
 @item
-or using default @samp{nil} style
+or, if @samp{CITE_EXPORT} is not set, using the default @samp{nil} style
 
 @example
 [cite:@@key] is the same as [cite/nil:@@key]
@@ -18819,8 +18864,10 @@ where backward compatibility is not a requirement and formatting
 needs are minimal;
 
 @item csl
-this export processor uses format files written in @uref{https://en.wikipedia.org/wiki/Citation_Style_Language, Citation
-Style Language} via @uref{https://github.com/andras-simonyi/citeproc-el, citeproc-el};
+this export processor uses format files written in
+@uref{https://en.wikipedia.org/wiki/Citation_Style_Language, Citation
+Style Language} via
+@uref{https://github.com/andras-simonyi/citeproc-el, citeproc-el};
 @end table
 
 @item
@@ -18860,7 +18907,7 @@ optional)
 
 
 @noindent
-specifies the ``basic'' export processor with citations inserted as
+specifies the @samp{basic} export processor with citations inserted as
 author's name and references indexed by author's names and year;
 
 @example
@@ -18869,7 +18916,7 @@ author's name and references indexed by author's names and year;
 
 
 @noindent
-specifies the ``csl'' processor and CSL style, which in this case
+specifies the @samp{csl} processor and CSL style, which in this case
 defines numeric citations and numeric references according to the
 @samp{Vancouver} specification (as style used in many medical journals),
 following a typesetting variation putting citations between brackets;
@@ -18920,8 +18967,8 @@ should be printed (note the colon):
 
 
 The bibliography printed by the @LaTeX{}-based export processors
-``bibtex'', ``natbib'' and ``biblatex'' has a chapter or section heading by
-default, while the ``basic'' and ``csl'' processors print the list of
+@samp{bibtex}, @samp{natbib} and @samp{biblatex} has a chapter or section heading by
+default, while the @samp{basic} and @samp{csl} processors print the list of
 bibliography entries without a heading.
 
 A document may contain more than one @samp{PRINT_BIBLIOGRAPHY} keywords.
@@ -18935,13 +18982,13 @@ the different citation export processors.  Some export processors do
 not support passing options.
 
 @menu
-* Bibliography options in the ``biblatex'' and ``csl'' export processors::
+* Bibliography options in the @samp{biblatex} and @samp{csl} export processors::
 @end menu
 
-@node Bibliography options in the ``biblatex'' and ``csl'' export processors
-@subsection Bibliography options in the ``biblatex'' and ``csl'' export processors
+@node Bibliography options in the @samp{biblatex} and @samp{csl} export processors
+@subsection Bibliography options in the @samp{biblatex} and @samp{csl} export processors
 
-The ``biblatex'' and ``csl'' export processors support bibliography
+The @samp{biblatex} and @samp{csl} export processors support bibliography
 options through a property list attached to the @samp{PRINT_BIBLIOGRAPHY}
 keyword.  For example,
 
@@ -18959,10 +19006,10 @@ commas, but without any space in-between:
 @end example
 
 
-The ``biblatex'' export processor accepts all options supported by
+The @samp{biblatex} export processor accepts all options supported by
 Bib@LaTeX{}'s @code{\printbibliography} command.
 
-The ``csl'' processor accepts the following options:
+The @samp{csl} processor accepts the following options:
 
 @table @asis
 @item @samp{:keyword <keyword(,keyword2...)>}

@@ -4823,8 +4823,6 @@ element it has to parse."
 			  (looking-at-p rule-regexp)))))))
 	       (org-element-table-parser limit affiliated))
 	      ;; List.
-              ;; FIXME: Instead of generating regexps, we should
-              ;; better use a constant.
 	      ((looking-at-p (org-item-re))
 	       (org-element-plain-list-parser
 		limit affiliated
@@ -6149,11 +6147,6 @@ This function assumes `org-element--headline-cache' is a valid AVL tree."
 
 ;;;; Tools
 
-;; FIXME: Ideally, this should be inlined to avoid overheads, but
-;; inlined functions should be declared before the code that uses them
-;; and some code above does use `org-element--cache-active-p'.  Moving this
-;; declaration on top would require restructuring the whole cache
-;; section.
 (defun org-element--cache-active-p (&optional called-from-cache-change-func-p)
   "Non-nil when cache is active in current buffer.
 When CALLED-FROM-CACHE-CHANGE-FUNC-P is non-nil, do not assert cache
