@@ -3293,7 +3293,7 @@ When using MathToWeb as the converter, set this option to
 When using LaTeXML set this option to
 \"latexmlmath %i --presentationmathml=%o\"."
   :group 'org-latex
-  :version "24.1"
+  :package-version '(Org . "9.7")
   :type '(choice
 	  (const :tag "None" nil)
 	  (string :tag "\nShell command")))
@@ -3311,7 +3311,7 @@ Replace format-specifiers in the command as noted below and use
 For example, this could be used with LaTeXML as
 \"latexmlc literal:%i --profile=math --preload=siunitx.sty 2>/dev/null\"."
   :group 'org-latex
-  :package-version '(Org . "9.4")
+  :package-version '(Org . "9.7")
   :type '(choice
 	  (const :tag "None" nil)
 	  (string :tag "Shell command")))
@@ -3542,8 +3542,7 @@ A string will be inserted as-is in the header of the document."
   :group 'org-export-latex
   :set 'org-set-packages-alist
   :get 'org-get-packages-alist
-  :version "26.1"
-  :package-version '(Org . "8.3")
+  :package-version '(Org . "9.7")
   :type '(repeat
 	  (choice
 	   (list :tag "options/package pair"
@@ -7372,6 +7371,7 @@ If optional TXT is given, check this string instead of the current kill."
 Those markers are stored together with their positions relative to
 the start of the region.")
 
+(defvar org-log-note-marker) ; defined later
 (defun org-save-markers-in-region (beg end)
   "Check markers in region.
 If these markers are between BEG and END, record their position relative
@@ -7381,6 +7381,7 @@ This function gets called just before an entry or tree gets cut from the
 buffer.  After re-insertion, `org-reinstall-markers-in-region' must be
 called immediately, to move the markers with the entries."
   (setq org-markers-to-move nil)
+  (org-check-and-save-marker org-log-note-marker beg end)
   (when (featurep 'org-clock)
     (org-clock-save-markers-for-cut-and-paste beg end))
   (when (featurep 'org-agenda)
@@ -10317,8 +10318,8 @@ of `org-todo-keywords-1'."
 		       (completing-read "Keyword (or KWD1|KWD2|...): "
 					(mapcar #'list org-todo-keywords-1))))
 		  (concat "\\("
-			  (mapconcat 'identity (org-split-string kwd "|") "\\|")
-			  "\\)\\>")))
+			  (mapconcat #'regexp-quote (org-split-string kwd "|") "\\|")
+			  "\\)\\(?:[ \t]\\|$\\)")))
 	       ((<= (prefix-numeric-value arg) (length org-todo-keywords-1))
 		(regexp-quote (nth (1- (prefix-numeric-value arg))
 				   org-todo-keywords-1)))
@@ -16637,7 +16638,7 @@ cache       Display remote images, and open them in separate buffers
             for caching.  Silently update the image buffer when a file
             change is detected."
   :group 'org-appearance
-  :package-version '(Org . "9.4")
+  :package-version '(Org . "9.7")
   :type '(choice
 	  (const :tag "Ignore remote images" skip)
 	  (const :tag "Always display remote images" download)

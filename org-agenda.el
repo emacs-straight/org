@@ -900,7 +900,8 @@ but not scheduled today."
   :type '(choice
 	  (const :tag "Never" nil)
 	  (const :tag "Always" t)
-	  (const :tag "Not when scheduled today" not-today)))
+	  (const :tag "Not when scheduled today" not-today))
+  :package-version '(Org . "9.7"))
 
 (defcustom org-agenda-skip-timestamp-if-deadline-is-shown nil
   "Non-nil means skip timestamp line if same entry shows because of deadline.
@@ -1701,7 +1702,8 @@ Custom commands can bind this variable in the options section."
 		(cons (const :tag "Strategy for Tags matches" tags)
 		      (repeat ,org-sorting-choice))
 		(cons (const :tag "Strategy for search matches" search)
-		      (repeat ,org-sorting-choice)))))
+		      (repeat ,org-sorting-choice))))
+  :package-version '(Org . "9.7"))
 
 (defcustom org-agenda-cmp-user-defined nil
   "A function to define the comparison `user-defined'.
@@ -3039,7 +3041,7 @@ Pressing `<' twice means to restrict to the current subtree or region
 		  (`todo-tree
 		   (org-check-for-org-mode)
 		   (org-occur (concat "^" org-outline-regexp "[ \t]*"
-				      (regexp-quote org-match) "\\>")))
+				      (regexp-quote org-match) "\\(?:[\t ]\\|$\\)")))
 		  (`occur-tree
 		   (org-check-for-org-mode)
 		   (org-occur org-match))
@@ -5310,8 +5312,8 @@ of what a project is and how to check if it stuck, customize the variable
 	    (org-delete-all org-done-keywords-for-agenda
 			    (copy-sequence org-todo-keywords-for-agenda))))
 	 (todo-re (and todo
-		       (format "^\\*+[ \t]+\\(%s\\)\\>"
-			       (mapconcat #'identity todo-wds "\\|"))))
+		       (format "^\\*+[ \t]+\\(%s\\)\\(?:[ \t]\\|$\\)"
+			       (mapconcat #'regexp-quote todo-wds "\\|"))))
 	 (tags-re (cond ((null tags) nil)
 			((member "*" tags) org-tag-line-re)
 			(tags

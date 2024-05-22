@@ -2911,6 +2911,23 @@ to read than the equivalent:
 '(substring $1 (string-to-number $2) (string-to-number $3))
 @end example
 
+
+When the formula itself contains @samp{;} symbol, Org mode may incorrectly
+interpret everything past @samp{;} as format specifier:
+
+@example
+'(concat $1 ";")
+@end example
+
+
+@noindent
+You can put an extra tailing @samp{;} to indicate that all the earlier
+instances of @samp{;} belong to the formula itself:
+
+@example
+'(concat $1 ";");
+@end example
+
 @node Durations and time values
 @subsection Durations and time values
 
