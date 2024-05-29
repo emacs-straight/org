@@ -2324,6 +2324,13 @@ Load FILE with optional arguments NOERROR and MUSTSUFFIX.
 
 \(fn FILE)" nil t)
 
+(autoload 'org-element-with-disabled-cache "org-macs" "\
+Run BODY without active org-element-cache.
+
+\(fn &rest BODY)" nil t)
+
+(function-put 'org-element-with-disabled-cache 'lisp-indent-function '0)
+
 (register-definition-prefixes "org-macs" '("org-"))
 
 ;;;***
