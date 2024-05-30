@@ -4321,7 +4321,7 @@ replacement text.  Here is an example:
 
 @lisp
 (setq org-link-abbrev-alist
-      '(("bugzilla"        . "http://10.1.2.9/bugzilla/show_bug.cgi?id=")
+      '(("bugzilla"        . "https://10.1.2.9/bugzilla/show_bug.cgi?id=")
         ("Nu Html Checker" . "https://validator.w3.org/nu/?doc=%h")
         ("duckduckgo"      . "https://duckduckgo.com/?q=%s")
         ("omap"            . "https://nominatim.openstreetmap.org/search?q=%s&polygon=1")
@@ -10387,7 +10387,7 @@ the estimated effort of an entry (see @ref{Effort Estimates}).
 @vindex org-agenda-effort-filter-preset
 @vindex org-agenda-regexp-filter-preset
 Agenda built-in or custom commands are statically defined.  Agenda
-filters and limits allow to flexibly narrow down the list of agenda
+filters and limits allow flexibly narrowing down the list of agenda
 entries.
 
 @emph{Filters} only change the visibility of items, are very fast and are
@@ -22859,8 +22859,8 @@ adding @code{:rewrites} rules like this:
 
 @noindent
 Since @samp{example.com/$} is used as a regular expression, it maps
-@samp{http://example.com/}, @samp{https://example.com},
-@samp{http://www.example.com/} and similar to
+@samp{https://example.com/}, @samp{https://example.com},
+@samp{https://www.example.com/} and similar to
 @samp{/home/user/example/index.php}.
 
 The @code{:rewrites} rules are searched as a last resort if and only if no

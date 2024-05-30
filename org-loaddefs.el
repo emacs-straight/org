@@ -843,7 +843,7 @@ generate a description as described in `org-link-parameters'
 docstring.  Otherwise, if `org-link-make-description-function' is
 non-nil, this function will be called with the link target, and
 the result will be the default link description.  When called
-non-interactively, don't allow to edit the default description.
+non-interactively, don't allow editing the default description.
 
 \(fn &optional COMPLETE-FILE LINK-LOCATION DESCRIPTION)" t nil)
 
@@ -4719,7 +4719,7 @@ use it to set a major mode there, e.g.,
     (interactive)
     (org-export-to-buffer \\='latex \"*Org LATEX Export*\"
       async subtreep visible-only body-only ext-plist
-      #\\='LaTeX-mode))
+      (major-mode-remap \\='latex-mode)))
 
 When expressed as an anonymous function, using `lambda',
 POST-PROCESS needs to be quoted.
