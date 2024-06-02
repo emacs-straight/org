@@ -39,7 +39,7 @@ modify this GNU manual.''
 @finalout
 @titlepage
 @title Org Mode Compact Guide
-@subtitle Release 9.7
+@subtitle Release 9.8
 @author The Org Mode Developers
 @page
 @vskip 0pt plus 1filll

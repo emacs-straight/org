@@ -13,7 +13,7 @@
 @c %**end of header
 
 @copying
-This manual is for Org version 9.7.
+This manual is for Org version 9.8.
 
 Copyright @copyright{} 2004--2024 Free Software Foundation, Inc.
 
@@ -39,7 +39,7 @@ modify this GNU manual.''
 @finalout
 @titlepage
 @title The Org Manual
-@subtitle Release 9.7
+@subtitle Release 9.8
 @author The Org Mode Developers
 @page
 @vskip 0pt plus 1filll
