@@ -2267,6 +2267,13 @@ checker.  Currently, two properties are supported:
 
 (function-put 'org-lint-add-checker 'lisp-indent-function '1)
 
+(autoload 'org-lint-remove-checker "org-lint" "\
+Remove checker(s) from linter.
+NAME is the unique check identifier, as a non-nil symbol.  NAMES
+are additional check identifiers to be removed.
+
+\(fn NAME &rest NAMES)" nil nil)
+
 (autoload 'org-lint "org-lint" "\
 Check current Org buffer for syntax mistakes.
 

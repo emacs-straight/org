@@ -3907,6 +3907,14 @@ Usenet links.
 
 @item @samp{shell}
 Execute a shell command upon activation.
+
+@item @samp{shortdoc}
+Link to short documentation summary for an Emacs Lisp function group.
+@footnote{You can run @samp{M-x shortdoc-display-group} to list all known
+documentation groups.}
+
+For more information, see @ref{Name Help,Name Help,,emacs,}
+and @ref{Documentation Groups,Documentation Groups,,elisp,}.
 @end table
 
 
@@ -3987,6 +3995,10 @@ it is not found, then the user is queried to create it.}
 @tab @samp{help:org-store-link}
 @item info
 @tab @samp{info:org#External links}
+@item shortdoc
+@tab @samp{shortdoc:text-properties}
+@item 
+@tab @samp{shortdoc:text-properties::#get-pos-property}
 @item shell
 @tab @samp{shell:ls *.org}
 @item elisp
@@ -8985,8 +8997,11 @@ may specify a default value and a completion table with
 access a prompt-specific history.
 
 @item @samp{%\N}
-Insert the text entered at the @var{N}th @samp{%^@{PROMPT@}}, where
-@var{N} is a number, starting from 1.
+Insert the text entered at the @var{N}th @samp{%^@{PROMPT@}} (but not
+@samp{%^@{PROMPT@}X}), where @var{N} is a number, starting from 1.
+
+@item @samp{%\*N}
+Same as @samp{%\N}, but include all the prompts.
 
 @item @samp{%?}
 After completing the template, position point here.
