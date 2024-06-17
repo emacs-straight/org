@@ -2413,7 +2413,7 @@ control tag inheritance.")
 
 (custom-autoload 'org-num-skip-tags "org-num" t)
 
-(put 'org-num-skip-tags 'safe-local-variable (lambda (val) (and (listp val) (cl-every #'stringp val))))
+(put 'org-num-skip-tags 'safe-local-variable #'org-list-of-strings-p)
 
 (defvar org-num-skip-unnumbered nil "\
 Non-nil means numbering obeys to UNNUMBERED property.")
