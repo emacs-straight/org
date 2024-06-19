@@ -31,7 +31,7 @@ batch scripts.
 # We list the most important features, and the features that may
 # require user action to be used.
 
-** =ol.el=: New =shortdoc= link type
+*** =ol.el=: New =shortdoc= link type
 
 You can now create links to =shortdoc= documentation groups for Emacs
 Lisp functions (see =M-x shortdoc-display-group=).  Requires Emacs 28
@@ -42,6 +42,12 @@ or newer.
 # Chanes deadling with changing default values of customizations,
 # adding new customizations, or changing the interpretation of the
 # existing customizations.
+
+*** Allow headline/olp target in ~org-capture-templates~ to be a function/variable
+
+The variable ~org-capture-templates~ accepts a target specification as
+function or symbol for headline (~file+headline~) and olp (~file+olp~
+and ~file+olp+datetree~).
 
 *** New =%\*N= placeholder in ~org-capture-templates~
 

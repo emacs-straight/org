@@ -8734,15 +8734,33 @@ Text will be placed at the beginning or end of that file.
 Filing as child of this entry, or in the body of the entry.
 
 @item @samp{(file+headline "filename" "node headline")}
+
+
+@item @samp{(file+headline "filename" function-returning-string)}
+
+
+@item @samp{(file+headline "filename" symbol-containing-string)}
 Fast configuration if the target heading is unique in the file.
 
 @item @samp{(file+olp "filename" "Level 1 heading" "Level 2" ...)}
+
+
+@item @samp{(file+olp "filename" function-returning-list-of-strings)}
+
+
+@item @samp{(file+olp "filename" symbol-containing-list-of-strings)}
 For non-unique headings, the full path is safer.
 
 @item @samp{(file+regexp "filename" "regexp to find location")}
 Use a regular expression to position point.
 
 @item @samp{(file+olp+datetree "filename" [ "Level 1 heading" ...])}
+
+
+@item @samp{(file+olp+datetree "filename" function-returning-list-of-strings)}
+
+
+@item @samp{(file+olp+datetree "filename" symbol-containing-list-of-strings)}
 This target@footnote{Org used to offer four different targets for date/week tree
 capture.  Now, Org automatically translates these to use
 @code{file+olp+datetree}, applying the @code{:time-prompt} and @code{:tree-type}
