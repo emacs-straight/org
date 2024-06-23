@@ -6823,8 +6823,8 @@ specify a date December 1, 2005, the call might look like
 @samp{(diary-date 12 1 2005)} or @samp{(diary-date 1 12 2005)} or @samp{(diary-date
 2005 12 1)}, depending on the settings.  This has been the source of
 much confusion.  Org mode users can resort to special versions of
-these functions, namely @code{org-date}, @code{org-anniversary}, @code{org-cyclic, and
-~org-block}.  These work just like the corresponding @code{diary-}
+these functions, namely @code{org-date}, @code{org-anniversary}, @code{org-cyclic}, and
+@code{org-block}.  These work just like the corresponding @code{diary-}
 functions, but with stable ISO order of arguments (year, month, day)
 wherever applicable, independent of the value of
 @code{calendar-date-style}.}.
