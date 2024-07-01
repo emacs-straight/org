@@ -540,7 +540,15 @@ FORMAT and ARGS are passed to `message'."
                          (and inode (gethash (cons cont (list :inode inode)) org-persist--index-hash))
                          (and hash (gethash (cons cont (list :hash hash)) org-persist--index-hash))
                          (and key (gethash (cons cont (list :key key)) org-persist--index-hash))))
-             (when r (throw :found r))))))))
+             (when (and r
+                        ;; Every element in CONTAINER matches
+                        ;; COLLECTION.
+                        (seq-every-p
+                         (lambda (cont)
+                           (org-persist-collection-let r
+                             (member cont container)))
+                         container))
+               (throw :found r))))))))
 
 (defun org-persist--add-to-index (collection &optional hash-only)
   "Add or update COLLECTION in `org-persist--index'.
@@ -666,7 +674,14 @@ When INNER is non-nil, do not try to match as list of containers."
                                 (fboundp 'file-attribute-inode-number))
                        (file-attribute-inode-number
                         (file-attributes file))))
-         (setq hash (secure-hash 'md5 associated))
+         (setq hash
+               ;; `secure-hash' may trigger interactive dialog when it
+               ;; cannot determine the coding system automatically.
+               ;; Force coding system that works reliably for any text
+               ;; to avoid it.  The hash will be consistent, as long
+               ;; as we use the same coding system.
+               (let ((coding-system-for-write 'emacs-internal))
+                 (secure-hash 'md5 associated)))
          (puthash associated
                   (list (buffer-modified-tick associated)
                         file inode hash)

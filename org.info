@@ -14313,7 +14313,7 @@ variable.
 UID—for each entry.  The iCalendar export backend creates UIDs during
 export.  To save a copy of the UID in the Org file set the variable
 ‘org-icalendar-store-UID’.  The backend looks for the ‘ID’ property of
-the entry for re-using the same UID for subsequent exports.
+the entry for reusing the same UID for subsequent exports.
 
    Since a single Org entry can result in multiple iCalendar
 entries—timestamp, deadline, scheduled item, or TODO item—Org adds
@@ -24911,160 +24911,160 @@ Node: Key bindings in Texinfo export594474
 Node: Special blocks in Texinfo export595277
 Node: A Texinfo example596110
 Node: iCalendar Export598201
-Ref: iCalendar Export-Footnote-1603426
-Node: Other Built-in Backends603609
-Node: Advanced Export Configuration604235
-Ref: Export hooks604434
-Ref: Filters605652
-Ref: Defining filters for individual files608152
-Ref: Summary of the export process608957
-Ref: Extending an existing backend614310
-Ref: Advanced Export Configuration-Footnote-1616649
-Ref: Advanced Export Configuration-Footnote-2617005
-Ref: Advanced Export Configuration-Footnote-3617154
-Node: Export Region617240
-Node: Publishing618298
-Node: Configuration619174
-Node: Project alist619956
-Node: Sources and destinations621098
-Node: Selecting files622417
-Node: Publishing action623372
-Ref: Publishing action-Footnote-1625205
-Node: Publishing options625368
-Ref: Generic properties626120
-Ref: ASCII specific properties628808
-Ref: Beamer specific properties630408
-Ref: HTML specific properties631040
-Ref: LaTeX specific properties636276
-Ref: Markdown specific properties639784
-Ref: ODT specific properties640081
-Ref: Texinfo specific properties641078
-Node: Publishing links642506
-Node: Site map643960
-Node: Generating an index646786
-Node: Uploading Files647578
-Node: Sample Configuration649361
-Node: Simple example649859
-Node: Complex example650575
-Node: Triggering Publication652663
-Node: Citation handling653689
-Node: Citations656739
-Node: Citation export processors659113
-Node: Bibliography printing662601
-Node: Bibliography options in the biblatex and csl export processors663749
-Node: Working with Source Code665868
-Node: Features Overview668207
-Node: Structure of Code Blocks670965
-Node: Using Header Arguments673832
-Ref: System-wide header arguments674559
-Ref: Header arguments in Org mode properties676230
-Ref: Code block specific header arguments678056
-Ref: Header arguments in function calls679555
-Node: Environment of a Code Block680229
-Ref: Passing arguments680443
-Ref: Using sessions688988
-Ref: Choosing a working directory690387
-Ref: Inserting headers and footers692689
-Node: Evaluating Code Blocks693199
-Ref: How to evaluate source code693654
-Ref: Limit code block evaluation696604
-Ref: Cache results of evaluation697590
-Ref: Evaluating Code Blocks-Footnote-1700103
-Ref: Evaluating Code Blocks-Footnote-2700237
-Node: Results of Evaluation700395
-Ref: Collection701202
-Ref: Type702663
-Ref: Format706687
-Ref: Handling709279
-Ref: Post-processing710670
-Ref: Results of Evaluation-Footnote-1712420
-Node: Exporting Code Blocks712578
-Node: Extracting Source Code716249
-Ref: Header arguments717230
-Ref: Functions721466
-Ref: Tangle hooks721717
-Ref: Jumping between code and Org722493
-Node: Languages723003
-Node: Editing Source Code724004
-Node: Noweb Reference Syntax726946
-Ref: Noweb Reference Syntax-Footnote-1733673
-Ref: Noweb Reference Syntax-Footnote-2733764
-Ref: Noweb Reference Syntax-Footnote-3734377
-Node: Library of Babel734497
-Node: Key bindings and Useful Functions735215
-Node: Batch Execution737640
-Node: Miscellaneous738423
-Node: Completion739886
-Node: Structure Templates741811
-Ref: Structure Templates-Footnote-1743561
-Node: Speed Keys743653
-Node: Clean View744822
-Node: Org Indent Mode746024
-Ref: Org Indent Mode-Footnote-1747230
-Node: Hard indentation747454
-Ref: Hard indentation-Footnote-1748937
-Ref: Hard indentation-Footnote-2749043
-Node: Execute commands in the active region749187
-Node: Dynamic Headline Numbering750199
-Node: The Very Busy C-c C-c Key751365
-Node: In-buffer Settings753352
-Ref: In-buffer Settings-Footnote-1763300
-Node: Regular Expressions763498
-Node: Org Syntax764120
-Node: Documentation Access765769
-Node: Escape Character766190
-Node: Code Evaluation Security767050
-Node: Interaction769917
-Node: Cooperation770340
-Node: Conflicts773409
-Node: TTY Keys778005
-Node: Protocols779642
-Node: The store-link protocol781103
-Node: The capture protocol782246
-Node: The open-source protocol783880
-Node: Org Crypt787123
-Node: Org Mobile788998
-Node: Setting up the staging area790389
-Ref: Setting up the staging area-Footnote-1791629
-Ref: Setting up the staging area-Footnote-2791836
-Node: Pushing to the mobile application792008
-Ref: Pushing to the mobile application-Footnote-1793019
-Ref: Pushing to the mobile application-Footnote-2793110
-Ref: Pushing to the mobile application-Footnote-3793477
-Node: Pulling from the mobile application793553
-Ref: Pulling from the mobile application-Footnote-1795866
-Node: Drag and Drop & yank-media795919
-Ref: Drag and Drop & yank-media-Footnote-1797548
-Node: Hacking797696
-Node: Hooks798646
-Node: Add-on Packages798921
-Node: Adding Hyperlink Types799377
-Node: Adding Export Backends803191
-Node: Tables in Arbitrary Syntax804436
-Node: Radio tables805704
-Node: A LaTeX example807840
-Ref: A LaTeX example-Footnote-1811693
-Ref: A LaTeX example-Footnote-2811736
-Ref: A LaTeX example-Footnote-3811897
-Node: Translator functions812349
-Node: Dynamic Blocks814531
-Node: Special Agenda Views816777
-Ref: Special Agenda Views-Footnote-1820488
-Ref: Special Agenda Views-Footnote-2820694
-Node: Speeding Up Your Agendas820826
-Node: Extracting Agenda Information822049
-Node: Using the Property API825854
-Node: Using the Mapping API829203
-Node: History and Acknowledgments833235
-Ref: From Carsten833433
-Ref: From Bastien836863
-Ref: List of Contributions838995
-Node: GNU Free Documentation License847648
-Ref: ADDENDUM How to use this License for your documents871606
-Node: Main Index872999
-Node: Key Index973553
-Node: Command and Function Index1030776
-Node: Variable Index1079500
+Ref: iCalendar Export-Footnote-1603425
+Node: Other Built-in Backends603608
+Node: Advanced Export Configuration604234
+Ref: Export hooks604433
+Ref: Filters605651
+Ref: Defining filters for individual files608151
+Ref: Summary of the export process608956
+Ref: Extending an existing backend614309
+Ref: Advanced Export Configuration-Footnote-1616648
+Ref: Advanced Export Configuration-Footnote-2617004
+Ref: Advanced Export Configuration-Footnote-3617153
+Node: Export Region617239
+Node: Publishing618297
+Node: Configuration619173
+Node: Project alist619955
+Node: Sources and destinations621097
+Node: Selecting files622416
+Node: Publishing action623371
+Ref: Publishing action-Footnote-1625204
+Node: Publishing options625367
+Ref: Generic properties626119
+Ref: ASCII specific properties628807
+Ref: Beamer specific properties630407
+Ref: HTML specific properties631039
+Ref: LaTeX specific properties636275
+Ref: Markdown specific properties639783
+Ref: ODT specific properties640080
+Ref: Texinfo specific properties641077
+Node: Publishing links642505
+Node: Site map643959
+Node: Generating an index646785
+Node: Uploading Files647577
+Node: Sample Configuration649360
+Node: Simple example649858
+Node: Complex example650574
+Node: Triggering Publication652662
+Node: Citation handling653688
+Node: Citations656738
+Node: Citation export processors659112
+Node: Bibliography printing662600
+Node: Bibliography options in the biblatex and csl export processors663748
+Node: Working with Source Code665867
+Node: Features Overview668206
+Node: Structure of Code Blocks670964
+Node: Using Header Arguments673831
+Ref: System-wide header arguments674558
+Ref: Header arguments in Org mode properties676229
+Ref: Code block specific header arguments678055
+Ref: Header arguments in function calls679554
+Node: Environment of a Code Block680228
+Ref: Passing arguments680442
+Ref: Using sessions688987
+Ref: Choosing a working directory690386
+Ref: Inserting headers and footers692688
+Node: Evaluating Code Blocks693198
+Ref: How to evaluate source code693653
+Ref: Limit code block evaluation696603
+Ref: Cache results of evaluation697589
+Ref: Evaluating Code Blocks-Footnote-1700102
+Ref: Evaluating Code Blocks-Footnote-2700236
+Node: Results of Evaluation700394
+Ref: Collection701201
+Ref: Type702662
+Ref: Format706686
+Ref: Handling709278
+Ref: Post-processing710669
+Ref: Results of Evaluation-Footnote-1712419
+Node: Exporting Code Blocks712577
+Node: Extracting Source Code716248
+Ref: Header arguments717229
+Ref: Functions721465
+Ref: Tangle hooks721716
+Ref: Jumping between code and Org722492
+Node: Languages723002
+Node: Editing Source Code724003
+Node: Noweb Reference Syntax726945
+Ref: Noweb Reference Syntax-Footnote-1733672
+Ref: Noweb Reference Syntax-Footnote-2733763
+Ref: Noweb Reference Syntax-Footnote-3734376
+Node: Library of Babel734496
+Node: Key bindings and Useful Functions735214
+Node: Batch Execution737639
+Node: Miscellaneous738422
+Node: Completion739885
+Node: Structure Templates741810
+Ref: Structure Templates-Footnote-1743560
+Node: Speed Keys743652
+Node: Clean View744821
+Node: Org Indent Mode746023
+Ref: Org Indent Mode-Footnote-1747229
+Node: Hard indentation747453
+Ref: Hard indentation-Footnote-1748936
+Ref: Hard indentation-Footnote-2749042
+Node: Execute commands in the active region749186
+Node: Dynamic Headline Numbering750198
+Node: The Very Busy C-c C-c Key751364
+Node: In-buffer Settings753351
+Ref: In-buffer Settings-Footnote-1763299
+Node: Regular Expressions763497
+Node: Org Syntax764119
+Node: Documentation Access765768
+Node: Escape Character766189
+Node: Code Evaluation Security767049
+Node: Interaction769916
+Node: Cooperation770339
+Node: Conflicts773408
+Node: TTY Keys778004
+Node: Protocols779641
+Node: The store-link protocol781102
+Node: The capture protocol782245
+Node: The open-source protocol783879
+Node: Org Crypt787122
+Node: Org Mobile788997
+Node: Setting up the staging area790388
+Ref: Setting up the staging area-Footnote-1791628
+Ref: Setting up the staging area-Footnote-2791835
+Node: Pushing to the mobile application792007
+Ref: Pushing to the mobile application-Footnote-1793018
+Ref: Pushing to the mobile application-Footnote-2793109
+Ref: Pushing to the mobile application-Footnote-3793476
+Node: Pulling from the mobile application793552
+Ref: Pulling from the mobile application-Footnote-1795865
+Node: Drag and Drop & yank-media795918
+Ref: Drag and Drop & yank-media-Footnote-1797547
+Node: Hacking797695
+Node: Hooks798645
+Node: Add-on Packages798920
+Node: Adding Hyperlink Types799376
+Node: Adding Export Backends803190
+Node: Tables in Arbitrary Syntax804435
+Node: Radio tables805703
+Node: A LaTeX example807839
+Ref: A LaTeX example-Footnote-1811692
+Ref: A LaTeX example-Footnote-2811735
+Ref: A LaTeX example-Footnote-3811896
+Node: Translator functions812348
+Node: Dynamic Blocks814530
+Node: Special Agenda Views816776
+Ref: Special Agenda Views-Footnote-1820487
+Ref: Special Agenda Views-Footnote-2820693
+Node: Speeding Up Your Agendas820825
+Node: Extracting Agenda Information822048
+Node: Using the Property API825853
+Node: Using the Mapping API829202
+Node: History and Acknowledgments833234
+Ref: From Carsten833432
+Ref: From Bastien836862
+Ref: List of Contributions838994
+Node: GNU Free Documentation License847647
+Ref: ADDENDUM How to use this License for your documents871605
+Node: Main Index872998
+Node: Key Index973552
+Node: Command and Function Index1030775
+Node: Variable Index1079499
 
 End Tag Table
 

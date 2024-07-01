@@ -333,22 +333,28 @@ return the value of the last statement in BODY."
 		  (stdin-file (org-babel-temp-file "sh-stdin-"))
 		  (padline (not (string= "no" (cdr (assq :padline params))))))
 	      (with-temp-file script-file
-		(when shebang (insert shebang "\n"))
+		(if shebang
+                    (insert shebang "\n")
+                  ;; Provide shell name explicitly.
+                  ;; This is necessary because running, for example,
+                  ;; dash script-for-dash.sh will use /bin/sh.
+                  (insert (format "#!/usr/bin/env %s" shell-file-name) "\n"))
 		(when padline (insert "\n"))
 		(insert body))
 	      (set-file-modes script-file #o755)
 	      (with-temp-file stdin-file (insert (or stdin "")))
 	      (with-temp-buffer
                 (with-connection-local-variables
+                 ;; `with-connection-local-variables' will override
+                 ;; `shell-file-name' and `shell-command-swtich' as
+                 ;; needed for the remote connection.
                  (apply #'process-file
-                        (if shebang (file-local-name script-file)
-                          shell-file-name)
+                        shell-file-name
 		        stdin-file
                         (current-buffer)
                         nil
-                        (if shebang (when cmdline (list cmdline))
-                          (list shell-command-switch
-                                (concat (file-local-name script-file)  " " cmdline)))))
+                        (list shell-command-switch
+                              (concat (file-local-name script-file)  " " (format "%s" cmdline)))))
 		(buffer-string))))
 	   (session			; session evaluation
             (if async
@@ -357,7 +363,7 @@ return the value of the last statement in BODY."
                     (org-babel-comint-async-register
                      session
                      (current-buffer)
-                     "ob_comint_async_shell_\\(.+\\)_\\(.+\\)"
+                     "ob_comint_async_shell_\\(start\\|end\\|file\\)_\\(.+\\)"
                      'ob-shell-async-chunk-callback
                      nil)
                     (org-babel-comint-async-delete-dangling-and-eval
