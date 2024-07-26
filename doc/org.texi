@@ -551,7 +551,7 @@ Authoring Org files is best supported by Emacs, but you can view,
 understand, and change them with any text editor.
 
 As an authoring tool, Org helps you write structured documents and
-provides exporting facilities. Org files can also be used for literate
+provides exporting facilities.  Org files can also be used for literate
 programming and reproducible research.  As a TODO lists manager, Org
 helps you organize your tasks in a flexible way, from daily needs to
 detailed project-planning, allowing logging, multiple views on your
@@ -3882,7 +3882,7 @@ Link to an electronic resource, through its handle.
 Execute an Elisp command upon activation.
 
 @item @samp{gnus}, @samp{rmail}, @samp{mhe}
-Link to messages or folders from a given Emacs' MUA@.
+Link to messages or folders from a given Emacs MUA@.
 
 @item @samp{help}
 Display documentation of a symbol in @samp{*Help*} buffer.
@@ -7961,7 +7961,7 @@ current clock, or applying it to another one.
 By customizing the variable @code{org-clock-idle-time} to some integer,
 such as 10 or 15, Emacs can alert you when you get back to your
 computer after being idle for that many minutes@footnote{On computers using macOS, idleness is based on actual user
-idleness, not just Emacs' idle time.  For X11, you can install a
+idleness, not just Emacs's idle time.  For X11, you can install a
 utility program @samp{x11idle.c}, available in the @samp{org-contrib/}
 repository, or install the xprintidle package and set it to the
 variable @code{org-clock-x11idle-program-name} if you are running Debian,
@@ -17355,7 +17355,7 @@ BACKEND is the export backend being used, as a symbol."
    (lambda ()
      (delete-region (point) (line-beginning-position 2))
      ;; We need to tell `org-map-entries' to not skip over heading at
-     ;; point. Otherwise, it would continue from _next_ heading. See
+     ;; point.  Otherwise, it would continue from _next_ heading.  See
      ;; the docstring of `org-map-entries' for details.
      (setq org-map-continue-from (point)))))
 
@@ -18937,7 +18937,7 @@ formats exclusively:
 this export processor uses Bib@TeX{}, the historical
 bibliographic processor used with @LaTeX{}, thus allowing the use of
 data and style files compatible with this processor (including a
-large number of publishers' styles). It only supports @LaTeX{}'s
+large number of publishers' styles).  It only supports @LaTeX{}'s
 @samp{\cite} and @samp{\nocite} commands.
 
 @item natbib
@@ -18998,9 +18998,9 @@ your @LaTeX{} installation, it won't export to anything but PDF@.
 @vindex org-cite-biblatex-options
 @noindent
 specifies the @samp{biblatex} export processor with the default @samp{numeric}
-style and the @samp{bibtex} backend. Always define the style first and then
+style and the @samp{bibtex} backend.  Always define the style first and then
 the rest of load-time options for the @samp{biblatex}
-package. Alternatively, you can use the @code{key=val,key=val} format for
+package.  Alternatively, you can use the @code{key=val,key=val} format for
 the options as documented in the @samp{biblatex} package documentation:
 
 @example
@@ -19009,7 +19009,7 @@ the options as documented in the @samp{biblatex} package documentation:
 
 
 The @code{org-cite-biblatex-options} variable in your Emacs configuration
-uses this format. It will only export to PDF, since it relies on the
+uses this format.  It will only export to PDF, since it relies on the
 @code{biblatex} processor of your @LaTeX{} installation.
 
 @node Bibliography printing
@@ -20706,10 +20706,10 @@ the tangled file's executable permission.
 The @samp{tangle-mode} header argument specifies what permissions to set
 for tangled files by @code{set-file-modes}.  Permissions are given by an
 octal value, which can be provided calling the @code{identity} function on
-an elisp octal value. For instance, to create a read-only file one may
-use @samp{:tangle-mode (identity #o444)}. To reduce the verbosity required,
-an octal shorthand is defined, @samp{oXXX} (@samp{o} for octal). Using this, our
-read-only example is @samp{:tangle-mode o444}. Omitting the @samp{o} prefix will
+an elisp octal value.  For instance, to create a read-only file one may
+use @samp{:tangle-mode (identity #o444)}.  To reduce the verbosity required,
+a octal shorthand is defined, @samp{oXXX} (@samp{o} for octal).  Using this, our
+read-only example is @samp{:tangle-mode o444}.  Omitting the @samp{o} prefix will
 cause the argument to be interpreted as an integer, which can lead to
 unexpected results (@samp{444} is the same as @samp{o674}).
 Two other shorthands are recognized, ls-style strings like
@@ -20718,7 +20718,7 @@ Note that chmod-style permissions are based on
 @code{org-babel-tangle-default-file-mode}, which is @samp{#o544} by default.
 
 When @samp{:tangle-mode} and @samp{:shebang} are both specified, the give
-@samp{:tangle-mode} will override the permissions from @samp{:shebang}. When
+@samp{:tangle-mode} will override the permissions from @samp{:shebang}.  When
 multiple source code blocks tangle to a single file with conflicting
 @samp{:tangle-mode} header arguments, Org's behavior is undefined.
 
