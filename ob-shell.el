@@ -273,19 +273,33 @@ var of the same value."
   "String to indicate that evaluation has completed.")
 (defvar org-babel-sh-eoe-output "org_babel_sh_eoe"
   "String to indicate that evaluation has completed.")
-(defvar org-babel-sh-prompt "org_babel_sh_prompt> "
+(defvar org-babel-sh-prompt "𒆸﻿ "
   "String to set prompt in session shell.")
+
+(defvar-local org-babel-sh--prompt-initialized nil
+  "When non-nil, ob-shell already initialized the prompt in current buffer.")
 
 (defalias 'org-babel-shell-initiate-session #'org-babel-sh-initiate-session)
 (defun org-babel-sh-initiate-session (&optional session _params)
   "Initiate a session named SESSION according to PARAMS."
   (when (and session (not (string= session "none")))
     (save-window-excursion
-      (or (org-babel-comint-buffer-livep session)
+      (or (and (org-babel-comint-buffer-livep session)
+               (buffer-local-value
+                'org-babel-sh--prompt-initialized
+                (get-buffer session))
+               session)
           (progn
-	    (shell session)
-            ;; Set unique prompt for easier analysis of the output.
-            (org-babel-comint-wait-for-output (current-buffer))
+            (if (org-babel-comint-buffer-livep session)
+                (set-buffer session)
+	      (shell session)
+              ;; Set unique prompt for easier analysis of the output.
+              (org-babel-comint-wait-for-output (current-buffer)))
+            (setq-local
+             org-babel-comint-prompt-regexp-fallback comint-prompt-regexp
+             comint-prompt-regexp
+             (concat "^" (regexp-quote org-babel-sh-prompt)
+                     " *"))
             (org-babel-comint-input-command
              (current-buffer)
              (format
@@ -293,11 +307,7 @@ var of the same value."
                               org-babel-shell-set-prompt-commands))
                   (alist-get t org-babel-shell-set-prompt-commands))
               org-babel-sh-prompt))
-            (setq-local
-             org-babel-comint-prompt-regexp-old comint-prompt-regexp
-             comint-prompt-regexp
-             (concat "^" (regexp-quote org-babel-sh-prompt)
-                     " *"))
+            (setq org-babel-sh--prompt-initialized t)
 	    ;; Needed for Emacs 23 since the marker is initially
 	    ;; undefined and the filter functions try to use it without
 	    ;; checking.
