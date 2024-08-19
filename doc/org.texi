@@ -12456,13 +12456,20 @@ Such images can be displayed within the buffer with the following
 command:
 
 @table @asis
-@item @kbd{C-c C-x C-v} (@code{org-toggle-inline-images})
+@item @kbd{C-c C-x C-v} (@code{org-toggle-inline-images-command})
 @kindex C-c C-x C-v
-@findex org-toggle-inline-images
+@findex org-toggle-inline-images-command
+Toggle the inline display of linked images in current section or at
+point.  With a prefix argument, toggle inline images in the whole
+buffer.  With double prefix argument, hide all the images in buffer.
+
+By default, only the image links without description are displayed.
+You can force displaying all the images using numeric argument to
+toggle all the images in current section (@code{1} argument) or the whole
+buffer (@code{11} argument).
+
 @vindex org-startup-with-inline-images
-Toggle the inline display of linked images.  When called with a
-prefix argument, also display images that do have a link
-description.  You can ask for inline images to be displayed at
+You can ask for inline images to be displayed at
 startup by configuring the variable
 @code{org-startup-with-inline-images}@footnote{ The variable
 @code{org-startup-with-inline-images} can be set within a buffer with the
