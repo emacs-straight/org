@@ -11971,7 +11971,7 @@ changes.} as a subscript, but @samp{a_@{b@}} is.
 
 You can set both @code{org-use-sub-superscripts}
 @code{org-export-with-sub-superscripts} in a file using the export option
-@samp{^:} (see @ref{Export Settings}).  For example,
+@samp{^:} (see @ref{Export Settings, , Export Settings}).  For example,
 @samp{#+OPTIONS: ^:@{@}} sets the two options to @code{@{@}} and limits super- and
 subscripts to the curly bracket notation.
 
