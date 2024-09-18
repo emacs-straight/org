@@ -19886,11 +19886,12 @@ variable @code{default-directory}.  Setting @samp{mkdirp} header argument to
 a non-@code{nil} value creates the directory, if necessary.
 
 Setting @samp{dir} to the symbol @code{attach} or the string @code{"'attach"} will
-set @samp{dir} to the directory returned by @code{(org-attach-dir)}, set @samp{:mkdir
-yes}, and insert any file paths, as when using @samp{:results file}, which
-are under the node's attachment directory using @samp{attachment:} links
-instead of the usual @samp{file:} links.  Any returned path outside the
-attachment directory will use @samp{file:} links as per usual.
+set @samp{dir} to the directory returned by @code{(org-attach-dir)}, set
+@samp{:mkdirp yes}, and insert any file paths, as when using @samp{:results
+file}, which are under the node's attachment directory using
+@samp{attachment:} links instead of the usual @samp{file:} links.  Any returned
+path outside the attachment directory will use @samp{file:} links as per
+usual.
 
 For example, to save the plot file in the @samp{Work/} folder of the home
 directory---notice tilde is expanded:

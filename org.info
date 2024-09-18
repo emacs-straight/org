@@ -16442,7 +16442,7 @@ surface, ‘dir’ simply sets the value of the Emacs variable
 value creates the directory, if necessary.
 
    Setting ‘dir’ to the symbol ‘attach’ or the string ‘"'attach"’ will
-set ‘dir’ to the directory returned by ‘(org-attach-dir)’, set ‘:mkdir
+set ‘dir’ to the directory returned by ‘(org-attach-dir)’, set ‘:mkdirp
 yes’, and insert any file paths, as when using ‘:results file’, which
 are under the node’s attachment directory using ‘attachment:’ links
 instead of the usual ‘file:’ links.  Any returned path outside the
@@ -24981,107 +24981,107 @@ Node: Environment of a Code Block680867
 Ref: Passing arguments681081
 Ref: Using sessions689626
 Ref: Choosing a working directory691025
-Ref: Inserting headers and footers693327
-Node: Evaluating Code Blocks693837
-Ref: How to evaluate source code694292
-Ref: Limit code block evaluation697242
-Ref: Cache results of evaluation698228
-Ref: Evaluating Code Blocks-Footnote-1700741
-Ref: Evaluating Code Blocks-Footnote-2700875
-Node: Results of Evaluation701033
-Ref: Collection701840
-Ref: Type703301
-Ref: Format707325
-Ref: Handling709917
-Ref: Post-processing711308
-Ref: Results of Evaluation-Footnote-1713058
-Node: Exporting Code Blocks713216
-Node: Extracting Source Code716887
-Ref: Header arguments717868
-Ref: Functions722103
-Ref: Tangle hooks722354
-Ref: Jumping between code and Org723130
-Node: Languages723640
-Node: Editing Source Code724641
-Node: Noweb Reference Syntax727583
-Ref: Noweb Reference Syntax-Footnote-1734310
-Ref: Noweb Reference Syntax-Footnote-2734401
-Ref: Noweb Reference Syntax-Footnote-3735014
-Node: Library of Babel735134
-Node: Key bindings and Useful Functions735852
-Node: Batch Execution738277
-Node: Miscellaneous739060
-Node: Completion740523
-Node: Structure Templates742448
-Ref: Structure Templates-Footnote-1744198
-Node: Speed Keys744290
-Node: Clean View745459
-Node: Org Indent Mode746661
-Ref: Org Indent Mode-Footnote-1747867
-Node: Hard indentation748091
-Ref: Hard indentation-Footnote-1749574
-Ref: Hard indentation-Footnote-2749680
-Node: Execute commands in the active region749824
-Node: Dynamic Headline Numbering750836
-Node: The Very Busy C-c C-c Key752002
-Node: In-buffer Settings753989
-Ref: In-buffer Settings-Footnote-1763937
-Node: Regular Expressions764135
-Node: Org Syntax764757
-Node: Documentation Access766406
-Node: Escape Character766827
-Node: Code Evaluation Security767687
-Node: Interaction770554
-Node: Cooperation770977
-Node: Conflicts774046
-Node: TTY Keys778642
-Node: Protocols780279
-Node: The store-link protocol781740
-Node: The capture protocol782883
-Node: The open-source protocol784517
-Node: Org Crypt787760
-Node: Org Mobile789635
-Node: Setting up the staging area791026
-Ref: Setting up the staging area-Footnote-1792266
-Ref: Setting up the staging area-Footnote-2792473
-Node: Pushing to the mobile application792645
-Ref: Pushing to the mobile application-Footnote-1793656
-Ref: Pushing to the mobile application-Footnote-2793747
-Ref: Pushing to the mobile application-Footnote-3794114
-Node: Pulling from the mobile application794190
-Ref: Pulling from the mobile application-Footnote-1796503
-Node: Drag and Drop & yank-media796556
-Ref: Drag and Drop & yank-media-Footnote-1798185
-Node: Hacking798333
-Node: Hooks799283
-Node: Add-on Packages799558
-Node: Adding Hyperlink Types800014
-Node: Adding Export Backends803828
-Node: Tables in Arbitrary Syntax805073
-Node: Radio tables806341
-Node: A LaTeX example808477
-Ref: A LaTeX example-Footnote-1812330
-Ref: A LaTeX example-Footnote-2812373
-Ref: A LaTeX example-Footnote-3812534
-Node: Translator functions812986
-Node: Dynamic Blocks815168
-Node: Special Agenda Views817414
-Ref: Special Agenda Views-Footnote-1821125
-Ref: Special Agenda Views-Footnote-2821331
-Node: Speeding Up Your Agendas821463
-Node: Extracting Agenda Information822686
-Node: Using the Property API826491
-Node: Using the Mapping API829840
-Node: History and Acknowledgments833872
-Ref: From Carsten834070
-Ref: From Bastien837500
-Ref: List of Contributions839632
-Node: GNU Free Documentation License848285
-Ref: ADDENDUM How to use this License for your documents872243
-Node: Main Index873636
-Node: Key Index974333
-Node: Command and Function Index1031556
-Node: Variable Index1080280
+Ref: Inserting headers and footers693328
+Node: Evaluating Code Blocks693838
+Ref: How to evaluate source code694293
+Ref: Limit code block evaluation697243
+Ref: Cache results of evaluation698229
+Ref: Evaluating Code Blocks-Footnote-1700742
+Ref: Evaluating Code Blocks-Footnote-2700876
+Node: Results of Evaluation701034
+Ref: Collection701841
+Ref: Type703302
+Ref: Format707326
+Ref: Handling709918
+Ref: Post-processing711309
+Ref: Results of Evaluation-Footnote-1713059
+Node: Exporting Code Blocks713217
+Node: Extracting Source Code716888
+Ref: Header arguments717869
+Ref: Functions722104
+Ref: Tangle hooks722355
+Ref: Jumping between code and Org723131
+Node: Languages723641
+Node: Editing Source Code724642
+Node: Noweb Reference Syntax727584
+Ref: Noweb Reference Syntax-Footnote-1734311
+Ref: Noweb Reference Syntax-Footnote-2734402
+Ref: Noweb Reference Syntax-Footnote-3735015
+Node: Library of Babel735135
+Node: Key bindings and Useful Functions735853
+Node: Batch Execution738278
+Node: Miscellaneous739061
+Node: Completion740524
+Node: Structure Templates742449
+Ref: Structure Templates-Footnote-1744199
+Node: Speed Keys744291
+Node: Clean View745460
+Node: Org Indent Mode746662
+Ref: Org Indent Mode-Footnote-1747868
+Node: Hard indentation748092
+Ref: Hard indentation-Footnote-1749575
+Ref: Hard indentation-Footnote-2749681
+Node: Execute commands in the active region749825
+Node: Dynamic Headline Numbering750837
+Node: The Very Busy C-c C-c Key752003
+Node: In-buffer Settings753990
+Ref: In-buffer Settings-Footnote-1763938
+Node: Regular Expressions764136
+Node: Org Syntax764758
+Node: Documentation Access766407
+Node: Escape Character766828
+Node: Code Evaluation Security767688
+Node: Interaction770555
+Node: Cooperation770978
+Node: Conflicts774047
+Node: TTY Keys778643
+Node: Protocols780280
+Node: The store-link protocol781741
+Node: The capture protocol782884
+Node: The open-source protocol784518
+Node: Org Crypt787761
+Node: Org Mobile789636
+Node: Setting up the staging area791027
+Ref: Setting up the staging area-Footnote-1792267
+Ref: Setting up the staging area-Footnote-2792474
+Node: Pushing to the mobile application792646
+Ref: Pushing to the mobile application-Footnote-1793657
+Ref: Pushing to the mobile application-Footnote-2793748
+Ref: Pushing to the mobile application-Footnote-3794115
+Node: Pulling from the mobile application794191
+Ref: Pulling from the mobile application-Footnote-1796504
+Node: Drag and Drop & yank-media796557
+Ref: Drag and Drop & yank-media-Footnote-1798186
+Node: Hacking798334
+Node: Hooks799284
+Node: Add-on Packages799559
+Node: Adding Hyperlink Types800015
+Node: Adding Export Backends803829
+Node: Tables in Arbitrary Syntax805074
+Node: Radio tables806342
+Node: A LaTeX example808478
+Ref: A LaTeX example-Footnote-1812331
+Ref: A LaTeX example-Footnote-2812374
+Ref: A LaTeX example-Footnote-3812535
+Node: Translator functions812987
+Node: Dynamic Blocks815169
+Node: Special Agenda Views817415
+Ref: Special Agenda Views-Footnote-1821126
+Ref: Special Agenda Views-Footnote-2821332
+Node: Speeding Up Your Agendas821464
+Node: Extracting Agenda Information822687
+Node: Using the Property API826492
+Node: Using the Mapping API829841
+Node: History and Acknowledgments833873
+Ref: From Carsten834071
+Ref: From Bastien837501
+Ref: List of Contributions839633
+Node: GNU Free Documentation License848286
+Ref: ADDENDUM How to use this License for your documents872244
+Node: Main Index873637
+Node: Key Index974334
+Node: Command and Function Index1031557
+Node: Variable Index1080281
 
 End Tag Table
 
