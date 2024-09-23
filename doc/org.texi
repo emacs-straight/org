@@ -1168,10 +1168,10 @@ You can run global cycling using @kbd{@key{TAB}} only if point is at
 the very beginning of the buffer, but not on a headline, and
 @code{org-cycle-global-at-bob} is set to a non-@code{nil} value.
 
-@item @kbd{C-u C-u @key{TAB}} (@code{org-set-startup-visibility})
+@item @kbd{C-u C-u @key{TAB}} (@code{org-cycle-set-startup-visibility})
 @cindex startup visibility
 @kindex C-u C-u TAB
-@findex org-set-startup-visibility
+@findex org-cycle-set-startup-visibility
 Switch back to the startup visibility of the buffer (see @ref{Initial visibility}).
 
 @item @kbd{C-u C-u C-u @key{TAB}} (@code{org-show-all})
@@ -1252,9 +1252,9 @@ Furthermore, any entries with a @samp{VISIBILITY} property (see @ref{Properties 
 for this property are @samp{folded}, @samp{children}, @samp{content}, and @samp{all}.
 
 @table @asis
-@item @kbd{C-u C-u @key{TAB}} (@code{org-set-startup-visibility})
+@item @kbd{C-u C-u @key{TAB}} (@code{org-cycle-set-startup-visibility})
 @kindex C-u C-u TAB
-@findex org-set-startup-visibility
+@findex org-cycle-set-startup-visibility
 Switch back to the startup visibility of the buffer, i.e., whatever
 is requested by startup options and @samp{VISIBILITY} properties in
 individual entries.
@@ -4355,8 +4355,8 @@ argument.
 
 With the above setting, you could link to a specific bug with
 @samp{[[bugzilla:129]]}, search the web for @samp{OrgMode} with @samp{[[duckduckgo:OrgMode]]},
-show the map location of the Free Software Foundation @samp{[[gmap:51
-Franklin Street, Boston]]} or of Carsten office @samp{[[omap:Science Park 904,
+show the map location of the Free Software Foundation @samp{[[omap:31
+Milk Street, Boston]]} or of Carsten's office @samp{[[omap:Science Park 904,
 Amsterdam, The Netherlands]]} and find out what the Org author is doing
 besides Emacs hacking with @samp{[[ads:Dominik,C]]}.
 
