@@ -479,6 +479,7 @@ Miscellaneous
 * Org Crypt::                    Encrypting Org files.
 * Org Mobile::                   Viewing and capture on a mobile device.
 * Drag and Drop & @code{yank-media}:: Dropping and pasting files and images
+* Repeating commands::           Repeating navigation commands
 
 Clean View
 
@@ -21444,6 +21445,7 @@ emacs -Q --batch --eval "
 * Org Crypt::                    Encrypting Org files.
 * Org Mobile::                   Viewing and capture on a mobile device.
 * Drag and Drop & @code{yank-media}:: Dropping and pasting files and images
+* Repeating commands::           Repeating navigation commands
 @end menu
 
 @node Completion
@@ -23161,6 +23163,74 @@ When yanking files copied from a file manager, Org respects the value
 of @code{org-yank-dnd-method}.  Image files pasted this way also respect
 the value of @code{org-yank-image-save-method} when the action to perform
 is @samp{attach}.
+
+@node Repeating commands
+@section Repeating commands
+
+@cindex repeat-mode, org-mode
+@cindex repeating navigation commands
+When @code{repeat-mode} is turned on, headline motion commands, link and
+block navigation commands by only pressing a single key.  For example,
+instead of typing @kbd{C-c C-n} repeatedly, you can just type
+@kbd{C-c C-n n n n p u @dots{}} to move to different headlines.  When
+a key not in the map is pressed, it exits @code{repeat-mode} and the
+command corresponding to the key is executed (see the
+@ref{Repeating,Emacs user manual,,emacs,} for more details).
+
+By default, the following commands are made repeatable in separate
+keymaps.
+
+@code{org-navigation-repeat-map}:
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@headitem Command
+@tab Key binding
+@tab Repeat key
+@item @code{org-next-visible-heading}
+@tab @kbd{C-c C-n}
+@tab @kbd{n}
+@item @code{org-previous-visible-heading}
+@tab @kbd{C-c C-p}
+@tab @kbd{p}
+@item @code{org-forward-heading-same-level}
+@tab @kbd{C-c C-f}
+@tab @kbd{f}
+@item @code{org-backward-heading-same-level}
+@tab @kbd{C-c C-b}
+@tab @kbd{b}
+@item @code{org-up-heading}
+@tab @kbd{C-c C-u}
+@tab @kbd{u}
+@end multitable
+
+
+@code{org-block-navigation-repeat-map}:
+
+@multitable {aaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@headitem Command
+@tab Key binding
+@tab Repeat key
+@item @code{org-next-block}
+@tab @kbd{C-c M-f}
+@tab @kbd{f}
+@item @code{org-previous-block}
+@tab @kbd{C-c M-b}
+@tab @kbd{b}
+@end multitable
+
+@code{org-link-navigation-repeat-map}:
+
+@multitable {aaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@headitem Command
+@tab Key binding
+@tab Repeat key
+@item @code{org-next-link}
+@tab @kbd{C-c C-x C-n}
+@tab @kbd{n}
+@item @code{org-previous-link}
+@tab @kbd{C-c C-x C-p}
+@tab @kbd{p}
+@end multitable
 
 @node Hacking
 @appendix Hacking
