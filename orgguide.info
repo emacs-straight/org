@@ -50,7 +50,7 @@ Copyright © 2004–2024 Free Software Foundation, Inc.
 * Tags::                         Tagging headlines and matching sets of tags.
 * Properties::                   Storing information about an entry.
 * Dates and Times::              Making items useful for planning.
-* Capture, Refile, Archive: Capture Refile Archive.  The ins and outs for projects.
+* Capture, Refile, Archive:: The ins and outs for projects.
 * Agenda Views::                 Collecting information into views.
 * Markup::                       Compose beautiful documents.
 * Exporting::                    Sharing and publishing notes.
@@ -256,8 +256,7 @@ uses just two commands, bound to ‘<TAB>’ and ‘S-<TAB>’ (‘org-cycle’ 
      When called with a prefix argument (‘C-u <TAB>’), or with the Shift
      key, global cycling is invoked.
 
-‘S-<TAB>’ (‘org-global-cycle’)
-‘C-u <TAB>’ (‘org-cycle’)
+‘S-<TAB>’ (‘org-global-cycle’), ‘C-u <TAB>’ (‘org-cycle’)
      _Global cycling_: Rotate the entire buffer among the states
 
           ,-> OVERVIEW -> CONTENTS -> SHOW ALL --.
@@ -311,17 +310,14 @@ File: orgguide.info,  Node: Structure Editing,  Next: Sparse Trees,  Prev: Motio
 ‘M-S-<RET>’ (‘org-insert-todo-heading’)
      Insert new TODO entry with same level as current heading.
 
-‘<TAB>’ (‘org-cycle’) in new
-empty entry
+‘<TAB>’ (‘org-cycle’) in new, empty entry
      In a new entry with no text yet, ‘<TAB>’ cycles through reasonable
      levels.
 
-‘M-<LEFT>’ (‘org-metaleft’)
-‘M-<RIGHT>’ (‘org-metaright’)
+‘M-<LEFT>’ (‘org-metaleft’), ‘M-<RIGHT>’ (‘org-metaright’)
      Promote or demote current heading by one level.
 
-‘M-<UP>’ (‘org-move-subtree-up’)
-‘M-<DOWN>’ (‘org-move-subtree-down’)
+‘M-<UP>’ (‘org-move-subtree-up’), ‘M-<DOWN>’ (‘org-move-subtree-down’)
      Move subtree up or down, i.e., swap with previous or next subtree
      of same level.
 
@@ -329,8 +325,7 @@ empty entry
      Refile entry or region to a different location.  See *note Refile
      and Copy::.
 
-‘C-x n s’ (‘org-narrow-to-subtree’)
-‘C-x n w’ (‘widen’)
+‘C-x n s’ (‘org-narrow-to-subtree’), ‘C-x n w’ (‘widen’)
      Narrow buffer to current subtree and widen it again.
 
    When there is an active region (Transient Mark mode), promotion and
@@ -422,19 +417,16 @@ of an item (the line with the bullet or number).
 ‘M-S-<RET>’ (‘org-insert-todo-heading’)
      Insert a new item with a checkbox (see *note Checkboxes::).
 
-‘M-<UP>’ (‘org-move-item-up’)
-‘M-<DOWN>’ (‘org-move-item-down’)
+‘M-<UP>’ (‘org-move-item-up’), ‘M-<DOWN>’ (‘org-move-item-down’)
      Move the item including subitems up/down (swap with previous/next
      item of same indentation).  If the list is ordered, renumbering is
      automatic.
 
-‘M-<LEFT>’ (‘org-do-promote’)
-‘M-<RIGHT>’ (‘org-do-demote’)
+‘M-<LEFT>’ (‘org-do-promote’), ‘M-<RIGHT>’ (‘org-do-demote’)
      Decrease/increase the indentation of an item, leaving children
      alone.
 
-‘M-S-<LEFT>’ (‘org-promote-subtree’)
-‘M-S-<RIGHT>’ (‘org-demote-subtree’)
+‘M-S-<LEFT>’ (‘org-promote-subtree’), ‘M-S-<RIGHT>’ (‘org-demote-subtree’)
      Decrease/increase the indentation of the item, including subitems.
 
 ‘C-c C-c’ (‘org-toggle-checkbox’)
@@ -517,10 +509,7 @@ Re-aligning and field motion
      Re-align the table and move down to next row.  Creates a new row if
      necessary.
 
-‘S-<UP>’ (‘org-table-move-cell-up’)
-‘S-<DOWN>’ (‘org-table-move-cell-down’)
-‘S-<LEFT>’ (‘org-table-move-cell-left’)
-‘S-<RIGHT>’ (‘org-table-move-cell-right’)
+‘S-<UP>’ (‘org-table-move-cell-up’), ‘S-<DOWN>’ (‘org-table-move-cell-down’), ‘S-<LEFT>’ (‘org-table-move-cell-left’), ‘S-<RIGHT>’ (‘org-table-move-cell-right’)
      Move a cell up, down, left, and right by swapping with adjacent
      cell.
 
@@ -715,8 +704,7 @@ for example:
      The same rotation can also be done “remotely” from the agenda
      buffer with the ‘t’ command key (see *note Agenda Commands::).
 
-‘S-<RIGHT>’ (‘org-shiftright’)
-‘S-<LEFT>’ (‘org-shiftleft’)
+‘S-<RIGHT>’ (‘org-shiftright’), ‘S-<LEFT>’ (‘org-shiftleft’)
      Select the following/preceding TODO state, similar to cycling.
 
 ‘C-c / t’ (‘org-show-todo-tree’)
@@ -1107,7 +1095,7 @@ Tags::).  The syntax for the search string is described in *note
 Matching Tags and Properties::.
 
 
-File: orgguide.info,  Node: Dates and Times,  Next: Capture Refile Archive,  Prev: Properties,  Up: Top
+File: orgguide.info,  Node: Dates and Times,  Next: Capture, Refile, Archive,  Prev: Properties,  Up: Top
 
 8 Dates and Times
 *****************
@@ -1222,12 +1210,10 @@ format.
      Like ‘C-c .’, but insert an inactive timestamp that does not cause
      an agenda entry.
 
-‘S-<LEFT>’ (‘org-timestamp-down-day’)
-‘S-<RIGHT>’ (‘org-timestamp-up-day’)
+‘S-<LEFT>’ (‘org-timestamp-down-day’), ‘S-<RIGHT>’ (‘org-timestamp-up-day’)
      Change date at point by one day.
 
-‘S-<UP>’ (‘org-timestamp-up’)
-‘S-<DOWN>’ (‘org-timestamp-down’)
+‘S-<UP>’ (‘org-timestamp-up’), ‘S-<DOWN>’ (‘org-timestamp-down’)
      On the beginning or enclosing bracket of a timestamp, change its
      type.  Within a timestamp, change the item under point.  Point can
      be on a year, month, day, hour or minute.  When the timestamp
@@ -1340,7 +1326,7 @@ project.
 Views::) to show which tasks have been worked on or closed during a day.
 
 
-File: orgguide.info,  Node: Capture Refile Archive,  Next: Agenda Views,  Prev: Dates and Times,  Up: Top
+File: orgguide.info,  Node: Capture, Refile, Archive,  Next: Agenda Views,  Prev: Dates and Times,  Up: Top
 
 9 Capture, Refile, Archive
 **************************
@@ -1360,7 +1346,7 @@ fast.
 * Archiving::                    What to do with finished products.
 
 
-File: orgguide.info,  Node: Capture,  Next: Refile and Copy,  Up: Capture Refile Archive
+File: orgguide.info,  Node: Capture,  Next: Refile and Copy,  Up: Capture, Refile, Archive
 
 9.1 Capture
 ===========
@@ -1440,7 +1426,7 @@ locations.  See *note Capture templates::.
 a backslash.
 
 
-File: orgguide.info,  Node: Refile and Copy,  Next: Archiving,  Prev: Capture,  Up: Capture Refile Archive
+File: orgguide.info,  Node: Refile and Copy,  Next: Archiving,  Prev: Capture,  Up: Capture, Refile, Archive
 
 9.2 Refile and Copy
 ===================
@@ -1473,7 +1459,7 @@ command:
      deleted.
 
 
-File: orgguide.info,  Node: Archiving,  Prev: Refile and Copy,  Up: Capture Refile Archive
+File: orgguide.info,  Node: Archiving,  Prev: Refile and Copy,  Up: Capture, Refile, Archive
 
 9.3 Archiving
 =============
@@ -1507,7 +1493,7 @@ example:
      #+ARCHIVE: %s_done::
 
 
-File: orgguide.info,  Node: Agenda Views,  Next: Markup,  Prev: Capture Refile Archive,  Up: Top
+File: orgguide.info,  Node: Agenda Views,  Next: Markup,  Prev: Capture, Refile, Archive,  Up: Top
 
 10 Agenda Views
 ***************
@@ -1575,12 +1561,10 @@ commands:
      Create the calendar-like agenda (see *note Built-in Agenda
      Views::).
 
-‘t’
-‘T’
+‘t’, ‘T’
      Create a list of all TODO items (see *note Global TODO List::).
 
-‘m’
-‘M’
+‘m’, ‘M’
      Create a list of headlines matching a given expression (see *note
      Matching Tags and Properties::).
 
@@ -1781,8 +1765,7 @@ Change display
      day.  When called with a ‘C-u’ prefix argument, show all possible
      logbook entries, including state changes.
 
-‘r’
-‘g’ (‘org-agenda-redo’)
+‘r’, ‘g’ (‘org-agenda-redo’)
      Recreate the agenda buffer, for example to reflect the changes
      after modification of the timestamps of items.
 
@@ -2192,8 +2175,7 @@ characters.  This is the simplest and most direct text output.  It does
 not contain any Org markup.  UTF-8 export uses additional characters and
 symbols available in this encoding standards.
 
-‘C-c C-e t a’
-‘C-c C-e t u’ (‘org-ascii-export-to-ascii’)
+‘C-c C-e t a’, ‘C-c C-e t u’ (‘org-ascii-export-to-ascii’)
      Export as an ASCII file with a ‘.txt’ extension.  For ‘myfile.org’,
      Org exports to ‘myfile.txt’, overwriting without warning.  For
      ‘myfile.txt’, Org exports to ‘myfile.txt.txt’ in order to prevent
@@ -2558,104 +2540,104 @@ file, use
 
 Tag Table:
 Node: Top922
-Node: Introduction5668
-Ref: Installation6354
-Ref: Activation7066
-Ref: Feedback7509
-Node: Document Structure7766
-Node: Headlines8837
-Ref: Headlines-Footnote-19719
-Node: Visibility Cycling9842
-Node: Motion11236
-Node: Structure Editing11830
-Ref: Structure Editing-Footnote-113262
-Node: Sparse Trees13366
-Ref: Sparse Trees-Footnote-114476
-Node: Plain Lists14591
-Node: Tables17380
-Ref: Creation and conversion19073
-Ref: Re-aligning and field motion19673
-Ref: Column and row editing20433
-Node: Hyperlinks21784
-Ref: Internal links22542
-Ref: External Links22995
-Ref: Handling Links24825
-Node: TODO Items26316
-Node: TODO Basics27293
-Node: Multi-state Workflow28831
-Node: Progress Logging30622
-Ref: Closing items31386
-Ref: Tracking TODO state changes31941
-Ref: Progress Logging-Footnote-132940
-Ref: Progress Logging-Footnote-233013
-Node: Priorities33091
-Node: Breaking Down Tasks34008
-Node: Checkboxes34811
-Node: Tags35950
-Ref: Tag inheritance36575
-Ref: Setting tags37313
-Ref: Tag groups39091
-Ref: Tag searches39887
-Ref: Tags-Footnote-140967
-Node: Properties41071
-Node: Dates and Times42883
-Node: Timestamps43920
-Node: Creating Timestamps46676
-Node: Deadlines and Scheduling48519
-Ref: Deadlines and Scheduling-Footnote-150585
-Ref: Deadlines and Scheduling-Footnote-250746
-Node: Clocking Work Time50909
-Node: Capture Refile Archive52344
-Node: Capture53152
-Ref: Setting up capture53454
-Ref: Using capture53725
-Ref: Capture templates54421
-Ref: Capture-Footnote-155854
-Ref: Capture-Footnote-255965
-Node: Refile and Copy56056
-Node: Archiving57366
+Node: Introduction5644
+Ref: Installation6330
+Ref: Activation7042
+Ref: Feedback7485
+Node: Document Structure7742
+Node: Headlines8813
+Ref: Headlines-Footnote-19695
+Node: Visibility Cycling9818
+Node: Motion11213
+Node: Structure Editing11807
+Ref: Structure Editing-Footnote-113243
+Node: Sparse Trees13347
+Ref: Sparse Trees-Footnote-114457
+Node: Plain Lists14572
+Node: Tables17364
+Ref: Creation and conversion19057
+Ref: Re-aligning and field motion19657
+Ref: Column and row editing20420
+Node: Hyperlinks21771
+Ref: Internal links22529
+Ref: External Links22982
+Ref: Handling Links24812
+Node: TODO Items26303
+Node: TODO Basics27280
+Node: Multi-state Workflow28819
+Node: Progress Logging30610
+Ref: Closing items31374
+Ref: Tracking TODO state changes31929
+Ref: Progress Logging-Footnote-132928
+Ref: Progress Logging-Footnote-233001
+Node: Priorities33079
+Node: Breaking Down Tasks33996
+Node: Checkboxes34799
+Node: Tags35938
+Ref: Tag inheritance36563
+Ref: Setting tags37301
+Ref: Tag groups39079
+Ref: Tag searches39875
+Ref: Tags-Footnote-140955
+Node: Properties41059
+Node: Dates and Times42871
+Node: Timestamps43910
+Node: Creating Timestamps46666
+Node: Deadlines and Scheduling48511
+Ref: Deadlines and Scheduling-Footnote-150577
+Ref: Deadlines and Scheduling-Footnote-250738
+Node: Clocking Work Time50901
+Node: Capture, Refile, Archive52336
+Node: Capture53146
+Ref: Setting up capture53450
+Ref: Using capture53721
+Ref: Capture templates54417
+Ref: Capture-Footnote-155850
+Ref: Capture-Footnote-255961
+Node: Refile and Copy56052
+Node: Archiving57364
 Node: Agenda Views58742
-Node: Agenda Files60197
-Node: Agenda Dispatcher60945
-Node: Built-in Agenda Views61865
-Node: Global TODO List62978
-Node: Matching Tags and Properties63739
-Node: Search View65769
-Node: Agenda Commands66879
-Ref: Motion (1)67482
-Ref: View/Go to Org file67685
-Ref: Change display68123
-Ref: Remote editing69493
-Ref: Quit and exit71081
-Node: Custom Agenda Views71335
-Node: Markup72811
-Node: Paragraphs73637
-Node: Emphasis and Monospace74759
-Node: Embedded LaTeX75177
-Node: Literal examples76046
-Node: Images77136
-Node: Creating Footnotes77737
-Node: Exporting78711
-Node: The Export Dispatcher79587
-Node: Export Settings80145
-Node: Table of Contents80970
-Node: Include Files81703
-Node: Comment Lines82389
-Node: ASCII/UTF-8 Export83114
-Node: HTML Export83847
-Node: LaTeX Export84885
-Node: iCalendar Export86628
-Node: Publishing87407
-Node: Working with Source Code89138
-Ref: Using header arguments90405
-Ref: Evaluating code blocks91583
-Ref: Results of evaluation92474
-Ref: Exporting code blocks93696
-Ref: Extracting source code94160
-Node: Miscellaneous94704
-Ref: Completion94827
-Ref: Structure Templates95164
-Ref: Clean view95528
+Node: Agenda Files60199
+Node: Agenda Dispatcher60947
+Node: Built-in Agenda Views61869
+Node: Global TODO List62982
+Node: Matching Tags and Properties63743
+Node: Search View65773
+Node: Agenda Commands66883
+Ref: Motion (1)67486
+Ref: View/Go to Org file67689
+Ref: Change display68127
+Ref: Remote editing69498
+Ref: Quit and exit71086
+Node: Custom Agenda Views71340
+Node: Markup72816
+Node: Paragraphs73642
+Node: Emphasis and Monospace74764
+Node: Embedded LaTeX75182
+Node: Literal examples76051
+Node: Images77141
+Node: Creating Footnotes77742
+Node: Exporting78716
+Node: The Export Dispatcher79592
+Node: Export Settings80150
+Node: Table of Contents80975
+Node: Include Files81708
+Node: Comment Lines82394
+Node: ASCII/UTF-8 Export83119
+Node: HTML Export83853
+Node: LaTeX Export84891
+Node: iCalendar Export86634
+Node: Publishing87413
+Node: Working with Source Code89144
+Ref: Using header arguments90411
+Ref: Evaluating code blocks91589
+Ref: Results of evaluation92480
+Ref: Exporting code blocks93702
+Ref: Extracting source code94166
+Node: Miscellaneous94710
+Ref: Completion94833
+Ref: Structure Templates95170
+Ref: Clean view95534
 
 End Tag Table
 
