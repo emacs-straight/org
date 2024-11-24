@@ -3116,8 +3116,7 @@ and prefix with \"OrgSrc\".  For example,
 
 (defun org-odt-do-format-code
     (code info &optional lang refs retain-labels num-start)
-  (let* ((lang (or (assoc-default lang org-src-lang-modes) lang))
-	 (lang-mode (if lang (intern (format "%s-mode" lang)) #'ignore))
+  (let* ((lang-mode (if lang (org-src-get-lang-mode lang) #'ignore))
 	 (code-lines (org-split-string code "\n"))
 	 (code-length (length code-lines))
 	 (use-htmlfontify-p (and (functionp lang-mode)
@@ -4033,7 +4032,11 @@ contextual information."
 		     (kill-buffer buf)))))
 	     ;; Delete temporary directory and also other embedded
 	     ;; files that get copied there.
-	     (delete-directory org-odt-zip-dir t))))
+	     (delete-directory org-odt-zip-dir t)))
+          ;; We specify UTF-8 in `org-odt-template'.  Enforce it even
+          ;; when the buffer text has different encoding.
+          (coding-system-for-write 'utf-8)
+	  (save-buffer-coding-system 'utf-8))
      (condition-case-unless-debug err
 	 (progn
 	   (unless (executable-find "zip")
