@@ -759,6 +759,37 @@ Dispatch to the appropriate function to store a link to an IRC session.
 ;;;### (autoloads nil "ol" "ol.el" (0 0 0 0))
 ;;; Generated autoloads from ol.el
 
+(autoload 'org-link-preview "ol" "\
+Toggle display of link previews in the buffer.
+
+When region BEG..END is active, preview links in the
+region.
+
+When point is at a link, display a preview for that link only.
+Otherwise, display previews for links in current entry.
+
+With numeric prefix ARG 1, also preview links with description in
+the active region, at point or in the current section.
+
+With prefix ARG `\\[universal-argument]', clear link previews at
+point or in the current entry.
+
+With prefix ARG `\\[universal-argument] \\[universal-argument]',
+ display link previews in the accessible portion of the
+ buffer.  With numeric prefix ARG 11, do the same, but include
+ links with descriptions.
+
+With prefix ARG `\\[universal-argument] \\[universal-argument] \\[universal-argument]',
+hide all link previews in the accessible portion of the buffer.
+
+This command is designed for interactive use.  From Elisp, you can
+also use `org-link-preview-region'.
+
+\(fn &optional ARG BEG END)" t nil)
+
+(autoload 'org-link-preview-refresh "ol" "\
+Assure display of link previews in buffer and refresh them." t nil)
+
 (autoload 'org-next-link "ol" "\
 Move forward to the next link.
 If the link is in hidden text, expose it.  When SEARCH-BACKWARD
