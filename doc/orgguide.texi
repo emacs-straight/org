@@ -7,9 +7,9 @@
 @set txicodequoteundirected
 @set txicodequotebacktick
 @set MAINTAINERSITE @uref{https://orgmode.org,maintainers webpage}
-@set MAINTAINER Bastien Guerry
-@set MAINTAINEREMAIL @email{bzg@gnu.org}
-@set MAINTAINERCONTACT @uref{mailto:bzg@gnu.org,contact the maintainer}
+@set MAINTAINER Ihor Radchenko
+@set MAINTAINEREMAIL @email{yantar92@posteo.net}
+@set MAINTAINERCONTACT @uref{mailto:yantar92@posteo.net,contact the maintainer}
 @c %**end of header
 
 @copying

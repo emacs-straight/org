@@ -7,9 +7,9 @@
 @set txicodequoteundirected
 @set txicodequotebacktick
 @set MAINTAINERSITE @uref{https://orgmode.org,maintainers webpage}
-@set MAINTAINER Bastien Guerry
-@set MAINTAINEREMAIL @email{bzg@gnu.org}
-@set MAINTAINERCONTACT @uref{mailto:bzg@gnu.org,contact the maintainer}
+@set MAINTAINER Ihor Radchenko
+@set MAINTAINEREMAIL @email{yantar92@posteo.net}
+@set MAINTAINERCONTACT @uref{mailto:yantar92@posteo.net,contact the maintainer}
 @c %**end of header
 
 @copying
@@ -12422,7 +12422,7 @@ display decoration (see @ref{Overlay Properties,,,elisp,}) can be
 used.
 
 You can preview the supported link types in the whole buffer@comma{} in the
-current section@comma{} active region or at point with the following commands: 
+current section@comma{} active region or at point with the following commands:
 
 @table @asis
 @item @kbd{C-c C-x C-v} (@code{org-link-preview})
@@ -24413,51 +24413,60 @@ know what I am missing here!
 @anchor{From Bastien}
 @appendixsec From Bastien
 
-I (Bastien) have been maintaining Org between 2011 and 2013.  This
-appendix would not be complete without adding a few more
-acknowledgments and thanks.
-
-I am first grateful to Carsten for his trust while handing me over the
-maintainership of Org.  His unremitting support is what really helped
-me getting more confident over time@comma{} with both the community and the
-code.
-
-When I took over maintainership@comma{} I knew I would have to make Org more
-collaborative than ever@comma{} as I would have to rely on people that are
-more knowledgeable than I am on many parts of the code.  Here is
-a list of the persons I could rely on@comma{} they should really be
-considered co-maintainers@comma{} either of the code or the community:
+I started maintaining Org in January 2011 and officially stepped down
+in December 2024@comma{} when Ihor Radchenko agreed to become the new Org
+maintainer.  I was active for the first few years@comma{} then my involvement
+slowly decreased thanks to the help of new core contributors whom I'd
+like to thank.
 
 @table @asis
 @item Eric Schulte
-Eric is maintaining the Babel parts of Org.  His reactivity here
-kept me away from worrying about possible bugs here and let me focus
-on other parts.
+Eric has been maintaining the Babel parts of Org.  His reactivity
+here kept me away from worrying about possible bugs here and let me
+focus on other parts.
 
 @item Nicolas Goaziou
-Nicolas is maintaining the consistency of the deepest parts of Org.
+Nicolas was maintaining the consistency of the deepest parts of Org.
 His work on @samp{org-element.el} and @samp{ox.el} has been outstanding@comma{} and
-it opened the doors for many new ideas and features.  He rewrote
-many of the old exporters to use the new export engine@comma{} and helped
-with documenting this major change.  More importantly (if that's
-possible)@comma{} he has been more than reliable during all the work done
-for Org 8.0@comma{} and always very reactive on the mailing list.
+it opened the doors for many new ideas and features.  He rewrote old
+exporters and helped with documenting this change.  More importantly
+(if that's possible)@comma{} he has been more than reliable during all the
+work done for Org 8.0.
 
 @item Achim Gratz
 Achim rewrote the building process of Org@comma{} turning some @emph{ad hoc}
-tools into a flexible and conceptually clean process.  He patiently
-coped with the many hiccups that such a change can create for users.
+scripts into a stable process.  He patiently coped with the many
+hiccups that such a change can create for users.
 
 @item Nick Dokos
 The Org mode mailing list would not be such a nice place without
 Nick@comma{} who patiently helped users so many times.  It is impossible to
 overestimate such a great help@comma{} and the list would not be so active
 without him.
+
+@item Kyle Meyer
+Kyle is maintaining @uref{https://list.orgmode.org, list.orgmode.org}
+and takes care of backporting upstream GNU Emacs changes into Org's
+repository.  He also helped tremendously on the mailing list and in
+private@comma{} patiently answering questions@comma{} competently providing advice
+and solutions.
+
+@item Ihor Radchenko
+Ihor became Org maintainer in December 2024@comma{} and I'm very grateful
+to him for agreeing to take on this role.  His responsiveness on the
+mailing list@comma{} his determination to improve Org as a core format and
+an ecosystem of tools@comma{} his clarity about strategic changes that need
+to be made make him an asset for the Org community.
 @end table
 
 I received support from so many users that it is clearly impossible to
 be fair when shortlisting a few of them@comma{} but Org's history would not
 be complete if the ones above were not mentioned in this manual.
+
+Of course@comma{} I'm also grateful grateful to Carsten for his trust while
+handing me over the maintainership of Org.  His unremitting support is
+what really helped me getting more confident over time@comma{} with both the
+community and the code.
 
 @anchor{List of Contributions}
 @appendixsec List of Contributions
