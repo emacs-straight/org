@@ -18960,7 +18960,7 @@ large number of publishers' styles).  It only supports @LaTeX{}'s
 
 @item natbib
 as with the @samp{bibtex} processor@comma{} but using the @LaTeX{}
-package @samp{natbib}@comma{} allowing more stylistic variants that @LaTeX{}'s
+package @samp{natbib}@comma{} allowing more stylistic variants than @LaTeX{}'s
 @samp{\cite} command.
 
 @item biblatex

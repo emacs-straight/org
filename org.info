@@ -15647,7 +15647,7 @@ Org currently includes the following export processors:
 
      natbib
           as with the ‘bibtex’ processor, but using the LaTeX package
-          ‘natbib’, allowing more stylistic variants that LaTeX’s
+          ‘natbib’, allowing more stylistic variants than LaTeX’s
           ‘\cite’ command.
 
      biblatex
