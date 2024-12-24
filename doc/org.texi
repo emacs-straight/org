@@ -647,7 +647,8 @@ Otherwise@comma{} autoload Org functions will mess up the installation.
 
 @end quotation
 
-To avoid interference with built-in Org mode@comma{} you can use command line:
+To avoid interference with built-in Org mode@comma{} you can use command line
+(you need Emacs 30 or later):
 
 @example
 emacs -Q -batch -eval "(progn (require 'package) (package-initialize) (package-refresh-contents) (package-upgrade 'org))"
@@ -20732,7 +20733,7 @@ unexpected results (@samp{444} is the same as @samp{o674}).
 Two other shorthands are recognized@comma{} ls-style strings like
 @samp{rw-r--r--}@comma{} and chmod-style permissions like @samp{g+w}.
 Note that chmod-style permissions are based on
-@code{org-babel-tangle-default-file-mode}@comma{} which is @samp{#o544} by default.
+@code{org-babel-tangle-default-file-mode}@comma{} which is @samp{#o644} by default.
 
 When @samp{:tangle-mode} and @samp{:shebang} are both specified@comma{} the give
 @samp{:tangle-mode} will override the permissions from @samp{:shebang}.  When
