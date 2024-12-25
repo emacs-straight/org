@@ -19044,7 +19044,8 @@ a file manager, Org may attach by copying or by moving.
 metadata, it defaults to ‘org-yank-dnd-default-attach-method’ (1)
 
    Starting from Emacs 29, Org mode supports ‘yank-media’ command to
-yank images from the clipboard and files from a file manager.
+yank images from the clipboard, files from a file manager and tables
+copied from LibreOffice Calc documents.
 
    When yanking images from clipboard, Org saves the image on disk and
 inserts the image link to Org buffer.  Images are either saved as
@@ -19059,6 +19060,9 @@ image names or change the naming scheme.
 of ‘org-yank-dnd-method’.  Image files pasted this way also respect the
 value of ‘org-yank-image-save-method’ when the action to perform is
 ‘attach’.
+
+   Tables copied from LibreOffice Calc documents are yanked as Org
+tables.
 
    ---------- Footnotes ----------
 
@@ -24611,9 +24615,9 @@ org-customize’ and then click yourself through the tree.
                                                               (line   6)
 * org-yank-folded-subtrees:              Structure Editing.   (line  85)
 * org-yank-image-file-name-function:     Drag and Drop & yank-media.
-                                                              (line  26)
+                                                              (line  27)
 * org-yank-image-save-method:            Drag and Drop & yank-media.
-                                                              (line  21)
+                                                              (line  22)
 * parse-time-months:                     The date/time prompt.
                                                               (line  58)
 * parse-time-weekdays:                   The date/time prompt.
@@ -25188,39 +25192,39 @@ Ref: Pushing to the mobile application-Footnote-3796363
 Node: Pulling from the mobile application796439
 Ref: Pulling from the mobile application-Footnote-1798752
 Node: Drag and Drop & yank-media798805
-Ref: Drag and Drop & yank-media-Footnote-1800461
-Node: Repeating commands800609
-Node: Hacking802751
-Node: Hooks803776
-Node: Add-on Packages804051
-Node: Adding Hyperlink Types804507
-Node: Adding Hyperlink preview808323
-Node: Adding Export Backends811065
-Node: Tables in Arbitrary Syntax812312
-Node: Radio tables813580
-Node: A LaTeX example815716
-Ref: A LaTeX example-Footnote-1819569
-Ref: A LaTeX example-Footnote-2819612
-Ref: A LaTeX example-Footnote-3819773
-Node: Translator functions820225
-Node: Dynamic Blocks822407
-Node: Special Agenda Views824653
-Ref: Special Agenda Views-Footnote-1828364
-Ref: Special Agenda Views-Footnote-2828570
-Node: Speeding Up Your Agendas828702
-Node: Extracting Agenda Information829925
-Node: Using the Property API833732
-Node: Using the Mapping API837081
-Node: History and Acknowledgments841113
-Ref: From Carsten841311
-Ref: From Bastien844741
-Ref: List of Contributions847276
-Node: GNU Free Documentation License855929
-Ref: ADDENDUM How to use this License for your documents879887
-Node: Main Index881280
-Node: Key Index982263
-Node: Command and Function Index1039693
-Node: Variable Index1088977
+Ref: Drag and Drop & yank-media-Footnote-1800584
+Node: Repeating commands800732
+Node: Hacking802874
+Node: Hooks803899
+Node: Add-on Packages804174
+Node: Adding Hyperlink Types804630
+Node: Adding Hyperlink preview808446
+Node: Adding Export Backends811188
+Node: Tables in Arbitrary Syntax812435
+Node: Radio tables813703
+Node: A LaTeX example815839
+Ref: A LaTeX example-Footnote-1819692
+Ref: A LaTeX example-Footnote-2819735
+Ref: A LaTeX example-Footnote-3819896
+Node: Translator functions820348
+Node: Dynamic Blocks822530
+Node: Special Agenda Views824776
+Ref: Special Agenda Views-Footnote-1828487
+Ref: Special Agenda Views-Footnote-2828693
+Node: Speeding Up Your Agendas828825
+Node: Extracting Agenda Information830048
+Node: Using the Property API833855
+Node: Using the Mapping API837204
+Node: History and Acknowledgments841236
+Ref: From Carsten841434
+Ref: From Bastien844864
+Ref: List of Contributions847399
+Node: GNU Free Documentation License856052
+Ref: ADDENDUM How to use this License for your documents880010
+Node: Main Index881403
+Node: Key Index982386
+Node: Command and Function Index1039816
+Node: Variable Index1089100
 
 End Tag Table
 
