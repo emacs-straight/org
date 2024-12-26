@@ -14447,8 +14447,8 @@ with Org@footnote{ By default@comma{} Org loads MathJax from
 @uref{https://docs.mathjax.org/en/latest/web/start.html, Getting Started
 with MathJax Components}.}@footnote{Please note that exported formulas are part of an HTML
 document@comma{} and that signs such as @samp{<}@comma{} @samp{>}@comma{} or @samp{&} have special
-meanings.  See @uref{https://docs.mathjax.org/en/latest/input/tex/html.html#tex-and-latex-in-html-documents, MathJax @TeX{} and @LaTeX{} in HTML documents}.}.  Some MathJax display options can
-be configured via @code{org-html-mathjax-options}@comma{} or in the buffer.  For
+meanings.  See @uref{https://docs.mathjax.org/en/latest/input/tex/html.html#tex-and-latex-in-html-documents, MathJax @TeX{} and @LaTeX{} in HTML documents}.}.  Some MathJax options can be
+configured via @code{org-html-mathjax-options}@comma{} or in the buffer.  For
 example@comma{} with the following settings@comma{}
 
 @example
@@ -14458,6 +14458,12 @@ example@comma{} with the following settings@comma{}
 @noindent
 equation labels are displayed on the left margin and equations are
 five ems from the left margin.
+
+To use a local copy of MathJax@comma{} use @samp{path} option:
+
+@example
+#+HTML_MATHJAX: path:the/path/to/mathjax.js
+@end example
 
 @vindex org-html-mathjax-template
 See the docstring of @code{org-html-mathjax-options} for all supported
