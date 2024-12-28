@@ -18703,13 +18703,13 @@ for the shell.
 name, e.g., ‘Org: store-link’ and enter this as _Location_:
 
      javascript:location.href='org-protocol://store-link?' +
-           new URLSearchParams({url:location.href, title:document.title});
+           new URLSearchParams({url:location.href, title:document.title});void(0);
 
    Title is an optional parameter.  Another expression was recommended
 earlier:
 
      javascript:location.href='org-protocol://store-link?url='+
-           encodeURIComponent(location.href);
+           encodeURIComponent(location.href);void(0);
 
    The latter form is compatible with older Org versions from 9.0 to
 9.4.
@@ -18732,13 +18732,14 @@ using a capture template.
            new URLSearchParams({
                  template: 'x', url: window.location.href,
                  title: document.title, body: window.getSelection()});
+           void(0);
 
    You might have seen another expression:
 
      javascript:location.href='org-protocol://capture?template=x'+
            '&url='+encodeURIComponent(window.location.href)+
            '&title='+encodeURIComponent(document.title)+
-           '&body='+encodeURIComponent(window.getSelection());
+           '&body='+encodeURIComponent(window.getSelection());void(0);
 
    It is a bit more cluttered than the former one, but it is compatible
 with previous Org versions 9.0-9.4.  In these versions encoding of space
@@ -18765,7 +18766,7 @@ when reading a document.  To that effect, you can use a bookmark with
 the following location:
 
      javascript:location.href='org-protocol://open-source?&url='+
-           encodeURIComponent(location.href)
+           encodeURIComponent(location.href);void(0)
 
    The variable ‘org-protocol-project-alist’ maps URLs to local file
 names, by stripping URL parameters from the end and replacing the
@@ -24476,7 +24477,7 @@ org-customize’ and then click yourself through the tree.
 * org-property-allowed-value-functions:  Using the Property API.
                                                               (line  63)
 * org-protocol-default-template-key:     The capture protocol.
-                                                              (line  30)
+                                                              (line  31)
 * org-protocol-project-alist:            The open-source protocol.
                                                               (line  13)
 * org-publish-project-alist:             Project alist.       (line   6)
@@ -25182,53 +25183,53 @@ Node: Conflicts776396
 Node: TTY Keys780992
 Node: Protocols782629
 Node: The store-link protocol784090
-Node: The capture protocol785233
-Node: The open-source protocol786867
-Node: Org Crypt790110
-Node: Org Mobile791985
-Node: Setting up the staging area793376
-Ref: Setting up the staging area-Footnote-1794616
-Ref: Setting up the staging area-Footnote-2794823
-Node: Pushing to the mobile application794995
-Ref: Pushing to the mobile application-Footnote-1796006
-Ref: Pushing to the mobile application-Footnote-2796097
-Ref: Pushing to the mobile application-Footnote-3796464
-Node: Pulling from the mobile application796540
-Ref: Pulling from the mobile application-Footnote-1798853
-Node: Drag and Drop & yank-media798906
-Ref: Drag and Drop & yank-media-Footnote-1800685
-Node: Repeating commands800833
-Node: Hacking802975
-Node: Hooks804000
-Node: Add-on Packages804275
-Node: Adding Hyperlink Types804731
-Node: Adding Hyperlink preview808547
-Node: Adding Export Backends811289
-Node: Tables in Arbitrary Syntax812536
-Node: Radio tables813804
-Node: A LaTeX example815940
-Ref: A LaTeX example-Footnote-1819793
-Ref: A LaTeX example-Footnote-2819836
-Ref: A LaTeX example-Footnote-3819997
-Node: Translator functions820449
-Node: Dynamic Blocks822631
-Node: Special Agenda Views824877
-Ref: Special Agenda Views-Footnote-1828588
-Ref: Special Agenda Views-Footnote-2828794
-Node: Speeding Up Your Agendas828926
-Node: Extracting Agenda Information830149
-Node: Using the Property API833956
-Node: Using the Mapping API837305
-Node: History and Acknowledgments841337
-Ref: From Carsten841535
-Ref: From Bastien844965
-Ref: List of Contributions847500
-Node: GNU Free Documentation License856153
-Ref: ADDENDUM How to use this License for your documents880111
-Node: Main Index881504
-Node: Key Index982487
-Node: Command and Function Index1039917
-Node: Variable Index1089201
+Node: The capture protocol785249
+Node: The open-source protocol786911
+Node: Org Crypt790162
+Node: Org Mobile792037
+Node: Setting up the staging area793428
+Ref: Setting up the staging area-Footnote-1794668
+Ref: Setting up the staging area-Footnote-2794875
+Node: Pushing to the mobile application795047
+Ref: Pushing to the mobile application-Footnote-1796058
+Ref: Pushing to the mobile application-Footnote-2796149
+Ref: Pushing to the mobile application-Footnote-3796516
+Node: Pulling from the mobile application796592
+Ref: Pulling from the mobile application-Footnote-1798905
+Node: Drag and Drop & yank-media798958
+Ref: Drag and Drop & yank-media-Footnote-1800737
+Node: Repeating commands800885
+Node: Hacking803027
+Node: Hooks804052
+Node: Add-on Packages804327
+Node: Adding Hyperlink Types804783
+Node: Adding Hyperlink preview808599
+Node: Adding Export Backends811341
+Node: Tables in Arbitrary Syntax812588
+Node: Radio tables813856
+Node: A LaTeX example815992
+Ref: A LaTeX example-Footnote-1819845
+Ref: A LaTeX example-Footnote-2819888
+Ref: A LaTeX example-Footnote-3820049
+Node: Translator functions820501
+Node: Dynamic Blocks822683
+Node: Special Agenda Views824929
+Ref: Special Agenda Views-Footnote-1828640
+Ref: Special Agenda Views-Footnote-2828846
+Node: Speeding Up Your Agendas828978
+Node: Extracting Agenda Information830201
+Node: Using the Property API834008
+Node: Using the Mapping API837357
+Node: History and Acknowledgments841389
+Ref: From Carsten841587
+Ref: From Bastien845017
+Ref: List of Contributions847552
+Node: GNU Free Documentation License856205
+Ref: ADDENDUM How to use this License for your documents880163
+Node: Main Index881556
+Node: Key Index982539
+Node: Command and Function Index1039969
+Node: Variable Index1089253
 
 End Tag Table
 
