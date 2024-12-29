@@ -2967,139 +2967,141 @@ known that the table will be realigned a little later anyway."
 	   beg end eqlcol eqlfield)
       ;; Insert constants in all formulas.
       (when eqlist
-	(org-table-with-shrunk-columns
-	 (org-table-save-field
-	  ;; Expand equations, then split the equation list between
-	  ;; column formulas and field formulas.
-	  (dolist (eq eqlist)
-	    (let* ((rhs (org-table-formula-substitute-names
-			 (org-table-formula-handle-first/last-rc (cdr eq))))
-		   (old-lhs (car eq))
-		   (lhs
-		    (org-table-formula-handle-first/last-rc
-		     (cond
-		      ((string-match "\\`@-?I+" old-lhs)
-		       (user-error "Can't assign to hline relative reference"))
-		      ((string-match "\\`\\$[<>]" old-lhs)
-		       (let ((new (org-table-formula-handle-first/last-rc
-				   old-lhs)))
-			 (when (assoc new eqlist)
-			   (user-error "\"%s=\" formula tries to overwrite \
+        (org-fold-core-ignore-modifications
+	  (org-table-with-shrunk-columns
+	   (org-table-save-field
+	    ;; Expand equations, then split the equation list between
+	    ;; column formulas and field formulas.
+	    (dolist (eq eqlist)
+	      (let* ((rhs (org-table-formula-substitute-names
+			   (org-table-formula-handle-first/last-rc (cdr eq))))
+		     (old-lhs (car eq))
+		     (lhs
+		      (org-table-formula-handle-first/last-rc
+		       (cond
+		        ((string-match "\\`@-?I+" old-lhs)
+		         (user-error "Can't assign to hline relative reference"))
+		        ((string-match "\\`\\$[<>]" old-lhs)
+		         (let ((new (org-table-formula-handle-first/last-rc
+				     old-lhs)))
+			   (when (assoc new eqlist)
+			     (user-error "\"%s=\" formula tries to overwrite \
 existing formula for column %s"
-				       old-lhs
-				       new))
-			 new))
-		      (t old-lhs)))))
-	      (if (string-match-p "\\`\\$[0-9]+\\'" lhs)
-		  (push (cons lhs rhs) eqlcol)
-		(push (cons lhs rhs) eqlfield))))
-	  (setq eqlcol (nreverse eqlcol))
-	  ;; Expand ranges in lhs of formulas
-	  (setq eqlfield (org-table-expand-lhs-ranges (nreverse eqlfield)))
-	  ;; Get the correct line range to process.
-	  (if all
-	      (progn
-		(setq end (copy-marker (org-table-end)))
-		(goto-char (setq beg org-table-current-begin-pos))
-		(cond
-		 ((re-search-forward org-table-calculate-mark-regexp end t)
-		  ;; This is a table with marked lines, compute selected
-		  ;; lines.
-		  (setq line-re org-table-recalculate-regexp))
-		 ;; Move forward to the first non-header line.
-		 ((and (re-search-forward org-table-dataline-regexp end t)
-		       (re-search-forward org-table-hline-regexp end t)
-		       (re-search-forward org-table-dataline-regexp end t))
-		  (setq beg (match-beginning 0)))
-		 ;; Just leave BEG at the start of the table.
-		 (t nil)))
-	    (setq beg (line-beginning-position)
-		  end (copy-marker (line-beginning-position 2))))
-	  (goto-char beg)
-	  ;; Mark named fields untouchable.  Also check if several
-	  ;; field/range formulas try to set the same field.
-	  (remove-text-properties beg end '(:org-untouchable t))
-	  (let ((current-line (count-lines org-table-current-begin-pos
-					   (line-beginning-position)))
-		seen-fields)
-	    (dolist (eq eqlfield)
-	      (let* ((name (car eq))
-		     (location (assoc name org-table-named-field-locations))
-		     (eq-line (or (nth 1 location)
-				  (and (string-match "\\`@\\([0-9]+\\)" name)
-				       (aref org-table-dlines
-					     (string-to-number
-					      (match-string 1 name))))))
-		     (reference
-		      (if location
-			  ;; Turn field coordinates associated to NAME
-			  ;; into an absolute reference.
-			  (format "@%d$%d"
-				  (org-table-line-to-dline eq-line)
-				  (nth 2 location))
-			name)))
-		(when (member reference seen-fields)
-		  (user-error "Several field/range formulas try to set %s"
-			      reference))
-		(push reference seen-fields)
-		(when (or all (eq eq-line current-line))
-		  (org-table-goto-field name)
-		  (org-table-put-field-property :org-untouchable t)))))
-	  ;; Evaluate the column formulas, but skip fields covered by
-	  ;; field formulas.
-	  (goto-char beg)
-	  (while (re-search-forward line-re end t)
-	    (unless (string-match "\\` *[_^!$/] *\\'" (org-table-get-field 1))
-	      ;; Unprotected line, recalculate.
-	      (cl-incf cnt)
-	      (when all
-		(setq log-last-time
-		      (org-table-message-once-per-second
-		       log-last-time
-		       "Re-applying formulas to full table...(line %d)" cnt)))
-	      (if (markerp org-last-recalc-line)
-		  (move-marker org-last-recalc-line (line-beginning-position))
-		(setq org-last-recalc-line
-		      (copy-marker (line-beginning-position))))
-	      (dolist (entry eqlcol)
-		(goto-char org-last-recalc-line)
-		(org-table-goto-column
-		 (string-to-number (substring (car entry) 1)) nil 'force)
-		(unless (get-text-property (point) :org-untouchable)
-		  (org-table-eval-formula
-		   nil (cdr entry) 'noalign 'nocst 'nostore 'noanalysis)))))
-	  ;; Evaluate the field formulas.
-	  (dolist (eq eqlfield)
-	    (let ((reference (car eq))
-		  (formula (cdr eq)))
-	      (setq log-last-time
-		    (org-table-message-once-per-second
-		     (and all log-last-time)
-		     "Re-applying formula to field: %s" (car eq)))
-	      (org-table-goto-field
-	       reference
-	       ;; Possibly create a new column, as long as
-	       ;; `org-table-formula-create-columns' allows it.
-	       (let ((column-count (progn (end-of-line)
-					  (1- (org-table-current-column)))))
-		 (lambda (column)
-		   (when (> column 1000)
-		     (user-error "Formula column target too large"))
-		   (and (> column column-count)
-			(or (eq org-table-formula-create-columns t)
-			    (and (eq org-table-formula-create-columns 'warn)
-				 (progn
-				   (org-display-warning
-				    "Out-of-bounds formula added columns")
-				   t))
-			    (and (eq org-table-formula-create-columns 'prompt)
-				 (yes-or-no-p
-				  "Out-of-bounds formula.  Add columns? "))
-			    (user-error
-			     "Missing columns in the table.  Aborting"))))))
-	      (org-table-eval-formula nil formula t t t t)))
-	  ;; Clean up marker.
-	  (set-marker end nil)))
+				         old-lhs
+				         new))
+			   new))
+		        (t old-lhs)))))
+	        (if (string-match-p "\\`\\$[0-9]+\\'" lhs)
+		    (push (cons lhs rhs) eqlcol)
+		  (push (cons lhs rhs) eqlfield))))
+	    (setq eqlcol (nreverse eqlcol))
+	    ;; Expand ranges in lhs of formulas
+	    (setq eqlfield (org-table-expand-lhs-ranges (nreverse eqlfield)))
+	    ;; Get the correct line range to process.
+	    (if all
+	        (progn
+		  (setq end (copy-marker (org-table-end)))
+		  (goto-char (setq beg org-table-current-begin-pos))
+		  (cond
+		   ((re-search-forward org-table-calculate-mark-regexp end t)
+		    ;; This is a table with marked lines, compute selected
+		    ;; lines.
+		    (setq line-re org-table-recalculate-regexp))
+		   ;; Move forward to the first non-header line.
+		   ((and (re-search-forward org-table-dataline-regexp end t)
+		         (re-search-forward org-table-hline-regexp end t)
+		         (re-search-forward org-table-dataline-regexp end t))
+		    (setq beg (match-beginning 0)))
+		   ;; Just leave BEG at the start of the table.
+		   (t nil)))
+	      (setq beg (line-beginning-position)
+		    end (copy-marker (line-beginning-position 2))))
+            (org-combine-change-calls beg end
+	      (goto-char beg)
+	      ;; Mark named fields untouchable.  Also check if several
+	      ;; field/range formulas try to set the same field.
+	      (remove-text-properties beg end '(:org-untouchable t))
+	      (let ((current-line (count-lines org-table-current-begin-pos
+					       (line-beginning-position)))
+		    seen-fields)
+	        (dolist (eq eqlfield)
+	          (let* ((name (car eq))
+		         (location (assoc name org-table-named-field-locations))
+		         (eq-line (or (nth 1 location)
+				      (and (string-match "\\`@\\([0-9]+\\)" name)
+				           (aref org-table-dlines
+					         (string-to-number
+					          (match-string 1 name))))))
+		         (reference
+		          (if location
+			      ;; Turn field coordinates associated to NAME
+			      ;; into an absolute reference.
+			      (format "@%d$%d"
+				      (org-table-line-to-dline eq-line)
+				      (nth 2 location))
+			    name)))
+		    (when (member reference seen-fields)
+		      (user-error "Several field/range formulas try to set %s"
+			          reference))
+		    (push reference seen-fields)
+		    (when (or all (eq eq-line current-line))
+		      (org-table-goto-field name)
+		      (org-table-put-field-property :org-untouchable t)))))
+	      ;; Evaluate the column formulas, but skip fields covered by
+	      ;; field formulas.
+	      (goto-char beg)
+	      (while (re-search-forward line-re end t)
+	        (unless (string-match "\\` *[_^!$/] *\\'" (org-table-get-field 1))
+	          ;; Unprotected line, recalculate.
+	          (cl-incf cnt)
+	          (when all
+		    (setq log-last-time
+		          (org-table-message-once-per-second
+		           log-last-time
+		           "Re-applying formulas to full table...(line %d)" cnt)))
+	          (if (markerp org-last-recalc-line)
+		      (move-marker org-last-recalc-line (line-beginning-position))
+		    (setq org-last-recalc-line
+		          (copy-marker (line-beginning-position))))
+	          (dolist (entry eqlcol)
+		    (goto-char org-last-recalc-line)
+		    (org-table-goto-column
+		     (string-to-number (substring (car entry) 1)) nil 'force)
+		    (unless (get-text-property (point) :org-untouchable)
+		      (org-table-eval-formula
+		       nil (cdr entry) 'noalign 'nocst 'nostore 'noanalysis)))))
+	      ;; Evaluate the field formulas.
+	      (dolist (eq eqlfield)
+	        (let ((reference (car eq))
+		      (formula (cdr eq)))
+	          (setq log-last-time
+		        (org-table-message-once-per-second
+		         (and all log-last-time)
+		         "Re-applying formula to field: %s" (car eq)))
+	          (org-table-goto-field
+	           reference
+	           ;; Possibly create a new column, as long as
+	           ;; `org-table-formula-create-columns' allows it.
+	           (let ((column-count (progn (end-of-line)
+					      (1- (org-table-current-column)))))
+		     (lambda (column)
+		       (when (> column 1000)
+		         (user-error "Formula column target too large"))
+		       (and (> column column-count)
+			    (or (eq org-table-formula-create-columns t)
+			        (and (eq org-table-formula-create-columns 'warn)
+				     (progn
+				       (org-display-warning
+				        "Out-of-bounds formula added columns")
+				       t))
+			        (and (eq org-table-formula-create-columns 'prompt)
+				     (yes-or-no-p
+				      "Out-of-bounds formula.  Add columns? "))
+			        (user-error
+			         "Missing columns in the table.  Aborting"))))))
+	          (org-table-eval-formula nil formula t t t t)))
+	      ;; Clean up marker.
+	      (set-marker end nil)))))
 	(unless noalign
 	  (when org-table-may-need-update (org-table-align))
 	  (when all
@@ -4452,32 +4454,34 @@ FIELD is a string.  WIDTH is a number.  ALIGN is either \"c\",
 	(setq org-table-last-column-widths widths)
 	;; Build new table rows.  Only replace rows that actually
 	;; changed.
-	(let ((rule (and (memq 'hline table)
-			 (mapconcat (lambda (w) (make-string (+ 2 w) ?-))
-				    widths
-				    "+")))
-              (indent (progn (looking-at "[ \t]*|") (match-string 0))))
-	  (dolist (row table)
-	    (let ((previous (buffer-substring (point) (line-end-position)))
-		  (new
-                   (concat indent
-		           (if (eq row 'hline) rule
-		             (let* ((offset (- columns-number (length row)))
-			            (fields (if (= 0 offset) row
-                                              ;; Add missing fields.
-				              (append row
-						      (make-list offset "")))))
-			       (mapconcat #'identity
-				          (cl-mapcar #'org-table--align-field
-					             fields
-					             widths
-					             alignments)
-				          "|")))
-		           "|")))
-	      (if (equal new previous)
-		  (forward-line)
-		(insert new "\n")
-		(delete-region (point) (line-beginning-position 2))))))
+        (org-fold-core-ignore-modifications
+          (org-combine-change-calls beg end
+	    (let ((rule (and (memq 'hline table)
+			     (mapconcat (lambda (w) (make-string (+ 2 w) ?-))
+				        widths
+				        "+")))
+                  (indent (progn (looking-at "[ \t]*|") (match-string 0))))
+	      (dolist (row table)
+	        (let ((previous (buffer-substring (point) (line-end-position)))
+		      (new
+                       (concat indent
+		               (if (eq row 'hline) rule
+		                 (let* ((offset (- columns-number (length row)))
+			                (fields (if (= 0 offset) row
+                                                  ;; Add missing fields.
+				                  (append row
+						          (make-list offset "")))))
+			           (mapconcat #'identity
+				              (cl-mapcar #'org-table--align-field
+					                 fields
+					                 widths
+					                 alignments)
+				              "|")))
+		               "|")))
+	          (if (equal new previous)
+		      (forward-line)
+		    (insert new "\n")
+		    (delete-region (point) (line-beginning-position 2))))))))
 	(set-marker end nil)
 	(when org-table-overlay-coordinates (org-table-overlay-coordinates))
 	(setq org-table-may-need-update nil))))))

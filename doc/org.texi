@@ -18393,6 +18393,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @code{:odt-styles-file}
 @tab @code{org-odt-styles-file}
+@item @code{:odt-with-forbidden-chars}
+@tab @code{org-odt-with-forbidden-chars}
 @item @code{:odt-content-template-file}
 @tab @code{org-odt-content-template-file}
 @item @code{:odt-display-outline-level}
