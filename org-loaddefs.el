@@ -1723,7 +1723,7 @@ will be built under the headline at point.
 (autoload 'org-datetree-find-month-create "org-datetree" "\
 Find or create a month entry for date D.
 Compared to `org-datetree-find-date-create' this function creates
-entries grouped by month instead of days.
+entries grouped by year-month instead of year-month-day.
 If KEEP-RESTRICTION is non-nil, do not widen the buffer.
 When it is nil, the buffer will be widened to make sure an existing date
 tree can be found.  If it is the symbol `subtree-at-point', then the tree
@@ -1734,12 +1734,37 @@ will be built under the headline at point.
 (autoload 'org-datetree-find-iso-week-create "org-datetree" "\
 Find or create an ISO week entry for date D.
 Compared to `org-datetree-find-date-create' this function creates
-entries ordered by week instead of months.
-When it is nil, the buffer will be widened to make sure an existing date
-tree can be found.  If it is the symbol `subtree-at-point', then the tree
-will be built under the headline at point.
+entries grouped by year-week-day instead of year-month-day.  If
+KEEP-RESTRICTION is non-nil, do not widen the buffer.  When it is
+nil, the buffer will be widened to make sure an existing date
+tree can be found.  If it is the symbol `subtree-at-point', then
+the tree will be built under the headline at point.
 
 \(fn D &optional KEEP-RESTRICTION)" nil nil)
+
+(autoload 'org-datetree-find-create-entry "org-datetree" "\
+Find or create an entry for date D.
+Moves point to the beginning of the entry.
+
+TIME-GROUPING specifies the grouping levels of the datetree, and
+should be a subset of `(year quarter month week day)'.  Weeks are
+assigned to years according to ISO-8601.  If TIME-GROUPING
+contains both `month' and `week', then weeks are assigned to the
+month containing Thursday, for consistency with the ISO-8601
+year-week rule.  If TIME-GROUPING contains `quarter' and `week'
+but not `month', quarters are defined as 13-week periods;
+otherwise they are defined as 3-month periods.
+
+If KEEP-RESTRICTION is non-nil, do not widen the buffer.  When it
+is nil, the buffer will be widened to make sure an existing date
+tree can be found.  If it is the symbol `subtree-at-point', then
+the tree will be built under the headline at point.
+
+If `org-datetree-add-timestamp' is non-nil and TIME-GROUPING
+includes `day' and a new entry is created, adds a time stamp
+after the new headline.
+
+\(fn TIME-GROUPING D &optional KEEP-RESTRICTION)" nil nil)
 
 (register-definition-prefixes "org-datetree" '("org-datetree-"))
 

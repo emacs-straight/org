@@ -8848,10 +8848,20 @@ you can force the same behavior by calling @code{org-capture} with
 a @kbd{C-1} prefix argument.
 
 @item @code{:tree-type}
-Use @code{week} to make a week tree instead of the month-day tree@comma{}
-i.e.@comma{} place the headings for each day under a heading with the
-current ISO week.  Use @code{month} to group entries by month
-only.  Default is to group entries by day.
+Default is to group entries by day.  Use @code{week} to make a week
+tree instead of the month-day tree@comma{} i.e.@comma{} place the headings for
+each day under a heading with the current ISO week.  Use @code{month}
+to group entries by month only.  Use any subset of @code{(year quarter
+    month week day)} to group by the specified levels.  In case
+@code{month} and @code{week} are both specified@comma{} weeks are assigned to the
+month containing Thursday@comma{} to be consistent with the ISO year-week
+rule.  In case @code{quarter} and @code{week} but not @code{month} are specified@comma{}
+quarters are 13-week periods; otherwise they are 3-month periods.
+
+@findex org-datetree-find-create-hierarchy
+@code{:tree-type} can also be a function@comma{} in which it should take the
+date as an argument and generate a list of pairs for
+@code{org-datetree-find-create-hierarchy}.
 
 @item @code{:unnarrowed}
 Do not narrow the target buffer@comma{} simply show the full buffer.
