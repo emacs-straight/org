@@ -6,7 +6,7 @@ ORG NEWS -- history of user-visible changes.   -*- mode: org; coding: utf-8 -*-
 #+LINK: msg https://list.orgmode.org/%s/
 #+LINK: git https://git.savannah.gnu.org/cgit/emacs/org-mode.git/commit/?id=%s
 
-Copyright (C) 2012-2024 Free Software Foundation, Inc.
+Copyright (C) 2012-2025 Free Software Foundation, Inc.
 See the end of the file for license conditions.
 
 Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
@@ -475,6 +475,14 @@ applies to all headings, below and above the =H= and =toc= export
 For example, given =H:3= and =toc:2= in =#+OPTIONS:=, all headings at
 the 1st and 2nd level appear in the table of contents and those at the
 3rd level do not.
+
+*** =ob-tangle= now tangles source blocks that do not specify a =language= if an inherited property sets a tangle filename
+
+Previously, all source blocks that did not specify a =language= where
+ignored by ~org-babel-tangle-collect-blocks~. Now, if it inherits a
+:tangle header argument with a value other than =no= or =yes= (that is, a
+filename), a source block without =language= will get tangled to that
+file.
 
 * Version 9.7
 

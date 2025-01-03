@@ -1,6 +1,6 @@
 ;;; ob-core.el --- Working with Code Blocks          -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2024 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2025 Free Software Foundation, Inc.
 
 ;; Authors: Eric Schulte
 ;;	Dan Davison
@@ -216,8 +216,8 @@ When matching, reference is stored in match group 1."
 
 (defvar org-babel-src-block-regexp
   (concat
-   ;; (1) indentation                 (2) lang
-   "^\\([ \t]*\\)#\\+begin_src[ \t]+\\([^ \f\t\n\r\v]+\\)[ \t]*"
+   ;; (1) indentation                      (2) lang
+   "^\\([ \t]*\\)#\\+begin_src\\(?:[ \t]+\\([^ \f\t\n\r\v]*\\)\\)?[ \t]*"
    ;; (3) switches
    "\\([^\":\n]*\"[^\"\n*]*\"[^\":\n]*\\|[^\":\n]*\\)"
    ;; (4) header arguments

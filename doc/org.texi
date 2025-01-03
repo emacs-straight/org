@@ -15,7 +15,7 @@
 @copying
 This manual is for Org version 9.8.
 
-Copyright @copyright{} 2004--2024 Free Software Foundation@comma{} Inc.
+Copyright @copyright{} 2004--2025 Free Software Foundation@comma{} Inc.
 
 @quotation
 Permission is granted to copy@comma{} distribute and/or modify this document
@@ -19307,7 +19307,8 @@ Optional.  It is the identifier of the source code language in the
 block.  See @ref{Languages}@comma{} for identifiers of supported languages.
 
 When @samp{<language>} identifier is omitted@comma{} the block also cannot
-have @samp{<switches>} and @samp{<header arguments>}.
+have @samp{<switches>} and @samp{<header arguments>}.  Otherwise@comma{} the first
+switch/argument will be treated as @samp{<language>}.
 
 Language identifier is also used to fontify code blocks in Org
 buffers@comma{} when @code{org-src-fontify-natively} is set to non-@code{nil}.  See
