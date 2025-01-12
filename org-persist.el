@@ -3,6 +3,7 @@
 ;; Copyright (C) 2021-2025 Free Software Foundation, Inc.
 
 ;; Author: Ihor Radchenko <yantar92 at posteo dot net>
+;; Maintainer: Ihor Radchenko <yantar92 at posteo dot net>
 ;; Keywords: cache, storage
 
 ;; This file is part of GNU Emacs.
@@ -399,6 +400,9 @@ message is displayed.
 When the value is a non-nil non-number, always display the message.
 When the value is nil, never display the message.")
 
+(defvar org-persist--wrote-to-disk nil
+  "Whether we wrote to disk during current Emacs session.")
+
 ;;;; Common functions
 
 (defun org-persist--display-time (duration format &rest args)
@@ -450,8 +454,15 @@ FORMAT and ARGS are passed to `message'."
 
 ;; FIXME: `pp' is very slow when writing even moderately large datasets
 ;; We should probably drop it or find some fast formatter.
-(defun org-persist--write-elisp-file (file data &optional no-circular pp)
-  "Write elisp DATA to FILE."
+(defun org-persist--write-elisp-file
+    (file data &optional no-circular pp inhibit-writing-index)
+  "Write to index and then write elisp DATA to FILE.
+When optional argument NO-CIRCULAR is non-nil, do not bind
+`print-circle' to t.
+When optional argument PP is non-nil, pretty-print the data (slow on
+moderately large data).
+INHIBIT-WRITING-INDEX will disable writing index file.
+"
   ;; Fsync slightly reduces the chance of an incomplete filesystem
   ;; write, however on modern hardware its effectiveness is
   ;; questionable and it is insufficient to guarantee complete writes.
@@ -475,23 +486,30 @@ FORMAT and ARGS are passed to `message'."
         (print-escape-nonascii t)
         (print-continuous-numbering t)
         print-number-table
-        (start-time (float-time)))
-    (unless (file-exists-p (file-name-directory file))
-      (make-directory (file-name-directory file) t))
-    ;; Force writing even when the file happens to be opened by
-    ;; another Emacs process.
-    (cl-letf (((symbol-function #'ask-user-about-lock)
-               ;; FIXME: Emacs 27 does not yet have `always'.
-               (lambda (&rest _) t)))
-      (with-temp-file file
+        (start-time (float-time))
+        (tmp-file (make-temp-file "org-persist-")))
+    ;; Every time we write cache data, make sure that index is up to
+    ;; date. This prevents situation when two Emacs sessions are writing
+    ;; different data under the same cache key, but do not update the
+    ;; index metadata about the cache data written (e.g. hash).
+    (when (or inhibit-writing-index (org-persist--save-index))
+      (unless (file-exists-p (file-name-directory file))
+        (make-directory (file-name-directory file) t))
+      ;; Do not write to FILE directly.  Another Emacs instance may be
+      ;; doing the same at the same time.  Instead, write to new
+      ;; temporary file and then rename it (renaming is atomic
+      ;; operation that does not create data races).
+      ;; See https://debbugs.gnu.org/cgi/bugreport.cgi?bug=75209#35
+      (with-temp-file tmp-file
         (insert ";;   -*- mode: lisp-data; -*-\n")
         (if pp
             (let ((pp-use-max-width nil)) ; Emacs bug#58687
               (pp data (current-buffer)))
-          (prin1 data (current-buffer)))))
-    (org-persist--display-time
-     (- (float-time) start-time)
-     "Writing to %S" file)))
+          (prin1 data (current-buffer))))
+      (rename-file tmp-file file 'overwrite)
+      (org-persist--display-time
+       (- (float-time) start-time)
+       "Writing to %S" file))))
 
 (defmacro org-persist-gc:generic (container collection)
   "Garbage collect CONTAINER data from COLLECTION."
@@ -925,7 +943,7 @@ Otherwise, return t."
     (let ((index-file
            (org-file-name-concat org-persist-directory org-persist-index-file)))
       (org-persist--merge-index-with-disk)
-      (org-persist--write-elisp-file index-file org-persist--index t)
+      (org-persist--write-elisp-file index-file org-persist--index t nil t)
       (setq org-persist--index-age
             (file-attribute-modification-time (file-attributes index-file)))
       index-file)))
@@ -1127,6 +1145,7 @@ The return value is nil when writing fails and the written value (as
 returned by `org-persist-read') on success.
 When IGNORE-RETURN is non-nil, just return t on success without calling
 `org-persist-read'."
+  (setq org-persist--wrote-to-disk t)
   (setq associated (org-persist--normalize-associated associated))
   ;; Update hash
   (when (and (plist-get associated :file)
@@ -1145,12 +1164,11 @@ When IGNORE-RETURN is non-nil, just return t on success without calling
              (seq-find (lambda (v)
                          (run-hook-with-args-until-success 'org-persist-before-write-hook v associated))
                        (plist-get collection :container)))
-      (when (or (file-exists-p org-persist-directory) (org-persist--save-index))
-        (let ((file (org-file-name-concat org-persist-directory (plist-get collection :persist-file)))
-              (data (mapcar (lambda (c) (cons c (org-persist-write:generic c collection)))
-                            (plist-get collection :container))))
-          (org-persist--write-elisp-file file data)
-          (or ignore-return (org-persist-read container associated)))))))
+      (let ((file (org-file-name-concat org-persist-directory (plist-get collection :persist-file)))
+            (data (mapcar (lambda (c) (cons c (org-persist-write:generic c collection)))
+                          (plist-get collection :container))))
+        (org-persist--write-elisp-file file data)
+        (or ignore-return (org-persist-read container associated))))))
 
 (defun org-persist-write-all (&optional associated)
   "Save all the persistent data.
@@ -1242,16 +1260,17 @@ Do nothing in an indirect buffer."
 (defun org-persist--refresh-gc-lock ()
   "Refresh session timestamp in `org-persist-gc-lock-file'.
 Remove expired sessions timestamps."
-  (let* ((file (org-file-name-concat org-persist-directory org-persist-gc-lock-file))
-         (alist (when (file-exists-p file) (org-persist--read-elisp-file file)))
-         new-alist)
-    (setf (alist-get before-init-time alist nil nil #'equal)
-          (current-time))
-    (dolist (record alist)
-      (when (< (- (float-time (cdr record)) (float-time (current-time)))
-               org-persist-gc-lock-expiry)
-        (push record new-alist)))
-    (org-persist--write-elisp-file file new-alist)))
+  (when org-persist--wrote-to-disk
+    (let* ((file (org-file-name-concat org-persist-directory org-persist-gc-lock-file))
+           (alist (when (file-exists-p file) (org-persist--read-elisp-file file)))
+           new-alist)
+      (setf (alist-get before-init-time alist nil nil #'equal)
+            (current-time))
+      (dolist (record alist)
+        (when (< (- (float-time (cdr record)) (float-time (current-time)))
+                 org-persist-gc-lock-expiry)
+          (push record new-alist)))
+      (ignore-errors (org-persist--write-elisp-file file new-alist)))))
 
 (defun org-persist--gc-orphan-p ()
   "Return non-nil, when orphan files should be garbage-collected.
@@ -1259,7 +1278,7 @@ Remove current sessions from `org-persist-gc-lock-file'."
   (let* ((file (org-file-name-concat org-persist-directory org-persist-gc-lock-file))
          (alist (when (file-exists-p file) (org-persist--read-elisp-file file))))
     (setq alist (org-assoc-delete-all before-init-time alist))
-    (org-persist--write-elisp-file file alist)
+    (ignore-errors (org-persist--write-elisp-file file alist))
     ;; Only GC orphan files when there are no active sessions.
     (not alist)))
 
