@@ -3926,7 +3926,7 @@ options:
 @headitem Link Type
 @tab Example
 @item http
-@tab @samp{http://staff.science.uva.nl/c.dominik/}
+@tab @samp{http://orgmode.org/}
 @item https
 @tab @samp{https://orgmode.org/}
 @item doi
@@ -14414,7 +14414,7 @@ backend by default in-lines that image.  For example:
 @code{org-html-inline-images}.
 
 On the other hand@comma{} if the description part of the Org link is itself
-another link@comma{} such as @samp{file:} or @samp{http:} URL pointing to an image@comma{} the
+another link@comma{} such as @samp{file:} or @samp{https:} URL pointing to an image@comma{} the
 HTML export backend in-lines this image and links to the main image.
 This Org syntax enables the backend to link low-resolution thumbnail
 to the high-resolution version of the image@comma{} as shown in this example:
@@ -14768,7 +14768,7 @@ terminology.  You may refer to @uref{https://tug.org/begin.html} to get
 familiar with @LaTeX{} basics.  Users with @LaTeX{} installed may also run
 @samp{texdoc latex} from terminal to open @LaTeX{} introduction @footnote{ The
 command will open a PDF file@comma{} which is also available for download
-from @uref{http://mirrors.ctan.org/info/latex-doc-ptr/latex-doc-ptr.pdf}}
+from @uref{https://mirrors.ctan.org/info/latex-doc-ptr/latex-doc-ptr.pdf}}
 
 @menu
 * @LaTeX{}/PDF export commands:: For producing @LaTeX{} and PDF documents.
@@ -16036,7 +16036,7 @@ variables @code{org-latex-to-mathml-convert-command} and
 @code{org-latex-to-mathml-jar-file}.
 
 If you prefer to use MathToWeb@footnote{ See
-@uref{http://www.mathtoweb.com/cgi-bin/mathtoweb_home.pl, MathToWeb}.}
+@uref{https://mathtoweb.sourceforge.io/, MathToWeb}.}
 as your converter@comma{} you can configure the above variables as shown
 below.
 
