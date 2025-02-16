@@ -1,2 +1,2 @@
-;; Generated package description from org.el  -*- no-byte-compile: t -*-
-(define-package "org" "9.8pre0.20250210.175201" "Outline-based notes management and organizer" '((emacs "26.1")) :commit "9a3b22098eacff9e10f14e1785d4523229b89724" :authors '(("Carsten Dominik" . "carsten.dominik@gmail.com")) :maintainer '("Ihor Radchenko" . "yantar92@posteo.net") :keywords '("outlines" "hypermedia" "calendar" "text") :url "https://orgmode.org")
+;; Generated package description from org.el  -*- mode: lisp-data; no-byte-compile: t -*-
+(define-package "org" "9.8pre0.20250215.150127" "Outline-based notes management and organizer" '((emacs "26.1")) :commit "71c7c885eb7eed01ba74e9068db222fbe438e846" :authors '(("Carsten Dominik" . "carsten.dominik@gmail.com")) :maintainer '("Ihor Radchenko" . "yantar92@posteo.net") :keywords '("outlines" "hypermedia" "calendar" "text") :url "https://orgmode.org")
