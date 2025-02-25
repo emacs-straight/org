@@ -643,7 +643,8 @@ precedence over this variable."
   :version "26.1"
   :package-version '(Org . "8.3")
   :type '(choice (const :tag "No template" nil)
-		 (string :tag "Format string")))
+		 (string :tag "Format string"))
+  :safe #'string-or-null-p)
 
 ;;;; Headline
 
@@ -675,6 +676,7 @@ command like \"\\sidenote{%s%s}\" that you want to use.
 The value will be passed as an argument to `format' as the following
   (format org-latex-default-footnote-command
      footnote-description footnote-label)"
+
   :group 'org-export-latex
   :package-version '(Org . "9.7")
   :type 'string)
@@ -1537,6 +1539,18 @@ calling `org-latex-compile'."
 	   (string :tag "Message"))))
 
 
+(defcustom org-latex-toc-include-unnumbered nil
+  "Whether to include unnumbered headings in the table of contents.
+
+The default behaviour is to include numbered headings only, as it is
+usually the case in LaTeX (but different from other Org exporters).
+To include an unnumbered heading, set the `:UNNUMBERED:'
+property to `toc'"
+  :group 'org-export-latex
+  :package-version '(Org . "9.8")
+  :type 'boolean
+  :safe #'booleanp)
+
 
 ;;; Internal Functions
 
@@ -2268,66 +2282,82 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;;; Headline
 
+(defun org-latex--get-section-format (headline info)
+  "Get section format for HEADLINE.
+INFO is the communication plist."
+  (let* ((class (plist-get info :latex-class))
+	 (level (org-export-get-relative-level headline info))
+         (numberedp (org-export-numbered-headline-p headline info))
+         (class-sectioning (assoc class (plist-get info :latex-classes))))
+    (let ((sec (if (functionp (nth 2 class-sectioning))
+		   (funcall (nth 2 class-sectioning) level numberedp)
+		 (nth (1+ level) class-sectioning))))
+      (cond
+       ;; No section available for that LEVEL.
+       ((not sec) nil)
+       ;; Section format directly returned by a function.  Add
+       ;; placeholder for contents.
+       ((stringp sec) (concat sec "\n%s"))
+       ;; (numbered-section . unnumbered-section)
+       ((not (consp (cdr sec)))
+	(concat (funcall (if numberedp #'car #'cdr) sec) "\n%s"))
+       ;; (numbered-open numbered-close)
+       ((= (length sec) 2)
+	(when numberedp (concat (car sec) "\n%s" (nth 1 sec))))
+       ;; (num-in num-out no-num-in no-num-out)
+       ((= (length sec) 4)
+	(if numberedp (concat (car sec) "\n%s" (nth 1 sec))
+	  (concat (nth 2 sec) "\n%s" (nth 3 sec))))))))
+
+(defconst org-latex--section-backend
+  (org-export-create-backend
+   :parent 'latex
+   :transcoders
+   '((underline . (lambda (o c i) (format "\\underline{%s}" c)))
+     ;; LaTeX isn't happy when you try to use \verb inside the argument of other
+     ;; commands (like \section, etc.), and this causes compilation to fail.
+     ;; So, within headings it's a good idea to replace any instances of \verb
+     ;; with \texttt.
+     (code . (lambda (o _ _) (org-latex--protect-texttt (org-element-property :value o))))
+     (verbatim . (lambda (o _ _) (org-latex--protect-texttt (org-element-property :value o))))))
+  "Export backend that hard-codes \\underline within \\section and alike.")
+
+(defconst org-latex--section-no-footnote-backend
+  (org-export-create-backend
+   :parent org-latex--section-backend
+   :transcoders
+   `((footnote-reference . ignore)))
+  "Export backend that strips footnotes from title.
+
+Footnotes are not allowed in \\section and similar commands that
+contribute to TOC and footers.
+See https://orgmode.org/list/691643eb-49d0-45c3-ab7f-a1edbd093bef@gmail.com
+https://texfaq.org/FAQ-ftnsect")
+
 (defun org-latex-headline (headline contents info)
   "Transcode a HEADLINE element from Org to LaTeX.
 CONTENTS holds the contents of the headline.  INFO is a plist
 holding contextual information."
   (unless (org-element-property :footnote-section-p headline)
-    (let* ((class (plist-get info :latex-class))
-	   (level (org-export-get-relative-level headline info))
+    (let* ((level (org-export-get-relative-level headline info))
+           ;; "LaTeX TOC handling"
+           ;; :unnumbered: toc will add the heading to the ToC
+           ;; "Org TOC handling"
+           ;; :unnumbered: notoc to suppress heading from the ToC
+           ;; else include all headings (including unnumbered) like other modes
+           (unnumbered-type (org-export-get-node-property :UNNUMBERED headline t))
 	   (numberedp (org-export-numbered-headline-p headline info))
-	   (class-sectioning (assoc class (plist-get info :latex-classes)))
 	   ;; Section formatting will set two placeholders: one for
 	   ;; the title and the other for the contents.
-	   (section-fmt
-	    (let ((sec (if (functionp (nth 2 class-sectioning))
-			   (funcall (nth 2 class-sectioning) level numberedp)
-			 (nth (1+ level) class-sectioning))))
-	      (cond
-	       ;; No section available for that LEVEL.
-	       ((not sec) nil)
-	       ;; Section format directly returned by a function.  Add
-	       ;; placeholder for contents.
-	       ((stringp sec) (concat sec "\n%s"))
-	       ;; (numbered-section . unnumbered-section)
-	       ((not (consp (cdr sec)))
-		(concat (funcall (if numberedp #'car #'cdr) sec) "\n%s"))
-	       ;; (numbered-open numbered-close)
-	       ((= (length sec) 2)
-		(when numberedp (concat (car sec) "\n%s" (nth 1 sec))))
-	       ;; (num-in num-out no-num-in no-num-out)
-	       ((= (length sec) 4)
-		(if numberedp (concat (car sec) "\n%s" (nth 1 sec))
-		  (concat (nth 2 sec) "\n%s" (nth 3 sec)))))))
-	   ;; Create a temporary export backend that hard-codes
-	   ;; "\underline" within "\section" and alike.
-	   (section-backend
-            (org-export-create-backend
-             :parent 'latex
-             :transcoders
-             '((underline . (lambda (o c i) (format "\\underline{%s}" c)))
-               ;; LaTeX isn't happy when you try to use \verb inside the argument of other
-               ;; commands (like \section, etc.), and this causes compilation to fail.
-               ;; So, within headings it's a good idea to replace any instances of \verb
-               ;; with \texttt.
-               (code . (lambda (o _ _) (org-latex--protect-texttt (org-element-property :value o))))
-               (verbatim . (lambda (o _ _) (org-latex--protect-texttt (org-element-property :value o)))))))
-           ;; Create a temporary export backend that strips footnotes from title.
-           ;; Footnotes are not allowed in \section and similar
-           ;; commands that contribute to TOC and footers.
-           ;; See https://orgmode.org/list/691643eb-49d0-45c3-ab7f-a1edbd093bef@gmail.com
-           ;; https://texfaq.org/FAQ-ftnsect
-           (section-no-footnote-backend
-            (org-export-create-backend
-             :parent section-backend
-             :transcoders
-             `((footnote-reference . ignore))))
+	   (section-fmt (org-latex--get-section-format headline info))
 	   (text
 	    (org-export-data-with-backend
-	     (org-element-property :title headline) section-backend info))
+	     (org-element-property :title headline)
+             org-latex--section-backend info))
            (text-no-footnote
             (org-export-data-with-backend
-	     (org-element-property :title headline) section-no-footnote-backend info))
+	     (org-element-property :title headline)
+             org-latex--section-no-footnote-backend info))
 	   (todo
 	    (and (plist-get info :with-todo-keywords)
 		 (let ((todo (org-element-property :todo-keyword headline)))
@@ -2381,8 +2411,10 @@ holding contextual information."
 	       (funcall (plist-get info :latex-format-headline-function)
 			todo todo-type priority
 			(org-export-data-with-backend
+                         ;; Returns alternative title when provided or
+                         ;; title itself.
 			 (org-export-get-alt-title headline info)
-			 section-backend info)
+			 org-latex--section-backend info)
 			(and (eq (plist-get info :with-tags) t) tags)
 			info))
 	      ;; Maybe end local TOC (see `org-latex-keyword').
@@ -2401,25 +2433,77 @@ holding contextual information."
 				  (string-match-p "\\<local\\>" v)
 				  (format "\\stopcontents[level-%d]" level)))))
 		    info t)))))
-	  (if (and (or (and opt-title (not (equal opt-title full-text)))
-                       ;; Heading contains footnotes.  Add optional title
-                       ;; version without footnotes to avoid footnotes in
-                       ;; TOC/footers.
-                       (and (not (equal full-text-no-footnote full-text))
-                            (setq opt-title full-text-no-footnote)))
-		   (string-match "\\`\\\\\\(.+?\\){" section-fmt))
-              (format (replace-match "\\1[%s]" nil nil section-fmt 1)
-		      ;; Replace square brackets with parenthesis
-		      ;; since square brackets are not supported in
-		      ;; optional arguments.
-		      (replace-regexp-in-string
-		       "\\[" "(" (replace-regexp-in-string "\\]" ")" opt-title))
-		      full-text
-		      (concat headline-label pre-blanks contents))
-	    ;; Impossible to add an alternative heading.  Fallback to
-	    ;; regular sectioning format string.
-	    (format section-fmt full-text
-		    (concat headline-label pre-blanks contents))))))))
+          ;; When do we need to explicitly specify a heading for TOC?
+          ;; 1. On numbered section with footnotes in title or alt_title
+          ;; 2. On an unnumbered section if :UNNUMBERED: allows it regardless of footnotes
+          ;; This applies to anything that may go into the ToC.
+          ;; Specifically for paragraphs, see first answer of
+          ;; https://tex.stackexchange.com/questions/288072/footnotes-within-paragraph
+          (let ((section-kw
+                 (and (string-match "\\`\\\\\\(.+?\\){" section-fmt)
+                      (match-string 1 section-fmt)))
+                need-alternative-toc-title)
+            (if (not section-kw)
+                ;; We only know how to add \SECTION-KW{...} to TOC.
+                (setq need-alternative-toc-title nil)
+              (if (string-suffix-p "*" section-kw)
+                  ;; FIXME: In theory, user may customize section-fmt
+                  ;; to use, e.g. \section{...} for unnumbered headings
+                  ;; We do not handle such scenario.
+                  (progn ;; unnumbered sections (ending with *)
+                    ;; Then we need to obey what the :UNNUMBERED: property says
+                    (if org-latex-toc-include-unnumbered
+                        ;; Treat the ToC closer to what other exporters do
+                        ;; Include unnumbered section into TOC unless
+                        ;; explicitly requested not to.
+                        (if (string= unnumbered-type "notoc")
+                            (setq need-alternative-toc-title nil)
+                          (setq need-alternative-toc-title t))
+                      ;; Ignore unnumbered headings in ToC - as in LaTeX
+                      ;; unless explicitly requested to include.
+                      (if (string= unnumbered-type "toc")
+                          (setq need-alternative-toc-title t)
+                        (setq need-alternative-toc-title nil))))
+                ;; Numbered sections
+                ;; Specify special TOC title only when there is
+                ;; opt-title or when title contains footnotes.
+                (if (and (string= full-text full-text-no-footnote)  ;; no footnotes
+                         ;; opt-title is either ALT_TITLE or title itself
+                         ;; as returned by `org-export-get-alt-title'
+                         (string= full-text opt-title)) ;; same alternative title
+                    (setq need-alternative-toc-title nil)
+                  (setq need-alternative-toc-title t))))
+            ;; In all cases
+            ;; Get rid of the footnotes in opt-title
+            (when (and (not (string= full-text-no-footnote full-text)) ;; when we have footnotess
+                       (string= full-text opt-title))      ;; And we do not impose an alternative title
+              (setq opt-title full-text-no-footnote))
+	    (if need-alternative-toc-title
+                (let ((new-format section-fmt)
+                      (new-extra  "")) ;; put the addcontentsline here
+                  (if (string-suffix-p "*" section-kw)
+                      ;; Subsection that needs alternative title:
+                      ;; Keep section format, use \\addcontentsline
+                      (setq new-extra
+                            (format "\\addcontentsline{toc}{%s}{%s}\n"
+                                    (string-remove-suffix "*" section-kw)
+                                    opt-title))
+                    ;; section... we need the brackets
+                    (let*
+		        ;; Replace square brackets with parenthesis
+		        ;; since square brackets are not supported in
+		        ;; optional arguments.
+                        ((un-bracketed-alt (replace-regexp-in-string
+                                            "\\[" "(" (replace-regexp-in-string "\\]" ")" opt-title)))
+                         (replacement-re (concat "\\1[" un-bracketed-alt "]")))
+                      (setq new-format (replace-match replacement-re nil nil section-fmt 1))))
+                  (format new-format
+                          full-text
+		          (concat headline-label new-extra pre-blanks contents)))
+	      ;; Don't need or cannot have alternative heading.
+	      ;; Use regular sectioning format string.
+	      (format section-fmt full-text
+		      (concat headline-label pre-blanks contents)))))))))
 
 (defun org-latex-format-headline-default-function
     (todo _todo-type priority text tags _info)

@@ -14679,12 +14679,11 @@ The command returns the inserted time stamp."
   (setq org-display-custom-times (not org-display-custom-times))
   (unless org-display-custom-times
     (let ((p (point-min)) (bmp (buffer-modified-p)))
-      (while (setq p (next-single-property-change p 'display))
-	(when (and (get-text-property p 'display)
-		   (eq (get-text-property p 'face) 'org-date))
+      (while (setq p (next-single-property-change p 'org-custom-date))
+	(when (get-text-property p 'org-custom-date)
 	  (remove-text-properties
-	   p (setq p (next-single-property-change p 'display))
-	   '(display t))))
+	   p (setq p (next-single-property-change p 'org-custom-date))
+	   '(display t org-custom-date t))))
       (set-buffer-modified-p bmp)))
   (org-restart-font-lock)
   (setq org-table-may-need-update t)
@@ -14707,7 +14706,8 @@ The command returns the inserted time stamp."
 	  str (org-add-props
 		  (format-time-string tf (org-encode-time time))
 		  nil 'mouse-face 'highlight))
-    (put-text-property beg end 'display str)))
+    (put-text-property beg end 'display str)
+    (put-text-property beg end 'org-custom-date t)))
 
 (defun org-fix-decoded-time (time)
   "Set 0 instead of nil for the first 6 elements of time.
@@ -18158,17 +18158,22 @@ object (e.g., within a comment).  In these case, you need to use
      ;; if `org-return-follows-link' allows it.  Tolerate fuzzy
      ;; locations, e.g., in a comment, as `org-open-at-point'.
      ((and org-return-follows-link
-	   (or (and (eq 'link element-type)
-		    ;; Ensure point is not on the white spaces after
-		    ;; the link.
-		    (let ((origin (point)))
-		      (org-with-point-at (org-element-end context)
-			(skip-chars-backward " \t")
-			(> (point) origin))))
-	       (org-in-regexp org-ts-regexp-both nil t)
-	       (org-in-regexp org-tsr-regexp-both nil  t)
-               (org-element-lineage context '(citation citation-reference) 'include-self)
-	       (org-in-regexp org-link-any-re nil t)))
+	   (or
+            (let ((context
+                   (org-element-lineage
+                    context
+                    '(citation citation-reference link)
+                    'include-self)))
+              (and context
+                   ;; Ensure point is not on the white spaces after
+                   ;; the link.
+                   (let ((origin (point)))
+                     (org-with-point-at (org-element-end context)
+                       (skip-chars-backward " \t")
+                       (> (point) origin)))))
+            (org-in-regexp org-ts-regexp-both nil t)
+            (org-in-regexp org-tsr-regexp-both nil  t)
+            (org-in-regexp org-link-any-re nil t)))
       (call-interactively #'org-open-at-point))
      ;; Insert newline in heading, but preserve tags.
      ((and (not (bolp))
