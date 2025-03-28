@@ -332,7 +332,7 @@ HTML Export
 * HTML specific export settings:: Settings for HTML export.
 * HTML doctypes::                Exporting various (X)HTML flavors.
 * HTML preamble and postamble::  Inserting preamble and postamble.
-* Bare HTML::                    Exporting HTML without CSS, Javascript, etc.
+* Bare HTML::                    Exporting HTML without CSS, JavaScript, etc.
 * Quoting HTML tags::            Using direct HTML in Org files.
 * Headlines in HTML export::     Formatting headlines.
 * Links in HTML export::         Inserting and formatting links.
@@ -11669,7 +11669,7 @@ compatible with XHTML 1.0 strict standard.
 * HTML specific export settings:: Settings for HTML export.
 * HTML doctypes::                Exporting various (X)HTML flavors.
 * HTML preamble and postamble::  Inserting preamble and postamble.
-* Bare HTML::                    Exporting HTML without CSS, Javascript, etc.
+* Bare HTML::                    Exporting HTML without CSS, JavaScript, etc.
 * Quoting HTML tags::            Using direct HTML in Org files.
 * Headlines in HTML export::     Formatting headlines.
 * Links in HTML export::         Inserting and formatting links.
