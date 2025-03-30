@@ -237,6 +237,14 @@ You may return to the previous behaviour by setting
 Note that Emacs warnings can always be suppressed by clicking on ⛔
 symbol or by customizing ~warning-suppress-types~.
 
+*** Allow using =xelatex= for LaTeX preview
+
+A new process =xelatex= is added to ~org-preview-process-alist~ to
+allow generating LaTeX fragment preview through =xdv= file produced by
+XeLaTeX, which has better support for Unicode.
+
+You can now set ~org-preview-latex-default-process~ to ~'xelatex~.
+
 *** New option ~org-edit-keep-region~
 
 Since Org 9.7, structure editing commands do not deactivate region
@@ -319,6 +327,13 @@ enables including unnumbered sections in the ToC aligned with the
 behaviour of other exporters. In this case, to exclude a section from
 the table of contents, mark it as =:UNNUMBERED: notoc= in its
 properties.
+
+*** New option ~org-cite-basic-complete-key-crm-separator~
+
+This option makes ~org-cite~'s ~basic~ insert processor use
+~completing-read-multiple~ instead of the default consecutive prompts.
+It can also be set to dynamically compute ~crm-separator~ so that the
+separator does not appear in completion candidates.
 
 ** New functions and changes in function arguments
 

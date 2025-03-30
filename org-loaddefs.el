@@ -3025,8 +3025,10 @@ beginning and end position of the current table.
 
 (autoload 'org-table-map-tables "org-table" "\
 Apply function F to the start of all tables in the buffer.
+When TYPE is non-nil, only consider Org tables of that type (symbol
+`org' or symbol `table.el'.
 
-\(fn F &optional QUIETLY)" nil nil)
+\(fn F &optional QUIETLY TYPE)" nil nil)
 
 (autoload 'org-table-export "org-table" "\
 Export table to a file, with configurable format.

@@ -3392,6 +3392,15 @@ All available processes and theirs documents can be found in
      :image-size-adjust (1.7 . 1.5)
      :latex-compiler ("latex -interaction nonstopmode -output-directory %o %f")
      :image-converter ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))
+    (xelatex
+     :programs ("xelatex" "dvisvgm")
+     :description "xdv > svg"
+     :message "you need to install the programs: xelatex and dvisvgm."
+     :image-input-type "xdv"
+     :image-output-type "svg"
+     :image-size-adjust (1.7 . 1.5)
+     :latex-compiler ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
+     :image-converter ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))
     (imagemagick
      :programs ("latex" "convert")
      :description "pdf > png"
@@ -3453,7 +3462,7 @@ Place-holders only used by `:image-converter':
   %S    the image size scale ratio, which is used to adjust image size by some
         processing commands."
   :group 'org-latex
-  :package-version '(Org . "9.6")
+  :package-version '(Org . "9.8")
   :type '(alist :tag "LaTeX to image backends"
 		:value-type (plist)))
 
@@ -5131,7 +5140,7 @@ The following commands are available:
 	      (lambda () (org-table-align) (org-table-shrink)))
 	     (org-startup-align-all-tables #'org-table-align)
 	     (t #'org-table-shrink))
-       t))
+       t 'org))
     ;; Suppress modification hooks to speed up the startup.
     ;; However, do it only when text properties/overlays, but not
     ;; buffer text are actually modified.  We still need to track text
@@ -19469,6 +19478,10 @@ Also align node properties according to `org-property-format'."
                       (org-with-point-at (org-element-property :begin element)
                         (+ (org-current-text-indentation)
                            org-edit-src-content-indentation)))))
+               ;; Avoid over-indenting when beginning of a new line is not empty.
+               ;; https://list.orgmode.org/OMCpuwZ--J-9@phdk.org/
+               (when block-content-ind
+                 (save-excursion (indent-line-to block-content-ind)))
                (ignore-errors ; do not err when there is no proper major mode
                  ;; It is important to call `indent-according-to-mode'
                  ;; rather than `indent-line-function' here or we may
