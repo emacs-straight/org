@@ -454,15 +454,12 @@ FORMAT and ARGS are passed to `message'."
 
 ;; FIXME: `pp' is very slow when writing even moderately large datasets
 ;; We should probably drop it or find some fast formatter.
-(defun org-persist--write-elisp-file
-    (file data &optional no-circular pp inhibit-writing-index)
+(defun org-persist--write-elisp-file (file data &optional no-circular pp)
   "Write to index and then write elisp DATA to FILE.
 When optional argument NO-CIRCULAR is non-nil, do not bind
 `print-circle' to t.
 When optional argument PP is non-nil, pretty-print the data (slow on
-moderately large data).
-INHIBIT-WRITING-INDEX will disable writing index file.
-"
+moderately large data)."
   ;; Fsync slightly reduces the chance of an incomplete filesystem
   ;; write, however on modern hardware its effectiveness is
   ;; questionable and it is insufficient to guarantee complete writes.
@@ -488,28 +485,23 @@ INHIBIT-WRITING-INDEX will disable writing index file.
         print-number-table
         (start-time (float-time))
         (tmp-file (make-temp-file "org-persist-")))
-    ;; Every time we write cache data, make sure that index is up to
-    ;; date. This prevents situation when two Emacs sessions are writing
-    ;; different data under the same cache key, but do not update the
-    ;; index metadata about the cache data written (e.g. hash).
-    (when (or inhibit-writing-index (org-persist--save-index))
-      (unless (file-exists-p (file-name-directory file))
-        (make-directory (file-name-directory file) t))
-      ;; Do not write to FILE directly.  Another Emacs instance may be
-      ;; doing the same at the same time.  Instead, write to new
-      ;; temporary file and then rename it (renaming is atomic
-      ;; operation that does not create data races).
-      ;; See https://debbugs.gnu.org/cgi/bugreport.cgi?bug=75209#35
-      (with-temp-file tmp-file
-        (insert ";;   -*- mode: lisp-data; -*-\n")
-        (if pp
-            (let ((pp-use-max-width nil)) ; Emacs bug#58687
-              (pp data (current-buffer)))
-          (prin1 data (current-buffer))))
-      (rename-file tmp-file file 'overwrite)
-      (org-persist--display-time
-       (- (float-time) start-time)
-       "Writing to %S" file))))
+    (unless (file-exists-p (file-name-directory file))
+      (make-directory (file-name-directory file) t))
+    ;; Do not write to FILE directly.  Another Emacs instance may be
+    ;; doing the same at the same time.  Instead, write to new
+    ;; temporary file and then rename it (renaming is atomic
+    ;; operation that does not create data races).
+    ;; See https://debbugs.gnu.org/cgi/bugreport.cgi?bug=75209#35
+    (with-temp-file tmp-file
+      (insert ";;   -*- mode: lisp-data; -*-\n")
+      (if pp
+          (let ((pp-use-max-width nil)) ; Emacs bug#58687
+            (pp data (current-buffer)))
+        (prin1 data (current-buffer))))
+    (rename-file tmp-file file 'overwrite)
+    (org-persist--display-time
+     (- (float-time) start-time)
+     "Writing to %S" file)))
 
 (defmacro org-persist-gc:generic (container collection)
   "Garbage collect CONTAINER data from COLLECTION."
@@ -630,7 +622,6 @@ or file-path, (:inode inode), (:hash hash), or or (:key key).
 MISC, if non-nil will be appended to the collection.  It must be a plist."
   (unless (and (listp container) (listp (car container)))
     (setq container (list container)))
-  (setq associated (org-persist--normalize-associated associated))
   (when (and misc (or (not (listp misc)) (= 1 (% (length misc) 2))))
     (error "org-persist: Not a plist: %S" misc))
   (or (org-persist--find-index
@@ -640,7 +631,8 @@ MISC, if non-nil will be appended to the collection.  It must be a plist."
        (nconc
         (list :container (org-persist--normalize-container container)
               :persist-file
-              (replace-regexp-in-string "^.." "\\&/" (org-id-uuid))
+              (let ((uuid (org-id-uuid)))
+                (concat (substring uuid 0 2) "/" (substring uuid 2)))
               :associated associated)
         misc))))
 
@@ -666,9 +658,10 @@ When INNER is non-nil, do not try to match as list of containers."
 (defvar org-persist--associated-buffer-cache (make-hash-table :weakness 'key)
   "Buffer hash cache.")
 
-(defun org-persist--normalize-associated (associated)
+(defsubst org-persist--normalize-associated (associated)
   "Normalize ASSOCIATED representation into (:type value)."
   (pcase associated
+    (`nil nil)
     ((or (pred stringp) `(:file ,_))
      (unless (stringp associated)
        (setq associated (cadr associated)))
@@ -943,7 +936,7 @@ Otherwise, return t."
     (let ((index-file
            (org-file-name-concat org-persist-directory org-persist-index-file)))
       (org-persist--merge-index-with-disk)
-      (org-persist--write-elisp-file index-file org-persist--index t nil t)
+      (org-persist--write-elisp-file index-file org-persist--index t nil)
       (setq org-persist--index-age
             (file-attribute-modification-time (file-attributes index-file)))
       index-file)))
@@ -972,26 +965,28 @@ Otherwise, return t."
   "Attempt to merge new index items in OTHER into BASE.
 Items with different details are considered too difficult, and skipped."
   (if other
-      (let ((new (cl-set-difference other base :test #'equal))
-            (base-files (mapcar (lambda (s) (plist-get s :persist-file)) base))
-            (combined (reverse base)))
-        (dolist (item (nreverse new))
-          (unless (or (memq 'index (mapcar #'car (plist-get item :container)))
-                      (not (file-exists-p
+      (if (not base) other
+        (let ((new (cl-set-difference other base :test #'equal))
+              (base-files (mapcar (lambda (s) (plist-get s :persist-file)) base))
+              (combined (reverse base)))
+          (dolist (item (nreverse new))
+            (unless (or (memq 'index (mapcar #'car (plist-get item :container)))
+                        (not (file-exists-p
                             (org-file-name-concat org-persist-directory
                                                   (plist-get item :persist-file))))
-                      (member (plist-get item :persist-file) base-files))
-            (push item combined)))
-        (nreverse combined))
+                        (member (plist-get item :persist-file) base-files))
+              (push item combined)))
+          (nreverse combined)))
     base))
 
 ;;;; Public API
 
-(cl-defun org-persist-register (container &optional associated &rest misc
-                               &key inherit
-                               &key (expiry org-persist-default-expiry)
-                               &key (write-immediately nil)
-                               &allow-other-keys)
+(cl-defun org-persist-register
+    ( container &optional associated &rest misc
+      &key inherit
+      &key (expiry org-persist-default-expiry)
+      &key (write-immediately nil)
+      &allow-other-keys)
   "Register CONTAINER in ASSOCIATED to be persistent across Emacs sessions.
 Optional key INHERIT makes CONTAINER dependent on another container.
 Such dependency means that data shared between variables will be
@@ -1006,8 +1001,11 @@ MISC will be appended to the collection.  It must be alternating :KEY
 VALUE pairs.
 When WRITE-IMMEDIATELY is non-nil, the return value will be the same
 with `org-persist-write'."
-  (unless org-persist--index (org-persist--load-index))
+  ;; Sync cache with disk, dropping conflicting items between multiple
+  ;; Emacsen.
+  (org-persist--merge-index-with-disk)
   (setq container (org-persist--normalize-container container))
+  (setq associated (org-persist--normalize-associated associated))
   (when inherit
     (setq inherit (org-persist--normalize-container inherit))
     (let ((inherited-collection (org-persist--get-collection inherit associated))
@@ -1033,7 +1031,9 @@ with `org-persist-write'."
 When ASSOCIATED is `all', unregister CONTAINER everywhere.
 When REMOVE-RELATED is non-nil, remove all the containers stored with
 the CONTAINER as well."
-  (unless org-persist--index (org-persist--load-index))
+  ;; Sync cache with disk, dropping conflicting items between multiple
+  ;; Emacsen.
+  (org-persist--merge-index-with-disk)
   (setq container (org-persist--normalize-container container))
   (if (eq associated 'all)
       (mapc (lambda (collection)
@@ -1070,7 +1070,9 @@ CONTAINER as well.  For example:
     (org-persist-read \"My data\") ; => \"My data\"
     (org-persist-read \"My data\" nil nil nil
                       :read-related t) ; => (\"My data\" \"test\")"
-  (unless org-persist--index (org-persist--load-index))
+  ;; Sync cache with disk, dropping conflicting items between multiple
+  ;; Emacsen.
+  (org-persist--merge-index-with-disk)
   (setq associated (org-persist--normalize-associated associated))
   (setq container (org-persist--normalize-container container))
   (let* ((collection (org-persist--find-index `(:container ,container :associated ,associated)))
@@ -1118,7 +1120,9 @@ have the same meaning as in `org-persist-read'."
 
 (defun org-persist-load-all (&optional associated)
   "Restore all the persistent data associated with ASSOCIATED."
-  (unless org-persist--index (org-persist--load-index))
+  ;; Sync cache with disk, dropping conflicting items between multiple
+  ;; Emacsen.
+  (org-persist--merge-index-with-disk)
   (setq associated (org-persist--normalize-associated associated))
   (let (all-containers)
     (dolist (collection org-persist--index)
@@ -1173,7 +1177,9 @@ When IGNORE-RETURN is non-nil, just return t on success without calling
 (defun org-persist-write-all (&optional associated)
   "Save all the persistent data.
 When ASSOCIATED is non-nil, only save the matching data."
-  (unless org-persist--index (org-persist--load-index))
+  ;; Sync cache with disk, dropping conflicting items between multiple
+  ;; Emacsen.
+  (org-persist--merge-index-with-disk)
   (setq associated (org-persist--normalize-associated associated))
   (if
       (and (equal 1 (length org-persist--index))
@@ -1285,9 +1291,9 @@ Remove current sessions from `org-persist-gc-lock-file'."
 (defun org-persist-gc ()
   "Remove expired or unregistered containers and orphaned files.
 Also, remove containers associated with non-existing files."
-  (if org-persist--index
-      (org-persist--merge-index-with-disk)
-    (org-persist--load-index))
+  ;; Sync cache with disk, dropping conflicting items between multiple
+  ;; Emacsen.
+  (org-persist--merge-index-with-disk)
   (let (new-index
         (remote-files-num 0)
         (orphan-files
