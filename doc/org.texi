@@ -743,7 +743,6 @@ first line of a file look like this:
 MY PROJECTS    -*- mode: org; -*-
 @end example
 
-
 @vindex org-insert-mode-line-in-empty-file
 @noindent
 which selects Org mode for this buffer no matter what the file's name
@@ -796,7 +795,6 @@ this is to use the command
 M-x org-submit-bug-report <RET>
 @end example
 
-
 @noindent
 which puts all this information into an Emacs mail buffer so that you
 only need to add your description.  If you are not sending the Email
@@ -813,7 +811,6 @@ a command like the example below.
 @example
 $ emacs -Q -l /path/to/minimal-org.el
 @end example
-
 
 However@comma{} if you are using Org mode as distributed with Emacs@comma{} a minimal
 setup is not necessary.  In that case it is sufficient to start Emacs
@@ -841,7 +838,6 @@ make repro
 # or pass extra arguments
 make repro REPRO_ARGS="-l /path/to/minimal/config.el /tmp/bug.org"
 @end example
-
 
 If an error occurs@comma{} a ``backtrace'' can be very useful---see below on
 how to create one.  Often a small example file helps@comma{} along with clear
@@ -888,7 +884,6 @@ uncompiled code.  To do this@comma{} use
 C-u M-x org-reload <RET>
 @end example
 
-
 @noindent
 or@comma{} from the menu: Org @arrow{} Refresh/Reload @arrow{} Reload Org uncompiled.
 
@@ -898,7 +893,6 @@ Then@comma{} activate the debugger:
 @example
 M-x toggle-debug-on-error <RET>
 @end example
-
 
 @noindent
 or@comma{} from the menu: Options @arrow{} Enter Debugger on Error.
@@ -950,7 +944,6 @@ Display and examine the recorded performance statistics:
 M-x profiler-report <RET>
 @end example
 
-
 This command will display a summary of the commands and functions
 that have been executed between @code{profiler-start} and
 @code{profiler-report} invocations@comma{} with command taking most of the time
@@ -977,7 +970,6 @@ Just save the data by issuing
 M-x profiler-report-write-profile <RET>
 /path/to/profile-file-to-be-saved <RET>
 @end example
-
 
 Then@comma{} you can attach the saved file to your email to the Org
 mailing list@comma{} alongside with details about what you did to trigger
@@ -2380,7 +2372,6 @@ also set this option on a per-file basis with:
 #+STARTUP: shrink
 @end example
 
-
 If you would like to overrule the automatic alignment of number-rich
 columns to the right and of string-rich columns to the left@comma{} you can
 use @samp{<r>}@comma{} @samp{<c>} or @samp{<l>} in a similar fashion.  You may also combine
@@ -2507,7 +2498,6 @@ customize this behavior using the variable
 @example
 @@ROW$COLUMN
 @end example
-
 
 Column specifications can be absolute like @samp{$1}@comma{} @samp{$2}@comma{} @dots{}@comma{} @samp{$N}@comma{} or
 relative to the current column@comma{} i.e.@comma{} the column of the field which is
@@ -2643,7 +2633,6 @@ a line like this example:
 #+CONSTANTS: c=299792458. pi=3.14 eps=2.4e-6
 @end example
 
-
 @vindex constants-unit-system
 @pindex constants.el
 Also@comma{} properties (see @ref{Properties and Columns}) can be used as
@@ -2675,7 +2664,6 @@ syntax is
 @example
 remote(NAME@comma{}REF)
 @end example
-
 
 @noindent
 where @var{NAME} can be the name of a table in the current file
@@ -2861,7 +2849,6 @@ trailing white space and surrounded in double-quotes.  For example:
 '(concat $1 $2)
 @end example
 
-
 @noindent
 concatenates the content of columns 1 and column 2.
 
@@ -2873,7 +2860,6 @@ cannot be parsed as numbers are interpolated as zeros.  For example:
 '(+ $1 $2);N
 @end example
 
-
 @noindent
 adds columns 1 and 2@comma{} equivalent to Calc's @samp{$1+$2}.  Ranges are
 inserted as space-separated fields@comma{} so they can be embedded in list or
@@ -2882,7 +2868,6 @@ vector syntax.  For example:
 @example
 '(apply '+ '($1..$4));N
 @end example
-
 
 @noindent
 computes the sum of columns 1 to 4@comma{} like Calc's @samp{vsum($1..$4)}.
@@ -2899,7 +2884,6 @@ example:
 '(substring "$1" $2 $3);L
 @end example
 
-
 @noindent
 extracts the part of the string in column 1 between the character
 positions specified in the integers in column 2 and 3@comma{} and it is easier
@@ -2909,14 +2893,12 @@ to read than the equivalent:
 '(substring $1 (string-to-number $2) (string-to-number $3))
 @end example
 
-
 When the formula itself contains @samp{;} symbol@comma{} Org mode may incorrectly
 interpret everything past @samp{;} as format specifier:
 
 @example
 '(concat $1 ";")
 @end example
-
 
 @noindent
 You can put an extra tailing @samp{;} to indicate that all the earlier
@@ -3680,14 +3662,12 @@ The general link format@comma{} however@comma{} looks like this:
 [[LINK][DESCRIPTION]]
 @end example
 
-
 @noindent
 or alternatively
 
 @example
 [[LINK]]
 @end example
-
 
 @cindex escape syntax, for links
 @cindex backslashes, in links
@@ -4039,7 +4019,6 @@ descriptive text to be displayed instead of the URL (see @ref{Link Format})@comm
 [[https://www.gnu.org/software/emacs/][GNU Emacs]]
 @end example
 
-
 If the description is a file name or URL that points to an image@comma{} HTML
 export (see @ref{HTML Export}) inlines the image as a clickable button.  If
 there is no description at all and the link points to an image@comma{} that
@@ -4319,7 +4298,6 @@ abbreviated link looks like this
 [[linkword:tag][description]]
 @end example
 
-
 @noindent
 @vindex org-link-abbrev-alist
 where the tag is optional.  The @emph{linkword} must be a word@comma{} starting
@@ -4500,7 +4478,6 @@ for example:
 @example
 *** TODO Write letter to Sam Fortune
 @end example
-
 
 The most important commands to work with TODO entries are:
 
@@ -4748,14 +4725,12 @@ anywhere in the file:
 #+TODO: TODO FEEDBACK VERIFY | DONE CANCELED
 @end example
 
-
 You may also write @samp{#+SEQ_TODO} to be explicit about the
 interpretation@comma{} but it means the same as @samp{#+TODO}@comma{} or
 
 @example
 #+TYP_TODO: Fred Sara Lucy Mike | DONE
 @end example
-
 
 A setup for using several sets in parallel would be:
 
@@ -5005,7 +4980,6 @@ to a buffer:
 #+TODO: TODO(t) WAIT(w@@/!) | DONE(d!) CANCELED(c@@)
 @end example
 
-
 To record a timestamp without a note for TODO keywords configured with
 @samp{@@}@comma{} just type @kbd{C-c C-c} to enter a blank note when prompted.
 
@@ -5168,7 +5142,6 @@ right after the TODO keyword@comma{} like this:
 *** TODO [#A] Write letter to Sam Fortune
 @end example
 
-
 @vindex org-priority-faces
 By default@comma{} Org mode supports three priorities: @samp{A}@comma{} @samp{B}@comma{} and @samp{C}.
 @samp{A} is the highest priority.  An entry without a cookie is treated as
@@ -5183,7 +5156,6 @@ You can also use numeric values for priorities@comma{} such as
 @example
 *** TODO [#1] Write letter to Sam Fortune
 @end example
-
 
 When using numeric priorities@comma{} you need to set @code{org-priority-highest}@comma{}
 @code{org-priority-lowest} and @code{org-priority-default} to integers@comma{} which
@@ -5228,7 +5200,6 @@ highest priority is earlier in the alphabet than the lowest priority):
 @example
 #+PRIORITIES: A C B
 @end example
-
 
 Or@comma{} using numeric values:
 
@@ -5527,7 +5498,6 @@ changes in the line.}
 #+FILETAGS: :Peter:Boss:Secret:
 @end example
 
-
 @vindex org-use-tag-inheritance
 @vindex org-tags-exclude-from-inheritance
 To limit tag inheritance to specific tags@comma{} or to turn it off entirely@comma{}
@@ -5599,7 +5569,6 @@ a specific file@comma{} add an empty @samp{TAGS} keyword to that file:
 #+TAGS:
 @end example
 
-
 @vindex org-tag-persistent-alist
 If you have a preferred set of tags that you would like to use in
 every file@comma{} in addition to those defined on a per-file basis by @samp{TAGS}
@@ -5610,7 +5579,6 @@ by adding a @samp{STARTUP} keyword to that file:
 @example
 #+STARTUP: noptag
 @end example
-
 
 By default@comma{} Org mode uses the standard minibuffer completion facilities
 for entering tags.  However@comma{} it also implements another@comma{} quicker@comma{} tag
@@ -5633,7 +5601,6 @@ can instead set the @samp{TAGS} keyword as:
 #+TAGS: @@work(w)  @@home(h)  @@tennisclub(t)  laptop(l)  pc(p)
 @end example
 
-
 The tags interface shows the available tags in a splash window.  If
 you want to start a new line after a specific tag@comma{} insert @samp{\n} into
 the tag list
@@ -5641,7 +5608,6 @@ the tag list
 @example
 #+TAGS: @@work(w) @@home(h) @@tennisclub(t) \n laptop(l) pc(p)
 @end example
-
 
 @noindent
 or write them in two lines:
@@ -5657,7 +5623,6 @@ braces@comma{} as in:
 @example
 #+TAGS: @{ @@work(w)  @@home(h)  @@tennisclub(t) @}  laptop(l)  pc(p)
 @end example
-
 
 @noindent
 you indicate that at most one of @samp{@@work}@comma{} @samp{@@home}@comma{} and @samp{@@tennisclub}
@@ -5783,7 +5748,6 @@ mandatory so that Org can parse this line correctly:
 #+TAGS: [ GTD : Control Persp ]
 @end example
 
-
 In this example@comma{} @samp{GTD} is the group tag@comma{} and it is related to two other
 tags: @samp{Control}@comma{} @samp{Persp}.  Defining @samp{Control} and @samp{Persp} as group
 tags creates a hierarchy of tags:
@@ -5847,7 +5811,6 @@ curly brackets.
 @example
 #+TAGS: @{ Context : @@Home @@Work @@Call @}
 @end example
-
 
 When setting @code{org-tag-alist} you can use @code{:startgroup} and @code{:endgroup}
 instead of @code{:startgrouptag} and @code{:endgrouptag} to make the tags
@@ -6007,7 +5970,6 @@ Properties can also be defined using lines like:
 @example
 #+PROPERTY: NDisks_ALL 1 2 3 4
 @end example
-
 
 @cindex @samp{+} suffix, in properties
 If you want to add to the value of an existing property@comma{} append a @samp{+}
@@ -6323,7 +6285,6 @@ keywords can also be defined for an entire file using a line like:
 #+COLUMNS: %25ITEM %TAGS %PRIORITY %TODO
 @end example
 
-
 If a @samp{COLUMNS} property is present in an entry@comma{} it defines columns for
 the entry itself@comma{} and for the entire subtree below it.  Since the
 column definition is part of the hierarchical structure of the
@@ -6340,7 +6301,6 @@ definition looks like this:
 @example
 %[WIDTH]PROPERTY[(TITLE)][@{SUMMARY-TYPE@}]
 @end example
-
 
 @noindent
 Except for the percent sign and the property name@comma{} all items are
@@ -7283,7 +7243,6 @@ repeater.  However@comma{} the use of diary expression entries like
 <%%(diary-float t 42)>
 @end example
 
-
 @noindent
 in scheduling and deadline timestamps is limited.  Org mode does not
 know enough about the internals of each function to issue early and
@@ -7382,7 +7341,6 @@ period last
 @example
 DEADLINE: <2005-10-01 Sat +1m -3d>
 @end example
-
 
 @vindex org-todo-repeat-to-state
 Deadlines and scheduled items produce entries in the agenda when they
@@ -8375,7 +8333,6 @@ example:
 @example
 #+ARCHIVE: %s_done::
 @end example
-
 
 @cindex ARCHIVE, property
 If you would like to have a special archive location for a single
@@ -10292,7 +10249,6 @@ this:
 #+CATEGORY: Thesis
 @end example
 
-
 @cindex @samp{CATEGORY}, property
 If you would like to have a special category for a single entry or
 a (sub)tree@comma{} give the entry a @samp{CATEGORY} property with the special
@@ -10316,14 +10272,12 @@ agenda@comma{} for example
 <2005-05-10 Tue 19:00>
 @end example
 
-
 @noindent
 Time ranges can be specified with two timestamps:
 
 @example
 <2005-05-10 Tue 20:30>--<2005-05-10 Tue 22:15>
 @end example
-
 
 @vindex org-agenda-search-headline-for-time
 In the headline of the entry itself@comma{} a time(range)---like @samp{12:45} or a
@@ -10517,7 +10471,6 @@ in a single string@comma{} with full completion support.  For example@comma{}
 @example
 +work-John+<0:10-/plot/
 @end example
-
 
 selects entries with category @samp{work} and effort estimates below 10
 minutes@comma{} and deselects entries with tag @samp{John} or matching the
@@ -12177,7 +12130,6 @@ You can turn on the previewing of all @LaTeX{} fragments in a file with
 #+STARTUP: latexpreview
 @end example
 
-
 To disable it@comma{} simply use
 
 @example
@@ -12193,13 +12145,13 @@ CD@LaTeX{} mode is a minor mode that is normally used in combination with
 a major @LaTeX{} mode like AUC@TeX{} in order to speed-up insertion of
 environments and math templates.  Inside Org mode@comma{} you can make use of
 some of the features of CD@LaTeX{} mode.  You need to install
-@samp{cdlatex.el} and @samp{texmathp.el} (the latter comes also with AUC@TeX{})
-from @uref{https://elpa.nongnu.org/, NonGNU ELPA} with the @uref{https://www.gnu.org/software/emacs/manual/html_node/emacs/Package-Installation.html, Emacs packaging system} or alternatively from
-@uref{https://staff.fnwi.uva.nl/c.dominik/Tools/cdlatex/}.  Do not use
-CD@LaTeX{} mode itself under Org mode@comma{} but use the special version Org
-CD@LaTeX{} minor mode that comes as part of Org.  Turn it on for the
-current buffer with @kbd{M-x org-cdlatex-mode}@comma{} or for all Org
-files with
+@samp{cdlatex.el} and @samp{texmathp.el} (the latter comes also with AUC@TeX{}).
+The @samp{cdlatex} package can be installed from
+@uref{https://elpa.nongnu.org/nongnu/cdlatex.html, NonGNU ELPA} with the
+@uref{https://www.gnu.org/software/emacs/manual/html_node/emacs/Package-Installation.html, Emacs
+packaging system}.  Do not use CD@LaTeX{} mode itself under Org mode@comma{}
+but use the special version Org CD@LaTeX{} minor mode that comes as part
+of Org.  Turn it on for the current buffer with @kbd{M-x org-cdlatex-mode}@comma{} or for all Org files with
 
 @lisp
 (add-hook 'org-mode-hook #'turn-on-org-cdlatex)
@@ -12387,7 +12339,6 @@ use a @samp{-l} switch to change the format@comma{} for example
 #+BEGIN_SRC pascal -n -r -l "((%s))"
 @end example
 
-
 @noindent
 See also the variable @code{org-coderef-label-format}.
 
@@ -12502,7 +12453,6 @@ example
 @example
 ./img/cat.jpg
 @end example
-
 
 If you wish to define a caption for the image (see @ref{Captions}) and
 maybe a label for internal cross-references (see @ref{Internal Links})@comma{}
@@ -12623,7 +12573,6 @@ Optionally@comma{} the caption can take the form:
 @example
 #+CAPTION[Short caption]: Longer caption.
 @end example
-
 
 Even though images and tables are prominent examples of captioned
 structures@comma{} the same caption mechanism can apply to many
@@ -13326,7 +13275,6 @@ example@comma{} to include your @samp{.emacs} file@comma{} you could use:
 #+INCLUDE: "~/.emacs" src emacs-lisp
 @end example
 
-
 @noindent
 There are three positional arguments after the include keyword@comma{} they are:
 @enumerate
@@ -13360,7 +13308,6 @@ top-level headline:
 #+INCLUDE: "~/my-book/chapter2.org" :minlevel 1
 @end example
 
-
 @cindex @samp{lines}, include
 Inclusion of only portions of files are specified using ranges
 parameter with @samp{:lines} keyword.  The line at the upper end of the
@@ -13387,7 +13334,6 @@ Therefore@comma{}
 #+INCLUDE: "./paper.org::*conclusion" :lines "1-20"
 @end example
 
-
 @noindent
 includes the first 20 lines of the headline named @samp{conclusion}.
 
@@ -13400,7 +13346,6 @@ with the custom ID @samp{theory}@comma{} you can use
 @example
 #+INCLUDE: "./paper.org::#theory" :only-contents t
 @end example
-
 
 The following command allows navigating to the included document:
 
@@ -13429,7 +13374,6 @@ or document-wise with the following syntax:
 #+MACRO: name   replacement text; $1@comma{} $2 are arguments
 @end example
 
-
 @noindent
 which can be referenced using @samp{@{@{@{name(arg1@comma{} arg2)@}@}@}}@footnote{Since commas separate the arguments@comma{} commas within arguments
 have to be escaped with the backslash character.  So only those
@@ -13449,7 +13393,6 @@ becomes
 Rose is red@comma{} violet's blue.  Life's ordered: Org assists you.
 @end example
 
-
 As a special case@comma{} Org parses any replacement text starting with
 @samp{(eval} as an Emacs Lisp expression and evaluates it accordingly.
 Within such templates@comma{} arguments become strings.  Thus@comma{} the following
@@ -13458,7 +13401,6 @@ macro
 @example
 #+MACRO: gnustamp (eval (concat "GNU/" (capitalize $1)))
 @end example
-
 
 @noindent
 turns @samp{@{@{@{gnustamp(linux)@}@}@}} into @samp{GNU/Linux} during export.
@@ -13899,7 +13841,6 @@ wrap the table of contents generated with @samp{TOC} keyword (see @ref{Table of 
 #+TOC: headlines [currentsection]
 @end example
 
-
 Insert Beamer-specific code using the following constructs:
 
 @cindex @samp{BEAMER}, keyword
@@ -13923,7 +13864,6 @@ shown in this example:
 @example
 A *@@@@beamer:<2->@@@@useful* feature
 @end example
-
 
 @cindex @samp{ATTR_BEAMER}, keyword
 Beamer export recognizes the @samp{ATTR_BEAMER} keyword with the following
@@ -13960,7 +13900,6 @@ documents.
 @example
 #+STARTUP: beamer
 @end example
-
 
 @table @asis
 @item @kbd{C-c C-b} (@code{org-beamer-select-environment})
@@ -14289,7 +14228,6 @@ can insert that HTML code in the output@comma{} use this inline syntax:
 @@@@html:<b>@@@@bold text@@@@html:</b>@@@@
 @end example
 
-
 @cindex @samp{HTML}, keyword
 @cindex @samp{BEGIN_EXPORT html}
 For larger raw HTML code blocks@comma{} use these HTML export code blocks:
@@ -14431,7 +14369,6 @@ to the high-resolution version of the image@comma{} as shown in this example:
 [[file:highres.jpg][file:thumb.jpg]]
 @end example
 
-
 To change attributes of in-lined images@comma{} use @samp{#+ATTR_HTML} lines in
 the Org file.  This example shows realignment to right@comma{} and adds @code{alt}
 and @code{title} attributes in support of text viewers and modern web
@@ -14499,11 +14436,9 @@ processing with
 #+OPTIONS: tex:dvipng
 @end example
 
-
 @example
 #+OPTIONS: tex:dvisvgm
 @end example
-
 
 @noindent
 or
@@ -14647,7 +14582,6 @@ line in the Org file.
 #+OPTIONS: html-style:nil
 @end example
 
-
 For longer style definitions@comma{} either use several @samp{HTML_HEAD} and
 @samp{HTML_HEAD_EXTRA} keywords@comma{} or use @code{<style> ... </style>} blocks
 around them.  Both of these approaches can avoid referring to an
@@ -14684,7 +14618,6 @@ To use this program@comma{} just add this line to the Org file:
 @example
 #+INFOJS_OPT: view:info toc:nil
 @end example
-
 
 @noindent
 The HTML header now has the code needed to automatically invoke the
@@ -14990,7 +14923,6 @@ conventions.
 #+LATEX_CLASS_OPTIONS: [a4paper@comma{}11pt@comma{}twoside@comma{}twocolumn]
 @end example
 
-
 @cindex @samp{LATEX_HEADER}, keyword
 @cindex @samp{LATEX_HEADER_EXTRA}, keyword
 The @LaTeX{} export backend appends values from @samp{LATEX_HEADER} and
@@ -15075,14 +15007,12 @@ Inserting in-line quoted with @@ symbols:
 Code embedded in-line @@@@latex:any arbitrary LaTeX code@@@@ in a paragraph.
 @end example
 
-
 @cindex @samp{LATEX}, keyword
 Inserting as one or more keyword lines in the Org file:
 
 @example
 #+LATEX: any arbitrary LaTeX code
 @end example
-
 
 @cindex @samp{BEGIN_EXPORT latex}
 Inserting as an export block in the Org file@comma{} where the backend
@@ -15857,7 +15787,6 @@ To apply an ODT style to a particular file@comma{} use the
 #+ODT_STYLES_FILE: "/path/to/example.ott"
 @end example
 
-
 @noindent
 or
 
@@ -15952,7 +15881,6 @@ examples works:
 @example
 [[file:img.png]]
 @end example
-
 
 @example
 [[./img.png]]
@@ -16070,7 +15998,6 @@ a per-file basis.
 #+OPTIONS: tex:t
 @end example
 
-
 With this option@comma{} @LaTeX{} fragments are first converted into MathML
 fragments using an external @LaTeX{}-to-MathML converter program.  The
 resulting MathML fragments are then embedded as an OpenDocument
@@ -16128,11 +16055,9 @@ a per-file basis.
 #+OPTIONS: tex:dvipng
 @end example
 
-
 @example
 #+OPTIONS: tex:dvisvgm
 @end example
-
 
 @noindent
 or
@@ -16140,7 +16065,6 @@ or
 @example
 #+OPTIONS: tex:imagemagick
 @end example
-
 
 Under this option@comma{} @LaTeX{} fragments are processed into PNG or SVG
 images and the resulting images are embedded in the exported
@@ -16159,7 +16083,6 @@ shown below:
 @example
 [[./equation.mml]]
 @end example
-
 
 @noindent
 or
@@ -16189,7 +16112,6 @@ When rendered@comma{} it may show as follows in the exported document:
 @example
 Figure 2: Bell curve
 @end example
-
 
 @vindex org-odt-category-map-alist
 To modify the category component of the caption@comma{} customize the option
@@ -16739,7 +16661,6 @@ keywords for each additional command in the header@comma{} for example:
 #+TEXINFO_HEADER: @@synindex
 @end example
 
-
 @cindex @samp{TEXINFO_CLASS}, keyword
 @vindex org-texinfo-classes
 Instead of repeatedly installing the same set of commands@comma{} define
@@ -16881,7 +16802,6 @@ belong to a Texinfo command.
 @example
 #+CINDEX: Defining indexing entries
 @end example
-
 
 @cindex @samp{INDEX}, property
 For the backend to generate an index entry for a headline@comma{} set the
@@ -17348,7 +17268,6 @@ syntax (see @ref{Property Syntax}):
 :END:
 @end example
 
-
 @vindex org-icalendar-include-body
 When Org entries do not have @samp{SUMMARY}@comma{} @samp{DESCRIPTION}@comma{} @samp{LOCATION} and
 @samp{CLASS} properties@comma{} the iCalendar export backend derives the summary
@@ -17659,7 +17578,6 @@ elements (see @uref{https://orgmode.org/worg/dev/org-element-api.html, Org Eleme
   (heading (section ...))))
 @end example
 
-
 Past this point@comma{} modifications to the temporary buffer no longer
 affect the export; Org export works only with the AST;
 
@@ -17776,7 +17694,6 @@ is non-@code{nil}@comma{} like the following:
 @example
 #+ATTR_ASCII: :language t
 @end example
-
 
 Then extend ASCII backend with a custom ``my-ascii'' backend.
 
@@ -18730,7 +18647,6 @@ publishable images in @samp{~/images/}@comma{} you would link to an image with
 file:../images/myimage.png
 @end example
 
-
 On the web server@comma{} the relative path to the image should be the same.
 You can accomplish this by setting up an @samp{images/} folder in the right
 place on the web server@comma{} and publishing images to it.
@@ -18826,7 +18742,6 @@ experiment with Org babel to improve teaching.
 #+print_bibliography:
 @end example
 
-
 Org mode will gather citation metadata from the @samp{#+bibliography}
 database and use it to typeset the exported document in arbitrary
 formats.  For example@comma{} the snippet below shows ASCII export output.
@@ -18843,7 +18758,6 @@ Programming Tools/@comma{} MDPI.
 Somma@comma{} Emmanuele F (2023). /Simplifying LaTeX with ORG-mode in Emacs/@comma{}
 TUGboat volume.
 @end example
-
 
 In addition to export@comma{} users can use completion to search and insert
 citations from the bibliography (via @code{org-cite-insert}).  Citations
@@ -18955,7 +18869,6 @@ colon; this usually makes sense only for the author-year styles.
 [cite/style:common prefix ;prefix @@key suffix; ... ; common suffix]
 @end example
 
-
 When @samp{style} is not specified@comma{} one of the two default styles are
 used
 
@@ -19048,7 +18961,6 @@ optional)
 #+cite_export: basic author-year author
 @end example
 
-
 @noindent
 specifies the @samp{basic} export processor with citations inserted as
 author's name and references indexed by author's names and year;
@@ -19056,7 +18968,6 @@ author's name and references indexed by author's names and year;
 @example
 #+cite_export: csl /some/path/to/vancouver-brackets.csl
 @end example
-
 
 @noindent
 specifies the @samp{csl} processor and CSL style@comma{} which in this case
@@ -19068,7 +18979,6 @@ following a typesetting variation putting citations between brackets;
 #+cite_export: natbib kluwer
 @end example
 
-
 @noindent
 specifies the @samp{natbib} export processor with a label citation style
 conformant to the Harvard style and the specification of the
@@ -19078,7 +18988,6 @@ your @LaTeX{} installation@comma{} it won't export to anything but PDF@.
 @example
 #+cite_export: biblatex numeric@comma{}backend=bibtex
 @end example
-
 
 @vindex org-cite-biblatex-options
 @noindent
@@ -19091,7 +19000,6 @@ the options as documented in the @samp{biblatex} package documentation:
 @example
 #+cite_export: biblatex backend=bibtex@comma{}style=numeric
 @end example
-
 
 The @code{org-cite-biblatex-options} variable in your Emacs configuration
 uses this format.  It will only export to PDF@comma{} since it relies on the
@@ -19107,7 +19015,6 @@ should be printed (note the colon):
 @example
 #+print_bibliography:
 @end example
-
 
 The bibliography printed by the @LaTeX{}-based export processors
 @samp{bibtex}@comma{} @samp{natbib} and @samp{biblatex} has a chapter or section heading by
@@ -19139,7 +19046,6 @@ keyword.  For example@comma{}
 #+print_bibliography: :keyword algebra :type book
 @end example
 
-
 Values including spaces must be surrounded with double quotes.  If you
 need to use a key multiple times@comma{} you can separate its values with
 commas@comma{} but without any space in-between:
@@ -19147,7 +19053,6 @@ commas@comma{} but without any space in-between:
 @example
 #+print_bibliography: :keyword "algebraic logic" :nottype article@comma{}book
 @end example
-
 
 The @samp{biblatex} export processor accepts all options supported by
 Bib@LaTeX{}'s @code{\printbibliography} command.
@@ -19323,14 +19228,12 @@ An inline code block conforms to this structure:
 src_<language>@{<body>@}
 @end example
 
-
 @noindent
 or
 
 @example
 src_<language>[<header arguments>]@{<body>@}
 @end example
-
 
 @table @asis
 @item @samp{#+NAME: <name>}
@@ -19537,7 +19440,6 @@ The same header arguments in an inline code block:
 src_haskell[:exports both]@{fac 5@}
 @end example
 
-
 @cindex @samp{HEADER}, keyword
 Code block header arguments can span multiple lines using @samp{#+HEADER:}
 on each line.  Note that Org currently accepts the plural spelling of
@@ -19584,7 +19486,6 @@ evaluation of the @samp{#+CALL:} line.
 #+CALL: factorial(n=5) :exports results
 @end example
 
-
 In this example@comma{} @samp{:session special} header argument is applied to the
 evaluation of @samp{factorial} code block.
 
@@ -19614,7 +19515,6 @@ the @samp{var} header argument.
 :var NAME=ASSIGN
 @end example
 
-
 @noindent
 @var{NAME} is the name of the variable bound in the code block
 body.  @var{ASSIGN} is a literal value@comma{} such as a string@comma{}
@@ -19627,7 +19527,6 @@ from the reference.
 @example
 :var NAME=FILE:REFERENCE
 @end example
-
 
 When @samp{FILE} does not exist@comma{} the reference is searched in the current
 file@comma{} using the verbatim reference.  This way@comma{}
@@ -19999,7 +19898,6 @@ Emacs Tramp.  Org constructs the remote path to the file name from
 [[file:/scp:dand@@yakuba.princeton.edu:/home/dand/plot.png][plot.png]]
 @end example
 
-
 When @samp{dir} is used with @samp{session}@comma{} Org sets the starting directory for
 a new session.  But Org does not alter the directory of an already
 existing session.
@@ -20109,7 +20007,6 @@ would be written as:
 @example
 #+CALL: double(n=4)
 @end example
-
 
 @noindent
 Note how this function call syntax is different from the header
@@ -20656,7 +20553,6 @@ This [[code name][link]] will point to the code block.
 Another [[results name][link]] will point to the results.
 @end example
 
-
 Explicit setting of the result name may be necessary when a named code
 block is exported using @samp{:exports both}.  Links to such block may
 arbitrarily point either to the code block or to its results when
@@ -21010,7 +20906,6 @@ using a noweb@footnote{ For noweb literate programming details@comma{} see
 <<CODE-BLOCK-ID>>
 @end example
 
-
 @noindent
 where @var{CODE-BLOCK-ID} refers to either the @samp{NAME} of a single
 source code block@comma{} or a collection of one or more source code blocks
@@ -21151,7 +21046,6 @@ arguments@comma{} are appended to the code block name@comma{} as shown below.
 <<NAME(optional arguments)>>
 @end example
 
-
 Note that in this case@comma{} a code block name set by @samp{NAME} keyword is
 required; the reference set by @samp{noweb-ref} will not work when
 evaluation is desired.
@@ -21183,7 +21077,6 @@ expands to:
 print(num*10)
 @end example
 
-
 Below@comma{} a similar noweb style reference is used@comma{} but with parentheses@comma{}
 while setting a variable @samp{num} to 10:
 
@@ -21200,7 +21093,6 @@ Note that the expansion now contains the results of the code block
 @example
 100
 @end example
-
 
 Noweb insertions honor prefix characters that appear before the noweb
 syntax reference.  This behavior is illustrated in the following
@@ -22309,7 +22201,6 @@ a buffer:
 M-: (org-element-parse-buffer) <RET>
 @end example
 
-
 @noindent
 It outputs a list containing the buffer's content represented as an
 abstract structure.  The export engine relies on the information
@@ -22325,7 +22216,6 @@ You can probe the syntax of your documents with the command
 @example
 M-x org-lint <RET>
 @end example
-
 
 @noindent
 It runs a number of checks to find common mistakes.  It then displays
@@ -22379,14 +22269,12 @@ C-x 8 <RET> zero width space <RET>
 C-x 8 <RET> 200B <RET>
 @end example
 
-
 For example@comma{} in order to write @samp{[[1@comma{}2]]} as-is in your document@comma{} you
 may write instead
 
 @example
 [X[1@comma{}2]]
 @end example
-
 
 where @samp{X} denotes the zero width space character.
 
@@ -22802,7 +22690,6 @@ application calls
 emacsclient "org-protocol://PROTOCOL?key1=val1&key2=val2"
 @end example
 
-
 @noindent
 Emacs calls the handler associated to @var{PROTOCOL} with
 argument @samp{(:key1 val1 :key2 val2)}.
@@ -22833,14 +22720,12 @@ precisely@comma{} the command
 emacsclient "org-protocol://store-link?url=URL&title=TITLE"
 @end example
 
-
 @noindent
 stores the following link:
 
 @example
 [[URL][TITLE]]
 @end example
-
 
 In addition@comma{} @var{URL} is pushed on the kill-ring for yanking.
 You need to encode @var{URL} and @var{TITLE} if they contain
@@ -22875,7 +22760,6 @@ using a capture template.
 @example
 emacsclient "org-protocol://capture?template=X&url=URL&title=TITLE&body=BODY"
 @end example
-
 
 To use this feature@comma{} add a bookmark with an arbitrary name@comma{} e.g.@comma{}
 @samp{Org: capture}@comma{} and enter this as @samp{Location}:
@@ -23368,7 +23252,6 @@ process of adding Org links to Unix man pages@comma{} which look like this
 [[man:printf][The printf manual]]
 @end example
 
-
 @noindent
 The following @samp{ol-man.el} file implements it
 
@@ -23619,7 +23502,6 @@ table.  For example:
 #+ORGTBL: SEND table_name translation_function arguments ...
 @end example
 
-
 @noindent
 @samp{table_name} is the table's reference name@comma{} which is also used in the
 receiver lines@comma{} and the @samp{translation_function} is the Lisp function
@@ -23794,7 +23676,6 @@ this overrides the default @LaTeX{} line endings@comma{} @code{\\}@comma{} with 
 @example
 #+ORGTBL: SEND test orgtbl-to-latex :lend " \\\\[2mm]"
 @end example
-
 
 For a new language translator@comma{} define a converter function.  It can be
 a generic function@comma{} such as shown in this example.  It marks
@@ -24090,7 +23971,6 @@ This example command line directly prints the TODO list to the printer:
 @example
 emacs -batch -l ~/.emacs -eval '(org-batch-agenda "t")' | lpr
 @end example
-
 
 When the string parameter length is two or more characters@comma{} Org
 matches it with tags/TODO strings.  For example@comma{} this example command

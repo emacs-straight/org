@@ -185,6 +185,20 @@ BEHAVIOR determines how Org should handle multiple keywords for
 Values set through KEYWORD and OPTION have precedence over
 DEFAULT.
 
+When adding new export options to the alist, it is recommended to
+provide OPTION and/or KEYWORD depending on the allowed values for a
+given export option.  For example,
+ (:with-tags nil \"tags\" org-export-with-tags)
+takes short boolean values t/nil and can be succintly set as
+ #+OPTIONS: tags:t
+So, using OPTION makes more sense than forcing something like
+ #+WITH_TAGS: t
+
+On the other hand,
+ (:title \"TITLE\" nil nil parse)
+may have very long string value and may better be set on a separate line
+ #+TITLE: Some very long title that would not fit well into #+OPTIONS
+
 All these properties should be backend agnostic.  Backend
 specific properties are set through `org-export-define-backend'.
 Properties redefined there have precedence over these.")
@@ -1444,11 +1458,15 @@ specific items to read, if any."
 	;; Priority is given to backend specific options.
 	(all (append (org-export-get-all-options backend)
 		     org-export-options-alist))
-	(plist))
+	(plist)
+        seen-options)
     (when line
       (dolist (entry all plist)
 	(let ((item (nth 2 entry)))
-	  (when item
+	  (when (and item
+                     ;; Only use the first option set by derived backend.
+                     (not (memq (car entry) seen-options)))
+            (push (car entry) seen-options)
 	    (let ((v (assoc-string item line t)))
 	      (when v (setq plist (plist-put plist (car entry) (cdr v)))))))))))
 
@@ -1480,12 +1498,17 @@ for export.  Return options as a plist."
 	 ;; Look for both general keywords and backend specific
 	 ;; options, with priority given to the latter.
 	 (options (append (org-export-get-all-options backend)
-			  org-export-options-alist)))
+			  org-export-options-alist))
+         seen-properties)
      ;; Handle other keywords.  Then return PLIST.
      (dolist (option options plist)
        (let ((property (car option))
 	     (keyword (nth 1 option)))
-	 (when keyword
+	 (when (and keyword
+                    ;; Only consider the first instance of property
+                    ;; In other words, derived backend settings take precendence.
+                    (not (memq property seen-properties)))
+           (push property seen-properties)
 	   (let ((value
 		  (or (cdr (assoc keyword cache))
 		      (let ((v (org-entry-get (point)
@@ -1521,10 +1544,18 @@ Assume buffer is in Org mode.  Narrowing, if any, is ignored."
     (let ((find-properties
 	   (lambda (keyword)
 	     ;; Return all properties associated to KEYWORD.
-	     (let (properties)
+	     (let (properties seen-properties)
 	       (dolist (option options properties)
-		 (when (equal (nth 1 option) keyword)
-		   (cl-pushnew (car option) properties)))))))
+                 ;; Ignore all but first :export-property
+                 ;; This is to avoid situations like
+                 ;; (:parent-backend-property "PARENT_KEYWORD" ...)
+                 ;; (:child-backend-property "CHILD_KEYWORD" ...)
+                 ;; where we should ignore #+PARENT_KEYWORD when child
+                 ;; backend is used.
+                 (unless (memq (car option) seen-properties)
+                   (push (car option) seen-properties)
+		   (when (equal (nth 1 option) keyword)
+		     (cl-pushnew (car option) properties))))))))
       ;; Read options in the current buffer and return value.
       (dolist (entry (org-collect-keywords
 		      (nconc (delq nil (mapcar #'cadr options))

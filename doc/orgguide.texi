@@ -174,7 +174,6 @@ line to your Emacs init file:
 (add-to-list 'load-path "~/path/to/orgdir/lisp")
 @end example
 
-
 @noindent
 If you have been using git or a tar ball to get Org@comma{} you need to run
 the following command to generate autoload information.
@@ -269,7 +268,6 @@ visibility in the buffer.
 @comma{}-> FOLDED -> CHILDREN -> SUBTREE --.
 '-----------------------------------'
 @end example
-
 
 When called with a prefix argument (@kbd{C-u @key{TAB}})@comma{} or with the
 Shift key@comma{} global cycling is invoked.
@@ -491,7 +489,6 @@ whole table width.  So@comma{} to create the above table@comma{} you would only 
 |-
 @end example
 
-
 @noindent
 and then press @kbd{@key{TAB}} to align the table and start filling in
 fields.  Even faster would be to type @samp{|Name|Phone|Age} followed by
@@ -594,14 +591,12 @@ looks like this:
 [[LINK][DESCRIPTION]]
 @end example
 
-
 @noindent
 or alternatively
 
 @example
 [[LINK]]
 @end example
-
 
 Once a link in the buffer is complete@comma{} with all brackets present@comma{} Org
 changes the display so that @samp{DESCRIPTION} is displayed instead of
@@ -749,7 +744,6 @@ for example:
 *** TODO Write letter to Sam Fortune
 @end example
 
-
 The most important commands to work with TODO entries are:
 
 @table @asis
@@ -760,7 +754,6 @@ Rotate the TODO state of the current item among
 @comma{}-> (unmarked) -> TODO -> DONE --.
 '--------------------------------'
 @end example
-
 
 The same rotation can also be done ``remotely'' from the agenda buffer
 with the @kbd{t} command key (see @ref{Agenda Commands}).
@@ -897,7 +890,6 @@ For example:
 #+TODO: TODO(t) WAIT(w@@/!) | DONE(d!) CANCELED(c@@)
 @end example
 
-
 @noindent
 defines TODO keywords and fast access keys@comma{} and also request that
 a time is recorded when the entry is set to @samp{DONE}@comma{} and that a note is
@@ -915,7 +907,6 @@ like this
 @example
 *** TODO [#A] Write letter to Sam Fortune
 @end example
-
 
 Org mode supports three priorities: @samp{A}@comma{} @samp{B}@comma{} and @samp{C}.  @samp{A} is the
 highest@comma{} @samp{B} the default if none is given.  Priorities make
@@ -1054,7 +1045,6 @@ for a given file using the @samp{TAGS} keyword@comma{} like
 #+TAGS: laptop car pc sailboat
 @end example
 
-
 By default Org mode uses the standard minibuffer completion facilities
 for entering tags.  However@comma{} it also implements another@comma{} quicker@comma{} tag
 selection method called @emph{fast tag selection}.  This allows you to
@@ -1089,14 +1079,12 @@ the group tag and its related tags:
 #+TAGS: [ GTD : Control Persp ]
 @end example
 
-
 @noindent
 or@comma{} if tags in the group should be mutually exclusive:
 
 @example
 #+TAGS: @{ Context : @@Home @@Work @}
 @end example
-
 
 When you search for a group tag@comma{} it return matches for all members in
 the group and its subgroups.  In an agenda view@comma{} filtering by a group
@@ -1174,7 +1162,6 @@ a file@comma{} use a line like:
 @example
 #+PROPERTY: NDisks_ALL 1 2 3 4
 @end example
-
 
 The following commands help to work with properties:
 
@@ -1512,7 +1499,6 @@ the template for you like this:
 * TODO
   [[file:LINK TO WHERE YOU INITIATED CAPTURE]]
 @end example
-
 
 @noindent
 During expansion of the template@comma{} special %-escapes@footnote{If you need one of these sequences literally@comma{} escape the @samp{%}
@@ -2125,7 +2111,6 @@ part@comma{} for example
 ./img/cat.jpg
 @end example
 
-
 If you wish to define a caption for the image and maybe a label for
 internal cross references (see @ref{Hyperlinks})@comma{} make sure that the
 link is on a line by itself and precede it with @samp{CAPTION} and @samp{NAME}
@@ -2209,7 +2194,6 @@ additional information.  These lines may be put anywhere in the file:
 #+TITLE: I'm in the Mood for Org
 @end example
 
-
 Most proeminent export options include:
 
 @multitable {aaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
@@ -2256,7 +2240,6 @@ example@comma{} to include your @samp{.emacs} file@comma{} you could use:
 @example
 #+INCLUDE: "~/.emacs" src emacs-lisp
 @end example
-
 
 @noindent
 The first parameter is the file name to include.  The optional second
@@ -2323,7 +2306,6 @@ can insert that HTML code in the output@comma{} use this inline syntax:
 @@@@html:<b>@@@@bold text@@@@html:</b>@@@@
 @end example
 
-
 For larger raw HTML code blocks@comma{} use these HTML export code blocks:
 
 @example
@@ -2370,13 +2352,11 @@ Inserting in-line quoted with @@ symbols:
 Code embedded in-line @@@@latex:any arbitrary LaTeX code@@@@ in a paragraph.
 @end example
 
-
 Inserting as one or more keyword lines in the Org file:
 
 @example
 #+LATEX: any arbitrary LaTeX code
 @end example
-
 
 Inserting as an export block in the Org file@comma{} where the backend
 exports any code between begin and end markers:
@@ -2562,7 +2542,6 @@ the @samp{var} header argument.
 :var NAME=ASSIGN
 @end example
 
-
 @noindent
 @var{NAME} is the name of the variable bound in the code block
 body.  @var{ASSIGN} is a literal value@comma{} such as a string@comma{}
@@ -2680,7 +2659,6 @@ can turn it on for individual files using
 @example
 #+STARTUP: indent
 @end example
-
 
 If you want the indentation to be hard space characters so that the
 plain text file looks as similar as possible to the Emacs display@comma{} Org
