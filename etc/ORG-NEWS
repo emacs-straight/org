@@ -221,6 +221,17 @@ retail 4-4-5 calendars, etc).
 # adding new customizations, or changing the interpretation of the
 # existing customizations.
 
+*** New context available to save in archived headings
+
+~org-archive-save-context-info~ can now contain ~olid~ symbol to save
+parent heading id in the archived heading.
+
+*** New hook ~org-archive-finalize-hook~
+
+Hook run after successfully archiving a subtree in final location.
+Unlike ~org-archive-hook~, which runs in the sourcce Org buffer, the
+new hook is called with point on the subtree in the destination file.
+
 *** ox-odt: New export option ~org-odt-with-forbidden-chars~
 
 The new export option controls how to deal with characters that are forbidden
@@ -312,6 +323,16 @@ slide to specific animation steps.
 :END:
 This text will be displayed on animation step 2 and later.
 #+END_SRC
+
+*** ox-html: Headline self links can be enabled from an Org-mode file
+
+Previously HTML export could add, to each headline, a link to itself.
+To enable it, you had to use the variable
+~org-html-self-link-headlines~.
+
+Now, it's also possible to enable it per Org-mode file by adding:
+: #+OPTIONS: html-self-link-headlines:t
+
 
 *** ox-latex: Table of contents generation has been fixed and augmented
 

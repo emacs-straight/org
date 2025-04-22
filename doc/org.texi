@@ -6321,10 +6321,22 @@ The header text for the column.  If omitted@comma{} the property name is
 used.
 
 @item @var{SUMMARY-TYPE}
-The summary type.  If specified@comma{} the column values for parent nodes
-are computed from the children@footnote{ If more than one summary type
-applies to the same property@comma{} the parent values are computed
-according to the first of them.}.
+The summary type.  If specified@comma{} the column values for parent
+headings are computed from the direct children.  If there is any
+existing property defined for the parent nodes@comma{} it is not used in
+the calculations.
+
+When there is an existing property in parent heading@comma{} Org does not
+only overlay the computed value in the column view@comma{} but also
+overwrites the property value in parent's property drawer@footnote{ If
+more than column definition is requested for the same property@comma{} only
+the first definition will trigger writing to the property drawer.
+For example@comma{} @samp{%EFFORT@{mean@} %EFFORT(Sum)@{:@}} will write the mean
+value of @samp{EFFORT} property; not the sum.  If the first column
+definition does not have summary type (@samp{%EFFORT %EFFORT@{mean@}})@comma{}
+nothing will be written to the property drawer}.
+
+Summary type is ignored for special properties.
 
 Supported summary types are:
 
@@ -6397,7 +6409,7 @@ constraints.}.
 
 @example
 :COLUMNS:  %25ITEM %9Approved(Approved?)@{X@} %Owner %11Status \
-                   %10Time_Estimate@{:@} %CLOCKSUM %CLOCKSUM_T
+                   %10Time_Estimate@{:@}
 :Owner_ALL:    Tammy Mark Karl Lisa Don
 :Status_ALL:   "In progress" "Not started yet" "Finished" ""
 :Approved_ALL: "[ ]" "[X]"
@@ -6415,9 +6427,59 @@ all values.  The @samp{Approved} column does have a modified title
 (@samp{Approved?}@comma{} with a question mark).  Summaries are created for the
 @samp{Time_Estimate} column by adding time duration expressions like HH:MM@comma{}
 and for the @samp{Approved} column@comma{} by providing an @samp{[X]} status if all
-children have been checked.  The @samp{CLOCKSUM} and @samp{CLOCKSUM_T} columns
-are special@comma{} they list the sums of CLOCK intervals in the subtree@comma{}
-either for all clocks or just for today.
+children have been checked.
+
+The @samp{CLOCKSUM} and @samp{CLOCKSUM_T} column properties are special@comma{} they
+list the sums of @samp{CLOCK:} intervals in the subtree@comma{} either for all
+clocks (@samp{CLOCKSUM}) or just for today (@samp{CLOCKSUM_T}).  Unlike @samp{:}
+summary type that ignores property values in parent headings@comma{} all the
+@samp{CLOCK:} intervals are summed up@comma{} including @samp{CLOCK:} lines within
+parent headings.
+
+@enumerate
+@item
+@anchor{Summaries in deeply nested hierarchy}Summaries in deeply nested hierarchy
+
+
+When computing summaries of deeply nested headings@comma{} the summaries are
+computed recursively@comma{} from the deepest level to the shallowest.  Here
+is an example:
+
+@example
+#+BEGIN: columnview :indent t :format "%ITEM %EFFORT@{:mean@}" :id global
+| ITEM               | EFFORT  |
+|--------------------+---------|
+| Top level          | 3h 0min |
+| \_  Intermediate 1 | 1h 0min |
+| \_        Leaf 1   | 1h      |
+| \_    Leaf 2       | 1h      |
+| \_    Leaf 3       | 1h      |
+| \_  Intermediate 2 | 5h      |
+#+END:
+
+* Top level
+** Intermediate 1
+:PROPERTIES:
+:EFFORT:   *unused*@comma{} will be set to 1h 0min (mean of the leaf nodes)
+:END:
+***** Leaf 1
+:PROPERTIES:
+:EFFORT: 1h
+:END:
+*** Leaf 2
+:PROPERTIES:
+:EFFORT: 1h
+:END:
+*** Leaf 3
+:PROPERTIES:
+:EFFORT: 1h
+:END:
+** Intermediate 2
+:PROPERTIES:
+:EFFORT: 5h
+:END:
+@end example
+@end enumerate
 
 @node Using column view
 @subsection Using column view
@@ -14250,9 +14312,23 @@ Headlines are exported to @samp{<h1>}@comma{} @samp{<h2>}@comma{} etc.  Each hea
 see @ref{Internal Links}.
 
 @vindex org-html-self-link-headlines
-When @code{org-html-self-link-headlines} is set to a non-@code{nil} value@comma{} the
-text of the headlines is also wrapped in @samp{<a>} tags.  These tags have
-a @samp{href} attribute making the headlines link to themselves.
+Headlines can contain a link to themselves.  To enable it@comma{} you can:
+
+@itemize
+@item
+Set the variable @code{org-html-self-link-headlines} to a non-@code{nil} value
+@item
+In an Org file@comma{} use @code{html-self-link-headlines} option
+@example
+#+OPTIONS: html-self-link-headlines:t
+@end example
+@end itemize
+
+
+@noindent
+When enabled@comma{} the text of the headlines is wrapped in @samp{<a>} tags.
+These tags have a @samp{href} attribute making the headlines link to
+themselves.
 
 @node Links in HTML export
 @subsection Links in HTML export

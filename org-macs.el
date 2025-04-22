@@ -1200,7 +1200,7 @@ STRING width.  When REFERENCE-FACE is nil, `default' face is used."
                      (push el result)))
                  result)))
           (current-char-property-alias-alist char-property-alias-alist))
-      (with-current-buffer (get-buffer-create " *Org string width*")
+      (with-current-buffer (get-buffer-create " *Org string width*" t)
         (setq-local display-line-numbers nil)
         (setq-local line-prefix nil)
         (setq-local wrap-prefix nil)
@@ -1238,7 +1238,9 @@ This function forces `tab-width' value because it is used as a part of
 the parser, to ensure parser consistency when calculating list
 indentation."
   `(progn
-     (unless (= 8 tab-width) (error "Tab width in Org files must be 8, not %d.  Please adjust your `tab-width' settings for Org mode" tab-width))
+     (unless (= 8 tab-width)
+       (org--set-tab-width)
+       (warning "Tab width in Org files must be 8, not %d.  Setting back to 8.  Please adjust your `tab-width' settings for Org mode" tab-width))
      (string-width (buffer-substring-no-properties
                     (line-beginning-position) (point)))))
 
