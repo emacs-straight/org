@@ -18426,7 +18426,7 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @anchor{Markdown specific properties}
 @subsubheading Markdown specific properties
 
-@multitable {aaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaa}
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @code{:md-footnote-format}
 @tab @code{org-md-footnote-format}
 @item @code{:md-footnotes-section}
@@ -18435,6 +18435,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @tab @code{org-md-headline-style}
 @item @code{:md-toplevel-hlevel}
 @tab @code{org-md-toplevel-hlevel}
+@item @code{:md-link-org-files-as-md}
+@tab @code{org-md-link-org-files-as-md}
 @end multitable
 
 @anchor{ODT specific properties}

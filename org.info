@@ -15281,10 +15281,11 @@ LaTeX specific properties
 Markdown specific properties
 ............................
 
-‘:md-footnote-format’     ‘org-md-footnote-format’
-‘:md-footnotes-section’   ‘org-md-footnotes-section’
-‘:md-headline-style’      ‘org-md-headline-style’
-‘:md-toplevel-hlevel’     ‘org-md-toplevel-hlevel’
+‘:md-footnote-format’        ‘org-md-footnote-format’
+‘:md-footnotes-section’      ‘org-md-footnotes-section’
+‘:md-headline-style’         ‘org-md-headline-style’
+‘:md-toplevel-hlevel’        ‘org-md-toplevel-hlevel’
+‘:md-link-org-files-as-md’   ‘org-md-link-org-files-as-md’
 
 ODT specific properties
 .......................
@@ -25223,136 +25224,136 @@ Ref: Beamer specific properties637775
 Ref: HTML specific properties638407
 Ref: LaTeX specific properties643643
 Ref: Markdown specific properties647151
-Ref: ODT specific properties647448
-Ref: Texinfo specific properties648520
-Node: Publishing links649948
-Node: Site map651402
-Node: Generating an index654228
-Node: Uploading Files655020
-Node: Sample Configuration656803
-Node: Simple example657301
-Node: Complex example658017
-Node: Triggering Publication660105
-Node: Citation handling661131
-Node: Citations664181
-Node: Citation export processors666555
-Node: Bibliography printing670043
-Node: Bibliography options in the biblatex and csl export processors671191
-Node: Working with Source Code673310
-Node: Features Overview675649
-Node: Structure of Code Blocks678407
-Node: Using Header Arguments681354
-Ref: System-wide header arguments682081
-Ref: Header arguments in Org mode properties683752
-Ref: Code block specific header arguments685578
-Ref: Header arguments in function calls687077
-Node: Environment of a Code Block687751
-Ref: Passing arguments687965
-Ref: Using sessions696510
-Ref: Choosing a working directory697909
-Ref: Inserting headers and footers700212
-Node: Evaluating Code Blocks700722
-Ref: How to evaluate source code701177
-Ref: Limit code block evaluation704127
-Ref: Cache results of evaluation705113
-Ref: Evaluating Code Blocks-Footnote-1707626
-Ref: Evaluating Code Blocks-Footnote-2707760
-Node: Results of Evaluation707918
-Ref: Collection708725
-Ref: Type710186
-Ref: Format714212
-Ref: Handling716805
-Ref: Post-processing718196
-Ref: Results of Evaluation-Footnote-1719946
-Node: Exporting Code Blocks720104
-Node: Extracting Source Code723775
-Ref: Header arguments724756
-Ref: Functions728991
-Ref: Tangle hooks729242
-Ref: Jumping between code and Org730018
-Node: Languages730528
-Node: Editing Source Code731529
-Node: Noweb Reference Syntax734471
-Ref: Noweb Reference Syntax-Footnote-1741198
-Ref: Noweb Reference Syntax-Footnote-2741289
-Ref: Noweb Reference Syntax-Footnote-3741902
-Node: Library of Babel742022
-Node: Key bindings and Useful Functions742740
-Node: Batch Execution745165
-Node: Miscellaneous745948
-Node: Completion747474
-Node: Structure Templates749399
-Ref: Structure Templates-Footnote-1751149
-Node: Speed Keys751241
-Node: Clean View752410
-Node: Org Indent Mode753612
-Ref: Org Indent Mode-Footnote-1754818
-Node: Hard indentation755042
-Ref: Hard indentation-Footnote-1756525
-Ref: Hard indentation-Footnote-2756631
-Node: Execute commands in the active region756775
-Node: Dynamic Headline Numbering757787
-Node: The Very Busy C-c C-c Key758953
-Node: In-buffer Settings760940
-Ref: In-buffer Settings-Footnote-1770888
-Node: Regular Expressions771086
-Node: Org Syntax771708
-Node: Documentation Access773357
-Node: Escape Character773778
-Node: Code Evaluation Security774638
-Node: Interaction777505
-Node: Cooperation777928
-Node: Conflicts780997
-Node: TTY Keys785593
-Node: Protocols787230
-Node: The store-link protocol788691
-Node: The capture protocol789850
-Node: The open-source protocol791512
-Node: Org Crypt794763
-Node: Org Mobile796638
-Node: Setting up the staging area798029
-Ref: Setting up the staging area-Footnote-1799269
-Ref: Setting up the staging area-Footnote-2799476
-Node: Pushing to the mobile application799648
-Ref: Pushing to the mobile application-Footnote-1800659
-Ref: Pushing to the mobile application-Footnote-2800750
-Ref: Pushing to the mobile application-Footnote-3801117
-Node: Pulling from the mobile application801193
-Ref: Pulling from the mobile application-Footnote-1803506
-Node: Drag and Drop & yank-media803559
-Ref: Drag and Drop & yank-media-Footnote-1805338
-Node: Repeating commands805486
-Node: Hacking807628
-Node: Hooks808653
-Node: Add-on Packages808928
-Node: Adding Hyperlink Types809384
-Node: Adding Hyperlink preview813200
-Node: Adding Export Backends815942
-Node: Tables in Arbitrary Syntax817189
-Node: Radio tables818457
-Node: A LaTeX example820593
-Ref: A LaTeX example-Footnote-1824446
-Ref: A LaTeX example-Footnote-2824489
-Ref: A LaTeX example-Footnote-3824650
-Node: Translator functions825102
-Node: Dynamic Blocks827284
-Node: Special Agenda Views829530
-Ref: Special Agenda Views-Footnote-1833241
-Ref: Special Agenda Views-Footnote-2833447
-Node: Speeding Up Your Agendas833579
-Node: Extracting Agenda Information834802
-Node: Using the Property API838609
-Node: Using the Mapping API841958
-Node: History and Acknowledgments845990
-Ref: From Carsten846188
-Ref: From Bastien849618
-Ref: List of Contributions852153
-Node: GNU Free Documentation License860806
-Ref: ADDENDUM How to use this License for your documents884764
-Node: Main Index886157
-Node: Key Index987650
-Node: Command and Function Index1045080
-Node: Variable Index1094437
+Ref: ODT specific properties647527
+Ref: Texinfo specific properties648599
+Node: Publishing links650027
+Node: Site map651481
+Node: Generating an index654307
+Node: Uploading Files655099
+Node: Sample Configuration656882
+Node: Simple example657380
+Node: Complex example658096
+Node: Triggering Publication660184
+Node: Citation handling661210
+Node: Citations664260
+Node: Citation export processors666634
+Node: Bibliography printing670122
+Node: Bibliography options in the biblatex and csl export processors671270
+Node: Working with Source Code673389
+Node: Features Overview675728
+Node: Structure of Code Blocks678486
+Node: Using Header Arguments681433
+Ref: System-wide header arguments682160
+Ref: Header arguments in Org mode properties683831
+Ref: Code block specific header arguments685657
+Ref: Header arguments in function calls687156
+Node: Environment of a Code Block687830
+Ref: Passing arguments688044
+Ref: Using sessions696589
+Ref: Choosing a working directory697988
+Ref: Inserting headers and footers700291
+Node: Evaluating Code Blocks700801
+Ref: How to evaluate source code701256
+Ref: Limit code block evaluation704206
+Ref: Cache results of evaluation705192
+Ref: Evaluating Code Blocks-Footnote-1707705
+Ref: Evaluating Code Blocks-Footnote-2707839
+Node: Results of Evaluation707997
+Ref: Collection708804
+Ref: Type710265
+Ref: Format714291
+Ref: Handling716884
+Ref: Post-processing718275
+Ref: Results of Evaluation-Footnote-1720025
+Node: Exporting Code Blocks720183
+Node: Extracting Source Code723854
+Ref: Header arguments724835
+Ref: Functions729070
+Ref: Tangle hooks729321
+Ref: Jumping between code and Org730097
+Node: Languages730607
+Node: Editing Source Code731608
+Node: Noweb Reference Syntax734550
+Ref: Noweb Reference Syntax-Footnote-1741277
+Ref: Noweb Reference Syntax-Footnote-2741368
+Ref: Noweb Reference Syntax-Footnote-3741981
+Node: Library of Babel742101
+Node: Key bindings and Useful Functions742819
+Node: Batch Execution745244
+Node: Miscellaneous746027
+Node: Completion747553
+Node: Structure Templates749478
+Ref: Structure Templates-Footnote-1751228
+Node: Speed Keys751320
+Node: Clean View752489
+Node: Org Indent Mode753691
+Ref: Org Indent Mode-Footnote-1754897
+Node: Hard indentation755121
+Ref: Hard indentation-Footnote-1756604
+Ref: Hard indentation-Footnote-2756710
+Node: Execute commands in the active region756854
+Node: Dynamic Headline Numbering757866
+Node: The Very Busy C-c C-c Key759032
+Node: In-buffer Settings761019
+Ref: In-buffer Settings-Footnote-1770967
+Node: Regular Expressions771165
+Node: Org Syntax771787
+Node: Documentation Access773436
+Node: Escape Character773857
+Node: Code Evaluation Security774717
+Node: Interaction777584
+Node: Cooperation778007
+Node: Conflicts781076
+Node: TTY Keys785672
+Node: Protocols787309
+Node: The store-link protocol788770
+Node: The capture protocol789929
+Node: The open-source protocol791591
+Node: Org Crypt794842
+Node: Org Mobile796717
+Node: Setting up the staging area798108
+Ref: Setting up the staging area-Footnote-1799348
+Ref: Setting up the staging area-Footnote-2799555
+Node: Pushing to the mobile application799727
+Ref: Pushing to the mobile application-Footnote-1800738
+Ref: Pushing to the mobile application-Footnote-2800829
+Ref: Pushing to the mobile application-Footnote-3801196
+Node: Pulling from the mobile application801272
+Ref: Pulling from the mobile application-Footnote-1803585
+Node: Drag and Drop & yank-media803638
+Ref: Drag and Drop & yank-media-Footnote-1805417
+Node: Repeating commands805565
+Node: Hacking807707
+Node: Hooks808732
+Node: Add-on Packages809007
+Node: Adding Hyperlink Types809463
+Node: Adding Hyperlink preview813279
+Node: Adding Export Backends816021
+Node: Tables in Arbitrary Syntax817268
+Node: Radio tables818536
+Node: A LaTeX example820672
+Ref: A LaTeX example-Footnote-1824525
+Ref: A LaTeX example-Footnote-2824568
+Ref: A LaTeX example-Footnote-3824729
+Node: Translator functions825181
+Node: Dynamic Blocks827363
+Node: Special Agenda Views829609
+Ref: Special Agenda Views-Footnote-1833320
+Ref: Special Agenda Views-Footnote-2833526
+Node: Speeding Up Your Agendas833658
+Node: Extracting Agenda Information834881
+Node: Using the Property API838688
+Node: Using the Mapping API842037
+Node: History and Acknowledgments846069
+Ref: From Carsten846267
+Ref: From Bastien849697
+Ref: List of Contributions852232
+Node: GNU Free Documentation License860885
+Ref: ADDENDUM How to use this License for your documents884843
+Node: Main Index886236
+Node: Key Index987729
+Node: Command and Function Index1045159
+Node: Variable Index1094516
 
 End Tag Table
 
