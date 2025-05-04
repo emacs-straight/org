@@ -216,13 +216,13 @@ Headlines define the structure of an outline tree.  The headlines in Org
 start on the left margin(1) with one or more stars followed by a space.
 For example:
 
-     * Top level headline
+     * First (top) level headline
      ** Second level
      *** Third level
          some text
      *** Third level
          more text
-     * Another top level headline
+     * Another first (top) level headline
 
    Note that a headline named after ‘org-footnote-section’, which
 defaults to ‘Footnotes’, is considered as special.  A subtree with this
@@ -2546,98 +2546,98 @@ Ref: Activation7042
 Ref: Feedback7485
 Node: Document Structure7742
 Node: Headlines8813
-Ref: Headlines-Footnote-19695
-Node: Visibility Cycling9818
-Node: Motion11213
-Node: Structure Editing11807
-Ref: Structure Editing-Footnote-113243
-Node: Sparse Trees13347
-Ref: Sparse Trees-Footnote-114457
-Node: Plain Lists14572
-Node: Tables17364
-Ref: Creation and conversion19057
-Ref: Re-aligning and field motion19657
-Ref: Column and row editing20420
-Node: Hyperlinks21771
-Ref: Internal links22529
-Ref: External Links22982
-Ref: Handling Links24812
-Node: TODO Items26303
-Node: TODO Basics27280
-Node: Multi-state Workflow28819
-Node: Progress Logging30610
-Ref: Closing items31374
-Ref: Tracking TODO state changes31929
-Ref: Progress Logging-Footnote-132928
-Ref: Progress Logging-Footnote-233001
-Node: Priorities33079
-Node: Breaking Down Tasks33996
-Node: Checkboxes34799
-Node: Tags35938
-Ref: Tag inheritance36563
-Ref: Setting tags37301
-Ref: Tag groups39079
-Ref: Tag searches39875
-Ref: Tags-Footnote-140955
-Node: Properties41059
-Node: Dates and Times42871
-Node: Timestamps43910
-Node: Creating Timestamps46666
-Node: Deadlines and Scheduling48511
-Ref: Deadlines and Scheduling-Footnote-150577
-Ref: Deadlines and Scheduling-Footnote-250738
-Node: Clocking Work Time50901
-Node: Capture, Refile, Archive52336
-Node: Capture53146
-Ref: Setting up capture53450
-Ref: Using capture53721
-Ref: Capture templates54417
-Ref: Capture-Footnote-155850
-Ref: Capture-Footnote-255961
-Node: Refile and Copy56052
-Node: Archiving57364
-Node: Agenda Views58742
-Node: Agenda Files60199
-Node: Agenda Dispatcher60947
-Node: Built-in Agenda Views61869
-Node: Global TODO List62982
-Node: Matching Tags and Properties63743
-Node: Search View65773
-Node: Agenda Commands66883
-Ref: Motion (1)67486
-Ref: View/Go to Org file67689
-Ref: Change display68127
-Ref: Remote editing69498
-Ref: Quit and exit71086
-Node: Custom Agenda Views71340
-Node: Markup72816
-Node: Paragraphs73642
-Node: Emphasis and Monospace74764
-Node: Embedded LaTeX75182
-Node: Literal examples76051
-Node: Images77141
-Node: Creating Footnotes77742
-Node: Exporting78716
-Node: The Export Dispatcher79592
-Node: Export Settings80150
-Node: Table of Contents80975
-Node: Include Files81708
-Node: Comment Lines82394
-Node: ASCII/UTF-8 Export83119
-Node: HTML Export83853
-Node: LaTeX Export84891
-Node: iCalendar Export86634
-Node: Publishing87413
-Node: Working with Source Code89144
-Ref: Using header arguments90411
-Ref: Evaluating code blocks91589
-Ref: Results of evaluation92480
-Ref: Exporting code blocks93702
-Ref: Extracting source code94166
-Node: Miscellaneous94710
-Ref: Completion94833
-Ref: Structure Templates95170
-Ref: Clean view95534
+Ref: Headlines-Footnote-19711
+Node: Visibility Cycling9834
+Node: Motion11229
+Node: Structure Editing11823
+Ref: Structure Editing-Footnote-113259
+Node: Sparse Trees13363
+Ref: Sparse Trees-Footnote-114473
+Node: Plain Lists14588
+Node: Tables17380
+Ref: Creation and conversion19073
+Ref: Re-aligning and field motion19673
+Ref: Column and row editing20436
+Node: Hyperlinks21787
+Ref: Internal links22545
+Ref: External Links22998
+Ref: Handling Links24828
+Node: TODO Items26319
+Node: TODO Basics27296
+Node: Multi-state Workflow28835
+Node: Progress Logging30626
+Ref: Closing items31390
+Ref: Tracking TODO state changes31945
+Ref: Progress Logging-Footnote-132944
+Ref: Progress Logging-Footnote-233017
+Node: Priorities33095
+Node: Breaking Down Tasks34012
+Node: Checkboxes34815
+Node: Tags35954
+Ref: Tag inheritance36579
+Ref: Setting tags37317
+Ref: Tag groups39095
+Ref: Tag searches39891
+Ref: Tags-Footnote-140971
+Node: Properties41075
+Node: Dates and Times42887
+Node: Timestamps43926
+Node: Creating Timestamps46682
+Node: Deadlines and Scheduling48527
+Ref: Deadlines and Scheduling-Footnote-150593
+Ref: Deadlines and Scheduling-Footnote-250754
+Node: Clocking Work Time50917
+Node: Capture, Refile, Archive52352
+Node: Capture53162
+Ref: Setting up capture53466
+Ref: Using capture53737
+Ref: Capture templates54433
+Ref: Capture-Footnote-155866
+Ref: Capture-Footnote-255977
+Node: Refile and Copy56068
+Node: Archiving57380
+Node: Agenda Views58758
+Node: Agenda Files60215
+Node: Agenda Dispatcher60963
+Node: Built-in Agenda Views61885
+Node: Global TODO List62998
+Node: Matching Tags and Properties63759
+Node: Search View65789
+Node: Agenda Commands66899
+Ref: Motion (1)67502
+Ref: View/Go to Org file67705
+Ref: Change display68143
+Ref: Remote editing69514
+Ref: Quit and exit71102
+Node: Custom Agenda Views71356
+Node: Markup72832
+Node: Paragraphs73658
+Node: Emphasis and Monospace74780
+Node: Embedded LaTeX75198
+Node: Literal examples76067
+Node: Images77157
+Node: Creating Footnotes77758
+Node: Exporting78732
+Node: The Export Dispatcher79608
+Node: Export Settings80166
+Node: Table of Contents80991
+Node: Include Files81724
+Node: Comment Lines82410
+Node: ASCII/UTF-8 Export83135
+Node: HTML Export83869
+Node: LaTeX Export84907
+Node: iCalendar Export86650
+Node: Publishing87429
+Node: Working with Source Code89160
+Ref: Using header arguments90427
+Ref: Evaluating code blocks91605
+Ref: Results of evaluation92496
+Ref: Exporting code blocks93718
+Ref: Extracting source code94182
+Node: Miscellaneous94726
+Ref: Completion94849
+Ref: Structure Templates95186
+Ref: Clean view95550
 
 End Tag Table
 

@@ -1065,13 +1065,13 @@ stars.} with one or more stars followed by
 a space.  For example:
 
 @example
-* Top level headline
+* First (top) level headline
 ** Second level
 *** Third level
     some text
 *** Third level
     more text
-* Another top level headline
+* Another first (top) level headline
 @end example
 
 @vindex org-footnote-section
@@ -13133,9 +13133,10 @@ Toggle the inclusion of footnotes (@code{org-export-with-footnotes}).
 
 @item @code{H}
 @vindex org-export-headline-levels
-Set the number of headline levels for export
-(@code{org-export-headline-levels}).  Below that level@comma{} headlines are
-treated differently.  In most backends@comma{} they become list items.
+Set the last headline level for export as a headline
+(@code{org-export-headline-levels}).  For descendants of that level@comma{}
+headlines are treated differently.  In most backends@comma{} they become
+list items.
 
 @item @code{inline}
 @vindex org-export-with-inlinetasks

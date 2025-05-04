@@ -235,13 +235,13 @@ behavior of @kbd{C-a} and @kbd{C-e} in headlines.} with one or more stars follow
 a space.  For example:
 
 @example
-* Top level headline
+* First (top) level headline
 ** Second level
 *** Third level
     some text
 *** Third level
     more text
-* Another top level headline
+* Another first (top) level headline
 @end example
 
 Note that a headline named after @code{org-footnote-section}@comma{} which
