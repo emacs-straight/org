@@ -8724,8 +8724,8 @@ Text to be inserted as it is.
 Specification of where the captured item should be placed.  In Org
 files@comma{} targets usually define a node.  Entries will become children
 of this node.  Other types will be added to the table or list in the
-body of this node.  Most target specifications contain a file name.
-If that file name is the empty string@comma{} it defaults to
+body of this node.  Most target specifications contain a
+@samp{<file-spec>}.  If it is the empty string@comma{} it defaults to
 @code{org-default-notes-file}.  A file can also be given as a variable or
 as a function called with no argument.  When an absolute path is not
 specified for a target@comma{} it is taken as relative to @code{org-directory}.
@@ -8733,40 +8733,40 @@ specified for a target@comma{} it is taken as relative to @code{org-directory}.
 Valid values are:
 
 @table @asis
-@item @samp{(file "path/to/file")}
+@item @samp{(file <file-spec>)}
 Text will be placed at the beginning or end of that file.
 
 @item @samp{(id "id of existing org entry")}
 Filing as child of this entry@comma{} or in the body of the entry.
 
-@item @samp{(file+headline "filename" "node headline")}
+@item @samp{(file+headline <file-spec> "node headline")}
 
 
-@item @samp{(file+headline "filename" function-returning-string)}
+@item @samp{(file+headline <file-spec> function-returning-string)}
 
 
-@item @samp{(file+headline "filename" symbol-containing-string)}
+@item @samp{(file+headline <file-spec> symbol-containing-string)}
 Fast configuration if the target heading is unique in the file.
 
-@item @samp{(file+olp "filename" "Level 1 heading" "Level 2" ...)}
+@item @samp{(file+olp <file-spec> "Level 1 heading" "Level 2" ...)}
 
 
-@item @samp{(file+olp "filename" function-returning-list-of-strings)}
+@item @samp{(file+olp <file-spec> function-returning-list-of-strings)}
 
 
-@item @samp{(file+olp "filename" symbol-containing-list-of-strings)}
+@item @samp{(file+olp <file-spec> symbol-containing-list-of-strings)}
 For non-unique headings@comma{} the full path is safer.
 
-@item @samp{(file+regexp "filename" "regexp to find location")}
+@item @samp{(file+regexp <file-spec> "regexp to find location")}
 Use a regular expression to position point.
 
-@item @samp{(file+olp+datetree "filename" [ "Level 1 heading" ...])}
+@item @samp{(file+olp+datetree <file-spec> [ "Level 1 heading" ...])}
 
 
-@item @samp{(file+olp+datetree "filename" function-returning-list-of-strings)}
+@item @samp{(file+olp+datetree <file-spec> function-returning-list-of-strings)}
 
 
-@item @samp{(file+olp+datetree "filename" symbol-containing-list-of-strings)}
+@item @samp{(file+olp+datetree <file-spec> symbol-containing-list-of-strings)}
 This target@footnote{Org used to offer four different targets for date/week tree
 capture.  Now@comma{} Org automatically translates these to use
 @code{file+olp+datetree}@comma{} applying the @code{:time-prompt} and @code{:tree-type}
@@ -8787,7 +8787,7 @@ will be built under the node it is pointing to@comma{} instead of at top
 level.  Check out the @code{:time-prompt} and @code{:tree-type} properties
 below for additional options.
 
-@item @samp{(file+function "filename" function-finding-location)}
+@item @samp{(file+function <file-spec> function-finding-location)}
 A function to find the right location in the file.
 
 @item @samp{(clock)}
