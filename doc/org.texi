@@ -6909,11 +6909,10 @@ command is used twice in succession@comma{} a time range is inserted.
 
 @kindex C-u C-c .
 @vindex org-time-stamp-rounding-minutes
-@vindex org-timestamp-rounding-minutes
 When called with a prefix argument@comma{} use the alternative format which
 contains date and time.  The default time can be rounded to
 multiples of 5 minutes.  See the option
-@code{org-timestamp-rounding-minutes}.
+@code{org-time-stamp-rounding-minutes}.
 
 @kindex C-u C-u C-c .
 With two prefix arguments@comma{} insert an active timestamp with the
@@ -12891,7 +12890,7 @@ To make body-only export the default@comma{} customize the variable
 @kindex C-c C-e C-f
 
 Toggle force-publishing export.  Publish functions normally only
-publish changed files (see [BROKEN LINK: **Triggering Publication]).  Forced
+publish changed files (see @ref{Triggering Publication}).  Forced
 publishing causes files to be published even if their timestamps do
 not indicate the file has been changed.
 
