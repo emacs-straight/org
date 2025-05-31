@@ -14435,6 +14435,11 @@ standard iCalendar format.
    By default, iCalendar export only includes headings that contain
 active timestamps or diary sexps(1).
 
+   If a timestamp contains a time, but doesn’t have an explicit end time
+(i.e.  time range), then by default the exported event will have a
+duration of 2 hours, but this can be overridden with
+‘org-agenda-default-appointment-duration’.
+
    The iCalendar export backend can also incorporate TODO entries based
 on the configuration of the ‘org-icalendar-include-todo’ variable.  The
 backend exports plain timestamps as ‘VEVENT’, TODO items as ‘VTODO’, and
@@ -21281,7 +21286,7 @@ D Main Index
 * citation processor:                    Citation handling.   (line   6)
 * CITE_EXPORT, keyword:                  Citation export processors.
                                                               (line  43)
-* CLASS, property:                       iCalendar Export.    (line  55)
+* CLASS, property:                       iCalendar Export.    (line  60)
 * clean outline view:                    Clean View.          (line   6)
 * clocking time:                         Clocking Work Time.  (line   6)
 * CLOCKSUM, special property:            Special Properties.  (line  13)
@@ -21416,7 +21421,7 @@ D Main Index
                                                               (line  11)
 * DESCRIPTION, property:                 Headings and sectioning structure.
                                                               (line  24)
-* DESCRIPTION, property <1>:             iCalendar Export.    (line  55)
+* DESCRIPTION, property <1>:             iCalendar Export.    (line  60)
 * diary entries, creating from agenda:   Agenda Commands.     (line 458)
 * diary integration:                     Weekly/daily agenda. (line  33)
 * diary style timestamps:                Timestamps.          (line  39)
@@ -21661,13 +21666,13 @@ D Main Index
                                                               (line   6)
 * hyperlinks, adding preview behavior:   Adding Hyperlink preview.
                                                               (line   6)
-* ICAL-TTL, keyword:                     iCalendar Export.    (line  97)
+* ICAL-TTL, keyword:                     iCalendar Export.    (line 102)
 * iCalendar export:                      iCalendar Export.    (line   6)
 * id links, searching:                   Search Options.      (line   6)
 * ID, property:                          Handling Links.      (line  22)
 * ID, property <1>:                      Capturing column view.
                                                               (line  34)
-* ID, property <2>:                      iCalendar Export.    (line  30)
+* ID, property <2>:                      iCalendar Export.    (line  35)
 * ideas:                                 Feedback.            (line   6)
 * identify, ImageMagick:                 Images in ODT export.
                                                               (line  34)
@@ -21831,7 +21836,7 @@ D Main Index
 * lists, ordered:                        Plain Lists.         (line   6)
 * lists, plain:                          Plain Lists.         (line   6)
 * literal examples, markup rules:        Literal Examples.    (line   6)
-* LOCATION, property:                    iCalendar Export.    (line  55)
+* LOCATION, property:                    iCalendar Export.    (line  60)
 * logging, of progress:                  Progress Logging.    (line   6)
 * LOGGING, property:                     Tracking TODO state changes.
                                                               (line  45)
@@ -22225,7 +22230,7 @@ D Main Index
                                                               (line   6)
 * subtrees, cut and paste:               Structure Editing.   (line   6)
 * summary:                               Summary.             (line   6)
-* SUMMARY, property:                     iCalendar Export.    (line  55)
+* SUMMARY, property:                     iCalendar Export.    (line  60)
 * superscript:                           Subscripts and Superscripts.
                                                               (line   6)
 * switches, in code blocks:              Structure of Code Blocks.
@@ -22354,7 +22359,7 @@ D Main Index
 * timestamp, with repeater interval:     Timestamps.          (line  29)
 * timestamps:                            Timestamps.          (line   6)
 * TIMESTAMP_IA, special property:        Special Properties.  (line  13)
-* TIMEZONE, property:                    iCalendar Export.    (line  55)
+* TIMEZONE, property:                    iCalendar Export.    (line  60)
 * TINDEX, keyword:                       Indices.             (line   6)
 * TITLE, keyword:                        Export Settings.     (line  75)
 * title, macro:                          Macro Replacement.   (line  41)
@@ -22624,9 +22629,9 @@ E Key Index
 * C-c C-d <1>:                           Agenda Commands.     (line 310)
 * C-c C-e:                               The Export Dispatcher.
                                                               (line  16)
-* C-c C-e c a:                           iCalendar Export.    (line  47)
-* C-c C-e c c:                           iCalendar Export.    (line  51)
-* C-c C-e c f:                           iCalendar Export.    (line  43)
+* C-c C-e c a:                           iCalendar Export.    (line  52)
+* C-c C-e c c:                           iCalendar Export.    (line  56)
+* C-c C-e c f:                           iCalendar Export.    (line  48)
 * C-c C-e C-a:                           The Export Dispatcher.
                                                               (line  28)
 * C-c C-e C-b:                           The Export Dispatcher.
@@ -23594,9 +23599,9 @@ F Command and Function Index
                                                               (line  13)
 * org-html-export-to-html:               HTML export commands.
                                                               (line   7)
-* org-icalendar-combine-agenda-files:    iCalendar Export.    (line  51)
-* org-icalendar-export-agenda-files:     iCalendar Export.    (line  47)
-* org-icalendar-export-to-ics:           iCalendar Export.    (line  43)
+* org-icalendar-combine-agenda-files:    iCalendar Export.    (line  56)
+* org-icalendar-export-agenda-files:     iCalendar Export.    (line  52)
+* org-icalendar-export-to-ics:           iCalendar Export.    (line  48)
 * org-indent-mode:                       Org Indent Mode.     (line   6)
 * org-info-find-node:                    Documentation Access.
                                                               (line   6)
@@ -23977,6 +23982,7 @@ org-customize’ and then click yourself through the tree.
 * org-agenda-custom-commands <3>:        Extracting Agenda Information.
                                                               (line  10)
 * org-agenda-custom-commands-contexts:   Setting options.     (line  59)
+* org-agenda-default-appointment-duration: iCalendar Export.  (line  14)
 * org-agenda-diary-file:                 Agenda Commands.     (line 463)
 * org-agenda-dim-blocked-tasks:          TODO dependencies.   (line  48)
 * org-agenda-dim-blocked-tasks <1>:      Speeding Up Your Agendas.
@@ -24401,16 +24407,16 @@ org-customize’ and then click yourself through the tree.
 * org-html-use-infojs:                   Bare HTML.           (line   9)
 * org-html-validation-link:              HTML preamble and postamble.
                                                               (line   6)
-* org-icalendar-alarm-time:              iCalendar Export.    (line  24)
-* org-icalendar-categories:              iCalendar Export.    (line  24)
-* org-icalendar-combined-agenda-file:    iCalendar Export.    (line  51)
-* org-icalendar-include-body:            iCalendar Export.    (line  73)
-* org-icalendar-include-todo:            iCalendar Export.    (line  14)
-* org-icalendar-store-UID:               iCalendar Export.    (line  30)
-* org-icalendar-todo-unscheduled-start:  iCalendar Export.    (line  19)
-* org-icalendar-ttl:                     iCalendar Export.    (line  97)
-* org-icalendar-use-deadline:            iCalendar Export.    (line  19)
-* org-icalendar-use-scheduled:           iCalendar Export.    (line  19)
+* org-icalendar-alarm-time:              iCalendar Export.    (line  29)
+* org-icalendar-categories:              iCalendar Export.    (line  29)
+* org-icalendar-combined-agenda-file:    iCalendar Export.    (line  56)
+* org-icalendar-include-body:            iCalendar Export.    (line  78)
+* org-icalendar-include-todo:            iCalendar Export.    (line  19)
+* org-icalendar-store-UID:               iCalendar Export.    (line  35)
+* org-icalendar-todo-unscheduled-start:  iCalendar Export.    (line  24)
+* org-icalendar-ttl:                     iCalendar Export.    (line 102)
+* org-icalendar-use-deadline:            iCalendar Export.    (line  24)
+* org-icalendar-use-scheduled:           iCalendar Export.    (line  24)
 * org-id-link-consider-parent-id:        Handling Links.      (line  33)
 * org-id-link-to-org-use-id:             Handling Links.      (line  22)
 * org-id-link-use-context:               Handling Links.      (line  33)
@@ -25198,162 +25204,162 @@ Node: Key bindings in Texinfo export601826
 Node: Special blocks in Texinfo export602629
 Node: A Texinfo example603462
 Node: iCalendar Export605553
-Ref: iCalendar Export-Footnote-1610777
-Node: Other Built-in Backends610960
-Node: Advanced Export Configuration611586
-Ref: Export hooks611785
-Ref: Filters613005
-Ref: Defining filters for individual files615505
-Ref: Summary of the export process616310
-Ref: Extending an existing backend621715
-Ref: Advanced Export Configuration-Footnote-1624054
-Ref: Advanced Export Configuration-Footnote-2624410
-Ref: Advanced Export Configuration-Footnote-3624559
-Node: Export Region624645
-Node: Publishing625703
-Node: Configuration626579
-Node: Project alist627361
-Node: Sources and destinations628503
-Node: Selecting files629822
-Node: Publishing action630777
-Ref: Publishing action-Footnote-1632610
-Node: Publishing options632773
-Ref: Generic properties633525
-Ref: ASCII specific properties636213
-Ref: Beamer specific properties637813
-Ref: HTML specific properties638445
-Ref: LaTeX specific properties643681
-Ref: Markdown specific properties647189
-Ref: ODT specific properties647565
-Ref: Texinfo specific properties648637
-Node: Publishing links650065
-Node: Site map651519
-Node: Generating an index654345
-Node: Uploading Files655137
-Node: Sample Configuration656920
-Node: Simple example657418
-Node: Complex example658134
-Node: Triggering Publication660222
-Node: Citation handling661248
-Node: Citations664298
-Node: Citation export processors666672
-Node: Bibliography printing670160
-Node: Bibliography options in the biblatex and csl export processors671308
-Node: Working with Source Code673427
-Node: Features Overview675766
-Node: Structure of Code Blocks678524
-Node: Using Header Arguments681471
-Ref: System-wide header arguments682198
-Ref: Header arguments in Org mode properties683869
-Ref: Code block specific header arguments685695
-Ref: Header arguments in function calls687194
-Node: Environment of a Code Block687868
-Ref: Passing arguments688082
-Ref: Using sessions696627
-Ref: Choosing a working directory698026
-Ref: Inserting headers and footers700329
-Node: Evaluating Code Blocks700839
-Ref: How to evaluate source code701294
-Ref: Limit code block evaluation704244
-Ref: Cache results of evaluation705230
-Ref: Evaluating Code Blocks-Footnote-1707743
-Ref: Evaluating Code Blocks-Footnote-2707877
-Node: Results of Evaluation708035
-Ref: Collection708842
-Ref: Type710303
-Ref: Format714329
-Ref: Handling716922
-Ref: Post-processing718313
-Ref: Results of Evaluation-Footnote-1720063
-Node: Exporting Code Blocks720221
-Node: Extracting Source Code723892
-Ref: Header arguments724873
-Ref: Functions729108
-Ref: Tangle hooks729359
-Ref: Jumping between code and Org730135
-Node: Languages730645
-Node: Editing Source Code731646
-Node: Noweb Reference Syntax734588
-Ref: Noweb Reference Syntax-Footnote-1741315
-Ref: Noweb Reference Syntax-Footnote-2741406
-Ref: Noweb Reference Syntax-Footnote-3742019
-Node: Library of Babel742139
-Node: Key bindings and Useful Functions742857
-Node: Batch Execution745282
-Node: Miscellaneous746065
-Node: Completion747591
-Node: Structure Templates749516
-Ref: Structure Templates-Footnote-1751266
-Node: Speed Keys751358
-Node: Clean View752527
-Node: Org Indent Mode753729
-Ref: Org Indent Mode-Footnote-1754935
-Node: Hard indentation755159
-Ref: Hard indentation-Footnote-1756642
-Ref: Hard indentation-Footnote-2756748
-Node: Execute commands in the active region756892
-Node: Dynamic Headline Numbering757904
-Node: The Very Busy C-c C-c Key759070
-Node: In-buffer Settings761057
-Ref: In-buffer Settings-Footnote-1771005
-Node: Regular Expressions771203
-Node: Org Syntax771825
-Node: Documentation Access773474
-Node: Escape Character773895
-Node: Code Evaluation Security774755
-Node: Interaction777622
-Node: Cooperation778045
-Node: Conflicts781114
-Node: TTY Keys785710
-Node: Protocols787347
-Node: The store-link protocol788808
-Node: The capture protocol789967
-Node: The open-source protocol791629
-Node: Org Crypt794880
-Node: Org Mobile796755
-Node: Setting up the staging area798146
-Ref: Setting up the staging area-Footnote-1799386
-Ref: Setting up the staging area-Footnote-2799593
-Node: Pushing to the mobile application799765
-Ref: Pushing to the mobile application-Footnote-1800776
-Ref: Pushing to the mobile application-Footnote-2800867
-Ref: Pushing to the mobile application-Footnote-3801234
-Node: Pulling from the mobile application801310
-Ref: Pulling from the mobile application-Footnote-1803623
-Node: Drag and Drop & yank-media803676
-Ref: Drag and Drop & yank-media-Footnote-1805455
-Node: Repeating commands805603
-Node: Hacking807745
-Node: Hooks808770
-Node: Add-on Packages809045
-Node: Adding Hyperlink Types809501
-Node: Adding Hyperlink preview813317
-Node: Adding Export Backends816059
-Node: Tables in Arbitrary Syntax817306
-Node: Radio tables818574
-Node: A LaTeX example820710
-Ref: A LaTeX example-Footnote-1824563
-Ref: A LaTeX example-Footnote-2824606
-Ref: A LaTeX example-Footnote-3824767
-Node: Translator functions825219
-Node: Dynamic Blocks827401
-Node: Special Agenda Views829647
-Ref: Special Agenda Views-Footnote-1833358
-Ref: Special Agenda Views-Footnote-2833564
-Node: Speeding Up Your Agendas833696
-Node: Extracting Agenda Information834919
-Node: Using the Property API838726
-Node: Using the Mapping API842075
-Node: History and Acknowledgments846107
-Ref: From Carsten846305
-Ref: From Bastien849735
-Ref: List of Contributions852270
-Node: GNU Free Documentation License860923
-Ref: ADDENDUM How to use this License for your documents884881
-Node: Main Index886274
-Node: Key Index987767
-Node: Command and Function Index1045197
-Node: Variable Index1094554
+Ref: iCalendar Export-Footnote-1611020
+Node: Other Built-in Backends611203
+Node: Advanced Export Configuration611829
+Ref: Export hooks612028
+Ref: Filters613248
+Ref: Defining filters for individual files615748
+Ref: Summary of the export process616553
+Ref: Extending an existing backend621958
+Ref: Advanced Export Configuration-Footnote-1624297
+Ref: Advanced Export Configuration-Footnote-2624653
+Ref: Advanced Export Configuration-Footnote-3624802
+Node: Export Region624888
+Node: Publishing625946
+Node: Configuration626822
+Node: Project alist627604
+Node: Sources and destinations628746
+Node: Selecting files630065
+Node: Publishing action631020
+Ref: Publishing action-Footnote-1632853
+Node: Publishing options633016
+Ref: Generic properties633768
+Ref: ASCII specific properties636456
+Ref: Beamer specific properties638056
+Ref: HTML specific properties638688
+Ref: LaTeX specific properties643924
+Ref: Markdown specific properties647432
+Ref: ODT specific properties647808
+Ref: Texinfo specific properties648880
+Node: Publishing links650308
+Node: Site map651762
+Node: Generating an index654588
+Node: Uploading Files655380
+Node: Sample Configuration657163
+Node: Simple example657661
+Node: Complex example658377
+Node: Triggering Publication660465
+Node: Citation handling661491
+Node: Citations664541
+Node: Citation export processors666915
+Node: Bibliography printing670403
+Node: Bibliography options in the biblatex and csl export processors671551
+Node: Working with Source Code673670
+Node: Features Overview676009
+Node: Structure of Code Blocks678767
+Node: Using Header Arguments681714
+Ref: System-wide header arguments682441
+Ref: Header arguments in Org mode properties684112
+Ref: Code block specific header arguments685938
+Ref: Header arguments in function calls687437
+Node: Environment of a Code Block688111
+Ref: Passing arguments688325
+Ref: Using sessions696870
+Ref: Choosing a working directory698269
+Ref: Inserting headers and footers700572
+Node: Evaluating Code Blocks701082
+Ref: How to evaluate source code701537
+Ref: Limit code block evaluation704487
+Ref: Cache results of evaluation705473
+Ref: Evaluating Code Blocks-Footnote-1707986
+Ref: Evaluating Code Blocks-Footnote-2708120
+Node: Results of Evaluation708278
+Ref: Collection709085
+Ref: Type710546
+Ref: Format714572
+Ref: Handling717165
+Ref: Post-processing718556
+Ref: Results of Evaluation-Footnote-1720306
+Node: Exporting Code Blocks720464
+Node: Extracting Source Code724135
+Ref: Header arguments725116
+Ref: Functions729351
+Ref: Tangle hooks729602
+Ref: Jumping between code and Org730378
+Node: Languages730888
+Node: Editing Source Code731889
+Node: Noweb Reference Syntax734831
+Ref: Noweb Reference Syntax-Footnote-1741558
+Ref: Noweb Reference Syntax-Footnote-2741649
+Ref: Noweb Reference Syntax-Footnote-3742262
+Node: Library of Babel742382
+Node: Key bindings and Useful Functions743100
+Node: Batch Execution745525
+Node: Miscellaneous746308
+Node: Completion747834
+Node: Structure Templates749759
+Ref: Structure Templates-Footnote-1751509
+Node: Speed Keys751601
+Node: Clean View752770
+Node: Org Indent Mode753972
+Ref: Org Indent Mode-Footnote-1755178
+Node: Hard indentation755402
+Ref: Hard indentation-Footnote-1756885
+Ref: Hard indentation-Footnote-2756991
+Node: Execute commands in the active region757135
+Node: Dynamic Headline Numbering758147
+Node: The Very Busy C-c C-c Key759313
+Node: In-buffer Settings761300
+Ref: In-buffer Settings-Footnote-1771248
+Node: Regular Expressions771446
+Node: Org Syntax772068
+Node: Documentation Access773717
+Node: Escape Character774138
+Node: Code Evaluation Security774998
+Node: Interaction777865
+Node: Cooperation778288
+Node: Conflicts781357
+Node: TTY Keys785953
+Node: Protocols787590
+Node: The store-link protocol789051
+Node: The capture protocol790210
+Node: The open-source protocol791872
+Node: Org Crypt795123
+Node: Org Mobile796998
+Node: Setting up the staging area798389
+Ref: Setting up the staging area-Footnote-1799629
+Ref: Setting up the staging area-Footnote-2799836
+Node: Pushing to the mobile application800008
+Ref: Pushing to the mobile application-Footnote-1801019
+Ref: Pushing to the mobile application-Footnote-2801110
+Ref: Pushing to the mobile application-Footnote-3801477
+Node: Pulling from the mobile application801553
+Ref: Pulling from the mobile application-Footnote-1803866
+Node: Drag and Drop & yank-media803919
+Ref: Drag and Drop & yank-media-Footnote-1805698
+Node: Repeating commands805846
+Node: Hacking807988
+Node: Hooks809013
+Node: Add-on Packages809288
+Node: Adding Hyperlink Types809744
+Node: Adding Hyperlink preview813560
+Node: Adding Export Backends816302
+Node: Tables in Arbitrary Syntax817549
+Node: Radio tables818817
+Node: A LaTeX example820953
+Ref: A LaTeX example-Footnote-1824806
+Ref: A LaTeX example-Footnote-2824849
+Ref: A LaTeX example-Footnote-3825010
+Node: Translator functions825462
+Node: Dynamic Blocks827644
+Node: Special Agenda Views829890
+Ref: Special Agenda Views-Footnote-1833601
+Ref: Special Agenda Views-Footnote-2833807
+Node: Speeding Up Your Agendas833939
+Node: Extracting Agenda Information835162
+Node: Using the Property API838969
+Node: Using the Mapping API842318
+Node: History and Acknowledgments846350
+Ref: From Carsten846548
+Ref: From Bastien849978
+Ref: List of Contributions852513
+Node: GNU Free Documentation License861166
+Ref: ADDENDUM How to use this License for your documents885124
+Node: Main Index886517
+Node: Key Index988010
+Node: Command and Function Index1045440
+Node: Variable Index1094797
 
 End Tag Table
 
