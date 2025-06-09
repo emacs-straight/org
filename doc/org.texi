@@ -17342,12 +17342,12 @@ syntax (see @ref{Property Syntax}):
 
 @example
 * Meeting at location with multi-line address
-<2024-01-08 Mon 14:20-15:00>
 :PROPERTIES:
 :LOCATION:  Someplace
 :LOCATION+: Some Street 5
 :LOCATION+: 12345 Small Town
 :END:
+<2024-01-08 Mon 14:20-15:00>
 @end example
 
 @vindex org-icalendar-include-body
