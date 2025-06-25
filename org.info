@@ -18886,7 +18886,7 @@ The ‘open-source’ handler is designed to help with editing local sources
 when reading a document.  To that effect, you can use a bookmark with
 the following location:
 
-     javascript:location.href='org-protocol://open-source?&url='+
+     javascript:location.href='org-protocol://open-source?url='+
            encodeURIComponent(location.href);void(0)
 
    The variable ‘org-protocol-project-alist’ maps URLs to local file
@@ -25315,51 +25315,51 @@ Node: Protocols787590
 Node: The store-link protocol789051
 Node: The capture protocol790210
 Node: The open-source protocol791872
-Node: Org Crypt795123
-Node: Org Mobile796998
-Node: Setting up the staging area798389
-Ref: Setting up the staging area-Footnote-1799629
-Ref: Setting up the staging area-Footnote-2799836
-Node: Pushing to the mobile application800008
-Ref: Pushing to the mobile application-Footnote-1801019
-Ref: Pushing to the mobile application-Footnote-2801110
-Ref: Pushing to the mobile application-Footnote-3801477
-Node: Pulling from the mobile application801553
-Ref: Pulling from the mobile application-Footnote-1803866
-Node: Drag and Drop & yank-media803919
-Ref: Drag and Drop & yank-media-Footnote-1805698
-Node: Repeating commands805846
-Node: Hacking807988
-Node: Hooks809013
-Node: Add-on Packages809288
-Node: Adding Hyperlink Types809744
-Node: Adding Hyperlink preview813560
-Node: Adding Export Backends816302
-Node: Tables in Arbitrary Syntax817549
-Node: Radio tables818817
-Node: A LaTeX example820953
-Ref: A LaTeX example-Footnote-1824806
-Ref: A LaTeX example-Footnote-2824849
-Ref: A LaTeX example-Footnote-3825010
-Node: Translator functions825462
-Node: Dynamic Blocks827644
-Node: Special Agenda Views829890
-Ref: Special Agenda Views-Footnote-1833601
-Ref: Special Agenda Views-Footnote-2833807
-Node: Speeding Up Your Agendas833939
-Node: Extracting Agenda Information835162
-Node: Using the Property API838969
-Node: Using the Mapping API842318
-Node: History and Acknowledgments846350
-Ref: From Carsten846548
-Ref: From Bastien849978
-Ref: List of Contributions852513
-Node: GNU Free Documentation License861166
-Ref: ADDENDUM How to use this License for your documents885124
-Node: Main Index886517
-Node: Key Index988010
-Node: Command and Function Index1045440
-Node: Variable Index1094797
+Node: Org Crypt795122
+Node: Org Mobile796997
+Node: Setting up the staging area798388
+Ref: Setting up the staging area-Footnote-1799628
+Ref: Setting up the staging area-Footnote-2799835
+Node: Pushing to the mobile application800007
+Ref: Pushing to the mobile application-Footnote-1801018
+Ref: Pushing to the mobile application-Footnote-2801109
+Ref: Pushing to the mobile application-Footnote-3801476
+Node: Pulling from the mobile application801552
+Ref: Pulling from the mobile application-Footnote-1803865
+Node: Drag and Drop & yank-media803918
+Ref: Drag and Drop & yank-media-Footnote-1805697
+Node: Repeating commands805845
+Node: Hacking807987
+Node: Hooks809012
+Node: Add-on Packages809287
+Node: Adding Hyperlink Types809743
+Node: Adding Hyperlink preview813559
+Node: Adding Export Backends816301
+Node: Tables in Arbitrary Syntax817548
+Node: Radio tables818816
+Node: A LaTeX example820952
+Ref: A LaTeX example-Footnote-1824805
+Ref: A LaTeX example-Footnote-2824848
+Ref: A LaTeX example-Footnote-3825009
+Node: Translator functions825461
+Node: Dynamic Blocks827643
+Node: Special Agenda Views829889
+Ref: Special Agenda Views-Footnote-1833600
+Ref: Special Agenda Views-Footnote-2833806
+Node: Speeding Up Your Agendas833938
+Node: Extracting Agenda Information835161
+Node: Using the Property API838968
+Node: Using the Mapping API842317
+Node: History and Acknowledgments846349
+Ref: From Carsten846547
+Ref: From Bastien849977
+Ref: List of Contributions852512
+Node: GNU Free Documentation License861165
+Ref: ADDENDUM How to use this License for your documents885123
+Node: Main Index886516
+Node: Key Index988009
+Node: Command and Function Index1045439
+Node: Variable Index1094796
 
 End Tag Table
 
