@@ -20922,13 +20922,12 @@ group @code{org-edit-structure}.
 @table @asis
 @item @code{org-src-lang-modes}
 @vindex org-src-lang-modes
-If an Emacs major-mode named @code{<LANG>-mode} exists@comma{} where
+If an Emacs major mode named @code{<LANG>-mode} exists@comma{} where
 @var{<LANG>} is the language identifier from code block's
-header line@comma{} then the edit buffer uses that major mode.  Use this
+header line@comma{} then the edit buffer uses that major mode.  If the
+major mode does not exist@comma{} or the language identifier is omitted@comma{}
+then the edit buffer falls back to Fundamental mode.  Use this
 variable to arbitrarily map language identifiers to major modes.
-
-When language identifier is omitted in the src block@comma{} Org mode's
-behavior is undefined.
 
 @item @code{org-src-window-setup}
 @vindex org-src-window-setup
