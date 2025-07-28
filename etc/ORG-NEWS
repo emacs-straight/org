@@ -371,6 +371,13 @@ This option makes it possible to disable mapping of linked org files
 to markdown during export to Markdown. This is analogous to how
 ~org-html-link-org-files-as-html~ works in export to HTML.
 
+*** ~org-yank-image-save-method~ can be a function producing directory name
+
+In previous versions, ~org-yank-image-save-method~ could be either a
+symbol ~attach~ or a string -- directory name.  Now it can also be a
+function, which will be called with no arguments and its return value
+will be used as a directory to save the image to.
+
 ** New functions and changes in function arguments
 
 # This also includes changes in function behavior from Elisp perspective.
@@ -506,6 +513,17 @@ capture ~:tree-type~ options]], the internal variable
 undocumented helper function ~org-datetree-insert-line~.
 
 ** Miscellaneous
+*** ~org-capture~ target pointing to headline is now handled uniformly for =plain= entry type
+
+Previously, when using ~file+regexp~, ~file+function~ or ~function~, =plain= entries
+were inserted right at the point according to regexp/function, even when point is
+on an existing headline.
+
+Now, when target points to an existing headline, =plain= entries are
+inserted inside its body, honoring ~:prepend~ property.  This is more
+consistent with how ~item~, ~checkitem~, and ~table-line~ templates
+are handled.
+
 *** HTML export wraps ~<code>~ around all the exported src blocks
 
 HTML export always uses ~<pre>~ tag around exported src blocks.

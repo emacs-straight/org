@@ -3978,7 +3978,7 @@ it is not found@comma{} then the user is queried to create it.}
 @item 
 @tab @samp{shortdoc:text-properties::#get-pos-property}
 @item shell
-@tab @samp{shell:ls *.org}
+@tab @samp{shell:ls *.org} (synchronous)@comma{} @samp{shell:inkscape&} (asynchronous)
 @item elisp
 @tab @samp{elisp:(find-file "Elisp.org")} (Elisp form to evaluate)
 @item 
@@ -23194,9 +23194,10 @@ from LibreOffice Calc documents.
 
 @vindex org-yank-image-save-method
 When yanking images from clipboard@comma{} Org saves the image on disk and
-inserts the image link to Org buffer.  Images are either saved as
-attachments to heading (default) or to a globally defined directory.
-The save location is controlled by @code{org-yank-image-save-method}.
+inserts the image link to Org buffer.  Images can be saved as
+attachments to heading (default)@comma{} to a globally defined directory@comma{} or
+to a directory returned by a function call.  The save location is
+controlled by @code{org-yank-image-save-method}.
 
 @vindex org-yank-image-file-name-function
 The yanked images are saved under automatically generated name.  You
