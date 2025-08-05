@@ -1,3 +1,3 @@
 @c automatically generated, do not edit
-@set VERSION 9.8-pre (9.8-pre-b55e97)
-@set DATE 2025-08-03
+@set VERSION 9.8-pre (9.8-pre-210601)
+@set DATE 2025-08-04
