@@ -496,7 +496,9 @@ you can escape ambiguous cases with a backward slash, e.g., \\%i."
 			    (list :tag "File [ & Outline path ] & Date tree"
 				  (const :format "" file+olp+datetree)
 				  ,file-variants
-				  ,olp-variants)
+                                  ,(append
+                                    olp-variants
+                                    '((const :tag "Date tree at top level" nil))))
 			    (list :tag "File & function"
 				  (const :format "" file+function)
 				  ,file-variants
@@ -510,6 +512,7 @@ you can escape ambiguous cases with a backward slash, e.g., \\%i."
 				  (function :tag "  Function")))
 		    (choice :tag "Template       "
 			    (string)
+                            (const :tag "Empty" nil)
 			    (list :tag "File"
 				  (const :format "" file)
 				  (file :tag "Template file"))
