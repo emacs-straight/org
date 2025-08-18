@@ -277,6 +277,13 @@ Mark current source block." t nil)
 
 ;;;***
 
+;;;### (autoloads nil "ob-csharp" "ob-csharp.el" (0 0 0 0))
+;;; Generated autoloads from ob-csharp.el
+
+(register-definition-prefixes "ob-csharp" '("org-babel-"))
+
+;;;***
+
 ;;;### (autoloads nil "ob-css" "ob-css.el" (0 0 0 0))
 ;;; Generated autoloads from ob-css.el
 
