@@ -18936,8 +18936,7 @@ adding ‘:rewrites’ rules like this:
                          ("example.com/$" . "index.php")))))
 
 Since ‘example.com/$’ is used as a regular expression, it maps
-‘https://example.com/’, ‘https://example.com’,
-‘https://www.example.com/’ and similar to
+‘https://example.com/’, ‘https://www.example.com/’ and similar to
 ‘/home/user/example/index.php’.
 
    The ‘:rewrites’ rules are searched as a last resort if and only if no
@@ -21854,7 +21853,7 @@ D Main Index
 * mapping entries, API:                  Using the Mapping API.
                                                               (line   6)
 * mappings in open-source protocol:      The open-source protocol.
-                                                              (line  68)
+                                                              (line  67)
 * mark ring:                             Handling Links.      (line 161)
 * Markdown export:                       Markdown Export.     (line   6)
 * marking characters, tables:            Advanced features.   (line  39)
@@ -22022,7 +22021,7 @@ D Main Index
 * protocol, open-source rewritten URL:   The open-source protocol.
                                                               (line  32)
 * protocol, open-source, set-up mapping: The open-source protocol.
-                                                              (line  68)
+                                                              (line  67)
 * protocol, store-link:                  The store-link protocol.
                                                               (line   6)
 * protocols, for external access:        Capture and Attachments.
@@ -23692,9 +23691,9 @@ F Command and Function Index
 * org-promote-subtree:                   Structure Editing.   (line  53)
 * org-property-action:                   Property Syntax.     (line 100)
 * org-protocol-create:                   The open-source protocol.
-                                                              (line  68)
+                                                              (line  67)
 * org-protocol-create-for-org:           The open-source protocol.
-                                                              (line  68)
+                                                              (line  67)
 * org-publish:                           Triggering Publication.
                                                               (line   9)
 * org-publish-all:                       Triggering Publication.
@@ -25315,51 +25314,51 @@ Node: Protocols787682
 Node: The store-link protocol789143
 Node: The capture protocol790302
 Node: The open-source protocol791964
-Node: Org Crypt795214
-Node: Org Mobile797089
-Node: Setting up the staging area798480
-Ref: Setting up the staging area-Footnote-1799720
-Ref: Setting up the staging area-Footnote-2799927
-Node: Pushing to the mobile application800099
-Ref: Pushing to the mobile application-Footnote-1801110
-Ref: Pushing to the mobile application-Footnote-2801201
-Ref: Pushing to the mobile application-Footnote-3801568
-Node: Pulling from the mobile application801644
-Ref: Pulling from the mobile application-Footnote-1803957
-Node: Drag and Drop & yank-media804010
-Ref: Drag and Drop & yank-media-Footnote-1805831
-Node: Repeating commands805979
-Node: Hacking808121
-Node: Hooks809146
-Node: Add-on Packages809421
-Node: Adding Hyperlink Types809877
-Node: Adding Hyperlink preview813693
-Node: Adding Export Backends816435
-Node: Tables in Arbitrary Syntax817682
-Node: Radio tables818950
-Node: A LaTeX example821086
-Ref: A LaTeX example-Footnote-1824939
-Ref: A LaTeX example-Footnote-2824982
-Ref: A LaTeX example-Footnote-3825143
-Node: Translator functions825595
-Node: Dynamic Blocks827777
-Node: Special Agenda Views830023
-Ref: Special Agenda Views-Footnote-1833734
-Ref: Special Agenda Views-Footnote-2833940
-Node: Speeding Up Your Agendas834072
-Node: Extracting Agenda Information835295
-Node: Using the Property API839102
-Node: Using the Mapping API842451
-Node: History and Acknowledgments846483
-Ref: From Carsten846681
-Ref: From Bastien850111
-Ref: List of Contributions852646
-Node: GNU Free Documentation License861299
-Ref: ADDENDUM How to use this License for your documents885257
-Node: Main Index886650
-Node: Key Index988143
-Node: Command and Function Index1045573
-Node: Variable Index1094930
+Node: Org Crypt795187
+Node: Org Mobile797062
+Node: Setting up the staging area798453
+Ref: Setting up the staging area-Footnote-1799693
+Ref: Setting up the staging area-Footnote-2799900
+Node: Pushing to the mobile application800072
+Ref: Pushing to the mobile application-Footnote-1801083
+Ref: Pushing to the mobile application-Footnote-2801174
+Ref: Pushing to the mobile application-Footnote-3801541
+Node: Pulling from the mobile application801617
+Ref: Pulling from the mobile application-Footnote-1803930
+Node: Drag and Drop & yank-media803983
+Ref: Drag and Drop & yank-media-Footnote-1805804
+Node: Repeating commands805952
+Node: Hacking808094
+Node: Hooks809119
+Node: Add-on Packages809394
+Node: Adding Hyperlink Types809850
+Node: Adding Hyperlink preview813666
+Node: Adding Export Backends816408
+Node: Tables in Arbitrary Syntax817655
+Node: Radio tables818923
+Node: A LaTeX example821059
+Ref: A LaTeX example-Footnote-1824912
+Ref: A LaTeX example-Footnote-2824955
+Ref: A LaTeX example-Footnote-3825116
+Node: Translator functions825568
+Node: Dynamic Blocks827750
+Node: Special Agenda Views829996
+Ref: Special Agenda Views-Footnote-1833707
+Ref: Special Agenda Views-Footnote-2833913
+Node: Speeding Up Your Agendas834045
+Node: Extracting Agenda Information835268
+Node: Using the Property API839075
+Node: Using the Mapping API842424
+Node: History and Acknowledgments846456
+Ref: From Carsten846654
+Ref: From Bastien850084
+Ref: List of Contributions852619
+Node: GNU Free Documentation License861272
+Ref: ADDENDUM How to use this License for your documents885230
+Node: Main Index886623
+Node: Key Index988116
+Node: Command and Function Index1045546
+Node: Variable Index1094903
 
 End Tag Table
 
