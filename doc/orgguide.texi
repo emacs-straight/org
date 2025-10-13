@@ -360,7 +360,7 @@ demotion work on all headlines in the region.
 An important feature of Org mode is the ability to construct @emph{sparse
 trees} for selected information in an outline tree@comma{} so that the entire
 document is folded as much as possible@comma{} but the selected information
-is made visible along with the headline structure above it@footnote{See also the variable @code{org-show-context-detail} to decide how
+is made visible along with the headline structure above it@footnote{See also the variable @code{org-fold-show-context-detail} to decide how
 much context is shown around each match.}.
 Just try it out and you will see immediately how it works.
 

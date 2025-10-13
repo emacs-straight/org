@@ -1559,12 +1559,13 @@ keys have different functionality.
 @cindex folding, sparse trees
 @cindex occur, command
 
+@vindex org-fold-show-context-detail
 @vindex org-show-context-detail
 An important feature of Org mode is the ability to construct @emph{sparse
 trees} for selected information in an outline tree@comma{} so that the entire
 document is folded as much as possible@comma{} but the selected information
 is made visible along with the headline structure above it@footnote{ See
-also the variable @code{org-show-context-detail} to decide how much context
+also the variable @code{org-fold-show-context-detail} to decide how much context
 is shown around each match.}.  Just try it out and you will see
 immediately how it works.
 
@@ -11542,7 +11543,7 @@ at the right spot in @code{org-agenda-custom-commands}.  For example:
          ((org-agenda-sorting-strategy '(priority-down))
           (org-agenda-prefix-format "  Mixed: ")))
         ("U" tags-tree "+boss-urgent"
-         ((org-show-context-detail 'minimal)))
+         ((org-fold-show-context-detail 'minimal)))
         ("N" search ""
          ((org-agenda-files '("~org/notes.org"))
           (org-agenda-text-search-extra-files nil)))))
@@ -17419,6 +17420,7 @@ for usage and configuration details.
 @vindex org-export-before-processing-hook
 @vindex org-export-before-processing-functions
 @vindex org-export-before-parsing-hook
+@vindex org-export-before-parsing-functions
 The export process executes two hooks before the actual exporting
 begins.  The first hook@comma{} @code{org-export-before-processing-functions}@comma{}
 runs before any expansions of macros@comma{} Babel code@comma{} and include keywords
