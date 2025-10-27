@@ -1424,6 +1424,9 @@ each headline in the time range with point at the headline.  Headlines for
 which HEADLINE-FILTER returns nil are excluded from the clock summation.
 PROPNAME lets you set a custom text property instead of :org-clock-minutes.
 
+Clocking entries that are open (as in don't have an end time) that are
+not the current clocking entry will be ignored.
+
 \(fn &optional TSTART TEND HEADLINE-FILTER PROPNAME)" nil nil)
 
 (autoload 'org-clock-display "org-clock" "\
