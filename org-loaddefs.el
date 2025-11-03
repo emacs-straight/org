@@ -294,7 +294,7 @@ Mark current source block." t nil)
 ;;;### (autoloads nil "ob-ditaa" "ob-ditaa.el" (0 0 0 0))
 ;;; Generated autoloads from ob-ditaa.el
 
-(register-definition-prefixes "ob-ditaa" '("org-"))
+(register-definition-prefixes "ob-ditaa" '("ob-ditaa--ensure-jar-file" "org-"))
 
 ;;;***
 

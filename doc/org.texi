@@ -9042,9 +9042,10 @@ After completing the template@comma{} position point here.
 @end table
 
 @vindex org-store-link-props
+@vindex org-link-store-props
 For specific link types@comma{} the following keywords are defined@footnote{ If
 you define your own link types (see @ref{Adding Hyperlink Types})@comma{} any
-property you store with @code{org-store-link-props} can be accessed in
+property you store with @code{org-link-store-props} can be accessed in
 capture templates in a similar way.}:
 
 @vindex org-link-from-user-regexp
@@ -24762,7 +24763,8 @@ literal examples@comma{} and remote highlighting for referenced code lines.
 
 @item
 Stathis Sideris wrote the @samp{ditaa.jar} ASCII to PNG converter that is
-now packaged into the @uref{https://git.sr.ht/~bzg/org-contrib, org-contrib} repository.
+available as a package in some operating systems or can be
+downloaded from @uref{https://github.com/stathissideris/ditaa}.
 
 @item
 Daniel Sinder came up with the idea of internal archiving by locking

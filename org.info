@@ -7612,7 +7612,7 @@ org-protocol   ‘%:link’, ‘%:description’, ‘%:annotation’
 a backslash.
 
    (2) If you define your own link types (see *note Adding Hyperlink
-Types::), any property you store with ‘org-store-link-props’ can be
+Types::), any property you store with ‘org-link-store-props’ can be
 accessed in capture templates in a similar way.
 
    (3) This is always the other, not the user.  See the variable
@@ -20487,8 +20487,8 @@ B.3 List of Contributions
      lines.
 
    • Stathis Sideris wrote the ‘ditaa.jar’ ASCII to PNG converter that
-     is now packaged into the org-contrib
-     (https://git.sr.ht/~bzg/org-contrib) repository.
+     is available as a package in some operating systems or can be
+     downloaded from <https://github.com/stathissideris/ditaa>.
 
    • Daniel Sinder came up with the idea of internal archiving by
      locking subtrees.
@@ -24507,6 +24507,7 @@ org-customize’ and then click yourself through the tree.
 * org-link-search-must-match-exact-headline: Internal Links.  (line  31)
 * org-link-shell-confirm-function:       Code Evaluation Security.
                                                               (line  49)
+* org-link-store-props:                  Template expansion.  (line 114)
 * org-link-use-indirect-buffer-for-internals: Handling Links. (line 157)
 * org-list-automatic-rules:              Plain Lists.         (line  64)
 * org-list-automatic-rules <1>:          Checkboxes.          (line   6)
@@ -25356,12 +25357,12 @@ Node: History and Acknowledgments846466
 Ref: From Carsten846664
 Ref: From Bastien850094
 Ref: List of Contributions852629
-Node: GNU Free Documentation License861282
-Ref: ADDENDUM How to use this License for your documents885240
-Node: Main Index886633
-Node: Key Index988126
-Node: Command and Function Index1045556
-Node: Variable Index1094913
+Node: GNU Free Documentation License861317
+Ref: ADDENDUM How to use this License for your documents885275
+Node: Main Index886668
+Node: Key Index988161
+Node: Command and Function Index1045591
+Node: Variable Index1094948
 
 End Tag Table
 
