@@ -1970,12 +1970,14 @@ This function may modify the match data.
 
 \(fn &optional EPOM CACHED-ONLY)" nil nil)
 
-(defsubst org-element-at-point-no-context (&optional pom) "\
+(autoload 'org-element-at-point-no-context "org-element" "\
 Quickly find element at point or POM.
 
 It is a faster version of `org-element-at-point' that is not
 guaranteed to return cached element.  `:parent' element may be
-deferred and slow to retrieve." (or (org-element-at-point pom 'cached-only) (org-element-with-disabled-cache (org-element-at-point pom))))
+deferred and slow to retrieve.
+
+\(fn &optional POM)" nil nil)
 
 (autoload 'org-element-context "org-element" "\
 Return smallest element or object around point.
