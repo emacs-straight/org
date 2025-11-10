@@ -4809,7 +4809,7 @@ is active."
 	    (setq rtn (list (format "ORG-AGENDA-ERROR: No such org-file %s"
 				    file))))
 	  (with-current-buffer buffer
-	    (with-syntax-table (org-search-syntax-table)
+	    (org-with-syntax-table (org-search-syntax-table)
 	      (unless (derived-mode-p 'org-mode)
 		(error "Agenda file %s is not in Org mode" file))
 	      (let ((case-fold-search t))
@@ -8204,6 +8204,9 @@ the variable `org-agenda-auto-exclude-function'."
 
 (defun org-agenda-filter-completion-function (string _predicate &optional flag)
   "Complete a complex filter string.
+
+See the Info Node `(org) Filtering/limiting agenda items'.
+
 FLAG specifies the type of completion operation to perform.  This
 function is passed as a collection function to `completing-read',
 which see."
@@ -8235,7 +8238,7 @@ which see."
       (`lambda (assoc string table)) ;exact match?
       (`(boundaries . ,suffix)
        (let ((end (if (string-match "[-+<>=]" suffix)
-                      (match-string 0 suffix)
+                      (match-beginning 0)
                     (length suffix))))
          `(boundaries ,(or begin 0) . ,end)))
       (`nil
