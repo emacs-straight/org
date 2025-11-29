@@ -5160,7 +5160,7 @@ You can also use numeric values for priorities@comma{} such as
 
 When using numeric priorities@comma{} you need to set @code{org-priority-highest}@comma{}
 @code{org-priority-lowest} and @code{org-priority-default} to integers@comma{} which
-must all be strictly inferior to 65.
+must all be a non-negative integer between 0 and 64@comma{} inclusive.
 
 Priorities can be attached to any heading; they do not need to be
 TODO items.
@@ -5193,8 +5193,10 @@ for a discussion of the interaction with shift-selection.
 @vindex org-priority-default
 You can change the range of allowed priorities by setting the
 variables @code{org-priority-highest}@comma{} @code{org-priority-lowest}@comma{} and
-@code{org-priority-default}.  For an individual buffer@comma{} you may set these
-values (highest@comma{} lowest@comma{} default) like this (please make sure that the
+@code{org-priority-default}.  Valid priority values are single uppercase
+Latin alphabetical characters A-Z@comma{} and non-negative integers in between 0
+and 64@comma{} inclusive.  For an individual buffer@comma{} you may set these values
+(highest@comma{} lowest@comma{} default) like this (please make sure that the
 highest priority is earlier in the alphabet than the lowest priority):
 
 @cindex @samp{PRIORITIES}, keyword
@@ -5975,16 +5977,17 @@ Properties can also be defined using lines like:
 @cindex @samp{+} suffix, in properties
 If you want to add to the value of an existing property@comma{} append a @samp{+}
 to the property name.  The following results in the property @samp{var}
-having the value @samp{foo=1 bar=2}.
+having the values @samp{foo} and @samp{bar}.
 
 @example
-#+PROPERTY: var  foo=1
-#+PROPERTY: var+ bar=2
+#+PROPERTY: var  foo
+#+PROPERTY: var+ bar
 @end example
 
-It is also possible to add to the values of inherited properties.  The
-following results in the @samp{Genres} property having the value @samp{Classic
-Baroque} under the @samp{Goldberg Variations} subtree.
+Using the appended @samp{+}@comma{} it is also possible to add to the values of
+inherited properties.  The following results in the @samp{Genres} property
+having the values @samp{Classic}@comma{} @samp{Baroque}@comma{} and @samp{Keyboard music} under the
+@samp{Goldberg Variations} subtree.
 
 @example
 * CD collection
@@ -6000,10 +6003,13 @@ Baroque} under the @samp{Goldberg Variations} subtree.
     :Publisher: Deutsche Grammophon
     :NDisks:    1
     :Genres+:   Baroque
+    :Genres+:   Keyboard music
     :END:
 @end example
 
-Note that a property can only have one entry per drawer.
+Note that a property can only have multiple entries per drawer when
+used with the appended @samp{+}.  When a property has multiple entries
+without @samp{+}@comma{} the result is undefined.
 
 @vindex org-global-properties
 Property values set with the global variable @code{org-global-properties}
@@ -13559,8 +13565,9 @@ exported.
 
 @cindex @samp{BEGIN_COMMENT}
 @cindex comment block
-Likewise@comma{} regions surrounded by @samp{#+BEGIN_COMMENT} @dots{} @samp{#+END_COMMENT}
-are not exported.
+Likewise@comma{} comment blocks @samp{#+BEGIN_COMMENT} @dots{} @samp{#+END_COMMENT} are not
+exported. @footnote{Just like in @ref{Literal Examples}@comma{} you need to escape
+leading @samp{*} with @samp{@comma{}} to avoid interpreting them as headings.}
 
 @cindex comment trees
 Finally@comma{} a @samp{COMMENT} keyword at the beginning of an entry@comma{} but after

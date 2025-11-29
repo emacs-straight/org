@@ -1201,8 +1201,9 @@ archive file is.
 Move the current subtree to the archive.
 The archive can be a certain top-level heading in the current
 file, or in a different file.  The tree will be moved to that
-location, the subtree heading be marked DONE, and the current
-time will be added.
+location.  If `org-archive-mark-done' is non-nil and the subtree
+has a TODO keyword, the subtree heading will be marked DONE.
+And the current time will be added.
 
 When called with a single prefix argument FIND-DONE, find whole
 trees without any open TODO items and archive them (after getting
@@ -3588,11 +3589,14 @@ If the file does not exist, throw an error.
 
 (autoload 'org-open-at-point-global "org" "\
 Follow a link or a timestamp like Org mode does.
+Pass ARG to `org-link-open-to-string'.
 Also follow links and emails as seen by `thing-at-point'.
 This command can be called in any mode to follow an external
 link or a timestamp that has Org mode syntax.  Its behavior
 is undefined when called on internal links like fuzzy links.
-Raise a user error when there is nothing to follow." t nil)
+Raise a user error when there is nothing to follow.
+
+\(fn &optional ARG)" t nil)
 
 (autoload 'org-offer-links-in-entry "org" "\
 Offer links in the current entry and return the selected link.
