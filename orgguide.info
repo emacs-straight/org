@@ -1,19 +1,19 @@
-This is orgguide.info, produced by makeinfo version 6.8 from
+This is orgguide.info, produced by makeinfo version 7.1.1 from
 orgguide.texi.
 
-Copyright © 2004–2025 Free Software Foundation, Inc.
+Copyright © 2004-2025 Free Software Foundation, Inc.
 
      Permission is granted to copy, distribute and/or modify this
      document under the terms of the GNU Free Documentation License,
      Version 1.3 or any later version published by the Free Software
      Foundation; with no Invariant Sections, with the Front-Cover Texts
-     being “A GNU Manual,” and with the Back-Cover Texts as in (a)
+     being "A GNU Manual," and with the Back-Cover Texts as in (a)
      below.  A copy of the license is included in the section entitled
-     “GNU Free Documentation License.” in the full Org manual, which is
+     "GNU Free Documentation License."  in the full Org manual, which is
      distributed together with this compact guide.
 
-     (a) The FSF’s Back-Cover Text is: “You have the freedom to copy and
-     modify this GNU manual.”
+     (a) The FSF's Back-Cover Text is: "You have the freedom to copy and
+     modify this GNU manual."
 
 INFO-DIR-SECTION Emacs editing modes
 START-INFO-DIR-ENTRY
@@ -26,19 +26,19 @@ File: orgguide.info,  Node: Top,  Next: Introduction,  Up: (dir)
 Org Mode Compact Guide
 **********************
 
-Copyright © 2004–2025 Free Software Foundation, Inc.
+Copyright © 2004-2025 Free Software Foundation, Inc.
 
      Permission is granted to copy, distribute and/or modify this
      document under the terms of the GNU Free Documentation License,
      Version 1.3 or any later version published by the Free Software
      Foundation; with no Invariant Sections, with the Front-Cover Texts
-     being “A GNU Manual,” and with the Back-Cover Texts as in (a)
+     being "A GNU Manual," and with the Back-Cover Texts as in (a)
      below.  A copy of the license is included in the section entitled
-     “GNU Free Documentation License.” in the full Org manual, which is
+     "GNU Free Documentation License."  in the full Org manual, which is
      distributed together with this compact guide.
 
-     (a) The FSF’s Back-Cover Text is: “You have the freedom to copy and
-     modify this GNU manual.”
+     (a) The FSF's Back-Cover Text is: "You have the freedom to copy and
+     modify this GNU manual."
 
 * Menu:
 
@@ -58,7 +58,7 @@ Copyright © 2004–2025 Free Software Foundation, Inc.
 * Working with Source Code::     Export, evaluate, and tangle code blocks.
 * Miscellaneous::                All the rest which did not fit elsewhere.
 
-— The Detailed Node Listing —
+-- The Detailed Node Listing --
 
 Document Structure
 
@@ -631,7 +631,7 @@ it into an Org file, and to follow the link.
 org-store-link’.  Because of its importance, we suggest to bind it to a
 widely available key (see *note Activation::).  It stores a link to the
 current location.  The link is stored for later insertion into an Org
-buffer—see below.
+buffer--see below.
 
    From an Org buffer, the following commands create, navigate or, more
 generally, act on links.
@@ -701,7 +701,7 @@ for example:
           ,-> (unmarked) -> TODO -> DONE --.
           '--------------------------------'
 
-     The same rotation can also be done “remotely” from the agenda
+     The same rotation can also be done "remotely" from the agenda
      buffer with the ‘t’ command key (see *note Agenda Commands::).
 
 ‘S-<RIGHT>’ (‘org-shiftright’), ‘S-<LEFT>’ (‘org-shiftleft’)
@@ -709,8 +709,8 @@ for example:
 
 ‘C-c / t’ (‘org-show-todo-tree’)
      View TODO items in a _sparse tree_ (see *note Sparse Trees::).
-     Folds the entire buffer, but shows all TODO items—with not-DONE
-     state—and the headings hierarchy above them.
+     Folds the entire buffer, but shows all TODO items--with not-DONE
+     state--and the headings hierarchy above them.
 
 ‘M-x org-agenda t’ (‘org-todo-list’)
      Show the global TODO list.  Collects the TODO items (with not-DONE
@@ -754,7 +754,7 @@ this:
 The keywords should all be different, this helps Org mode to keep track
 of which subsequence should be used for a given entry.  The example also
 shows how to define keys for fast access of a particular state, by
-adding a letter in parenthesis after each keyword—you will be prompted
+adding a letter in parenthesis after each keyword--you will be prompted
 for the key after ‘C-c C-t’.
 
    To define TODO keywords that are valid only in a single file, use the
@@ -905,8 +905,8 @@ checked.
    The following commands work with checkboxes:
 
 ‘C-c C-c’, ‘C-u C-c C-c’ (‘org-toggle-checkbox’)
-     Toggle checkbox status or—with prefix argument—checkbox presence at
-     point.
+     Toggle checkbox status or--with prefix argument--checkbox presence
+     at point.
 
 ‘M-S-<RET>’ (‘org-insert-todo-heading’)
      Insert a new item with a checkbox.  This works only if point is
@@ -993,7 +993,7 @@ Tag groups
 ==========
 
 A tag can be defined as a _group tag_ for a set of other tags.  The
-group tag can be seen as the “broader term” for its set of tags.
+group tag can be seen as the "broader term" for its set of tags.
 
    You can set group tags by using brackets and inserting a colon
 between the group tag and its related tags:
@@ -1095,7 +1095,7 @@ Tags::).  The syntax for the search string is described in *note
 Matching Tags and Properties::.
 
 
-File: orgguide.info,  Node: Dates and Times,  Next: Capture, Refile, Archive,  Prev: Properties,  Up: Top
+File: orgguide.info,  Node: Dates and Times,  Next: Capture, Refile, Archive,  Prev: Properties,  Up: Top
 
 8 Dates and Times
 *****************
@@ -1125,12 +1125,12 @@ File: orgguide.info,  Node: Timestamps,  Next: Creating Timestamps,  Up: Dates a
 8.1 Timestamps
 ==============
 
-A timestamp is a specification of a date—possibly with a time or a range
-of times—in a special format, either ‘<2003-09-16 Tue>’ or ‘<2003-09-16
-Tue 09:39>’ or ‘<2003-09-16 Tue 12:00-12:30>’.  A timestamp can appear
-anywhere in the headline or body of an Org tree entry.  Its presence
-causes entries to be shown on specific dates in the agenda (see *note
-Built-in Agenda Views::).  We distinguish:
+A timestamp is a specification of a date--possibly with a time or a
+range of times--in a special format, either ‘<2003-09-16 Tue>’ or
+‘<2003-09-16 Tue 09:39>’ or ‘<2003-09-16 Tue 12:00-12:30>’.  A timestamp
+can appear anywhere in the headline or body of an Org tree entry.  Its
+presence causes entries to be shown on specific dates in the agenda (see
+*note Built-in Agenda Views::).  We distinguish:
 
 Plain timestamp; Event; Appointment
      A simple timestamp just assigns a date/time to an item.  This is
@@ -1240,8 +1240,8 @@ A timestamp may be preceded by special keywords to facilitate planning:
      Insert ‘DEADLINE’ keyword along with a time stamp, in the line
      following the headline.
 
-     Meaning: the task—most likely a TODO item, though not
-     necessarily—is supposed to be finished on that date.
+     Meaning: the task--most likely a TODO item, though not
+     necessarily--is supposed to be finished on that date.
 
      On the deadline date, the task is listed in the agenda.  In
      addition, the agenda for _today_ carries a warning about the
@@ -1326,7 +1326,7 @@ project.
 Views::) to show which tasks have been worked on or closed during a day.
 
 
-File: orgguide.info,  Node: Capture, Refile, Archive,  Next: Agenda Views,  Prev: Dates and Times,  Up: Top
+File: orgguide.info,  Node: Capture, Refile, Archive,  Next: Agenda Views,  Prev: Dates and Times,  Up: Top
 
 9 Capture, Refile, Archive
 **************************
@@ -1346,7 +1346,7 @@ fast.
 * Archiving::                    What to do with finished products.
 
 
-File: orgguide.info,  Node: Capture,  Next: Refile and Copy,  Up: Capture, Refile, Archive
+File: orgguide.info,  Node: Capture,  Next: Refile and Copy,  Up: Capture, Refile, Archive
 
 9.1 Capture
 ===========
@@ -1426,7 +1426,7 @@ locations.  See *note Capture templates::.
 a backslash.
 
 
-File: orgguide.info,  Node: Refile and Copy,  Next: Archiving,  Prev: Capture,  Up: Capture, Refile, Archive
+File: orgguide.info,  Node: Refile and Copy,  Next: Archiving,  Prev: Capture,  Up: Capture, Refile, Archive
 
 9.2 Refile and Copy
 ===================
@@ -1459,7 +1459,7 @@ command:
      deleted.
 
 
-File: orgguide.info,  Node: Archiving,  Prev: Refile and Copy,  Up: Capture, Refile, Archive
+File: orgguide.info,  Node: Archiving,  Prev: Refile and Copy,  Up: Capture, Refile, Archive
 
 9.3 Archiving
 =============
@@ -1493,7 +1493,7 @@ example:
      #+ARCHIVE: %s_done::
 
 
-File: orgguide.info,  Node: Agenda Views,  Next: Markup,  Prev: Capture, Refile, Archive,  Up: Top
+File: orgguide.info,  Node: Agenda Views,  Next: Markup,  Prev: Capture, Refile, Archive,  Up: Top
 
 10 Agenda Views
 ***************
@@ -1706,7 +1706,7 @@ File: orgguide.info,  Node: Agenda Commands,  Next: Custom Agenda Views,  Prev: 
 Entries in the agenda buffer are linked back to the Org file or diary
 file where they originate.  You are not allowed to edit the agenda
 buffer itself, but commands are provided to show and jump to the
-original entry location, and to edit the Org files “remotely” from the
+original entry location, and to edit the Org files "remotely" from the
 agenda buffer.  This is just a selection of the many commands, explore
 the agenda menu and the *note manual: (org)Top. for a complete list.
 
@@ -2074,7 +2074,7 @@ File: orgguide.info,  Node: The Export Dispatcher,  Next: Export Settings,  Up: 
 12.1 The Export Dispatcher
 ==========================
 
-The export dispatcher is the main interface for Org’s exports.  A
+The export dispatcher is the main interface for Org's exports.  A
 hierarchical menu presents the currently configured export formats.
 Options are shown as easy toggle switches on the same screen.
 
@@ -2262,7 +2262,7 @@ File: orgguide.info,  Node: iCalendar Export,  Prev: LaTeX Export,  Up: Exportin
 12.9 iCalendar Export
 =====================
 
-A large part of Org mode’s interoperability success is its ability to
+A large part of Org mode's interoperability success is its ability to
 easily export to or import from external applications.  The iCalendar
 export backend takes calendar data from Org files and exports to the
 standard iCalendar format.
@@ -2365,7 +2365,7 @@ Using header arguments
 ======================
 
 A header argument is specified with an initial colon followed by the
-argument’s name in lowercase.
+argument's name in lowercase.
 
    Header arguments can be set in several ways; Org prioritizes them in
 case of overlaps or conflicts by giving local settings a higher
@@ -2378,7 +2378,7 @@ System-wide header arguments
 
 Header arguments in properties
      You can set them using ‘header-args’ property (see *note
-     Properties::)—or ‘header-args:LANG’ for language LANG.  Header
+     Properties::)--or ‘header-args:LANG’ for language LANG.  Header
      arguments set through properties drawers apply at the sub-tree
      level on down.
 
@@ -2419,8 +2419,8 @@ the ‘var’ header argument.
 
 NAME is the name of the variable bound in the code block body.  ASSIGN
 is a literal value, such as a string, a number, a reference to a table,
-a list, a literal example, another code block—with or without
-arguments—or the results of evaluating a code block.
+a list, a literal example, another code block--with or without
+arguments--or the results of evaluating a code block.
 
 Results of evaluation
 =====================
@@ -2447,10 +2447,10 @@ Handling
      How to insert the results once properly formatted.  Allowed values
      are ‘silent’, ‘replace’ (the default), ‘append’, or ‘prepend’.
 
-   Code blocks which output results to files—e.g.: graphs, diagrams and
-figures—can accept a ‘:file FILENAME’ header argument, in which case the
-results are saved to the named file, and a link to the file is inserted
-into the buffer.
+   Code blocks which output results to files--e.g.: graphs, diagrams and
+figures--can accept a ‘:file FILENAME’ header argument, in which case
+the results are saved to the named file, and a link to the file is
+inserted into the buffer.
 
 Exporting code blocks
 =====================
@@ -2469,9 +2469,9 @@ Extracting source code
 
 Use ‘C-c C-v t’ to create pure source code files by extracting code from
 source blocks in the current buffer.  This is referred to as
-“tangling”—a term adopted from the literate programming community.
+"tangling"--a term adopted from the literate programming community.
 During tangling of code blocks their bodies are expanded using
-‘org-babel-expand-src-block’, which can expand both variable and “Noweb”
+‘org-babel-expand-src-block’, which can expand both variable and "Noweb"
 style references.  In order to tangle a code block it must have a
 ‘tangle’ header argument, see the *note manual: (org)Top. for details.
 
@@ -2505,7 +2505,7 @@ To quickly insert empty structural blocks, such as ‘#+BEGIN_SRC’ ...
 Clean view
 ==========
 
-Org’s default outline with stars and no indents can become too cluttered
+Org's default outline with stars and no indents can become too cluttered
 for short documents.  For _book-like_ long documents, the effect is not
 as noticeable.  Org provides an alternate stars and indentation scheme,
 as shown on the right in the following table.  It uses only one star and
@@ -2539,105 +2539,105 @@ file, use
 
 
 Tag Table:
-Node: Top922
-Node: Introduction5644
-Ref: Installation6330
-Ref: Activation7042
-Ref: Feedback7485
-Node: Document Structure7742
-Node: Headlines8813
-Ref: Headlines-Footnote-19711
-Node: Visibility Cycling9834
-Node: Motion11229
-Node: Structure Editing11823
-Ref: Structure Editing-Footnote-113259
-Node: Sparse Trees13363
-Ref: Sparse Trees-Footnote-114473
-Node: Plain Lists14593
-Node: Tables17385
-Ref: Creation and conversion19078
-Ref: Re-aligning and field motion19678
-Ref: Column and row editing20441
-Node: Hyperlinks21792
-Ref: Internal links22550
-Ref: External Links23003
-Ref: Handling Links24833
-Node: TODO Items26324
-Node: TODO Basics27301
-Node: Multi-state Workflow28840
-Node: Progress Logging30631
-Ref: Closing items31395
-Ref: Tracking TODO state changes31950
-Ref: Progress Logging-Footnote-132949
-Ref: Progress Logging-Footnote-233022
-Node: Priorities33100
-Node: Breaking Down Tasks34017
-Node: Checkboxes34820
-Node: Tags35959
-Ref: Tag inheritance36584
-Ref: Setting tags37322
-Ref: Tag groups39100
-Ref: Tag searches39896
-Ref: Tags-Footnote-140976
-Node: Properties41080
-Node: Dates and Times42892
-Node: Timestamps43931
-Node: Creating Timestamps46687
-Node: Deadlines and Scheduling48532
-Ref: Deadlines and Scheduling-Footnote-150598
-Ref: Deadlines and Scheduling-Footnote-250759
-Node: Clocking Work Time50922
-Node: Capture, Refile, Archive52357
-Node: Capture53167
-Ref: Setting up capture53471
-Ref: Using capture53742
-Ref: Capture templates54438
-Ref: Capture-Footnote-155871
-Ref: Capture-Footnote-255982
-Node: Refile and Copy56073
-Node: Archiving57385
-Node: Agenda Views58763
-Node: Agenda Files60220
-Node: Agenda Dispatcher60968
-Node: Built-in Agenda Views61890
-Node: Global TODO List63003
-Node: Matching Tags and Properties63764
-Node: Search View65794
-Node: Agenda Commands66904
-Ref: Motion (1)67507
-Ref: View/Go to Org file67710
-Ref: Change display68148
-Ref: Remote editing69519
-Ref: Quit and exit71107
-Node: Custom Agenda Views71361
-Node: Markup72837
-Node: Paragraphs73663
-Node: Emphasis and Monospace74785
-Node: Embedded LaTeX75203
-Node: Literal examples76072
-Node: Images77162
-Node: Creating Footnotes77763
-Node: Exporting78737
-Node: The Export Dispatcher79613
-Node: Export Settings80171
-Node: Table of Contents80996
-Node: Include Files81729
-Node: Comment Lines82415
-Node: ASCII/UTF-8 Export83140
-Node: HTML Export83874
-Node: LaTeX Export84912
-Node: iCalendar Export86655
-Node: Publishing87434
-Node: Working with Source Code89165
-Ref: Using header arguments90432
-Ref: Evaluating code blocks91610
-Ref: Results of evaluation92501
-Ref: Exporting code blocks93723
-Ref: Extracting source code94187
-Node: Miscellaneous94731
-Ref: Completion94854
-Ref: Structure Templates95191
-Ref: Clean view95555
+Node: Top909
+Node: Introduction5614
+Ref: Installation6300
+Ref: Activation7012
+Ref: Feedback7455
+Node: Document Structure7712
+Node: Headlines8783
+Ref: Headlines-Footnote-19681
+Node: Visibility Cycling9804
+Node: Motion11199
+Node: Structure Editing11793
+Ref: Structure Editing-Footnote-113229
+Node: Sparse Trees13333
+Ref: Sparse Trees-Footnote-114443
+Node: Plain Lists14563
+Node: Tables17355
+Ref: Creation and conversion19048
+Ref: Re-aligning and field motion19648
+Ref: Column and row editing20411
+Node: Hyperlinks21762
+Ref: Internal links22520
+Ref: External Links22973
+Ref: Handling Links24803
+Node: TODO Items26293
+Node: TODO Basics27270
+Node: Multi-state Workflow28803
+Node: Progress Logging30593
+Ref: Closing items31357
+Ref: Tracking TODO state changes31912
+Ref: Progress Logging-Footnote-132911
+Ref: Progress Logging-Footnote-232984
+Node: Priorities33062
+Node: Breaking Down Tasks33979
+Node: Checkboxes34782
+Node: Tags35919
+Ref: Tag inheritance36544
+Ref: Setting tags37282
+Ref: Tag groups39060
+Ref: Tag searches39852
+Ref: Tags-Footnote-140932
+Node: Properties41036
+Node: Dates and Times42848
+Node: Timestamps43889
+Node: Creating Timestamps46643
+Node: Deadlines and Scheduling48488
+Ref: Deadlines and Scheduling-Footnote-150552
+Ref: Deadlines and Scheduling-Footnote-250713
+Node: Clocking Work Time50876
+Node: Capture, Refile, Archive52311
+Node: Capture53123
+Ref: Setting up capture53429
+Ref: Using capture53700
+Ref: Capture templates54396
+Ref: Capture-Footnote-155829
+Ref: Capture-Footnote-255940
+Node: Refile and Copy56031
+Node: Archiving57345
+Node: Agenda Views58725
+Node: Agenda Files60184
+Node: Agenda Dispatcher60932
+Node: Built-in Agenda Views61854
+Node: Global TODO List62967
+Node: Matching Tags and Properties63728
+Node: Search View65758
+Node: Agenda Commands66868
+Ref: Motion (1)67467
+Ref: View/Go to Org file67670
+Ref: Change display68108
+Ref: Remote editing69479
+Ref: Quit and exit71067
+Node: Custom Agenda Views71321
+Node: Markup72797
+Node: Paragraphs73623
+Node: Emphasis and Monospace74745
+Node: Embedded LaTeX75163
+Node: Literal examples76032
+Node: Images77122
+Node: Creating Footnotes77723
+Node: Exporting78697
+Node: The Export Dispatcher79573
+Node: Export Settings80129
+Node: Table of Contents80954
+Node: Include Files81687
+Node: Comment Lines82373
+Node: ASCII/UTF-8 Export83098
+Node: HTML Export83832
+Node: LaTeX Export84870
+Node: iCalendar Export86613
+Node: Publishing87390
+Node: Working with Source Code89121
+Ref: Using header arguments90388
+Ref: Evaluating code blocks91563
+Ref: Results of evaluation92452
+Ref: Exporting code blocks93672
+Ref: Extracting source code94136
+Node: Miscellaneous94671
+Ref: Completion94794
+Ref: Structure Templates95131
+Ref: Clean view95495
 
 End Tag Table
 
