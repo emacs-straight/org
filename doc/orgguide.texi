@@ -987,9 +987,10 @@ mode has extensive support for tags.
 
 Every headline can contain a list of tags; they occur at the end of
 the headline.  Tags are normal words containing letters@comma{} numbers@comma{} @samp{_}@comma{}
-and @samp{@@}.  Tags must be preceded and followed by a single colon@comma{} e.g.@comma{}
-@samp{:work:}.  Several tags can be specified@comma{} as in @samp{:work:urgent:}.  Tags
-by default are in bold face with the same color as the headline.
+@samp{@@}@comma{} @samp{#}@comma{} and @samp{%}.  Tags must be preceded and followed by a single
+colon@comma{} e.g.@comma{} @samp{:work:}.  Several tags can be specified@comma{} as in
+@samp{:work:urgent:}.  Tags by default are in bold face with the same color
+as the headline.
 
 @anchor{Tag inheritance}
 @heading Tag inheritance

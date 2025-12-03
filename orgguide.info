@@ -924,9 +924,10 @@ support for tags.
 
    Every headline can contain a list of tags; they occur at the end of
 the headline.  Tags are normal words containing letters, numbers, ‘_’,
-and ‘@’.  Tags must be preceded and followed by a single colon, e.g.,
-‘:work:’.  Several tags can be specified, as in ‘:work:urgent:’.  Tags
-by default are in bold face with the same color as the headline.
+‘@’, ‘#’, and ‘%’.  Tags must be preceded and followed by a single
+colon, e.g., ‘:work:’.  Several tags can be specified, as in
+‘:work:urgent:’.  Tags by default are in bold face with the same color
+as the headline.
 
 Tag inheritance
 ===============
@@ -2574,70 +2575,70 @@ Node: Priorities33062
 Node: Breaking Down Tasks33979
 Node: Checkboxes34782
 Node: Tags35919
-Ref: Tag inheritance36544
-Ref: Setting tags37282
-Ref: Tag groups39060
-Ref: Tag searches39852
-Ref: Tags-Footnote-140932
-Node: Properties41036
-Node: Dates and Times42848
-Node: Timestamps43889
-Node: Creating Timestamps46643
-Node: Deadlines and Scheduling48488
-Ref: Deadlines and Scheduling-Footnote-150552
-Ref: Deadlines and Scheduling-Footnote-250713
-Node: Clocking Work Time50876
-Node: Capture, Refile, Archive52311
-Node: Capture53123
-Ref: Setting up capture53429
-Ref: Using capture53700
-Ref: Capture templates54396
-Ref: Capture-Footnote-155829
-Ref: Capture-Footnote-255940
-Node: Refile and Copy56031
-Node: Archiving57345
-Node: Agenda Views58725
-Node: Agenda Files60184
-Node: Agenda Dispatcher60932
-Node: Built-in Agenda Views61854
-Node: Global TODO List62967
-Node: Matching Tags and Properties63728
-Node: Search View65758
-Node: Agenda Commands66868
-Ref: Motion (1)67467
-Ref: View/Go to Org file67670
-Ref: Change display68108
-Ref: Remote editing69479
-Ref: Quit and exit71067
-Node: Custom Agenda Views71321
-Node: Markup72797
-Node: Paragraphs73623
-Node: Emphasis and Monospace74745
-Node: Embedded LaTeX75163
-Node: Literal examples76032
-Node: Images77122
-Node: Creating Footnotes77723
-Node: Exporting78697
-Node: The Export Dispatcher79573
-Node: Export Settings80129
-Node: Table of Contents80954
-Node: Include Files81687
-Node: Comment Lines82373
-Node: ASCII/UTF-8 Export83098
-Node: HTML Export83832
-Node: LaTeX Export84870
-Node: iCalendar Export86613
-Node: Publishing87390
-Node: Working with Source Code89121
-Ref: Using header arguments90388
-Ref: Evaluating code blocks91563
-Ref: Results of evaluation92452
-Ref: Exporting code blocks93672
-Ref: Extracting source code94136
-Node: Miscellaneous94671
-Ref: Completion94794
-Ref: Structure Templates95131
-Ref: Clean view95495
+Ref: Tag inheritance36562
+Ref: Setting tags37300
+Ref: Tag groups39078
+Ref: Tag searches39870
+Ref: Tags-Footnote-140950
+Node: Properties41054
+Node: Dates and Times42866
+Node: Timestamps43907
+Node: Creating Timestamps46661
+Node: Deadlines and Scheduling48506
+Ref: Deadlines and Scheduling-Footnote-150570
+Ref: Deadlines and Scheduling-Footnote-250731
+Node: Clocking Work Time50894
+Node: Capture, Refile, Archive52329
+Node: Capture53141
+Ref: Setting up capture53447
+Ref: Using capture53718
+Ref: Capture templates54414
+Ref: Capture-Footnote-155847
+Ref: Capture-Footnote-255958
+Node: Refile and Copy56049
+Node: Archiving57363
+Node: Agenda Views58743
+Node: Agenda Files60202
+Node: Agenda Dispatcher60950
+Node: Built-in Agenda Views61872
+Node: Global TODO List62985
+Node: Matching Tags and Properties63746
+Node: Search View65776
+Node: Agenda Commands66886
+Ref: Motion (1)67485
+Ref: View/Go to Org file67688
+Ref: Change display68126
+Ref: Remote editing69497
+Ref: Quit and exit71085
+Node: Custom Agenda Views71339
+Node: Markup72815
+Node: Paragraphs73641
+Node: Emphasis and Monospace74763
+Node: Embedded LaTeX75181
+Node: Literal examples76050
+Node: Images77140
+Node: Creating Footnotes77741
+Node: Exporting78715
+Node: The Export Dispatcher79591
+Node: Export Settings80147
+Node: Table of Contents80972
+Node: Include Files81705
+Node: Comment Lines82391
+Node: ASCII/UTF-8 Export83116
+Node: HTML Export83850
+Node: LaTeX Export84888
+Node: iCalendar Export86631
+Node: Publishing87408
+Node: Working with Source Code89139
+Ref: Using header arguments90406
+Ref: Evaluating code blocks91581
+Ref: Results of evaluation92470
+Ref: Exporting code blocks93690
+Ref: Extracting source code94154
+Node: Miscellaneous94689
+Ref: Completion94812
+Ref: Structure Templates95149
+Ref: Clean view95513
 
 End Tag Table
 
