@@ -148,7 +148,7 @@ Exporting
 Org is a mode for keeping notes@comma{} maintaining TODO lists@comma{} and doing
 project planning with a fast and effective plain-text system.  It is
 also an authoring and publishing system@comma{} and it supports working with
-source code for literal programming and reproducible research.
+source code for literate programming and reproducible research.
 
 This document is a much compressed derivative of the @ref{Top,comprehensive Org
 mode manual,,org,}.  It contains all basic features and commands@comma{} along with
