@@ -2754,15 +2754,9 @@ there number strings are already interpreted as numbers without @samp{N}.
 Literal@comma{} for Lisp formulas only.  See the next section.
 @end table
 
-Unless you use large integer numbers or high-precision calculation and
-display for floating point numbers you may alternatively provide
-a @code{printf} format specifier to reformat the Calc result after it has
-been passed back to Org instead of letting Calc already do the
-formatting@footnote{The printf reformatting is limited in precision because the
-value passed to it is converted into an ``integer'' or ``double''.  The
-``integer'' is limited in size by truncating the signed value to 32
-bits.  The ``double'' is limited in precision to 64 bits overall which
-leaves approximately 16 significant decimal digits.}.  A few examples:
+You may also provide a @code{format} specifier to reformat the Calc result
+after it has been passed back to Org instead of letting Calc handle
+the formatting.  A few examples:
 
 @multitable {aaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @samp{$1+$2}
@@ -2780,7 +2774,7 @@ leaves approximately 16 significant decimal digits.}.  A few examples:
 @item @samp{tan($1);Dp3s1}
 @tab Compute in degrees@comma{} precision 3@comma{} display SCI 1
 @item @samp{sin($1);Dp3%.1e}
-@tab Same@comma{} but use @code{printf} specifier for display
+@tab Same@comma{} but use @code{format} specifier for display
 @item @samp{vmean($2..$7)}
 @tab Compute column range mean@comma{} using vector function
 @item @samp{vmean($2..$7);EN}
@@ -2839,7 +2833,7 @@ A formula is evaluated as a Lisp form when it starts with a
 single-quote followed by an opening parenthesis.  Cell table
 references are interpolated into the Lisp form before execution.  The
 evaluation should return either a string or a number.  Evaluation
-modes and a @code{printf} format used to render the returned values can be
+modes and a @code{format} string used to render the returned values can be
 specified after a semicolon.
 
 By default@comma{} references are interpolated as literal Lisp strings: the
@@ -3652,9 +3646,9 @@ links to other files@comma{} Usenet articles@comma{} emails@comma{} and much mor
 @cindex plain links
 Org recognizes plain URIs@comma{} possibly wrapped within angle
 brackets@footnote{Plain URIs are recognized only for a well-defined set of
-schemes.  See @ref{External Links}.  Unlike URI syntax@comma{} they cannot contain
-parenthesis or white spaces@comma{} either.  URIs within angle brackets have
-no such limitation.}@comma{} and activate them as clickable links.
+schemes.  See @ref{External Links}.  Unlike URI syntax@comma{} they cannot
+contain parenthesis or white spaces@comma{} either.  URIs within angle
+brackets have no such limitation.}@comma{} and activate them as clickable links.
 
 @cindex bracket links
 The general link format@comma{} however@comma{} looks like this:
@@ -12669,7 +12663,7 @@ text.  Markers always start with @samp{fn:}.  For example:
 @example
 The Org website[fn:1] now looks a lot better than it used to.
 ...
-[fn:50] The link is: https://orgmode.org
+[fn:49] The link is: https://orgmode.org
 @end example
 
 Org mode extends the number-based syntax to @emph{named} footnotes and

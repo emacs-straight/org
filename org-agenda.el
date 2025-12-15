@@ -1748,7 +1748,8 @@ An alist with one entry per agenda type.  The keys of the
 sublists are `agenda', `todo', `search' and `tags'.  The values
 are format strings.
 
-This format works similar to a printf format, with the following meaning:
+This format works similar to a `format' string, with the following
+meaning:
 
   %c   the category of the item, \"Diary\" for entries from the diary,
        or as given by the CATEGORY keyword or derived from the file name
@@ -1760,11 +1761,14 @@ This format works similar to a printf format, with the following meaning:
   %s   Scheduling/Deadline information, a short string
   %b   show breadcrumbs, i.e., the names of the higher levels
   %(expression) Eval EXPRESSION and replace the control string
-                by the result
+                by the result.  EXPRESSION is evaluated with point
+                in agenda buffer, not in the Org buffer.  Use
+                `org-agenda-with-point-at-orig-entry' if you need to
+                move point to entry's position in Org buffer.
 
-All specifiers work basically like the standard `%s' of printf, but may
-contain two additional characters: a question mark just after the `%'
-and a whitespace/punctuation character just before the final letter.
+All specifiers work basically like the standard `%s' of `format', but
+may contain two additional characters: a question mark just after the
+`%' and a whitespace/punctuation character just before the final letter.
 
 If the first character after `%' is a question mark, the entire field
 will only be included if the corresponding value applies to the current
