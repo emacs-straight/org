@@ -189,13 +189,13 @@ File: orgguide.info,  Node: Document Structure,  Next: Tables,  Prev: Introducti
 ********************
 
 Org is an outliner.  Outlines allow a document to be organized in a
-hierarchical structure, which, least for me, is the best representation
-of notes and thoughts.  An overview of this structure is achieved by
-folding, i.e., hiding large parts of the document to show only the
-general document structure and the parts currently being worked on.  Org
-greatly simplifies the use of outlines by compressing the entire show
-and hide functionalities into a single command, ‘org-cycle’, which is
-bound to the ‘<TAB>’ key.
+hierarchical structure, which, at least for me, is the best
+representation of notes and thoughts.  An overview of this structure is
+achieved by folding, i.e., hiding large parts of the document to show
+only the general document structure and the parts currently being worked
+on.  Org greatly simplifies the use of outlines by compressing the
+entire show and hide functionalities into a single command, ‘org-cycle’,
+which is bound to the ‘<TAB>’ key.
 
 * Menu:
 
@@ -615,7 +615,7 @@ colon.  Here are some examples:
    File links can contain additional information to make Emacs jump to a
 particular location in the file when following a link.  This can be a
 line number or a search option after a double colon.  Here are a few
-examples,, together with an explanation:
+examples, together with an explanation:
 
 ‘file:~/code/main.c::255’            Find line 255
 ‘file:~/xx.org::My Target’           Find ‘<<My Target>>’
@@ -777,7 +777,7 @@ To record a timestamp and a note when changing a TODO state, call the
 command ‘org-todo’ with a prefix argument.
 
 ‘C-u C-c C-t’ (‘org-todo’)
-     Prompt for a note and record a the time of the TODO state change.
+     Prompt for a note and record the time of the TODO state change.
 
    Org mode can also automatically record a timestamp and optionally a
 note when you mark a TODO item as DONE, or even each time you change the
@@ -1005,9 +1005,9 @@ or, if tags in the group should be mutually exclusive:
 
      #+TAGS: { Context : @Home @Work }
 
-   When you search for a group tag, it return matches for all members in
-the group and its subgroups.  In an agenda view, filtering by a group
-tag displays or hide headlines tagged with at least one of the members
+   When you search for a group tag, it returns matches for all members
+in the group and its subgroups.  In an agenda view, filtering by a group
+tag displays or hides headlines tagged with at least one of the members
 of the group or any of its subgroups.
 
    If you want to ignore group tags temporarily, toggle group tags
@@ -2546,27 +2546,27 @@ Ref: Installation6301
 Ref: Activation7013
 Ref: Feedback7456
 Node: Document Structure7713
-Node: Headlines8784
-Ref: Headlines-Footnote-19682
-Node: Visibility Cycling9805
-Node: Motion11200
-Node: Structure Editing11794
-Ref: Structure Editing-Footnote-113230
-Node: Sparse Trees13334
-Ref: Sparse Trees-Footnote-114444
-Node: Plain Lists14564
-Node: Tables17356
-Ref: Creation and conversion19049
-Ref: Re-aligning and field motion19649
-Ref: Column and row editing20412
-Node: Hyperlinks21763
-Ref: Internal links22521
-Ref: External Links22974
-Ref: Handling Links24804
-Node: TODO Items26294
-Node: TODO Basics27271
-Node: Multi-state Workflow28804
-Node: Progress Logging30594
+Node: Headlines8787
+Ref: Headlines-Footnote-19685
+Node: Visibility Cycling9808
+Node: Motion11203
+Node: Structure Editing11797
+Ref: Structure Editing-Footnote-113233
+Node: Sparse Trees13337
+Ref: Sparse Trees-Footnote-114447
+Node: Plain Lists14567
+Node: Tables17359
+Ref: Creation and conversion19052
+Ref: Re-aligning and field motion19652
+Ref: Column and row editing20415
+Node: Hyperlinks21766
+Ref: Internal links22524
+Ref: External Links22977
+Ref: Handling Links24806
+Node: TODO Items26296
+Node: TODO Basics27273
+Node: Multi-state Workflow28806
+Node: Progress Logging30596
 Ref: Closing items31358
 Ref: Tracking TODO state changes31913
 Ref: Progress Logging-Footnote-132912
@@ -2578,67 +2578,67 @@ Node: Tags35920
 Ref: Tag inheritance36563
 Ref: Setting tags37301
 Ref: Tag groups39079
-Ref: Tag searches39871
-Ref: Tags-Footnote-140951
-Node: Properties41055
-Node: Dates and Times42867
-Node: Timestamps43908
-Node: Creating Timestamps46662
-Node: Deadlines and Scheduling48507
-Ref: Deadlines and Scheduling-Footnote-150571
-Ref: Deadlines and Scheduling-Footnote-250732
-Node: Clocking Work Time50895
-Node: Capture, Refile, Archive52330
-Node: Capture53142
-Ref: Setting up capture53448
-Ref: Using capture53719
-Ref: Capture templates54415
-Ref: Capture-Footnote-155848
-Ref: Capture-Footnote-255959
-Node: Refile and Copy56050
-Node: Archiving57364
-Node: Agenda Views58744
-Node: Agenda Files60203
-Node: Agenda Dispatcher60951
-Node: Built-in Agenda Views61873
-Node: Global TODO List62986
-Node: Matching Tags and Properties63747
-Node: Search View65777
-Node: Agenda Commands66887
-Ref: Motion (1)67486
-Ref: View/Go to Org file67689
-Ref: Change display68127
-Ref: Remote editing69498
-Ref: Quit and exit71086
-Node: Custom Agenda Views71340
-Node: Markup72816
-Node: Paragraphs73642
-Node: Emphasis and Monospace74764
-Node: Embedded LaTeX75182
-Node: Literal examples76051
-Node: Images77141
-Node: Creating Footnotes77742
-Node: Exporting78716
-Node: The Export Dispatcher79592
-Node: Export Settings80148
-Node: Table of Contents80973
-Node: Include Files81706
-Node: Comment Lines82392
-Node: ASCII/UTF-8 Export83117
-Node: HTML Export83851
-Node: LaTeX Export84889
-Node: iCalendar Export86632
-Node: Publishing87409
-Node: Working with Source Code89140
-Ref: Using header arguments90407
-Ref: Evaluating code blocks91582
-Ref: Results of evaluation92471
-Ref: Exporting code blocks93691
-Ref: Extracting source code94155
-Node: Miscellaneous94690
-Ref: Completion94813
-Ref: Structure Templates95150
-Ref: Clean view95514
+Ref: Tag searches39873
+Ref: Tags-Footnote-140953
+Node: Properties41057
+Node: Dates and Times42869
+Node: Timestamps43910
+Node: Creating Timestamps46664
+Node: Deadlines and Scheduling48509
+Ref: Deadlines and Scheduling-Footnote-150573
+Ref: Deadlines and Scheduling-Footnote-250734
+Node: Clocking Work Time50897
+Node: Capture, Refile, Archive52332
+Node: Capture53144
+Ref: Setting up capture53450
+Ref: Using capture53721
+Ref: Capture templates54417
+Ref: Capture-Footnote-155850
+Ref: Capture-Footnote-255961
+Node: Refile and Copy56052
+Node: Archiving57366
+Node: Agenda Views58746
+Node: Agenda Files60205
+Node: Agenda Dispatcher60953
+Node: Built-in Agenda Views61875
+Node: Global TODO List62988
+Node: Matching Tags and Properties63749
+Node: Search View65779
+Node: Agenda Commands66889
+Ref: Motion (1)67488
+Ref: View/Go to Org file67691
+Ref: Change display68129
+Ref: Remote editing69500
+Ref: Quit and exit71088
+Node: Custom Agenda Views71342
+Node: Markup72818
+Node: Paragraphs73644
+Node: Emphasis and Monospace74766
+Node: Embedded LaTeX75184
+Node: Literal examples76053
+Node: Images77143
+Node: Creating Footnotes77744
+Node: Exporting78718
+Node: The Export Dispatcher79594
+Node: Export Settings80150
+Node: Table of Contents80975
+Node: Include Files81708
+Node: Comment Lines82394
+Node: ASCII/UTF-8 Export83119
+Node: HTML Export83853
+Node: LaTeX Export84891
+Node: iCalendar Export86634
+Node: Publishing87411
+Node: Working with Source Code89142
+Ref: Using header arguments90409
+Ref: Evaluating code blocks91584
+Ref: Results of evaluation92473
+Ref: Exporting code blocks93693
+Ref: Extracting source code94157
+Node: Miscellaneous94692
+Ref: Completion94815
+Ref: Structure Templates95152
+Ref: Clean view95516
 
 End Tag Table
 

@@ -209,7 +209,7 @@ reports@comma{} see the @ref{Top,main manual,,org,}.
 @chapter Document Structure
 
 Org is an outliner.  Outlines allow a document to be organized in
-a hierarchical structure@comma{} which@comma{} least for me@comma{} is the best
+a hierarchical structure@comma{} which@comma{} at least for me@comma{} is the best
 representation of notes and thoughts.  An overview of this structure
 is achieved by folding@comma{} i.e.@comma{} hiding large parts of the document to
 show only the general document structure and the parts currently being
@@ -663,7 +663,7 @@ the colon.  Here are some examples:
 File links can contain additional information to make Emacs jump to
 a particular location in the file when following a link. This can be
 a line number or a search option after a double colon. Here are a few
-examples@comma{}@comma{} together with an explanation:
+examples@comma{} together with an explanation:
 
 @multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @samp{file:~/code/main.c::255}
@@ -835,7 +835,7 @@ command @code{org-todo} with a prefix argument.
 
 @table @asis
 @item @kbd{C-u C-c C-t} (@code{org-todo})
-Prompt for a note and record a the time of the TODO state change.
+Prompt for a note and record the time of the TODO state change.
 @end table
 
 Org mode can also automatically record a timestamp and optionally a
@@ -1087,9 +1087,9 @@ or@comma{} if tags in the group should be mutually exclusive:
 #+TAGS: @{ Context : @@Home @@Work @}
 @end example
 
-When you search for a group tag@comma{} it return matches for all members in
+When you search for a group tag@comma{} it returns matches for all members in
 the group and its subgroups.  In an agenda view@comma{} filtering by a group
-tag displays or hide headlines tagged with at least one of the members
+tag displays or hides headlines tagged with at least one of the members
 of the group or any of its subgroups.
 
 If you want to ignore group tags temporarily@comma{} toggle group tags
