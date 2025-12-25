@@ -2754,9 +2754,12 @@ there number strings are already interpreted as numbers without @samp{N}.
 Literal@comma{} for Lisp formulas only.  See the next section.
 @end table
 
-You may also provide a @code{format} specifier to reformat the Calc result
-after it has been passed back to Org instead of letting Calc handle
-the formatting.  A few examples:
+You may also provide a @code{format} specifier (similar to @code{printf})@footnote{@code{format} is similar to @code{printf} in @code{C} and other languages@comma{} but
+can handle arbitrary-precision integers and other Elisp objects.
+Consult @ref{Formatting Strings,,,elisp,} and the docstring of
+@code{format} for details.}
+to reformat the Calc result after it has been passed back to Org
+instead of letting Calc handle the formatting.  A few examples:
 
 @multitable {aaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @samp{$1+$2}
@@ -2833,8 +2836,11 @@ A formula is evaluated as a Lisp form when it starts with a
 single-quote followed by an opening parenthesis.  Cell table
 references are interpolated into the Lisp form before execution.  The
 evaluation should return either a string or a number.  Evaluation
-modes and a @code{format} string used to render the returned values can be
-specified after a semicolon.
+modes and a @code{format} string (similar to @code{printf})@footnote{@code{format} is similar to @code{printf} in @code{C} and other languages@comma{} but
+can handle arbitrary-precision integers and other Elisp objects.
+Consult @ref{Formatting Strings,,,elisp,} and the docstring of
+@code{format} for details.} used to render
+the returned values can be specified after a semicolon.
 
 By default@comma{} references are interpolated as literal Lisp strings: the
 field content is replaced in the Lisp form stripped of leading and
@@ -3646,9 +3652,9 @@ links to other files@comma{} Usenet articles@comma{} emails@comma{} and much mor
 @cindex plain links
 Org recognizes plain URIs@comma{} possibly wrapped within angle
 brackets@footnote{Plain URIs are recognized only for a well-defined set of
-schemes.  See @ref{External Links}.  Unlike URI syntax@comma{} they cannot
-contain parenthesis or white spaces@comma{} either.  URIs within angle
-brackets have no such limitation.}@comma{} and activate them as clickable links.
+schemes.  See @ref{External Links}.  Unlike URI syntax@comma{} they cannot contain
+parenthesis or white spaces@comma{} either.  URIs within angle brackets have
+no such limitation.}@comma{} and activate them as clickable links.
 
 @cindex bracket links
 The general link format@comma{} however@comma{} looks like this:
@@ -12663,7 +12669,7 @@ text.  Markers always start with @samp{fn:}.  For example:
 @example
 The Org website[fn:1] now looks a lot better than it used to.
 ...
-[fn:49] The link is: https://orgmode.org
+[fn:50] The link is: https://orgmode.org
 @end example
 
 Org mode extends the number-based syntax to @emph{named} footnotes and
@@ -14385,6 +14391,11 @@ following lines before the table in the Org file:
 #+CAPTION: This is a table with lines around and between cells
 #+ATTR_HTML: :border 2 :rules all :frame border
 @end example
+
+Note that table attributes are deprecated in HTML5 in favor of CSS@.
+When the doctype is set to HTML5 (see @ref{HTML doctypes})@comma{} Org ignores
+@code{org-html-table-default-attributes}.  @samp{#+ATTR_HTML:} is still
+respected@comma{} but not recommended.
 
 The HTML export backend preserves column groupings in Org tables (see
 @ref{Column Groups}) when exporting to HTML@.

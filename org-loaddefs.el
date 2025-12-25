@@ -507,7 +507,7 @@ ARG is the prefix argument received when calling interactively the function.
 
 ;;; Generated autoloads from oc-bibtex.el
 
-(register-definition-prefixes "oc-bibtex" '("org-cite-bibtex-export-"))
+(register-definition-prefixes "oc-bibtex" '("org-cite-bibtex-"))
 
 
 ;;; Generated autoloads from oc-csl.el
