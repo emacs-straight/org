@@ -8943,12 +8943,13 @@ given here:
 Insert the contents of the file given by @var{FILE}.
 
 @item @samp{%(EXP)}
-Evaluate Elisp expression @var{EXP} and replace it with the
-result.  The @var{EXP} form must return a string.  Only
-placeholders pre-existing within the template@comma{} or introduced with
-@samp{%[file]}@comma{} are expanded this way.  Since this happens after
-expanding non-interactive ``%-escapes''@comma{} those can be used to fill the
+Evaluate Elisp expression @code{(EXP)} and replace it with the result.
+The @code{(EXP)} form must return a string.  Only placeholders
+pre-existing within the template@comma{} or introduced with @samp{%[file]}@comma{} are
+expanded this way.  Since this happens after expanding
+non-interactive ``%-escapes''@comma{} those can be used to fill the
 expression.
+Examples: @samp{%(org-id-new)}@comma{} @samp{%(eval default-directory)}
 
 @item @samp{%<FORMAT>}
 The result of format-time-string on the @var{FORMAT}
@@ -14850,7 +14851,7 @@ any buffer.
 @end table
 
 @vindex org-latex-compiler
-@vindex org-latex-bibtex-compiler
+@vindex org-latex-bib-compiler
 @vindex org-latex-default-packages-alist
 @cindex pdflatex
 @cindex xelatex
@@ -14863,7 +14864,7 @@ files with different compilers@comma{} packages@comma{} and output options.  The
 @code{org-latex-compiler} variable or the @samp{#+LATEX_COMPILER} keyword in the
 Org file.  See the docstring for the
 @code{org-latex-default-packages-alist} for loading packages with certain
-compilers.  Also see @code{org-latex-bibtex-compiler} to set the
+compilers.  Also see @code{org-latex-bib-compiler} to set the
 bibliography compiler@footnote{This does not allow setting different bibliography compilers
 for different files.  However@comma{} ``smart'' @LaTeX{} compilation systems@comma{} such
 as latexmk@comma{} can select the correct bibliography compiler.}.
