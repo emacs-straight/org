@@ -13,7 +13,7 @@
 @c %**end of header
 
 @copying
-Copyright @copyright{} 2004--2025  Free Software Foundation@comma{} Inc.
+Copyright @copyright{} 2004--2026  Free Software Foundation@comma{} Inc.
 
 @quotation
 Permission is granted to copy@comma{} distribute and/or modify this document
