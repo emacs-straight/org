@@ -1325,9 +1325,6 @@ each headline in the time range with point at the headline.  Headlines for
 which HEADLINE-FILTER returns nil are excluded from the clock summation.
 PROPNAME lets you set a custom text property instead of :org-clock-minutes.
 
-Clocking entries that are open (as in don't have an end time) that are
-not the current clocking entry will be ignored.
-
 (fn &optional TSTART TEND HEADLINE-FILTER PROPNAME)")
 (autoload 'org-clock-display "org-clock" "\
 Show subtree times in the entire buffer.
@@ -2743,9 +2740,10 @@ extension of the given file name, and finally on the variable
 (autoload 'org-table--align-field "org-table" "\
 Format FIELD according to column WIDTH and alignment ALIGN.
 FIELD is a string.  WIDTH is a number.  ALIGN is either \"c\",
-\"l\" or\"r\".
+\"l\" or\"r\".  If FIELD-WIDTH is non-nil, then it's used as
+FIELD's width.  Otherwise, it's calculated.
 
-(fn FIELD WIDTH ALIGN)")
+(fn FIELD WIDTH ALIGN &optional FIELD-WIDTH)")
 (autoload 'org-table-justify-field-maybe "org-table" "\
 Justify the current field, text to left, number to right.
 Optional argument NEW may specify text to replace the current field content.
