@@ -280,7 +280,7 @@ Shift key@comma{} global cycling is invoked.
 '--------------------------------------'
 @end example
 
-@item @kbd{C-u C-u C-u @key{TAB}} (@code{org-show-all})
+@item @kbd{C-u C-u C-u @key{TAB}} (@code{org-fold-show-all})
 Show all@comma{} including drawers.
 @end table
 

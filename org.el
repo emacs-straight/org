@@ -3081,7 +3081,7 @@ and the clock summary:
                    (let ((clocksum (org-clock-sum-current-item))
                          (effort (org-duration-to-minutes
                                    (org-entry-get (point) \"Effort\"))))
-                     (org-minutes-to-clocksum-string (- effort clocksum))))))"
+                     (org-duration-from-minutes (- effort clocksum))))))"
   :group 'org-properties
   :version "24.1"
   :type '(alist :key-type (string     :tag "Property")
@@ -18683,12 +18683,12 @@ an argument, unconditionally call `org-insert-heading'."
      ["Descriptive Links"
       org-toggle-link-display
       :style radio
-      :selected org-descriptive-links
+      :selected org-link-descriptive
       ]
      ["Literal Links"
       org-toggle-link-display
       :style radio
-      :selected (not org-descriptive-links)])
+      :selected (not org-link-descriptive)])
     "--"
     ("TODO Lists"
      ["TODO/DONE/-" org-todo t]
@@ -19674,7 +19674,7 @@ Also align node properties according to `org-property-format'."
                     (when (not (org-src-preserve-indentation-p element))
                       (org-with-point-at (org-element-property :begin element)
                         (+ (org-current-text-indentation)
-                           org-edit-src-content-indentation)))))
+                           org-src-content-indentation)))))
                ;; Avoid over-indenting when beginning of a new line is not empty.
                ;; https://list.orgmode.org/OMCpuwZ--J-9@phdk.org/
                (org-with-undo-amalgamate

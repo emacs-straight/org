@@ -536,6 +536,8 @@ Counting starts at 1."
 (define-obsolete-function-alias 'org-string-match-p 'string-match-p "9.0")
 
 ;;;; Functions and variables from previous releases now obsolete.
+(define-obsolete-variable-alias 'org-edit-src-content-indentation
+  'org-src-content-indentation "Org 9.8")
 (define-obsolete-variable-alias 'org-export-ignored-local-variables
   'org-element-ignored-local-variables "Org 9.7")
 (define-obsolete-function-alias 'org-habit-get-priority
@@ -1251,7 +1253,7 @@ INCLUDE-LINKED is passed to `org-display-inline-images'."
   (org-fold-show-all '(blocks)))
 
 (make-obsolete 'org-show-block-all
-	       "use `org-show-all' instead."
+	       "use `org-fold-show-all' instead."
 	       "9.2")
 
 (define-obsolete-function-alias 'org-get-tags-at 'org-get-tags "9.2")
@@ -1290,7 +1292,7 @@ When optional argument ELEMENT is a parsed drawer, as returned by
 
 When buffer positions BEG and END are provided, hide or show that
 region as a drawer without further ado."
-  (declare (obsolete "use `org-hide-drawer-toggle' instead." "9.4"))
+  (declare (obsolete "use `org-fold-hide-drawer-toggle' instead." "9.4"))
   (if (and beg end) (org-fold-region beg end flag 'drawer)
     (let ((drawer
 	   (or element
@@ -1313,9 +1315,9 @@ region as a drawer without further ado."
 
 (defun org-hide-block-toggle-maybe ()
   "Toggle visibility of block at point.
-Unlike to `org-hide-block-toggle', this function does not throw
+Unlike to `org-fold-hide-block-toggle', this function does not throw
 an error.  Return a non-nil value when toggling is successful."
-  (declare (obsolete "use `org-hide-block-toggle' instead." "9.4"))
+  (declare (obsolete "use `org-fold-hide-block-toggle' instead." "9.4"))
   (interactive)
   (org-fold-hide-block-toggle nil t))
 
