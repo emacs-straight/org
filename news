@@ -1,0 +1,108 @@
+ORG NEWS -- history of user-visible changes.   -*- mode: org; coding: utf-8 -*-
+
+#+STARTUP: overview
+
+#+LINK: doc https://orgmode.org/worg/doc.html#%s
+#+LINK: msg https://list.orgmode.org/%s/
+#+LINK: git https://git.savannah.gnu.org/cgit/emacs/org-mode.git/commit/?id=%s
+
+Copyright (C) 2012-2026 Free Software Foundation, Inc.
+See the end of the file for license conditions.
+
+Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
+
+* Version 9.8 (not released yet)
+** Important announcements and breaking changes
+
+# Here, we list the *most important* changes and changes that _likely_
+# require user action for most Org mode users.
+# Sorted from most important to least important.
+
+*** ~org-babel-lob-ingest~ no longer performs noweb expansion when ingesting blocks
+
+Previously, ~org-babel-lob-ingest~ would expand noweb references when
+adding source blocks to the Library of Babel.  Now, blocks are stored
+with unexpanded noweb references.
+
+Noweb expansion is handled appropriately when blocks are actually used
+via ~org-babel-execute-src-block~ or ~org-babel-exp-do-export~, with
+the correct context (~:tangle~, ~:export~, or ~:eval~).
+
+This change is unlikely to affect most users, but code that directly
+accesses ~org-babel-library-of-babel~ may observe the difference.
+
+*** ~org-store-link~ no longer asks to select store function when called noninteractively
+
+Previously, when multiple store functions are available to store link
+at point, ~org-store-link~ would aslways ask user which store function
+to use.
+
+Now, when ~org-store-link~ is called noninteractively (~interactive?~
+argument is nil), the first matching store function is used.
+Interactively, the previous behaviour is retained.
+
+*** You may need to update =org-protocol= bookmarklets for browsers
+
+In Firefox-133, and Firefox-128.5 ESR the previously suggested
+javascript bookmarklets replace current page with bookmarklet URL
+text.  We have updated the manual with new bookmarklets that do not
+have such problem.
+
+The new bookmarklets have ~void(0);~ appended at the end, so that they
+do not return anything.
+
+Example:
+
+#+begin_example
+javascript:location.href='org-protocol://store-link?url='+
+      encodeURIComponent(location.href);void(0);
+#+end_example
+
+*** =C-c C-x C-v= command toggling inline image display has been reworked
+
+Previously, =C-c C-x C-v= always toggled image display in the whole
+buffer (or narrowed part of the buffer).  With prefix argument, it
+also forced displaying image links with description.
+
+Now, =C-c C-x C-v= is bound to a new command ~org-link-preview~, which
+uses different defaults:
+
+1. When the region is active, images in the region are previewed
+
+2. Otherwise, if there is an image at point, it is toggled.  If there
+   is no image at point, images in the current entry are previewed
+
+3. With the =C-u= argument, image previews in the active region or at
+   point are cleared instead
+
+4. The =C-u C-u= argument unconditionally shows all images in the
+   accessible portion of the buffer
+
+5. The =C-u C-u C-u= argument unconditionally clears all images in the
+   accessible portion of the buffer
+
+6. Displaying images over links with description can be forced using
+   numeric argument:
+   - ~C-u 1~ for toggling all images at point/current entry
+   - ~C-u 11~ for toggling all images in buffer
+
+(The first five of these prefix arg behaviors are the same as that of
+the ~org-latex-preview~ command.)
+
+In addition to images, ~org-link-preview~ can also be used to preview
+Org links of all types for which preview behavior is defined, see
+[[#link-preview][previews for arbitrary link types]].
+
+The old ~org-toggle-inline-images~ command is obsolete but still
+available.  You can bind it back to =C-c C-x C-v= by adding the
+following to your config:
+#+begin_src emacs-lisp
+(eval-after-load 'org-keys
+  (org-defkey org-mode-map (kbd "C-c C-x C-v") #'org-toggle-inline-images))
+#+end_src
+
+*** Org mode may throw an error when attempting to include remote unsafe resource noninteractively
+
+Previously, when ~org-resource-download-policy~ is ~ask~ (default),
+...
+...

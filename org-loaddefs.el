@@ -345,6 +345,12 @@ remote variable references; a process which could likely result
 in the execution of other code blocks, and do not evaluate Lisp
 values in parameters.
 
+The evaluation happens in the context of DATUM (babel call or inline
+babel call) for its local arguments, while evaluation of the references
+code block happens in the context (with point at) of that block.
+`org-babel-current-src-block-location' is bound to DATUM position
+during evaluation.
+
 Return nil when not on an appropriate location.  Otherwise return
 a list compatible with `org-babel-get-src-block-info', which
 see.
