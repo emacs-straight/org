@@ -561,7 +561,7 @@ As an authoring tool@comma{} Org helps you write structured documents and
 provides exporting facilities.  Org files can also be used for literate
 programming and reproducible research.  As a TODO lists manager@comma{} Org
 helps you organize your tasks in a flexible way@comma{} from daily needs to
-detailed project-planning@comma{} allowing logging@comma{} multiple views on your
+detailed project planning@comma{} allowing logging@comma{} multiple views of your
 tasks@comma{} exporting your agendas@comma{} etc.
 
 Org mode is implemented on top of Outline mode@comma{} which makes it
@@ -573,13 +573,13 @@ entries@comma{} and any files related to the projects.
 
 Org develops organizational tasks around notes files that contain
 lists or information about projects as plain text.  Project planning
-and task management make use of metadata which is part of an outline
+and task management make use of metadata@comma{} which is part of an outline
 node.  Based on this data@comma{} specific entries can be extracted in
-queries and create dynamic @emph{agenda views} that also integrate the Emacs
+queries to create dynamic @emph{agenda views} that also integrate the Emacs
 calendar and diary.  Org can be used to implement many different
 project planning schemes@comma{} such as David Allen's GTD system.
 
-Org files can serve as a single source authoring system with export to
+Org files can serve as a single-source authoring system with export to
 many different formats such as HTML@comma{} @LaTeX{}@comma{} Open Document@comma{} and
 Markdown.  New export backends can be derived from existing ones@comma{} or
 defined from scratch.
@@ -591,7 +591,7 @@ place and their results can be captured in the file.  This makes it
 possible to create a single file reproducible research compendium.
 
 Org keeps simple things simple.  When first fired up@comma{} it should feel
-like a straightforward@comma{} easy to use outliner.  Complexity is not
+like a straightforward@comma{} easy-to-use outliner.  Complexity is not
 imposed@comma{} but a large amount of functionality is available when needed.
 Org is a toolbox.  Many users actually run only a---very
 personal---fraction of Org's capabilities@comma{} and know that there is more
@@ -610,20 +610,21 @@ of Org@comma{} as well as additional information@comma{} frequently asked questi
 
 @cindex print edition
 An earlier version (7.3) of this manual was available as a paperback
-book from the Network Theory Ltd. publishing company@comma{} closed in 2009.
+book from the Network Theory Ltd. publishing company@comma{} which closed
+in 2009.
 
 @node Installation
 @section Installation
 
 @cindex installation
 
-Org is included in distributions of GNU Emacs@comma{} you probably do not
+Org is included in distributions of GNU Emacs@comma{} so you probably do not
 need to install it.  Most users will simply activate Org and begin
 exploring its features.
 
-If@comma{} for one reason or another@comma{} you want to install Org on top of this
+If@comma{} for one reason or another@comma{} you want to install Org on top of the
 pre-packaged version@comma{} you can use the Emacs package system or clone
-Org's git repository.  We @strong{strongly recommend} sticking to a single
+Org's Git repository.  We @strong{strongly recommend} sticking to a single
 installation method.
 
 When installing Org on top of the pre-packaged version@comma{} please note
@@ -643,20 +644,20 @@ with @kbd{M-x list-packages}.  See @ref{Package Menu,Package Menu,,emacs,}.
 
 @quotation Important
 You need to do this in a session where no @samp{.org} file has been
-visited@comma{} i.e.@comma{} where no Org built-in function have been loaded.
-Otherwise@comma{} autoload Org functions will mess up the installation.
+visited@comma{} i.e.@comma{} where no Org built-in functions have been loaded.
+Otherwise@comma{} autoloaded Org functions will mess up the installation.
 
 @end quotation
 
-To avoid interference with built-in Org mode@comma{} you can use command line
-(you need Emacs 30 or later):
+To avoid interference with the built-in Org mode@comma{} you can use the
+command line (you need Emacs 30 or later):
 
 @example
 emacs -Q -batch -eval "(progn (require 'package) (package-initialize) (package-refresh-contents) (package-upgrade 'org))"
 @end example
 
 This approach has the advantage of isolating the upgrade process from
-a running Emacs session@comma{} ensuring that version conflicts can not
+a running Emacs session@comma{} ensuring that version conflicts cannot
 arise.
 
 @anchor{Using Org's git repository}
@@ -694,14 +695,15 @@ Org Build System page on @uref{https://orgmode.org/worg/dev/org-build-system.htm
 @anchor{Installing Org's contributed packages}
 @subheading Installing Org's contributed packages
 
-Org's repository used to contain @samp{contrib/} directory for add-ons
+Org's repository used to contain the @samp{contrib/} directory for add-ons
 contributed by others.  As of Org 9.5@comma{} the directory has been moved to
 the dedicated org-contrib @uref{https://git.sr.ht/~bzg/org-contrib, repository}@comma{} which you can install
 separately as a @uref{https://elpa.nongnu.org/nongnu/org-contrib.html, package} from NonGNU ELPA@.
 
-There are enough valuable packages maintained outside the Org repository.
-Worg has a list of @uref{https://orgmode.org/worg/org-contrib/index.html, org-contrib and external packages}@comma{} certainly it is not
-exhaustive.
+There are many valuable packages maintained outside the Org
+repository.  Worg has a list of
+@uref{https://orgmode.org/worg/org-contrib/index.html, org-contrib and
+external packages}; it is certainly not exhaustive.
 
 @node Activation
 @section Activation
@@ -713,8 +715,8 @@ exhaustive.
 @cindex key bindings, global
 
 Org mode buffers need Font Lock to be turned on: this is the default
-in Emacs@footnote{ If you do not use Font Lock globally turn it on in Org
-buffer with @samp{(add-hook 'org-mode-hook #'turn-on-font-lock)}.}.
+in Emacs@footnote{ If you do not use Font Lock globally@comma{} turn it on in an
+Org buffer with @samp{(add-hook 'org-mode-hook #'turn-on-font-lock)}.}.
 
 There are compatibility issues between Org mode and some other Elisp
 packages (see @ref{Conflicts}).  Please take the
@@ -774,13 +776,13 @@ ideas about it@comma{} please send an email to the Org mailing list
 @email{mailto:emacs-orgmode@@gnu.org}.  You can subscribe to the list
 @uref{https://lists.gnu.org/mailman/listinfo/emacs-orgmode, from this web
 page}.  If you are not a member of the mailing list@comma{} your mail will
-be passed to the list after a moderator has approved it@footnote{ Please
+be passed to the list after a moderator approves it@footnote{ Please
 consider subscribing to the mailing list in order to minimize the work
 the mailing list moderators have to do.}.  We ask you to read and
 respect the
 @uref{https://www.gnu.org/philosophy/kind-communication.html, GNU Kind
 Communications Guidelines} when sending messages on this mailing
-list.  Please allow up to one month for the response and follow up if
+list.  Please allow up to one month for a response and follow up if
 no response is received on the bug report.
 
 @findex org-version
@@ -790,7 +792,7 @@ version of Org available---if you are running an outdated version@comma{} it
 is quite possible that the bug has been fixed already.  If the bug
 persists@comma{} prepare a report and provide as much information as
 possible@comma{} including the version information of Emacs (@kbd{M-x emacs-version}) and Org (@kbd{M-x org-version})@comma{} as well as
-the Org related setup in the Emacs init file.  The easiest way to do
+the Org-related setup in the Emacs init file.  The easiest way to do
 this is to use the command
 
 @example
@@ -799,15 +801,15 @@ M-x org-submit-bug-report <RET>
 
 @noindent
 which puts all this information into an Emacs mail buffer so that you
-only need to add your description.  If you are not sending the Email
-from within Emacs@comma{} please copy and paste the content into your Email
+only need to add your description.  If you are not sending the email
+from within Emacs@comma{} please copy and paste the content into your email
 program.
 
 Sometimes you might face a problem due to an error in your Emacs or
 Org mode setup.  Before reporting a bug@comma{} it is very helpful to start
-Emacs with minimal customizations and reproduce the problem.  Doing so
-often helps you determine if the problem is with your customization or
-with Org mode itself.  You can start a typical minimal session with
+Emacs with minimal customizations and to reproduce the problem.  Doing
+so often helps you determine if the problem is with your customization
+or with Org mode itself.  You can start a typical minimal session with
 a command like the example below.
 
 @example
@@ -831,8 +833,8 @@ shown below.
 (add-to-list 'load-path (expand-file-name "/path/to/org-mode/lisp"))
 @end lisp
 
-If you are using Org mode version from Git repository@comma{} you can start
-minimal session using make.
+If you are using Org mode version from the Git repository@comma{} you can
+start a minimal session using @samp{make}.
 
 @example
 # Bare Emacs
@@ -861,7 +863,7 @@ What happened instead?
 @cindex laggy
 @cindex not responsive
 If you experience degraded performance@comma{} you can record a ``profile'' and
-share it on the Org mailing list.  See below for the instructions how
+share it on the Org mailing list.  See below for instructions on how
 to record a useful profile.
 
 Thank you for helping to improve this program.
@@ -912,14 +914,14 @@ screen.  Save this buffer to a file---for example using @kbd{C-x C-w}---and atta
 @subheading How to profile Org performance
 
 @cindex profiler
-Sometimes@comma{} Org is becoming slow for no apparent reason.  Such slowdown
+Sometimes@comma{} Org becomes slow for no apparent reason.  Such slowdown
 is often caused by interaction between third-party packages and Org
 mode.  However@comma{} identifying the root cause is not always straightforward.
 
 Emacs is able to record performance statistics@comma{} which can then be used
-to find out which functions are taking most of the time to execute.
-To record the statistics@comma{} one can use so-called profiler.  To use the
-Emacs profiler@comma{} we recommend the following steps:
+to find out which functions are taking the most time to execute.  To
+record the statistics@comma{} one can use a profiler.  To use the Emacs
+profiler@comma{} we recommend the following steps:
 
 @enumerate
 @item
@@ -948,17 +950,17 @@ M-x profiler-report <RET>
 
 This command will display a summary of the commands and functions
 that have been executed between @code{profiler-start} and
-@code{profiler-report} invocations@comma{} with command taking most of the time
-displayed on top.
+@code{profiler-report} invocations@comma{} with the command taking the most
+time displayed on top.
 
 @samp{<TAB>} key can be used to fold and unfold lines in the profiler
 buffer.  The child items revealed upon unfolding are the functions
 and commands called by the unfolded parent.
 
-The root causes are often buried deep inside sub-children items in
+The root causes are often buried deep inside child items in
 the profiler.  You can press @samp{B} (@code{profiler-report-render-reversed-calltree})
-to quickly reveal the actual function/command that takes most of
-the time to run.
+to quickly reveal the actual function/command that takes the most
+time to run.
 
 Pressing @samp{C} @code{profiler-report-render-calltree} will recover the
 original view.
@@ -974,8 +976,8 @@ M-x profiler-report-write-profile <RET>
 @end example
 
 Then@comma{} you can attach the saved file to your email to the Org
-mailing list@comma{} alongside with details about what you did to trigger
-the slowdown.
+mailing list@comma{} along with details about what you did to trigger the
+slowdown.
 
 Note that the saved statistics will only contain the function names
 and how long their execution takes.  No private data will be
@@ -1015,7 +1017,7 @@ readability@comma{} but you can use lowercase in your Org files.
 @subheading Key bindings and commands
 
 The manual lists both the keys and the corresponding commands for
-accessing a functionality.  Org mode often uses the same key for
+accessing functionality.  Org mode often uses the same key for
 different functions@comma{} depending on context.  The command that is bound
 to such keys has a generic name@comma{} like @code{org-metaright}.  In the manual
 we will@comma{} wherever possible@comma{} give the function that is internally
@@ -1035,8 +1037,8 @@ representation of notes and thoughts.  An overview of this structure
 is achieved by folding@comma{} i.e.@comma{} hiding large parts of the document to
 show only the general document structure and the parts currently being
 worked on.  Org greatly simplifies the use of outlines by compressing
-the entire show and hide functionalities into a single command@comma{}
-@code{org-cycle}@comma{} which is bound to the @kbd{@key{TAB}} key.
+the show and hide functionalities into a single command@comma{} @code{org-cycle}@comma{}
+which is bound to the @kbd{@key{TAB}} key.
 
 @menu
 * Headlines::                    How to typeset Org tree headlines.
@@ -1081,8 +1083,8 @@ The name defined in @code{org-footnote-section} is reserved.  Do not use it
 as a title for your own headings.
 
 Some people find the many stars too noisy and would prefer an outline
-that has whitespace followed by a single star as headline starters.
-This can be achieved using an Org Indent minor mode.  See @ref{Clean View} for more information.
+that has whitespace followed by a single star as headline markers.
+This can be achieved using the Org Indent minor mode.  See @ref{Clean View} for more information.
 
 Headlines are not numbered.  However@comma{} you may want to dynamically
 number some@comma{} or all@comma{} of them.  See @ref{Dynamic Headline Numbering}.
@@ -1267,7 +1269,7 @@ individual entries.
 @vindex org-fold-catch-invisible-edits
 @vindex org-fold-catch-invisible-edits-commands
 Sometimes you may inadvertently edit an invisible part of the buffer
-and be confused on what has been edited and how to undo the mistake.
+and be confused about what has been edited and how to undo the mistake.
 By default@comma{} Org prevents such edits for a limited set of user
 commands.  Users can control which commands are affected by
 customizing @code{org-fold-catch-invisible-edits-commands}.
@@ -1332,7 +1334,7 @@ where you can use the following keys to find your destination:
 @end multitable
 
 @noindent
-The following keys work if you turn off @code{org-goto-auto-isearch}
+The following keys work if you turn off @code{org-goto-auto-isearch}.
 
 @multitable @columnfractions 0.3 0.7
 @item @kbd{n} / @kbd{p}
@@ -1456,7 +1458,7 @@ Move subtree down@comma{} i.e.@comma{} swap with next subtree of same level.
 @item @kbd{C-c @@} (@code{org-mark-subtree})
 @kindex C-c @@
 @findex org-mark-subtree
-Mark the subtree at point.  Hitting repeatedly marks subsequent
+Mark the subtree at point.  Hitting it repeatedly marks subsequent
 subtrees of the same level as the marked subtree.
 
 @item @kbd{C-c C-x C-w} (@code{org-cut-subtree})
@@ -1591,7 +1593,7 @@ command.
 Prompts for a regexp (see @ref{Regular Expressions}) and shows a
 sparse tree with all matches.  If the match is in a headline@comma{} the
 headline is made visible.  If the match is in the body of an entry@comma{}
-headline and body are made visible.  In order to provide minimal
+the headline and body are made visible.  In order to provide minimal
 context@comma{} also the full hierarchy of headlines above the match is
 shown@comma{} as well as the headline following the match.  Each match is
 also highlighted; the highlights disappear when the buffer is
@@ -1684,19 +1686,19 @@ enforce a particular numbering.
 @item
 @emph{Description} list items are unordered list items@comma{} and contain the
 separator @samp{::} to distinguish the description @emph{term} from the
-description.
+description text.
 @end itemize
 
 Items belonging to the same list must have the same indentation on the
 first line.  In particular@comma{} if an ordered list reaches number @samp{10.}@comma{}
 then the 2-digit numbers must be written left-aligned with the other
-numbers in the list.  An item ends before the next line that is less
-or equally indented than its bullet/number.
+numbers in the list.  An item ends before the next line that has an
+indentation less than or equal to its bullet/number.
 
 A list ends whenever every item has ended@comma{} which means before any line
-less or equally indented than items at top level.  It also ends before
-two blank lines.  In that case@comma{} all items are closed.  Here is an
-example:
+with an indentation less than or equal to that of the top-level items.
+It also ends before two blank lines.  In that case@comma{} all items are
+closed.  Here is an example:
 
 @example
 * Lord of the Rings
@@ -1727,7 +1729,7 @@ indented to signal that they belong to a particular item.
 If you find that using a different bullet for a sub-list---than that
 used for the current list-level---improves readability@comma{} customize the
 variable @code{org-list-demote-modify-bullet}.  To get a greater difference
-of indentation between items and theirs sub-items@comma{} customize
+of indentation between items and their sub-items@comma{} customize
 @code{org-list-indent-offset}.
 
 @vindex org-list-automatic-rules
@@ -1765,7 +1767,7 @@ new heading (see @ref{Structure Editing}).  If this command is used
 in the middle of an item@comma{} that item is @emph{split} in two@comma{} and the
 second part becomes the new item@footnote{ If you do not want the item to
 be split@comma{} customize the variable @code{org-M-RET-may-split-line}.}.  If
-this command is executed @emph{before item's body}@comma{} the new item is
+this command is executed @emph{before the item's body}@comma{} the new item is
 created @emph{before} the current one.
 
 @item @kbd{M-S-@key{RET}}
@@ -1849,8 +1851,8 @@ keywords when unchecked@comma{} respectively checked.
 @vindex org-support-shift-select
 @kindex S-LEFT
 @kindex S-RIGHT
-This command also cycles bullet styles when point is in on the
-bullet or anywhere in an item line@comma{} details depending on
+This command also cycles bullet styles when point is on the bullet
+or anywhere in an item line@comma{} details depending on
 @code{org-support-shift-select}.
 
 @item @kbd{C-c ^}
@@ -1867,7 +1869,7 @@ alphabetically@comma{} by time@comma{} or by custom function.
 @cindex visibility cycling, drawers
 
 Sometimes you want to keep information associated with an entry@comma{} but
-you normally do not want to see it.  For this@comma{} Org mode has @emph{drawers}.
+you do not normally want to see it.  For this@comma{} Org mode has @emph{drawers}.
 They can contain anything but a headline and another drawer.  Drawers
 look like this:
 
@@ -1896,7 +1898,7 @@ Completion over drawer keywords is also possible using
 Use @kbd{C-M-i} or @kbd{@key{ESC} @key{TAB}} instead.}.
 
 Visibility cycling (see @ref{Visibility Cycling}) on the headline hides and
-shows the entry@comma{} but keep the drawer collapsed to a single line.  In
+shows the entry@comma{} but keeps the drawer collapsed to a single line.  In
 order to look inside the drawer@comma{} you need to move point to the drawer
 line and press @kbd{@key{TAB}} there.
 
@@ -1973,7 +1975,7 @@ header lines.  A table might look like this:
 @end example
 
 A table is re-aligned automatically each time you press
-@kbd{@key{TAB}}@comma{} @kbd{@key{RET}} or @kbd{C-c C-c} inside the table.
+@kbd{@key{TAB}}@comma{} @kbd{@key{RET}}@comma{} or @kbd{C-c C-c} inside the table.
 @kbd{@key{TAB}} also moves to the next field---@kbd{@key{RET}} to the
 next row---and creates new table rows at the end of the table or
 before horizontal lines.  The indentation of the table is set by the
@@ -2055,13 +2057,13 @@ inserts a new line@comma{} so it can be used to split a table.
 @item @kbd{M-a} (@code{org-table-beginning-of-field})
 @kindex M-a
 @findex org-table-beginning-of-field
-Move to beginning of the current table field@comma{} or on to the previous
+Move to beginning of the current table field@comma{} or onto the previous
 field.
 
 @item @kbd{M-e} (@code{org-table-end-of-field})
 @kindex M-e
 @findex org-table-end-of-field
-Move to end of the current table field@comma{} or on to the next field.
+Move to end of the current table field@comma{} or onto the next field.
 @end table
 
 @anchor{Column and row editing}
@@ -2086,7 +2088,7 @@ Kill the current column.
 @item @kbd{M-S-@key{RIGHT}} (@code{org-table-insert-column})
 @kindex M-S-RIGHT
 @findex org-table-insert-column
-Insert a new column at point position.  Move the recent column and
+Insert a new column at point position.  Move the current column and
 all cells to the right of this column to the right.
 
 @item @kbd{M-@key{UP}} (@code{org-table-move-row-up})
@@ -2276,7 +2278,7 @@ the same as the format used by Orgtbl radio tables@comma{} see @ref{Translator f
 @findex org-table-header-line-mode
 @vindex org-table-header-line-p
 Turn on the display of the first data row of the table at point in
-the window header line when this first row is not visible anymore in
+the window header line when this first row is not visible any more in
 the buffer.  You can activate this minor mode by default by setting
 the option @code{org-table-header-line-p} to @code{t}.
 
@@ -2296,7 +2298,7 @@ The alignment of a column is determined automatically from the
 fraction of number-like versus non-number fields in the column.
 
 @vindex org-table-automatic-realign
-Editing a field may modify alignment of the table.  Moving
+Editing a field may modify the alignment of the table.  Moving
 a contiguous row or column---i.e.@comma{} using @kbd{@key{TAB}} or
 @kbd{@key{RET}}---automatically re-aligns it.  If you want to disable
 this behavior@comma{} set @code{org-table-automatic-realign} to @code{nil}.  In any
@@ -2363,7 +2365,7 @@ Expand all columns.
 @end table
 
 To see the full text of a shrunk field@comma{} hold the mouse over it:
-a tool-tip window then shows the full contents of the field.
+a tooltip window then shows the full contents of the field.
 Alternatively@comma{} @kbd{C-h .} (@code{display-local-help}) reveals them@comma{}
 too.  For convenience@comma{} any change near the shrunk part of a column
 expands it.
@@ -2514,12 +2516,12 @@ The row specification only counts data lines and ignores horizontal
 separator lines@comma{} or ``hlines''.  Like with columns@comma{} you can use absolute
 row numbers @samp{@@1}@comma{} @samp{@@2}@comma{} @dots{}@comma{} @samp{@@N}@comma{} and row numbers relative to the
 current row like @samp{@@+3} or @samp{@@-1}.  @samp{@@<} and @samp{@@>} are immutable
-references the first and last row in the table@comma{} respectively.  You may
-also specify the row relative to one of the hlines: @samp{@@I} refers to the
-first hline@comma{} @samp{@@II} to the second@comma{} etc.  @samp{@@-I} refers to the first such
-line above the current line@comma{} @samp{@@+I} to the first such line below the
-current line.  You can also write @samp{@@III+2} which is the second data
-line after the third hline in the table.
+references to the first and last row in the table@comma{} respectively.  You
+may also specify the row relative to one of the hlines: @samp{@@I} refers to
+the first hline@comma{} @samp{@@II} to the second@comma{} etc.  @samp{@@-I} refers to the first
+such line above the current line@comma{} @samp{@@+I} to the first such line below
+the current line.  You can also write @samp{@@III+2} which is the second
+data line after the third hline in the table.
 
 @samp{@@0} and @samp{$0} refer to the current row and column@comma{} respectively@comma{} i.e.@comma{}
 to the row/column for the field being computed.  Also@comma{} if you omit
@@ -2616,7 +2618,7 @@ named @var{FOO} into row 3 of the current table.
 For the second and third examples@comma{} table @var{FOO} must have at
 least as many rows or columns as the current table.  Note that this is
 inefficient@footnote{ The computation time scales as O(N^2) because table
-@var{FOO} is parsed for each field to be copied.} for large
+@var{FOO} is parsed for each field to be copied.} for a large
 number of rows.
 
 @anchor{Named references}
@@ -2682,7 +2684,7 @@ valid in the referenced table.
 When @var{NAME} has the format @samp{@@ROW$COLUMN}@comma{} it is substituted
 with the name or ID found in this field of the current table.  For
 example @samp{remote($1@comma{} @@@@>$2)} @result{} @samp{remote(year_2013@comma{} @@@@>$1)}.  The format
-@samp{B3} is not supported because it can not be distinguished from a plain
+@samp{B3} is not supported because it cannot be distinguished from a plain
 table name or ID@.
 
 @node Formula syntax for Calc
@@ -2765,7 +2767,7 @@ Consult @ref{Formatting Strings,,,elisp,} and the docstring of
 to reformat the Calc result after it has been passed back to Org
 instead of letting Calc handle the formatting.  A few examples:
 
-@multitable {aaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@multitable {aaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @samp{$1+$2}
 @tab Sum of first and second field
 @item @samp{$1+$2;%.2f}
@@ -2775,9 +2777,9 @@ instead of letting Calc handle the formatting.  A few examples:
 @item @samp{$0;%.1f}
 @tab Reformat current cell to 1 decimal
 @item @samp{($3-32)*5/9}
-@tab Degrees F @arrow{} C conversion
+@tab Fahrenheit to Celsius conversion
 @item @samp{$c/$1/$cm}
-@tab Hz @arrow{} cm conversion@comma{} using @samp{constants.el}
+@tab Herz to centimeter conversion@comma{} using @samp{constants.el}
 @item @samp{tan($1);Dp3s1}
 @tab Compute in degrees@comma{} precision 3@comma{} display SCI 1
 @item @samp{sin($1);Dp3%.1e}
@@ -2800,14 +2802,14 @@ field is set to empty with the empty string.
 
 @item @samp{if("$1" =​= "nan" || "$2" =​= "nan"@comma{} string("")@comma{} $1 + $2); E f-1}
 Sum of the first two columns.  When at least one of the input fields
-is empty the Org table result field is set to empty.  @samp{E} is
+is empty@comma{} the Org table result field is set to empty.  @samp{E} is
 required to not convert empty fields to 0.  @samp{f-1} is an optional
 Calc format string similar to @samp{%.1f} but leaves empty results empty.
 
 @item @samp{if(typeof(vmean($1..$7)) =​= 12@comma{} string("")@comma{} vmean($1..$7)); E}
 Mean value of a range unless there is any empty field.  Every field
 in the range that is empty is replaced by @samp{nan} which lets @samp{vmean}
-result in @samp{nan}.  Then @samp{typeof =} 12= detects the @samp{nan} from @code{vmean}
+return @samp{nan}.  Then @samp{typeof =} 12= detects the @samp{nan} from @code{vmean}
 and the Org table result field is set to empty.  Use this when the
 sample set is expected to never have missing values.
 
@@ -2819,7 +2821,7 @@ is set to empty.  Use this when the sample set can have a variable
 size.
 
 @item @samp{vmean($1..$7); EN}
-To complete the example before: Mean value of a range with empty
+To complete the previous example: Mean value of a range with empty
 fields counting as samples with value 0.  Use this only when
 incomplete sample sets should be padded with 0 to the full size.
 @end table
@@ -2906,7 +2908,7 @@ interpret everything past @samp{;} as format specifier:
 @end example
 
 @noindent
-You can put an extra tailing @samp{;} to indicate that all the earlier
+You can put an extra trailing @samp{;} to indicate that all the earlier
 instances of @samp{;} belong to the formula itself:
 
 @example
@@ -3036,7 +3038,7 @@ current column@comma{} evaluated and the current field replaced with the
 result.  If the field contains only @samp{=}@comma{} the previously stored formula
 for this column is used.  For each column@comma{} Org only remembers the most
 recently used formula.  In the @samp{TBLFM} keyword@comma{} column formulas look
-like @samp{$4=$1+$2}.  The left-hand side of a column formula can not be
+like @samp{$4=$1+$2}.  The left-hand side of a column formula cannot be
 the name of column@comma{} it must be the numeric column reference or @samp{$>}.
 
 Instead of typing an equation into the field@comma{} you may also use the
@@ -3088,7 +3090,7 @@ element for which @var{PREDICATE} is non-@code{nil}.
 @findex org-lookup-all
 Similar to @code{org-lookup-first}@comma{} but searches for @emph{all} elements for
 which @var{PREDICATE} is non-@code{nil}@comma{} and returns @emph{all}
-corresponding values.  This function can not be used by itself in
+corresponding values.  This function cannot be used by itself in
 a formula@comma{} because it returns a list of values.  However@comma{} powerful
 lookups can be built when this function is combined with other Emacs
 Lisp functions.
@@ -3307,7 +3309,7 @@ becomes the string @samp{#ERROR}.  If you want to see what is going on
 during variable substitution and calculation in order to find a bug@comma{}
 turn on formula debugging in the Tbl menu and repeat the calculation@comma{}
 for example by pressing @kbd{C-u C-u C-c = @key{RET}} in a field.
-Detailed information are displayed.
+Detailed information is displayed.
 
 @node Updating the table
 @subsection Updating the table
@@ -3619,7 +3621,7 @@ Draw an ASCII bar in a table.
 @var{VALUE} is the value to plot.
 
 @var{MIN} is the value displayed as an empty bar.  @var{MAX}
-is the value filling all the @var{WIDTH}.  Sources values outside
+is the value filling all the @var{WIDTH}.  Source values outside
 this range are displayed as @samp{too small} or @samp{too large}.
 
 @var{WIDTH} is the number of characters of the bar plot.  It
@@ -3678,8 +3680,7 @@ or alternatively
 @cindex backslashes, in links
 Some @samp{\}@comma{} @samp{[} and @samp{]} characters in the @var{LINK} part need to
 be ``escaped''@comma{} i.e.@comma{} preceded by another @samp{\} character.  More
-specifically@comma{} the following characters@comma{} and only them@comma{} must be
-escaped:
+specifically@comma{} only the following characters must be escaped:
 
 @enumerate
 @item
@@ -3718,7 +3719,7 @@ incomplete and the internals are again displayed as plain text.
 Inserting the missing bracket hides the link internals again.  To show
 the internal structure of all links@comma{} use the menu: Org @arrow{}
 Hyperlinks @arrow{} Literal links@comma{} customize @code{org-link-descriptive}@comma{} or use
-@samp{literallinks} @ref{In-buffer Settings, , startup option}.
+the @samp{literallinks} @ref{In-buffer Settings, , startup option}.
 
 @node Internal Links
 @section Internal Links
@@ -4219,8 +4220,8 @@ a @kbd{C-u} prefix.  If you want to avoid opening in Emacs@comma{} use
 a @kbd{C-u C-u} prefix.
 
 @vindex org-link-frame-setup
-If point is on a headline@comma{} but not on a link@comma{} offer all links in the
-headline and entry text.  If you want to set up the frame
+If point is on a headline@comma{} but not on a link@comma{} Org offers all links
+in the headline and entry text.  If you want to set up the frame
 configuration for following links@comma{} customize @code{org-link-frame-setup}.
 
 @item @kbd{@key{RET}}
@@ -4265,7 +4266,7 @@ of previously recorded positions.
 @kindex C-c C-x C-n
 @findex org-next-link
 @cindex links, finding next/previous
-Move forward/backward to the next link in the buffer.  At the limit
+Move forward/backward to the next/previous link in the buffer.  At the limit
 of the buffer@comma{} the search fails once@comma{} and then wraps around.  The
 key bindings for this are really too long; you might want to bind
 this also to @kbd{M-n} and @kbd{M-p}.
@@ -4520,7 +4521,7 @@ shift-selection.  See also the variable
 @vindex org-todo-keywords
 @findex org-show-todo-tree
 View TODO items in a @emph{sparse tree} (see @ref{Sparse Trees}).  Folds the
-entire buffer@comma{} but shows all TODO items---with not-DONE state---and
+entire buffer@comma{} but shows all TODO items---with a not-DONE state---and
 the headings hierarchy above them.  With a prefix argument@comma{} or by
 using @kbd{C-c / T}@comma{} search for a specific TODO@.  You are
 prompted for the keyword@comma{} and you can also give a list of keywords
@@ -4627,9 +4628,9 @@ Using TODO types@comma{} it would be set up like this:
 @end lisp
 
 In this case@comma{} different keywords do not indicate states@comma{} but rather
-different types.  So the normal work flow would be to assign a task to
+different types.  So the normal workflow would be to assign a task to
 a person@comma{} and later to mark it DONE@.  Org mode supports this style by
-adapting the workings of the command @kbd{C-c C-t}@footnote{ This is
+adapting the working of the command @kbd{C-c C-t}@footnote{ This is
 also true for the @kbd{t} command in the agenda buffer.}.  When
 used several times in succession@comma{} it still cycles through all names@comma{}
 in order to first select the right type for a task.  But when you
@@ -4915,7 +4916,7 @@ Then each time you turn an entry from a TODO (not-done) state into any
 of the DONE states@comma{} a line @samp{CLOSED: [timestamp]} is inserted just
 after the headline.  If you turn the entry back into a TODO item
 through further state cycling@comma{} that line is removed again.  If you
-turn the entry back to a non-TODO state (by pressing @kbd{C-c C-t @key{SPC}} for example)@comma{} that line is also removed@comma{} unless you set
+turn the entry back to a non-TODO state (by pressing @kbd{C-c C-t @key{SPC}}@comma{} for example)@comma{} that line is also removed@comma{} unless you set
 @code{org-closed-keep-when-no-todo} to non-@code{nil}.  If you want to record a
 note along with the timestamp@comma{} use@footnote{ The corresponding in-buffer
 setting is: @samp{#+STARTUP: lognotedone}.}
@@ -4973,9 +4974,9 @@ change recording note takes precedence and cancel the closing note.}.  The setti
 entering the state@comma{} a timestamp should be recorded when @emph{leaving} the
 @samp{WAIT} state@comma{} if and only if the @emph{target} state does not configure
 logging for entering it.  So it has no effect when switching from
-@samp{WAIT} to @samp{DONE}@comma{} because @samp{DONE} is configured to record a timestamp
-only.  But when switching from @samp{WAIT} back to @samp{TODO}@comma{} the @samp{/!} in the
-@samp{WAIT} setting now triggers a timestamp even though @samp{TODO} has no
+@samp{WAIT} to @samp{DONE}@comma{} because @samp{DONE} is configured to record only a
+timestamp.  But when switching from @samp{WAIT} back to @samp{TODO}@comma{} the @samp{/!} in
+the @samp{WAIT} setting now triggers a timestamp even though @samp{TODO} has no
 logging configured.
 
 You can use the exact same syntax for setting logging preferences local
@@ -5150,7 +5151,7 @@ right after the TODO keyword@comma{} like this:
 @vindex org-priority-faces
 By default@comma{} Org mode supports three priorities: @samp{A}@comma{} @samp{B}@comma{} and @samp{C}.
 @samp{A} is the highest priority.  An entry without a cookie is treated as
-equivalent if it had priority @samp{B}.  Priorities make a difference only
+if it had priority @samp{B}.  Priorities make a difference only
 for sorting in the agenda (see @ref{Weekly/daily agenda}).  Outside the
 agenda@comma{} they have no inherent meaning to Org mode.  The cookies are
 displayed with the face defined by the variable @code{org-priority-faces}@comma{}
@@ -5242,7 +5243,7 @@ updated each time the TODO status of a child changes@comma{} or when pressing
 
 @cindex @samp{COOKIE_DATA}, property
 If a heading has both checkboxes and TODO children below it@comma{} the
-meaning of the statistics cookie become ambiguous.  Set the property
+meaning of the statistics cookie becomes ambiguous.  Set the property
 @samp{COOKIE_DATA} to either @samp{checkbox} or @samp{todo} to resolve this issue.
 
 @vindex org-hierarchical-todo-statistics
@@ -5881,12 +5882,12 @@ only TODO items.
 @end table
 
 These commands all prompt for a match string which allows basic
-Boolean logic like @samp{+boss+urgent-project1}@comma{} to find entries with tags
-@samp{boss} and @samp{urgent}@comma{} but not @samp{project1}@comma{} or @samp{Kathy|Sally} to find
-entries which are tagged@comma{} like @samp{Kathy} or @samp{Sally}.  The full syntax of
-the search string is rich and allows also matching against TODO
-keywords@comma{} entry levels and properties.  For a complete description
-with many examples@comma{} see @ref{Matching tags and properties}.
+Boolean logic@comma{} such as @samp{+boss+urgent-project1} to find entries with
+tags @samp{boss} and @samp{urgent}@comma{} but not @samp{project1} or @samp{Kathy|Sally} to find
+entries tagged with either @samp{Kathy} or @samp{Sally}.  The full syntax of the
+search string is rich and allows also matching against TODO keywords@comma{}
+entry levels and properties.  For a complete description with many
+examples@comma{} see @ref{Matching tags and properties}.
 
 @node Properties and Columns
 @chapter Properties and Columns
@@ -7465,14 +7466,14 @@ special repeaters @samp{++} and @samp{.+}.  For example:
 @example
 ** TODO Call Father
    DEADLINE: <2008-02-10 Sun ++1w>
-   Marking this DONE shifts the date by at least one week@comma{} but also
+   Marking this as DONE shifts the date by at least one week@comma{} but also
    by as many weeks as it takes to get this date into the future.
    However@comma{} it stays on a Sunday@comma{} even if you called and marked it
    done on Saturday.
 
 ** TODO Empty kitchen trash
    DEADLINE: <2008-02-08 Fri 20:00 ++1d>
-   Marking this DONE shifts the date by at least one day@comma{} and also
+   Marking this as DONE shifts the date by at least one day@comma{} and also
    by as many days as it takes to get the timestamp into the future.
    Since there is a time in the timestamp@comma{} the next deadline in the
    future will be on today's date if you complete the task before
@@ -7480,11 +7481,11 @@ special repeaters @samp{++} and @samp{.+}.  For example:
 
 ** TODO Check the batteries in the smoke detectors
    DEADLINE: <2005-11-01 Tue .+1m>
-   Marking this DONE shifts the date to one month after today.
+   Marking this as DONE shifts the date to one month after today.
 
 ** TODO Wash my hands
    DEADLINE: <2019-04-05 08:00 Fri .+1h>
-   Marking this DONE shifts the date to exactly one hour from now.
+   Marking this as DONE shifts the date to exactly one hour from now.
 @end example
 
 @vindex org-agenda-skip-scheduled-repeats-after-deadline
@@ -7569,8 +7570,8 @@ clock when the last clock stopped.
 @vindex org-clock-in-prepare-hook
 While the clock is running@comma{} Org shows the current clocking time in
 the mode line@comma{} along with the title of the task.  The clock time
-shown is all time ever clocked for this task and its children.  If
-the task has an effort estimate (see @ref{Effort Estimates})@comma{} the
+shown is all time ever clocked in for this task and its children.
+If the task has an effort estimate (see @ref{Effort Estimates})@comma{} the
 mode line displays the current clocking time against it@footnote{ To add
 an effort estimate ``on the fly''@comma{} hook a function doing this to
 @code{org-clock-in-prepare-hook}.}.  If the task is a repeating one (see
@@ -7661,7 +7662,7 @@ mistake@comma{} or if you ended up working on something else.
 @item @kbd{C-c C-x C-j} (@code{org-clock-goto})
 @kindex C-c C-x C-j
 @findex or-clock-goto
-Jump to the headline of the currently clocked in task.  With
+Jump to the headline of the currently clocked-in task.  With
 a @kbd{C-u} prefix argument@comma{} select the target task from a list
 of recently clocked tasks.
 
@@ -7863,7 +7864,7 @@ Link the item headlines in the table to their origins.
 @item @samp{:narrow}
 An integer to limit the width of the headline column in the Org
 table.  If you write it like @samp{50!}@comma{} then the headline is also
-shortened in export.
+shortened during export.
 
 @item @samp{:indent}
 Indent each headline field according to its level.
@@ -8363,7 +8364,7 @@ variable @code{org-archive-default-command}.
 @cindex external archiving
 
 The most common archiving action is to move a project tree to another
-file@comma{} the archive file.
+file@comma{} called the archive file.
 
 @table @asis
 @item @kbd{C-c C-x C-s} or short @kbd{C-c $} (@code{org-archive-subtree})
@@ -8414,7 +8415,7 @@ location as the value (see @ref{Properties and Columns}).
 @vindex org-archive-save-context-info
 When a subtree is moved@comma{} it receives a number of special properties
 that record context information like the file from where the entry
-came@comma{} its outline path the archiving time etc.  Configure the variable
+came@comma{} its outline path@comma{} the archiving time etc.  Configure the variable
 @code{org-archive-save-context-info} to adjust the amount of information
 added.
 
@@ -8559,9 +8560,9 @@ You may also define a global key for capturing new material (see
 @findex org-capture
 Display the capture templates menu.  If you have templates defined
 (see @ref{Capture templates})@comma{} it offers these templates for
-selection.  It inserts the template into the target file and switch
-to an indirect buffer narrowed to this new node.  You may then
-insert the information you want.
+selection.  It inserts the template into the target file and
+switches to an indirect buffer narrowed to this new node.  You may
+then insert the information you want.
 
 @item @kbd{C-c C-c} (@code{org-capture-finalize})
 @kindex C-c C-c @r{(Capture buffer)}
@@ -9132,8 +9133,8 @@ remote@comma{} computer@comma{} like emails or source code files belonging to a
 project.
 
 Another method is @emph{attachments}@comma{} which are files located in a
-directory belonging to heading/subtree.  Org uses directories either
-named by @samp{ID} property of a heading@comma{} or by a @samp{DIR} property.
+directory belonging to heading/subtree.  Org uses directories named
+either by the @samp{ID} property of a heading or by a @samp{DIR} property.
 
 @menu
 * Attachment defaults and dispatcher:: How to access attachment commands
@@ -10414,10 +10415,12 @@ default order is to first collect all items containing an explicit
 time-of-day specification.  These entries are shown at the beginning
 of the list@comma{} as a @emph{schedule} for the day.  After that@comma{} items remain
 grouped in categories@comma{} in the sequence given by @code{org-agenda-files}.
-Within each category@comma{} items are sorted by urgency@comma{} which is composed
-of the base priority (see @ref{Priorities}; 2000 for priority @samp{A}@comma{} 1000
-for @samp{B}@comma{} and 0 for @samp{C})@comma{} plus additional increments for overdue
-scheduled or deadline items.
+Within each category@comma{} items are sorted by urgency@comma{} which is derived
+from the priority (see @ref{Priorities})@comma{} plus additional increments
+for overdue scheduled or deadline items.  The lowest priority is
+scored as 0@comma{} the next as 1000@comma{} and continues in steps of 1000 until
+reaching the highest priority@comma{} e.g.@comma{} @samp{C}@comma{} @samp{B}@comma{} @samp{A} are scored as 0@comma{}
+1000@comma{} and 2000@comma{} respectively.
 
 @item
 For the TODO list@comma{} items remain in the order of categories@comma{} but
@@ -13875,7 +13878,7 @@ frames.  It is also useful for properly closing a @samp{column}
 environment.
 
 @cindex @samp{BEAMER_SUBTITLE}, property
-If @samp{BEAMER_SUBTITLE} is set@comma{} org exports its value as the subtitle
+If @samp{BEAMER_SUBTITLE} is set@comma{} Org exports its value as the subtitle
 for the headline's frame. This property has no effect on headlines
 which are not exported as frames.
 
@@ -15088,6 +15091,17 @@ This would produce in @LaTeX{} (with the actual @samp{polyglossia} syntax):
 \usepackage@{polyglossia@}
 \setmainlanguage[variant=polytonic]@{greek@}
 \setotherlanguage@{french@}
+@end example
+
+@vindex org-latex-use-sans
+The @LaTeX{} backend normally exports using the Roman font family
+specified in the document class or by the user in the
+@samp{LATEX_HEADER}. Setting the option @code{org-latex-use-sans} to @samp{t} will
+force the @LaTeX{} compiler to use the Sans font as default. You can also
+include it in the document options with:
+
+@example
+#+OPTIONS: latex-use-sans:t
 @end example
 
 @node Quoting @LaTeX{} code
@@ -18049,7 +18063,7 @@ Function executing the publication of a file.  This may also be
 a list of functions@comma{} which are all called in turn.
 
 @item @code{:htmlized-source}
-Non-@code{nil} means@comma{} publish htmlized source.
+Non-@code{nil} means@comma{} publish an htmlized version of the source.
 @end table
 
 The function must accept three arguments: a property list containing
@@ -18450,6 +18464,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @tab @code{org-latex-toc-command}
 @item @code{:latex-compiler}
 @tab @code{org-latex-compiler}
+@item @code{:latex-use-sans}
+@tab @code{org-latex-use-sans}
 @end multitable
 
 @anchor{Markdown specific properties}
@@ -18699,7 +18715,7 @@ to include attachments such as JPG@comma{} CSS or PNG files in the project
 definition since the third-party tool syncs them.
 
 Publishing to a local directory is also much faster than to a remote
-one@comma{} so that you can afford more easily to republish entire projects.
+one@comma{} so that you can more easily afford to republish entire projects.
 If you set @code{org-publish-use-timestamps-flag} to @code{nil}@comma{} you gain the
 main benefit of re-including any changed external files such as source
 example files you might include with @samp{INCLUDE} keyword.  The timestamp
@@ -18844,7 +18860,7 @@ resources.  For example@comma{} consider the following Org mode snippet
 Org mode is used by various communities [cite:teaching: @@orgteaching;
 and TeX: @@orgtex].  [cite/author/caps:@@orgtex] uses Org mode to simplify
 writing scientific publications@comma{} while [cite/author/caps:@@orgteaching]
-experiment with Org babel to improve teaching.
+experiments with Org babel to improve teaching.
 
 #+print_bibliography:
 @end example
@@ -19321,7 +19337,7 @@ A source code block conforms to this structure:
 #+END_SRC
 @end example
 
-Do not be put-off by having to remember the source block syntax.  Org
+Do not be put off by having to remember the source block syntax.  Org
 mode offers a command for wrapping existing text in a block (see
 @ref{Structure Templates}).  Org also works with other completion systems
 in Emacs@comma{} some of which predate Org and have custom domain-specific
@@ -19452,7 +19468,7 @@ Org expand @samp{:noweb} references by default.
             (assq-delete-all :noweb org-babel-default-header-args)))
 @end lisp
 
-@cindex language specific default header arguments
+@cindex language-specific default header arguments
 @cindex default header arguments per language
 Each language can have separate default header arguments by
 customizing the variable @code{org-babel-default-header-args:<LANG>}@comma{} where
@@ -19498,7 +19514,7 @@ Properties defined through @code{org-set-property} function@comma{} bound to
 @kbd{C-c C-x p}@comma{} apply to all active languages.  They override
 properties set in @code{org-babel-default-header-args}.
 
-@cindex language specific header arguments properties
+@cindex language-specific header arguments properties
 @cindex header arguments per language
 Language-specific header arguments are also read from properties
 @samp{header-args:<LANG>} where @var{<LANG>} is the language
@@ -20043,9 +20059,9 @@ to the end of the code block for execution.
 @cindex @samp{RESULTS}, keyword
 
 A note about security: With code evaluation comes the risk of harm.
-Org safeguards by prompting for user's permission before executing any
-code in the source block.  To customize this safeguard@comma{} or disable it@comma{}
-see @ref{Code Evaluation Security}.
+Org provides safeguards by prompting for the user's permission before
+executing any code.  To customize this safeguard@comma{} or disable it@comma{} see
+@ref{Code Evaluation Security}.
 
 @anchor{How to evaluate source code}
 @subheading How to evaluate source code
@@ -20898,7 +20914,7 @@ file.
 @cindex code block, languages
 
 Code blocks in dozens of languages are supported.  See Worg website
-for @uref{https://orgmode.org/worg/org-contrib/babel/languages/index.html, language specific documentation}.
+for @uref{https://orgmode.org/worg/org-contrib/babel/languages/index.html, language-specific documentation}.
 
 @vindex org-babel-load-languages
 By default@comma{} only Emacs Lisp is enabled for evaluation.  To enable or
@@ -21697,11 +21713,11 @@ including the user-defined ones.
 @cindex odd-levels-only outlines
 @cindex clean outline view
 
-Org's outline with stars and no indents can look cluttered for short
-documents.  For @emph{book-like} long documents@comma{} the effect is not as
-noticeable.  Org provides an alternate stars and indentation scheme@comma{}
-as shown on the right in the following table.  It displays only one
-star and indents text to line up with the heading:
+Org's outline@comma{} with its stars and lack of indents@comma{} can look cluttered
+in short documents. For @emph{book-like} long documents@comma{} the effect is not
+as noticeable.  Org provides an alternate stars and indentation
+scheme@comma{} as shown on the right in the following table.  It displays
+only one star and indents text to line up with the heading:
 
 @example
 * Top level headline             |    * Top level headline
@@ -21885,7 +21901,7 @@ tree@comma{} or from clock display@comma{} remove such highlights.
 @item
 If point is in one of the special @samp{KEYWORD} lines@comma{} scan the buffer
 for these lines and update the information.  Also reset the Org file
-cache used to temporary store the contents of URLs used as values
+cache used to temporarily store the contents of URLs used as values
 for keywords like @samp{SETUPFILE}.
 
 @item
@@ -21993,7 +22009,7 @@ corresponding variable is @code{org-link-abbrev-alist}.
 @vindex org-priority-lowest
 @vindex org-priority-default
 This line sets the limits and the default for the priorities.  All
-three must be either letters A--Z or numbers 0--9.  The highest
+three must be either letters A--Z or numbers 0--64.  The highest
 priority must have a lower ASCII number than the lowest priority.
 
 @item @samp{#+PROPERTY: Property_Name Value}
@@ -22652,7 +22668,7 @@ add this to your configuration:
 @cindex @file{yasnippet.el}
 The way Org mode binds the @kbd{@key{TAB}} key (binding to @code{[tab]}
 instead of @code{"\t"}) overrules YASnippet's access to this key.  The
-following code fixed this problem:
+following code fixes this problem:
 
 @lisp
 (add-hook 'org-mode-hook
@@ -24634,7 +24650,7 @@ Eric Fraga drove the development of Beamer export with ideas and
 testing.
 
 @item
-Barry Gidden did proofreading the manual in preparation for the book
+Barry Gidden proofread the manual in preparation for the book
 publication through Network Theory Ltd.
 
 @item

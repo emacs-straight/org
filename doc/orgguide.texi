@@ -2195,7 +2195,7 @@ additional information.  These lines may be put anywhere in the file:
 #+TITLE: I'm in the Mood for Org
 @end example
 
-Most proeminent export options include:
+Most prominent export options include:
 
 @multitable {aaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @samp{TITLE}

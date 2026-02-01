@@ -2096,7 +2096,7 @@ additional information.  These lines may be put anywhere in the file:
 
      #+TITLE: I'm in the Mood for Org
 
-   Most proeminent export options include:
+   Most prominent export options include:
 
 ‘TITLE’      the title to be shown
 ‘AUTHOR’     the author (default taken from ‘user-full-name’)
@@ -2621,24 +2621,24 @@ Node: Creating Footnotes77749
 Node: Exporting78723
 Node: The Export Dispatcher79599
 Node: Export Settings80155
-Node: Table of Contents80980
-Node: Include Files81713
-Node: Comment Lines82399
-Node: ASCII/UTF-8 Export83124
-Node: HTML Export83858
-Node: LaTeX Export84896
-Node: iCalendar Export86639
-Node: Publishing87416
-Node: Working with Source Code89147
-Ref: Using header arguments90414
-Ref: Evaluating code blocks91589
-Ref: Results of evaluation92478
-Ref: Exporting code blocks93698
-Ref: Extracting source code94162
-Node: Miscellaneous94697
-Ref: Completion94820
-Ref: Structure Templates95157
-Ref: Clean view95521
+Node: Table of Contents80979
+Node: Include Files81712
+Node: Comment Lines82398
+Node: ASCII/UTF-8 Export83123
+Node: HTML Export83857
+Node: LaTeX Export84895
+Node: iCalendar Export86638
+Node: Publishing87415
+Node: Working with Source Code89146
+Ref: Using header arguments90413
+Ref: Evaluating code blocks91588
+Ref: Results of evaluation92477
+Ref: Exporting code blocks93697
+Ref: Extracting source code94161
+Node: Miscellaneous94696
+Ref: Completion94819
+Ref: Structure Templates95156
+Ref: Clean view95520
 
 End Tag Table
 
