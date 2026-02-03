@@ -17197,7 +17197,7 @@ and in inline source blocks.  To export just the body of code blocks,
 see *note Literal Examples::.  To selectively export subtrees of an Org
 document, see *note Exporting::.
 
-   The ‘exports’ header argument is to specify if that part of the Org
+   The ‘exports’ header argument specifies whether that part of the Org
 file is exported to, say, HTML or LaTeX formats.
 
 ‘code’
@@ -17205,7 +17205,7 @@ file is exported to, say, HTML or LaTeX formats.
      Example: ‘:exports code’.
 
 ‘results’
-     The results of evaluation of the code is included in the exported
+     The results of evaluation of the code are included in the exported
      file.  Example: ‘:exports results’.
 
 ‘both’
@@ -17213,18 +17213,18 @@ file is exported to, say, HTML or LaTeX formats.
      exported file.  Example: ‘:exports both’.
 
 ‘none’
-     Neither the code nor the results of evaluation is included in the
+     Neither the code nor the results of evaluation are included in the
      exported file.  Whether the code is evaluated at all depends on
      other options.  Example: ‘:exports none’.
 
-   If a source block is named using ‘NAME’ keyword, the same name will
-be assigned to the results of evaluation.  This way, fuzzy links
+   If a source block is named using the ‘NAME’ keyword, the same name
+will be assigned to the results of evaluation.  This way, fuzzy links
 pointing to the named source blocks exported using ‘:exports results’
 will remain valid and point to the results of evaluation.
 
    Results of evaluation of a named block can also be explicitly named
-using a separate ‘NAME’ keyword.  The name value set via ‘NAME’ keyword
-will be preferred over the parent source block.
+using a separate ‘NAME’ keyword.  The name value set via the ‘NAME’
+keyword will be preferred over the parent source block.
 
      #+NAME: code name
      #+BEGIN_SRC emacs-lisp :exports both value
@@ -17239,16 +17239,16 @@ will be preferred over the parent source block.
      Another [[results name][link]] will point to the results.
 
    Explicit setting of the result name may be necessary when a named
-code block is exported using ‘:exports both’.  Links to such block may
-arbitrarily point either to the code block or to its results when
+code block is exported using ‘:exports both’.  Links to such a block may
+point arbitrarily either to the code block or to its results when the
 results do not have a distinct name.
 
    Note that all the links pointing to a source block exported using
-‘:exports none’ will be broken.  This will make export process fail,
-unless broken links are allowed during export (see *note Export
+‘:exports none’ will be broken.  This will cause the export process to
+fail, unless broken links are allowed during export (see *note Export
 Settings::).
 
-   To stop Org from evaluating code blocks to speed exports, use the
+   To stop Org from evaluating code blocks to speed up export, use the
 header argument ‘:eval never-export’ (see *note Evaluating Code
 Blocks::).  To stop Org from evaluating code blocks for greater
 security, set the ‘org-export-use-babel’ variable to ‘nil’, but
@@ -17260,9 +17260,9 @@ The only exception is when a code block uses ‘:session’ - such blocks
 are evaluated according to their ‘:eval’ header argument.
 
    Turning off evaluation comes in handy when batch processing.  For
-example, markup languages for wikis, which have a high risk of untrusted
-code.  Stopping code block evaluation also stops evaluation of all
-header arguments of the code block.  This may not be desirable in some
+example, markup languages for wikis have a high risk of untrusted code.
+Stopping code block evaluation also stops evaluation of all header
+arguments of the code block.  This may not be desirable in some
 circumstances.  So during export, to allow evaluation of just the header
 arguments but not any code evaluation in the source block, set ‘:eval
 never-export’ (see *note Evaluating Code Blocks::).
@@ -25340,94 +25340,94 @@ Ref: Handling718359
 Ref: Post-processing719750
 Ref: Results of Evaluation-Footnote-1721500
 Node: Exporting Code Blocks721658
-Node: Extracting Source Code725620
-Ref: Header arguments726601
-Ref: Functions731190
-Ref: Tangle hooks731441
-Ref: Jumping between code and Org732217
-Node: Languages732726
-Node: Editing Source Code733727
-Node: Noweb Reference Syntax736703
-Ref: Noweb Reference Syntax-Footnote-1743430
-Ref: Noweb Reference Syntax-Footnote-2743521
-Ref: Noweb Reference Syntax-Footnote-3744134
-Node: Library of Babel744254
-Node: Key bindings and Useful Functions744968
-Node: Batch Execution747393
-Node: Miscellaneous748174
-Node: Completion749698
-Node: Structure Templates751621
-Ref: Structure Templates-Footnote-1753371
-Node: Speed Keys753463
-Node: Clean View754630
-Node: Org Indent Mode755840
-Ref: Org Indent Mode-Footnote-1757046
-Node: Hard indentation757270
-Ref: Hard indentation-Footnote-1758751
-Ref: Hard indentation-Footnote-2758857
-Node: Execute commands in the active region759001
-Node: Dynamic Headline Numbering760013
-Node: The Very Busy C-c C-c Key761179
-Node: In-buffer Settings763168
-Ref: In-buffer Settings-Footnote-1773107
-Node: Regular Expressions773305
-Node: Org Syntax773927
-Node: Documentation Access775544
-Node: Escape Character775961
-Node: Code Evaluation Security776821
-Node: Interaction779686
-Node: Cooperation780107
-Node: Conflicts783173
-Node: TTY Keys787756
-Node: Protocols789393
-Node: The store-link protocol790854
-Node: The capture protocol792013
-Node: The open-source protocol793667
-Node: Org Crypt796888
-Node: Org Mobile798761
-Node: Setting up the staging area800146
-Ref: Setting up the staging area-Footnote-1801386
-Ref: Setting up the staging area-Footnote-2801593
-Node: Pushing to the mobile application801765
-Ref: Pushing to the mobile application-Footnote-1802776
-Ref: Pushing to the mobile application-Footnote-2802867
-Ref: Pushing to the mobile application-Footnote-3803234
-Node: Pulling from the mobile application803310
-Ref: Pulling from the mobile application-Footnote-1805623
-Node: Drag and Drop & yank-media805676
-Ref: Drag and Drop & yank-media-Footnote-1807493
-Node: Repeating commands807639
-Node: Hacking809781
-Node: Hooks810804
-Node: Add-on Packages811079
-Node: Adding Hyperlink Types811535
-Node: Adding Hyperlink preview815349
-Node: Adding Export Backends818091
-Node: Tables in Arbitrary Syntax819336
-Node: Radio tables820600
-Node: A LaTeX example822730
-Ref: A LaTeX example-Footnote-1826581
-Ref: A LaTeX example-Footnote-2826624
-Ref: A LaTeX example-Footnote-3826785
-Node: Translator functions827237
-Node: Dynamic Blocks829419
-Node: Special Agenda Views831663
-Ref: Special Agenda Views-Footnote-1835374
-Ref: Special Agenda Views-Footnote-2835580
-Node: Speeding Up Your Agendas835712
-Node: Extracting Agenda Information836935
-Node: Using the Property API840742
-Node: Using the Mapping API844091
-Node: History and Acknowledgments848121
-Ref: From Carsten848319
-Ref: From Bastien851747
-Ref: List of Contributions854270
-Node: GNU Free Documentation License862933
-Ref: ADDENDUM How to use this License for your documents886694
-Node: Main Index888083
-Node: Key Index989576
-Node: Command and Function Index1047006
-Node: Variable Index1096781
+Node: Extracting Source Code725639
+Ref: Header arguments726620
+Ref: Functions731209
+Ref: Tangle hooks731460
+Ref: Jumping between code and Org732236
+Node: Languages732745
+Node: Editing Source Code733746
+Node: Noweb Reference Syntax736722
+Ref: Noweb Reference Syntax-Footnote-1743449
+Ref: Noweb Reference Syntax-Footnote-2743540
+Ref: Noweb Reference Syntax-Footnote-3744153
+Node: Library of Babel744273
+Node: Key bindings and Useful Functions744987
+Node: Batch Execution747412
+Node: Miscellaneous748193
+Node: Completion749717
+Node: Structure Templates751640
+Ref: Structure Templates-Footnote-1753390
+Node: Speed Keys753482
+Node: Clean View754649
+Node: Org Indent Mode755859
+Ref: Org Indent Mode-Footnote-1757065
+Node: Hard indentation757289
+Ref: Hard indentation-Footnote-1758770
+Ref: Hard indentation-Footnote-2758876
+Node: Execute commands in the active region759020
+Node: Dynamic Headline Numbering760032
+Node: The Very Busy C-c C-c Key761198
+Node: In-buffer Settings763187
+Ref: In-buffer Settings-Footnote-1773126
+Node: Regular Expressions773324
+Node: Org Syntax773946
+Node: Documentation Access775563
+Node: Escape Character775980
+Node: Code Evaluation Security776840
+Node: Interaction779705
+Node: Cooperation780126
+Node: Conflicts783192
+Node: TTY Keys787775
+Node: Protocols789412
+Node: The store-link protocol790873
+Node: The capture protocol792032
+Node: The open-source protocol793686
+Node: Org Crypt796907
+Node: Org Mobile798780
+Node: Setting up the staging area800165
+Ref: Setting up the staging area-Footnote-1801405
+Ref: Setting up the staging area-Footnote-2801612
+Node: Pushing to the mobile application801784
+Ref: Pushing to the mobile application-Footnote-1802795
+Ref: Pushing to the mobile application-Footnote-2802886
+Ref: Pushing to the mobile application-Footnote-3803253
+Node: Pulling from the mobile application803329
+Ref: Pulling from the mobile application-Footnote-1805642
+Node: Drag and Drop & yank-media805695
+Ref: Drag and Drop & yank-media-Footnote-1807512
+Node: Repeating commands807658
+Node: Hacking809800
+Node: Hooks810823
+Node: Add-on Packages811098
+Node: Adding Hyperlink Types811554
+Node: Adding Hyperlink preview815368
+Node: Adding Export Backends818110
+Node: Tables in Arbitrary Syntax819355
+Node: Radio tables820619
+Node: A LaTeX example822749
+Ref: A LaTeX example-Footnote-1826600
+Ref: A LaTeX example-Footnote-2826643
+Ref: A LaTeX example-Footnote-3826804
+Node: Translator functions827256
+Node: Dynamic Blocks829438
+Node: Special Agenda Views831682
+Ref: Special Agenda Views-Footnote-1835393
+Ref: Special Agenda Views-Footnote-2835599
+Node: Speeding Up Your Agendas835731
+Node: Extracting Agenda Information836954
+Node: Using the Property API840761
+Node: Using the Mapping API844110
+Node: History and Acknowledgments848140
+Ref: From Carsten848338
+Ref: From Bastien851766
+Ref: List of Contributions854289
+Node: GNU Free Documentation License862952
+Ref: ADDENDUM How to use this License for your documents886713
+Node: Main Index888102
+Node: Key Index989595
+Node: Command and Function Index1047025
+Node: Variable Index1096800
 
 End Tag Table
 

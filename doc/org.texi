@@ -20631,7 +20631,7 @@ blocks@comma{} see @ref{Literal Examples}.  To selectively export subtrees of an
 Org document@comma{} see @ref{Exporting}.
 
 @cindex @samp{exports}, header argument
-The @samp{exports} header argument is to specify if that part of the Org
+The @samp{exports} header argument specifies whether that part of the Org
 file is exported to@comma{} say@comma{} HTML or @LaTeX{} formats.
 
 @table @asis
@@ -20640,7 +20640,7 @@ The default.  The body of code is included into the exported file.
 Example: @samp{:exports code}.
 
 @item @samp{results}
-The results of evaluation of the code is included in the exported
+The results of evaluation of the code are included in the exported
 file.  Example: @samp{:exports results}.
 
 @item @samp{both}
@@ -20648,18 +20648,18 @@ Both the code and results of evaluation are included in the exported
 file.  Example: @samp{:exports both}.
 
 @item @samp{none}
-Neither the code nor the results of evaluation is included in the
+Neither the code nor the results of evaluation are included in the
 exported file.  Whether the code is evaluated at all depends on
 other options.  Example: @samp{:exports none}.
 @end table
 
-If a source block is named using @samp{NAME} keyword@comma{} the same name will be
+If a source block is named using the @samp{NAME} keyword@comma{} the same name will be
 assigned to the results of evaluation.  This way@comma{} fuzzy links pointing
 to the named source blocks exported using @samp{:exports results} will
 remain valid and point to the results of evaluation.
 
 Results of evaluation of a named block can also be explicitly named
-using a separate @samp{NAME} keyword.  The name value set via @samp{NAME}
+using a separate @samp{NAME} keyword.  The name value set via the @samp{NAME}
 keyword will be preferred over the parent source block.
 
 @example
@@ -20677,16 +20677,16 @@ Another [[results name][link]] will point to the results.
 @end example
 
 Explicit setting of the result name may be necessary when a named code
-block is exported using @samp{:exports both}.  Links to such block may
-arbitrarily point either to the code block or to its results when
-results do not have a distinct name.
+block is exported using @samp{:exports both}.  Links to such a block may
+point arbitrarily either to the code block or to its results when
+the results do not have a distinct name.
 
 Note that all the links pointing to a source block exported using
-@samp{:exports none} will be broken.  This will make export process fail@comma{}
+@samp{:exports none} will be broken.  This will cause the export process to fail@comma{}
 unless broken links are allowed during export (see @ref{Export Settings}).
 
 @vindex org-export-use-babel
-To stop Org from evaluating code blocks to speed exports@comma{} use the
+To stop Org from evaluating code blocks to speed up export@comma{} use the
 header argument @samp{:eval never-export} (see @ref{Evaluating Code Blocks}).
 To stop Org from evaluating code blocks for greater security@comma{} set the
 @code{org-export-use-babel} variable to @code{nil}@comma{} but understand that header
@@ -20698,7 +20698,7 @@ The only exception is when a code block uses @samp{:session} - such blocks
 are evaluated according to their @samp{:eval} header argument.
 
 Turning off evaluation comes in handy when batch processing.  For
-example@comma{} markup languages for wikis@comma{} which have a high risk of
+example@comma{} markup languages for wikis have a high risk of
 untrusted code.  Stopping code block evaluation also stops evaluation
 of all header arguments of the code block.  This may not be desirable
 in some circumstances.  So during export@comma{} to allow evaluation of just
