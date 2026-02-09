@@ -13582,9 +13582,9 @@ leading @samp{*} with @samp{@comma{}} to avoid interpreting them as headings.}
 Finally@comma{} a @samp{COMMENT} keyword at the beginning of an entry@comma{} but after
 any other keyword or priority cookie@comma{} comments out the entire subtree.
 In this case@comma{} the subtree is not exported and no code block within it
-is executed either@footnote{ For a less drastic behavior@comma{} consider using a
-select tag (see @ref{Export Settings}) instead.}.  The command below
-helps to change the comment status of a headline.
+is executed or tangled@footnote{ For less restrictive export limitations@comma{}
+consider using a select tag (see @ref{Export Settings}) instead.}.  The
+command below helps to change the comment status of a headline.
 
 @table @asis
 @item @kbd{C-c ;} (@code{org-toggle-comment})
@@ -14955,6 +14955,10 @@ Arbitrary lines to add to the document's preamble@comma{} before the
 hyperref settings.  See @code{org-latex-classes} for adjusting the
 structure and order of the @LaTeX{} headers.
 
+@item @samp{LATEX_CLASS_PRE}
+@cindex @samp{LATEX_CLASS_PRE}, keyword
+Arbitrary lines to prepend before the @LaTeX{} preamble.
+
 @item @samp{KEYWORDS}
 @cindex @samp{KEYWORDS}, keyword
 @vindex org-latex-hyperref-template
@@ -15043,6 +15047,16 @@ A sample Org file with the above headers:
   some text
 * Headline 2
   some more text
+@end example
+
+@cindex @samp{LATEX_CLASS_PRE}, keyword
+The @LaTeX{} export backend prepends values from @samp{LATEX_CLASS_PRE}
+keywords before the @LaTeX{} preamble. Use this option when you want to
+set the values passed to packages included in the document class. For
+example@comma{} to use extended names for the @code{xcolor} package@comma{} use
+
+@example
+#+LATEX_CLASS_PRE: \PassOptionsToPackage@{dvipsnames@}@{xcolor@}
 @end example
 
 @cindex @samp{LANGUAGE}, keyword
@@ -20755,6 +20769,9 @@ any string passed to the @samp{tangle} header argument.  Org derives the
 file name as being relative to the directory of the Org file's
 location.  Example: @samp{:tangle FILENAME}.
 @end table
+
+@cindex comment trees
+Additionally@comma{} code blocks inside commented subtrees (see @ref{Comment Lines}) are never exported.
 
 @cindex @samp{mkdirp}, header argument
 The @samp{mkdirp} header argument creates parent directories for tangled

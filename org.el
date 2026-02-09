@@ -3622,9 +3622,9 @@ header, or they will be appended."
 
 (defcustom org-latex-default-packages-alist
   '(;; amsmath before fontspec for lualatex and xetex
-    (""     "amsmath"   t ("lualatex" "xetex"))
+    (""     "amsmath"   t ("lualatex" "xelatex"))
     ;; fontspec ASAP for lualatex and xetex
-    (""     "fontspec"  t ("lualatex" "xetex"))
+    (""     "fontspec"  t ("lualatex" "xelatex"))
     ;; inputenc and fontenc are for pdflatex only
     ("AUTO" "inputenc"  t ("pdflatex"))
     ("T1"   "fontenc"   t ("pdflatex"))
@@ -22255,7 +22255,7 @@ Point is moved after both elements."
 Relative indentation (between items, inside blocks, etc.) isn't
 modified."
   (interactive)
-  (unless (eq major-mode 'org-mode)
+  (unless (derived-mode-p 'org-mode)
     (user-error "Cannot un-indent a buffer not in Org mode"))
   (letrec ((parse-tree (org-element-parse-buffer 'greater-element nil 'defer))
 	   (unindent-tree
