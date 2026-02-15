@@ -550,7 +550,7 @@ Tables in Arbitrary Syntax
 
 @cindex summary
 
-Org Mode is an authoring tool and a TODO lists manager for GNU Emacs.
+Org mode is an authoring tool and a TODO list manager for GNU Emacs.
 It relies on a lightweight plain-text markup language used in files
 with the @samp{.org} extension.
 
@@ -559,22 +559,22 @@ understand@comma{} and change them with any text editor.
 
 As an authoring tool@comma{} Org helps you write structured documents and
 provides exporting facilities.  Org files can also be used for literate
-programming and reproducible research.  As a TODO lists manager@comma{} Org
+programming and reproducible research.  As a TODO list manager@comma{} Org
 helps you organize your tasks in a flexible way@comma{} from daily needs to
 detailed project planning@comma{} allowing logging@comma{} multiple views of your
 tasks@comma{} exporting your agendas@comma{} etc.
 
 Org mode is implemented on top of Outline mode@comma{} which makes it
 possible to keep the content of large files well-structured.
-Visibility cycling and structure editing help to work with the tree.
+Visibility cycling and structure editing help you work with the tree.
 Tables are easily created with a built-in table editor.  Plain text
 URL-like links connect to websites@comma{} emails@comma{} Usenet messages@comma{} BBDB
 entries@comma{} and any files related to the projects.
 
-Org develops organizational tasks around notes files that contain
+Org develops organizational tasks around note files that contain
 lists or information about projects as plain text.  Project planning
 and task management make use of metadata@comma{} which is part of an outline
-node.  Based on this data@comma{} specific entries can be extracted in
+node.  Based on this data@comma{} specific entries can be extracted via
 queries to create dynamic @emph{agenda views} that also integrate the Emacs
 calendar and diary.  Org can be used to implement many different
 project planning schemes@comma{} such as David Allen's GTD system.
@@ -588,7 +588,7 @@ Org files can include source code blocks@comma{} which makes Org uniquely
 suited for authoring technical documents with code examples.  Org
 source code blocks are fully functional; they can be evaluated in
 place and their results can be captured in the file.  This makes it
-possible to create a single file reproducible research compendium.
+possible to create a single-file reproducible research compendium.
 
 Org keeps simple things simple.  When first fired up@comma{} it should feel
 like a straightforward@comma{} easy-to-use outliner.  Complexity is not
@@ -660,8 +660,8 @@ This approach has the advantage of isolating the upgrade process from
 a running Emacs session@comma{} ensuring that version conflicts cannot
 arise.
 
-@anchor{Using Org's git repository}
-@subheading Using Org's git repository
+@anchor{Using Org's Git repository}
+@subheading Using Org's Git repository
 
 You can clone Org's repository and install Org like this:
 
@@ -685,7 +685,7 @@ Make sure you set the load path correctly in your Emacs init file:
 @end lisp
 
 You can also compile with @samp{make}@comma{} generate the documentation with
-@samp{make doc}@comma{} create a local configuration with @samp{make config} and
+@samp{make doc}@comma{} create a local configuration with @samp{make config}@comma{} and
 install Org with @samp{make install}.  Please run @samp{make help} to get the
 list of compilation/installation options.
 
@@ -729,7 +729,7 @@ For a better experience@comma{} the three Org commands @code{org-store-link}@com
 @code{org-capture} and @code{org-agenda} ought to be accessible anywhere in
 Emacs@comma{} not just in Org buffers.  To that effect@comma{} you need to bind them
 to globally available keys@comma{} like the ones reserved for users (see
-@ref{Key Binding Conventions,,,elisp,}).  Here are suggested bindings@comma{}
+@ref{Key Binding Conventions,,,elisp,}).  Here are suggested bindings;
 please modify the keys to your own liking in your @ref{Init File,personal init file,,emacs,}.
 
 @lisp
@@ -833,7 +833,7 @@ shown below.
 (add-to-list 'load-path (expand-file-name "/path/to/org-mode/lisp"))
 @end lisp
 
-If you are using Org mode version from the Git repository@comma{} you can
+If you are using the Org mode version from the Git repository@comma{} you can
 start a minimal session using @samp{make}.
 
 @example
@@ -843,9 +843,9 @@ make repro
 make repro REPRO_ARGS="-l /path/to/minimal/config.el /tmp/bug.org"
 @end example
 
-If an error occurs@comma{} a ``backtrace'' can be very useful---see below on
-how to create one.  Often a small example file helps@comma{} along with clear
-information about:
+If an error occurs@comma{} a ``backtrace'' can be very useful---see below for
+instructions on how to create one.  Often a small example file helps@comma{}
+along with clear information about:
 
 @enumerate
 @item
@@ -953,7 +953,7 @@ that have been executed between @code{profiler-start} and
 @code{profiler-report} invocations@comma{} with the command taking the most
 time displayed on top.
 
-@samp{<TAB>} key can be used to fold and unfold lines in the profiler
+The @samp{<TAB>} key can be used to fold and unfold lines in the profiler
 buffer.  The child items revealed upon unfolding are the functions
 and commands called by the unfolded parent.
 
@@ -968,7 +968,7 @@ original view.
 @item
 If you need further help@comma{} you can share the statistics data.
 
-Just save the data by issuing
+To save the data@comma{} issue
 
 @example
 M-x profiler-report-write-profile <RET>
@@ -990,7 +990,7 @@ recorded.
 @anchor{TODO keywords@comma{} tags@comma{} properties@comma{} etc}
 @subheading TODO keywords@comma{} tags@comma{} properties@comma{} etc.
 
-Org uses various syntactical elements: TODO keywords@comma{} tags@comma{} property
+Org uses various syntactic elements: TODO keywords@comma{} tags@comma{} property
 names@comma{} keywords@comma{} blocks@comma{} etc.  In this manual we use the following
 conventions:
 
@@ -1019,7 +1019,7 @@ readability@comma{} but you can use lowercase in your Org files.
 The manual lists both the keys and the corresponding commands for
 accessing functionality.  Org mode often uses the same key for
 different functions@comma{} depending on context.  The command that is bound
-to such keys has a generic name@comma{} like @code{org-metaright}.  In the manual
+to such keys has a generic name@comma{} like @code{org-metaright}.  In the manual@comma{}
 we will@comma{} wherever possible@comma{} give the function that is internally
 called by the generic command.  For example@comma{} in the chapter on
 document structure@comma{} @kbd{M-@key{RIGHT}} will be listed to call

@@ -886,7 +886,8 @@ This variable does not affect {{{results}}} macros when processing
 code block results."
   :group 'org-export-general
   :package-version '(Org . "9.8")
-  :type 'boolean)
+  :type 'boolean
+  :safe (lambda (obj) (null obj)))
 
 (defcustom org-export-snippet-translation-alist nil
   "Alist between export snippets backends and exporter backends.
@@ -4722,7 +4723,6 @@ Return value can be an object or an element:
         (org-persist-register location-type path
                               :write-immediately t))))
 
-(require 'subr-x) ;; FIXME: For `thread-first' in Emacs 26.
 (defun org-export-link-localise (link)
   "Convert remote LINK to local link.
 If LINK refers to a remote resource, modify it to point to a local
