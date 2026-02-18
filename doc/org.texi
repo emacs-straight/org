@@ -1037,7 +1037,7 @@ representation of notes and thoughts.  An overview of this structure
 is achieved by folding@comma{} i.e.@comma{} hiding large parts of the document to
 show only the general document structure and the parts currently being
 worked on.  Org greatly simplifies the use of outlines by compressing
-the show and hide functionalities into a single command@comma{} @code{org-cycle}@comma{}
+the show and hide functionality into a single command@comma{} @code{org-cycle}@comma{}
 which is bound to the @kbd{@key{TAB}} key.
 
 @menu
@@ -1122,7 +1122,7 @@ subtree@comma{} in order to structure the collapsed view.  See the variable
 
 Outlines make it possible to hide parts of the text in the buffer.
 Org uses just two commands@comma{} bound to @kbd{@key{TAB}} and
-@kbd{S-@key{TAB}} to change the visibility in the buffer.
+@kbd{S-@key{TAB}}@comma{} to change the visibility in the buffer.
 
 @table @asis
 @item @kbd{@key{TAB}} (@code{org-cycle})
@@ -1185,7 +1185,7 @@ Show all@comma{} including drawers.
 @kindex C-c C-r
 @findex org-reveal
 Reveal context around point@comma{} showing the current entry@comma{} the
-following heading and the hierarchy above.  It is useful for working
+following heading@comma{} and the hierarchy above.  It is useful for working
 near a location that has been exposed by a sparse tree command (see
 @ref{Sparse Trees}) or an agenda command (see @ref{Agenda Commands}).  With a prefix argument@comma{} show@comma{} on each level@comma{} all sibling
 headings.  With a double prefix argument@comma{} also show the entire
@@ -1214,7 +1214,7 @@ to the current tree.  Editing the indirect buffer also changes the
 original buffer@comma{} but without affecting visibility in that buffer.  For
 more information about indirect buffers@comma{} see @ref{Indirect Buffers,GNU Emacs Manual,,emacs,}.}.  With
 a numeric prefix argument @var{N}@comma{} go up to level @var{N}
-and then take that tree.  If @var{N} is negative then go up
+and then take that tree.  If @var{N} is negative@comma{} then go up
 that many levels.  With a @kbd{C-u} prefix@comma{} do not remove the
 previously used indirect buffer.
 
@@ -1276,7 +1276,7 @@ customizing @code{org-fold-catch-invisible-edits-commands}.
 
 The strategy used to decide if a given edit is dangerous is controlled
 by @code{org-fold-catch-invisible-edits}.  See the docstring of this option
-on the available strategies.  Set the option to @code{nil} to disable
+for the available strategies.  Set the option to @code{nil} to disable
 catching invisible edits completely.
 
 @node Motion
@@ -1373,7 +1373,7 @@ See also the variable @code{org-goto-interface}.
 @kindex M-RET
 @findex org-meta-return
 @vindex org-M-RET-may-split-line
-Insert a new heading@comma{} item or row.
+Insert a new heading@comma{} item@comma{} or row.
 
 If the command is used at the @emph{beginning} of a line@comma{} and if there is
 a heading or a plain list item (see @ref{Plain Lists}) at point@comma{} the new
@@ -1430,8 +1430,7 @@ Promote or demote current heading by one level.
 @cindex transient mark mode
 When there is an active region---i.e.@comma{} when Transient Mark mode is
 active---promotion and demotion work on all headlines in the region.
-To select a region of headlines@comma{} it is best to place both point and
-mark at the beginning of a line@comma{} mark at the beginning of the first
+To select a region of headlines@comma{} it is best to set mark at the beginning of the first
 headline@comma{} and point at the line just after the last headline to
 change.
 
@@ -1464,7 +1463,7 @@ subtrees of the same level as the marked subtree.
 @item @kbd{C-c C-x C-w} (@code{org-cut-subtree})
 @kindex C-c C-x C-w
 @findex org-cut-subtree
-Kill subtree@comma{} i.e.@comma{} remove it from buffer but save in kill ring.
+Kill subtree@comma{} i.e.@comma{} remove it from the buffer but save in kill ring.
 With a numeric prefix argument N@comma{} kill N sequential subtrees.
 
 @item @kbd{C-c C-x M-w} (@code{org-copy-subtree})
@@ -1503,7 +1502,7 @@ items plainly@comma{} without adjustment and folding.
 @findex org-clone-subtree-with-time-shift
 Clone a subtree by making a number of sibling copies of it.  You are
 prompted for the number of copies to make@comma{} and you can also specify
-if any timestamps in the entry should be shifted.  This can be
+whether any timestamps in the entry should be shifted.  This can be
 useful@comma{} for example@comma{} to create a number of tasks related to a series
 of lectures to prepare.  For more details@comma{} see the docstring of the
 command @code{org-clone-subtree-with-time-shift}.
@@ -1575,8 +1574,7 @@ also the variable @code{org-fold-show-context-detail} to decide how much context
 is shown around each match.}.  Just try it out and you will see
 immediately how it works.
 
-Org mode contains several commands creating such trees@comma{} all these
-commands can be accessed through a dispatcher:
+Org mode contains several commands creating such trees@comma{} all of which can be accessed through a dispatcher:
 
 @table @asis
 @item @kbd{C-c /} (@code{org-sparse-tree})
@@ -1616,7 +1614,7 @@ Jump to the previous sparse tree match in this buffer.
 @end table
 
 @vindex org-agenda-custom-commands
-For frequently used sparse trees of specific search strings@comma{} you can
+For frequently used sparse trees for specific search strings@comma{} you can
 use the variable @code{org-agenda-custom-commands} to define fast keyboard
 access to specific sparse trees.  These commands will then be
 accessible through the agenda dispatcher (see @ref{Agenda Dispatcher}).
@@ -1638,7 +1636,7 @@ tags@comma{} or properties and are discussed later in this manual.
 @cindex printing sparse trees
 @cindex visible text, printing
 To print a sparse tree@comma{} you can use the Emacs command
-@code{ps-print-buffer-with-faces} which does not print invisible parts of
+@code{ps-print-buffer-with-faces}@comma{} which does not print invisible parts of
 the document.  Or you can use the command @kbd{C-c C-e C-v} to
 export only the visible part of the document and print the resulting
 file.
@@ -1838,21 +1836,20 @@ converted into a list item.
 @item @kbd{C-c *}
 @kindex C-c *
 Turn a plain list item into a headline---so that it becomes
-a subheading at its location.  See @ref{Structure Editing}@comma{} for
+a subheading at its location.  See @ref{Structure Editing} for
 a detailed explanation.
 
 @item @kbd{C-c C-*}
 @kindex C-c C-*
 Turn the whole plain list into a subtree of the current heading.
-Checkboxes (see @ref{Checkboxes}) become @samp{TODO}@comma{} respectively @samp{DONE}@comma{}
-keywords when unchecked@comma{} respectively checked.
+Checkboxes (see @ref{Checkboxes}) become @samp{TODO} or @samp{DONE} keywords when unchecked or checked@comma{} respectively.
 
 @item @kbd{S-@key{LEFT}}@comma{} @kbd{S-@key{RIGHT}}
 @vindex org-support-shift-select
 @kindex S-LEFT
 @kindex S-RIGHT
 This command also cycles bullet styles when point is on the bullet
-or anywhere in an item line@comma{} details depending on
+or anywhere in an item line@comma{} with details depending on
 @code{org-support-shift-select}.
 
 @item @kbd{C-c ^}
@@ -1918,7 +1915,7 @@ Add a time-stamped note to the @samp{LOGBOOK} drawer.
 @vindex org-hide-block-startup
 @cindex blocks, folding
 
-Org mode uses @samp{#+BEGIN} @dots{} @samp{#+END} blocks for various purposes from
+Org mode uses @samp{#+BEGIN} @dots{} @samp{#+END} blocks for various purposes@comma{} from
 including source code examples (see @ref{Literal Examples}) to capturing
 time logging information (see @ref{Clocking Work Time}).  These blocks can
 be folded and unfolded by pressing @kbd{@key{TAB}} in the @samp{#+BEGIN}
@@ -1995,7 +1992,7 @@ fields.  Even faster would be to type @samp{|Name|Phone|Age} followed by
 
 When typing text into a field@comma{} Org treats @kbd{@key{DEL}}@comma{}
 @kbd{Backspace}@comma{} and all character keys in a special way@comma{} so that
-inserting and deleting avoids shifting other fields.  Also@comma{} when
+inserting and deleting avoid shifting other fields.  Also@comma{} when
 typing @emph{immediately} after point was moved into a new field with
 @kbd{@key{TAB}}@comma{} @kbd{S-@key{TAB}} or @kbd{@key{RET}}@comma{} the field is
 automatically made blank.  If this behavior is too unpredictable for
@@ -2216,12 +2213,12 @@ be inserted with @kbd{C-y}.
 @kindex S-RET
 @findex org-table-copy-down
 @vindex org-table-copy-increment
-When current field is empty@comma{} copy from first non-empty field above.
-When not empty@comma{} copy current field down to next row and move point
+When the current field is empty@comma{} copy from the first non-empty field above.
+When it is not empty@comma{} copy the current field down to the next row and move point
 along with it.
 
 Depending on the variable @code{org-table-copy-increment}@comma{} integer and
-time stamp field values@comma{} and fields prefixed or suffixed with
+time stamp field values@comma{} as well as fields prefixed or suffixed with
 a whole number@comma{} can be incremented during copy.  Also@comma{} a @code{0} prefix
 argument temporarily disables the increment.
 
@@ -2247,11 +2244,11 @@ command with @kbd{C-u C-u C-c `}.
 
 @item @kbd{M-x org-table-import}
 @findex org-table-import
-Import a file as a table.  The table should be TAB or whitespace
-separated.  Use@comma{} for example@comma{} to import a spreadsheet table or data
-from a database@comma{} because these programs generally can write
-TAB-separated text files.  This command works by inserting the file
-into the buffer and then converting the region to a table.  Any
+Import a file as a table.  The table should be TAB- or
+whitespace-separated.  Use@comma{} for example@comma{} to import a spreadsheet
+table or data from a database@comma{} because these programs generally can
+write TAB-separated text files.  This command works by inserting the
+file into the buffer and then converting the region to a table.  Any
 prefix argument is passed on to the converter@comma{} which uses it to
 determine the separator.
 
@@ -2278,7 +2275,7 @@ the same as the format used by Orgtbl radio tables@comma{} see @ref{Translator f
 @findex org-table-header-line-mode
 @vindex org-table-header-line-p
 Turn on the display of the first data row of the table at point in
-the window header line when this first row is not visible any more in
+the window header line when this first row is not visible anymore in
 the buffer.  You can activate this minor mode by default by setting
 the option @code{org-table-header-line-p} to @code{t}.
 
@@ -2393,8 +2390,7 @@ automatically upon exporting the document.
 @cindex grouping columns in tables
 
 When Org exports tables@comma{} it does so by default without vertical lines
-because that is visually more satisfying in general.  Occasionally
-however@comma{} vertical lines can be useful to structure a table into groups
+because that is visually more satisfying in general.  Occasionally@comma{} however@comma{} vertical lines can be useful to structure a table into groups
 of columns@comma{} much like horizontal lines can do for groups of rows.  In
 order to specify column groups@comma{} you can use a special row where the
 first field contains only @samp{/}.  The further fields can either contain
@@ -20700,11 +20696,18 @@ Note that all the links pointing to a source block exported using
 unless broken links are allowed during export (see @ref{Export Settings}).
 
 @vindex org-export-use-babel
-To stop Org from evaluating code blocks to speed up export@comma{} use the
-header argument @samp{:eval never-export} (see @ref{Evaluating Code Blocks}).
-To stop Org from evaluating code blocks for greater security@comma{} set the
-@code{org-export-use-babel} variable to @code{nil}@comma{} but understand that header
-arguments will have no effect.
+You can prevent Org from evaluating code blocks for speed or security
+reasons:
+
+@itemize
+@item
+To speed up export@comma{} use the header argument @samp{:eval never-export}
+(see @ref{Evaluating Code Blocks}).
+@item
+For greater security@comma{} set the @code{org-export-use-babel} variable to
+@code{nil}@comma{} but understand that header arguments will have no effect in
+this case.
+@end itemize
 
 If results of evaluation are not marked for export (@samp{:exports code} or
 @samp{:exports none})@comma{} Org will not evaluate them@comma{} even for @samp{:eval yes}.
