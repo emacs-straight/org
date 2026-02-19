@@ -3656,7 +3656,7 @@ Org recognizes plain URIs@comma{} possibly wrapped within angle
 brackets@footnote{Plain URIs are recognized only for a well-defined set of
 schemes.  See @ref{External Links}.  Unlike URI syntax@comma{} they cannot contain
 parenthesis or white spaces@comma{} either.  URIs within angle brackets have
-no such limitation.}@comma{} and activate them as clickable links.
+no such limitation.}@comma{} and activates them as clickable links.
 
 @cindex bracket links
 The general link format@comma{} however@comma{} looks like this:
@@ -3784,7 +3784,7 @@ The last sentence will appear as @samp{Here we refer to item 2} when
 exported.
 
 In non-Org files@comma{} the search looks for the words in the link text.  In
-the above example the search would be for @samp{target}.
+the above example@comma{} the search would be for @samp{target}.
 
 Following a link pushes a mark onto Org's own mark ring.  You can
 return to the previous position with @kbd{C-c &}.  Using this
@@ -3839,8 +3839,8 @@ Here is the full set of built-in link types:
 @item @samp{file}
 File links.  File name may be remote@comma{} absolute@comma{} or relative.
 
-As a special case@comma{} ``file'' prefix may be omitted if the file name
-is complete@comma{} e.g.@comma{} it starts with @samp{./}@comma{} or @samp{/}.
+As a special case@comma{} the ``file'' prefix may be omitted if the file name
+is complete@comma{} e.g.@comma{} it starts with @samp{./} or @samp{/}.
 
 @item @samp{attachment}
 Same as file links but for files and folders attached to the current
@@ -4202,13 +4202,13 @@ edit the link and description parts of the link.
 @findex org-open-at-point
 @vindex org-file-apps
 Open link at point.  This launches a web browser for URL (using
-@code{browse-url-at-point})@comma{} run VM/MH-E/Wanderlust/Rmail/Gnus/BBDB for
-the corresponding links@comma{} and execute the command in a shell link.
+@code{browse-url-at-point})@comma{} runs VM/MH-E/Wanderlust/Rmail/Gnus/BBDB for
+the corresponding links@comma{} and executes the command in a shell link.
 When point is on an internal link@comma{} this command runs the
 corresponding search.  When point is on the tags part of a headline@comma{}
 it creates the corresponding tags view (see @ref{Matching tags and properties}).  If point is on a timestamp@comma{} it compiles the agenda for
 that date.  Furthermore@comma{} it visits text and remote files in @samp{file}
-links with Emacs and select a suitable application for local
+links with Emacs and selects a suitable application for local
 non-text files.  Classification of files is based on file extension
 only.  See option @code{org-file-apps}.  If you want to override the
 default application and visit the file with Emacs@comma{} use
@@ -4229,7 +4229,7 @@ the link at point.
 @item @kbd{mouse-2} or @kbd{mouse-1}
 @kindex mouse-2
 @kindex mouse-1
-On links@comma{} @kbd{mouse-1} and @kbd{mouse-2} opens the link
+On links@comma{} @kbd{mouse-1} and @kbd{mouse-2} open the link
 just as @kbd{C-c C-o} does.
 
 @item @kbd{mouse-3}
@@ -4292,7 +4292,7 @@ You might want to bind them to globally available keys.  See
 @cindex link abbreviations
 @cindex abbreviation, links
 
-Long URL can be cumbersome to type@comma{} and often many similar links are
+Long URLs can be cumbersome to type@comma{} and often many similar links are
 needed in a document.  For this you can use link abbreviations.  An
 abbreviated link looks like this
 
@@ -4320,7 +4320,7 @@ replacement text.  Here is an example:
 If the replacement text contains the string @samp{%s}@comma{} it is replaced with
 the tag.  Using @samp{%h} instead of @samp{%s} percent-encodes the tag (see the
 example above@comma{} where we need to encode the URL parameter).  Using
-@samp{%(my-function)} passes the tag to a custom Lisp function@comma{} and replace
+@samp{%(my-function)} passes the tag to a custom Lisp function@comma{} and replaces
 it by the resulting string.
 
 If the replacement text does not contain any specifier@comma{} it is simply
