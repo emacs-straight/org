@@ -5,13 +5,46 @@ ORG NEWS -- history of user-visible changes.   -*- mode: org; coding: utf-8 -*-
 #+LINK: doc https://orgmode.org/worg/doc.html#%s
 #+LINK: msg https://list.orgmode.org/%s/
 #+LINK: git https://git.savannah.nongnu.org/cgit/org-mode.git/commit/?id=%s
+#+macro: kbd (eval (org-texinfo-kbd-macro $1))
 
 Copyright (C) 2012-2026 Free Software Foundation, Inc.
 See the end of the file for license conditions.
 
 Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
 
-* Version 9.8 (not released yet)
+# Remember that we only export the first entry from this file
+# into https://orgmode.org/Changes.html
+# This means that links pointing to earlier changelog entries
+# will be broken.
+
+* Version 10.0 (not released yet)
+
+** Important announcements and breaking changes
+
+# Here, we list the *most important* changes and changes that _likely_
+# require user action for most Org mode users.
+# Sorted from most important to least important.
+
+** New features
+
+# We list the most important features, and the features that may
+# require user action to be used.
+
+** New and changed options
+
+# Changes dealing with changing default values of customizations,
+# adding new customizations, or changing the interpretation of the
+# existing customizations.
+
+** New functions and changes in function arguments
+
+# This also includes changes in function behavior from Elisp perspective.
+
+** Removed or renamed functions and variables
+
+** Miscellaneous
+
+* Version 9.8
 ** Important announcements and breaking changes
 
 # Here, we list the *most important* changes and changes that _likely_
@@ -119,6 +152,12 @@ of blank lines is recorded in ~:pre-blank~ property.
 
 ~org-element-org-data-interpreter~ takes into account this information.
 
+*** Emacs 26 and Emacs 27 support has been dropped
+
+We maintain compatibility with the latest Emacs release, and two
+versions prior the latest.  The latest is Emacs 30, so we drop
+everything before Emacs 28.
+
 ** New features
 
 # We list the most important features, and the features that may
@@ -181,7 +220,7 @@ The new placeholder is like =%\N=, but gives access not only to the
 
 *** Alignment of image previews can be customized
 
-This feature was added in Org 9.7 but was not documented in the release notes.  See [[#preview-align][retrospectively added news entry]].
+This feature was added in Org 9.7 but was not documented in the release notes.  See [[https://orgmode.org/worg/org-release-notes.html#preview-align][retrospectively added news entry]].
 
 *** ~org-open-at-point-global~ now accepts prefix argument
 
@@ -265,9 +304,11 @@ Added option ~:readonly~ to =ob-sqlite=.
 With ~:readonly yes~, the database is opened in readonly mode. For
 example:
 
-#+begin_src sqlite :db /tmp/rip.db  :readonly yes  :exports both
+#+begin_example
+,#+begin_src sqlite :db /tmp/rip.db  :readonly yes  :exports both
 create table rip(a,b);
-#+end_src
+,#+end_src
+#+end_example
 
 This results in an error such as:
 
@@ -326,14 +367,14 @@ can be used.
 The =onlyenv= environment limits showing parts of an animated Beamer
 slide to specific animation steps.
 
-#+BEGIN_SRC org
+#+begin_example
 ,***** Comment
 :PROPERTIES:
 :BEAMER_env: onlyenv
 :BEAMER_act: <2->
 :END:
 This text will be displayed on animation step 2 and later.
-#+END_SRC
+#+end_example
 
 **** =ox-html=: Headline self links can be enabled from an Org mode file
 
@@ -573,7 +614,7 @@ accept the INFO channel and return a string.  This makes it possible
 to dynamically generate the content of the resulting ~<head>~ tag in
 the resulting HTML document.
 
-*** ~org-element-create~ now ignores ~nil~s in CHILDREN argument
+*** ~org-element-create~ now ignores ~nil~​s in CHILDREN argument
 
 When CHILDREN contains ~nil~ elements, they are skipped.  This way,
 
@@ -660,11 +701,11 @@ a per source block basis.
 
 To get back the old behavior, add
 
-#+BEGIN_SRC emacs-lisp
+#+begin_example
 (with-eval-after-load 'ob-calc
   (setq org-babel-header-args:calc
         (append '(:results . "verbatim") org-babel-header-args:calc)))
-#+END_SRC
+#+end_example
 
 to your configuration.
 
@@ -675,8 +716,7 @@ result type), but may affect the existing usage.
 
 Previously, special table rows were unconditionally removed when
 export to Org.  Now, the defaults follow what ox-org does - to retain
-special rows by default.  See [[*=ox-org= now exports special table rows
-by default]].
+special rows by default.  See [[https://orgmode.org/worg/org-release-notes.html#ox-org-special-table-rows][previous change]].
 
 To retain the old behavior, add ~:with-special-rows nil~ to PARAMS argument:
 
@@ -2546,6 +2586,9 @@ Previously, all the header arguments where stripped from src blocks
 during export.  Now, header arguments are preserved.
 
 *** =ox-org= now exports special table rows by default
+:PROPERTIES:
+:CUSTOM_ID: ox-org-special-table-rows
+:END:
 
 Previously, when exporting to Org, special table rows (for example,
 width cookies) were not exported.   Now, they are exported by default.

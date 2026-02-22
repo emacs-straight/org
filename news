@@ -5,13 +5,46 @@ ORG NEWS -- history of user-visible changes.   -*- mode: org; coding: utf-8 -*-
 #+LINK: doc https://orgmode.org/worg/doc.html#%s
 #+LINK: msg https://list.orgmode.org/%s/
 #+LINK: git https://git.savannah.nongnu.org/cgit/org-mode.git/commit/?id=%s
+#+macro: kbd (eval (org-texinfo-kbd-macro $1))
 
 Copyright (C) 2012-2026 Free Software Foundation, Inc.
 See the end of the file for license conditions.
 
 Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
 
-* Version 9.8 (not released yet)
+# Remember that we only export the first entry from this file
+# into https://orgmode.org/Changes.html
+# This means that links pointing to earlier changelog entries
+# will be broken.
+
+* Version 10.0 (not released yet)
+
+** Important announcements and breaking changes
+
+# Here, we list the *most important* changes and changes that _likely_
+# require user action for most Org mode users.
+# Sorted from most important to least important.
+
+** New features
+
+# We list the most important features, and the features that may
+# require user action to be used.
+
+** New and changed options
+
+# Changes dealing with changing default values of customizations,
+# adding new customizations, or changing the interpretation of the
+# existing customizations.
+
+** New functions and changes in function arguments
+
+# This also includes changes in function behavior from Elisp perspective.
+
+** Removed or renamed functions and variables
+
+** Miscellaneous
+
+* Version 9.8
 ** Important announcements and breaking changes
 
 # Here, we list the *most important* changes and changes that _likely_
@@ -82,23 +115,5 @@ following to your config:
 
 Previously, =:results drawer= left the code block results verbatim in
 some scenarios.  This is no longer the case, in line with the manual
-and the intended purpose of this option.  However, the fix may have
-brought subtle changes in the code block output for users who made use
-of the previous erroneous behavior.  If you use =:results drawer= in your
-Org documents, please watch out for potential changes in the code evaluation.
-
-*** Diary-style timestamps are exported together with active timestamps
-
-~org-export-with-timestamps~ and ~org-icalendar-with-timestamps~ now
-treat diary-style timestamps as a type of active timestamp for
-purposes of export.
-
-This mainly affects iCalendar export, where diary timestamps will now
-be included when only active timestamps are exported (the default).
-
-This should have minimal impact on non-iCalendar exporters, since
-~org-export-with-timestamps~ was already ~t~ by default.  However,
-users who manually set ~org-export-with-timestamps~ to ~active~ will
-now have diary timestamps included as well.
 ...
 ...
