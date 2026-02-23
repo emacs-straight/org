@@ -1762,7 +1762,7 @@ meaning:
   %b   show breadcrumbs, i.e., the names of the higher levels
   %(expression) Eval `(EXPRESSION)' and replace the control string by
                 the result.
-                
+
 
 `(EXPRESSION)' is evaluated with point and buffer associated with
 agenda entry/line being rendered.  For example, heading lines will be

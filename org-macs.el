@@ -1873,6 +1873,13 @@ transient buffer) then return nil."
       (buffer-file-name base-buffer)
     (buffer-file-name buffer)))
 
+(defun org-format-percent-cookie (completed total)
+  "Format the percent cookie `[N%]' for COMPLETED/TOTAL tasks.
+The percent is rounded down to the nearest integer, except for small
+percentages 0% < p < 1% which are rounded up to 1%."
+  (let ((p (floor (* 100.0 completed) (max 1 total))))
+    (format "[%d%%]" (if (and (= p 0) (> completed 0)) 1 p))))
+
 (provide 'org-macs)
 
 ;; Local variables:

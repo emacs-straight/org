@@ -2656,8 +2656,7 @@ portion of the buffer."
 	    (goto-char beg)
             (org-fold-core-ignore-modifications
 	      (insert-and-inherit
-	       (if percent (format "[%d%%]" (floor (* 100.0 checked)
-					           (max 1 total)))
+	       (if percent (org-format-percent-cookie checked total)
 	         (format "[%d/%d]" checked total)))
 	      (delete-region (point) (+ (point) (- end beg))))
 	    (when org-auto-align-tags (org-fix-tags-on-the-fly))))))))

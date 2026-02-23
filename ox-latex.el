@@ -4120,10 +4120,12 @@ property."
 	;; When the "rmlines" attribute is provided, remove all hlines
 	;; but the one separating heading from the table body.
 	(let ((n 0) (pos 0))
-	  (while (and (< (length output) pos)
+	  (while (and (> (length output) pos)
 		      (setq pos (string-match "^\\\\hline\n?" output pos)))
 	    (cl-incf n)
-	    (unless (= n 2) (setq output (replace-match "" nil nil output))))))
+	    (if (= n 2)
+                (cl-incf pos)
+              (setq output (replace-match "" nil nil output))))))
       (org-latex--decorate-table output attr caption above? info))))
 
 (defun org-latex--math-table (table info)

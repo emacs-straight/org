@@ -40,9 +40,21 @@ Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
 
 # This also includes changes in function behavior from Elisp perspective.
 
+*** New function ~org-format-percent-cookie~
+
+Given the completed and total number of tasks, format the percent
+cookie =[N%]=.
+
 ** Removed or renamed functions and variables
 
 ** Miscellaneous
+
+*** The percent cookie is now non-zero when any sub-task is complete
+
+With a large number of tasks (N > 100) the percent cookie previously
+showed =0%= when a non-zero amount have been completed, e.g. 1/101.
+Those cases now show =1%= instead.  The same is true for the checkbox
+status summary type =X%= when defining columns for column view.
 
 * Version 9.8
 ** Important announcements and breaking changes
@@ -201,7 +213,7 @@ considered the official successor.
 Org links support a new parameter =:preview= that can be used to
 preview arbitrary link types.  The value of this parameter should be a
 function that is called to preview links of the corresponding type
-(see ~org-link-parameters~). 
+(see ~org-link-parameters~).
 
 The new preview system does not bring any brand-new link previews, but
 open the possibility for third-party packages to implement custom previews
@@ -503,7 +515,7 @@ will be used as a directory to save the image to.
 
 Candidate refile targets may now be specified with the symbol ~t~ to
 indicate that all headlines within the specified file are to be
-considered.  For example, setting ~org-refile-targets~ to ~((nil . t))~ 
+considered.  For example, setting ~org-refile-targets~ to ~((nil . t))~
 will allow one to refile to any heading within the current buffer.
 
 *** In =ob-ditaa=, the output type is now controlled consistently with other babel backends

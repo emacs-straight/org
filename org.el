@@ -6203,8 +6203,9 @@ needs to be inserted at a specific position in the font-lock sequence.")
           ;; Apply this last, after all the markup is highlighted, so
           ;; that even "bright" markup will become dim.
 	  (list (format
-		 "^\\*+\\(?: +%s\\)?\\(?: +\\[#[A-Z0-9]\\]\\)? +\\(?9:%s\\)\\(?: \\|$\\)"
+		 "^\\*+\\(?: +%s\\)?\\(?: +\\[#\\(?:%s\\)\\]\\)? +\\(?9:%s\\)\\(?: \\|$\\)"
 		 org-todo-regexp
+                 org-priority-value-regexp
 		 org-comment-string)
 		'(9 'org-special-keyword prepend))
           '(org-activate-folds))))
@@ -10188,9 +10189,8 @@ statistics everywhere."
                   (outline-next-heading)))
 	      (setq new
                     (if is-percent
-                        (format "[%d%%]" (floor (* 100.0 cnt-done)
-					        (max 1 cnt-all)))
-                      (format "[%d/%d]" cnt-done cnt-all))
+                        (org-format-percent-cookie cnt-done cnt-all)
+		      (format "[%d/%d]" cnt-done cnt-all))
                     ndel (- (match-end 0) checkbox-beg))
               (goto-char (match-end 0))
               (unless (string-equal new (buffer-substring checkbox-beg (match-end 0)))

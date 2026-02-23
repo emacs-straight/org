@@ -5509,11 +5509,11 @@ use the variables @code{org-use-tag-inheritance} and
 @code{org-tags-exclude-from-inheritance}.
 
 @vindex org-agenda-use-tag-inheritance
-Tag inheritance is relevant when the agenda search tries to match
-a tag@comma{} either in the @code{tags} or @code{tags-todo} agenda types.  In other
+Tag inheritance is relevant when the agenda search tries to match a
+tag@comma{} either in the @code{tags} or @code{tags-todo} agenda types.  In other
 agenda types@comma{} @code{org-use-tag-inheritance} has no effect.  Still@comma{} you may
-want to have your tags correctly set in the agenda@comma{} so that tag
-filtering works fine@comma{} with inherited tags.  Set
+want your tags to be correctly set in the agenda@comma{} so that tag
+filtering works properly with inherited tags.  Set
 @code{org-agenda-use-tag-inheritance} to control this: the default value
 includes all agenda types@comma{} but setting this to @code{nil} can really speed
 up agenda generation.
@@ -5536,7 +5536,7 @@ also a special command for inserting tags:
 @cindex completion, of tags
 @vindex org-tags-column
 Enter new tags for the current headline.  Org mode either offers
-completion or a special single-key interface for setting tags@comma{} see
+completion or a special single-key interface for setting tags; see
 below.  After pressing @kbd{@key{RET}}@comma{} the tags are inserted and
 aligned to @code{org-tags-column}.  When called with a @kbd{C-u}
 prefix@comma{} all tags in the current buffer are aligned to that column@comma{}
@@ -5575,8 +5575,8 @@ a specific file@comma{} add an empty @samp{TAGS} keyword to that file:
 
 @vindex org-tag-persistent-alist
 If you have a preferred set of tags that you would like to use in
-every file@comma{} in addition to those defined on a per-file basis by @samp{TAGS}
-keyword@comma{} then you may specify a list of tags with the variable
+every file@comma{} in addition to those defined on a per-file basis by the
+@samp{TAGS} keyword@comma{} then you may specify a list of tags with the variable
 @code{org-tag-persistent-alist}.  You may turn this off on a per-file basis
 by adding a @samp{STARTUP} keyword to that file:
 
@@ -5585,10 +5585,10 @@ by adding a @samp{STARTUP} keyword to that file:
 @end example
 
 By default@comma{} Org mode uses the standard minibuffer completion facilities
-for entering tags.  However@comma{} it also implements another@comma{} quicker@comma{} tag
+for entering tags.  However@comma{} it also implements another@comma{} quicker tag
 selection method called @emph{fast tag selection}.  This allows you to
 select and deselect tags with just a single key press.  For this to
-work well you should assign unique letters to most of your commonly
+work well@comma{} you should assign unique letters to most of your commonly
 used tags.  You can do this globally by configuring the variable
 @code{org-tag-alist} in your Emacs init file.  For example@comma{} you may find
 the need to tag many items in different files with @samp{@@home}.  In this
@@ -5636,7 +5636,7 @@ Do not forget to press @kbd{C-c C-c} with point in one of these
 lines to activate any changes.
 
 To set these mutually exclusive groups in the variable
-@code{org-tags-alist}@comma{} you must use the dummy tags @code{:startgroup} and
+@code{org-tag-alist}@comma{} you must use the dummy tags @code{:startgroup} and
 @code{:endgroup} instead of the braces.  Similarly@comma{} you can use @code{:newline}
 to indicate a line break.  The previous example would be set globally
 by the following configuration:
@@ -5649,7 +5649,7 @@ by the following configuration:
                       ("laptop" . ?l) ("pc" . ?p)))
 @end lisp
 
-If at least one tag has a selection key then pressing @kbd{C-c C-c} automatically presents you with a special interface@comma{} listing
+If at least one tag has a selection key@comma{} then pressing @kbd{C-c C-c} automatically presents you with a special interface@comma{} listing
 inherited tags@comma{} the tags of the current headline@comma{} and a list of all
 valid tags with corresponding keys@footnote{ Keys are automatically
 assigned to tags that have no configured keys.}.
@@ -5735,7 +5735,7 @@ tag} for a set of other tags.  The group tag can be seen as the
 ``broader term'' for its set of tags.  Defining multiple group tags and
 nesting them creates a tag hierarchy.
 
-One use-case is to create a taxonomy of terms (tags) that can be used
+One use case is to create a taxonomy of terms (tags) that can be used
 to classify nodes in a document or set of documents.
 
 When you search for a group tag@comma{} it returns matches for all members in
@@ -5745,7 +5745,7 @@ of the group or any of its subgroups.  This makes tag searches and
 filters even more flexible.
 
 You can set group tags by using brackets and inserting a colon between
-the group tag and its related tags---beware that all whitespaces are
+the group tag and its related tags---beware that all whitespace is
 mandatory so that Org can parse this line correctly:
 
 @example
@@ -5790,8 +5790,8 @@ That can conceptually be seen as a hierarchy of tags:
 @end itemize
 @end itemize
 
-You can use the @code{:startgrouptag}@comma{} @code{:grouptags} and @code{:endgrouptag}
-keyword directly when setting @code{org-tag-alist} directly:
+You can use the @code{:startgrouptag}@comma{} @code{:grouptags}@comma{} and @code{:endgrouptag}
+keywords when setting @code{org-tag-alist} directly:
 
 @lisp
 (setq org-tag-alist '((:startgrouptag)
@@ -5808,9 +5808,9 @@ keyword directly when setting @code{org-tag-alist} directly:
                       (:endgrouptag)))
 @end lisp
 
-The tags in a group can be mutually exclusive if using the same group
-syntax as is used for grouping mutually exclusive tags together; using
-curly brackets.
+Tags in a group can be made mutually exclusive by using the same group
+syntax as for grouping mutually exclusive tags together--using curly
+brackets.
 
 @example
 #+TAGS: @{ Context : @@Home @@Work @@Call @}
@@ -5881,7 +5881,7 @@ These commands all prompt for a match string which allows basic
 Boolean logic@comma{} such as @samp{+boss+urgent-project1} to find entries with
 tags @samp{boss} and @samp{urgent}@comma{} but not @samp{project1} or @samp{Kathy|Sally} to find
 entries tagged with either @samp{Kathy} or @samp{Sally}.  The full syntax of the
-search string is rich and allows also matching against TODO keywords@comma{}
+search string is rich and also allows matching against TODO keywords@comma{}
 entry levels and properties.  For a complete description with many
 examples@comma{} see @ref{Matching tags and properties}.
 

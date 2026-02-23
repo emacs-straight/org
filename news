@@ -40,9 +40,21 @@ Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
 
 # This also includes changes in function behavior from Elisp perspective.
 
+*** New function ~org-format-percent-cookie~
+
+Given the completed and total number of tasks, format the percent
+cookie =[N%]=.
+
 ** Removed or renamed functions and variables
 
 ** Miscellaneous
+
+*** The percent cookie is now non-zero when any sub-task is complete
+
+With a large number of tasks (N > 100) the percent cookie previously
+showed =0%= when a non-zero amount have been completed, e.g. 1/101.
+Those cases now show =1%= instead.  The same is true for the checkbox
+status summary type =X%= when defining columns for column view.
 
 * Version 9.8
 ** Important announcements and breaking changes
@@ -102,18 +114,5 @@ the ~org-latex-preview~ command.)
 In addition to images, ~org-link-preview~ can also be used to preview
 Org links of all types for which preview behavior is defined, see
 [[#link-preview][previews for arbitrary link types]].
-
-The old ~org-toggle-inline-images~ command is obsolete but still
-available.  You can bind it back to =C-c C-x C-v= by adding the
-following to your config:
-#+begin_src emacs-lisp
-(eval-after-load 'org-keys
-  (org-defkey org-mode-map (kbd "C-c C-x C-v") #'org-toggle-inline-images))
-#+end_src
-
-*** Org mode no longer treats =:results drawer= as verbatim output
-
-Previously, =:results drawer= left the code block results verbatim in
-some scenarios.  This is no longer the case, in line with the manual
 ...
 ...
