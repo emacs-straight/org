@@ -5329,11 +5329,11 @@ can be set, so they are associated with a single entry, with every
 entry in a tree, or with the whole buffer.
 
 There are two main applications for properties in Org mode.  First,
-properties are like tags, but with a value.  Imagine maintaining
-a file where you document bugs and plan releases for a piece of
+properties are like tags, but with a value.  Imagine maintaining a
+file where you document bugs and plan releases for a piece of
 software.  Instead of using tags like =release_1=, =release_2=, you
-can use a property, say =Release=, that in different subtrees has
-different values, such as =1.0= or =2.0=.  Second, you can use
+can use a property, say =Release=, that can have different values in
+different subtrees, such as =1.0= or =2.0=.  Second, you can use
 properties to implement (very basic) database capabilities in an Org
 buffer.  Imagine keeping track of your music CDs, where properties
 could be things such as the album, artist, date of release, number of
@@ -5372,7 +5372,7 @@ value after it.  Keys are case-insensitive.  Here is an example:
 
 Depending on the value of ~org-use-property-inheritance~, a property
 set this way is associated either with a single entry, or with the
-subtree defined by the entry, see [[*Property Inheritance]].
+subtree defined by the entry; see [[*Property Inheritance]].
 
 You may define the allowed values for a particular property =Xyz= by
 setting a property =Xyz_ALL=.  This special property is /inherited/,
@@ -5514,7 +5514,7 @@ The following commands help to work with properties:
 Special properties provide an alternative access method to Org mode
 features, like the TODO state or the priority of an entry, discussed
 in the previous chapters.  This interface exists so that you can
-include these states in a column view (see [[*Column View]]), or to use
+include these states in a column view (see [[*Column View]]), or use
 them in queries.  The following property names are special and should
 not be used as keys in the properties drawer:
 
@@ -5747,14 +5747,14 @@ optional.  The individual parts have the following meaning:
   existing property defined for the parent nodes, it is not used in
   the calculations.
 
-  When there is an existing property in parent heading, Org does not
-  only overlay the computed value in the column view, but also
-  overwrites the property value in parent's property drawer[fn:: If
-  more than column definition is requested for the same property, only
-  the first definition will trigger writing to the property drawer.
+  When there is an existing property in a parent heading, Org not only
+  overlays the computed value in the column view, but also overwrites
+  the property value in the parent's property drawer[fn:: If more than
+  one column definition is requested for the same property, only the
+  first definition will trigger writing to the property drawer.
   For example, =%EFFORT{mean} %EFFORT(Sum){:}= will write the mean
-  value of =EFFORT= property; not the sum.  If the first column
-  definition does not have summary type (=%EFFORT %EFFORT{mean}=),
+  value of the =EFFORT= property, not the sum.  If the first column
+  definition does not have a summary type (=%EFFORT %EFFORT{mean}=),
   nothing will be written to the property drawer].
 
   Summary type is ignored for special properties.
@@ -5762,15 +5762,15 @@ optional.  The individual parts have the following meaning:
   Supported summary types are:
 
   | =+=      | Sum numbers in this column.                           |
-  | =+;%.1f= | Like =+=, but format result with =%.1f=.              |
+  | =+;%.1f= | Like =+=, but formats the result with =%.1f=.         |
   | =$=      | Currency, short for =+;%.2f=.                         |
   | =min=    | Smallest number in column.                            |
   | =max=    | Largest number.                                       |
   | =mean=   | Arithmetic mean of numbers.                           |
-  | =X=      | Checkbox status, =[X]= if all children are =[X]=.     |
-  | =X/=     | Checkbox status, =[n/m]=.                             |
-  | =X%=     | Checkbox status, =[n%]=.                              |
-  | =:=      | Sum times, HH:MM, plain numbers are minutes.          |
+  | =X=      | Checkbox status: =[X]= if all children are =[X]=.         |
+  | =X/=     | Checkbox status: =[n/m]=.                             |
+  | =X%=     | Checkbox status: =[n%]=.                              |
+  | =:=      | Sum times (HH:MM); plain numbers are minutes.         |
   | =:min=   | Smallest time value in column.                        |
   | =:max=   | Largest time value.                                   |
   | =:mean=  | Arithmetic mean of time values.                       |
@@ -5785,23 +5785,23 @@ optional.  The individual parts have the following meaning:
 
 The =est+= summary type requires further explanation.  It is used for
 combining estimates, expressed as low-high ranges.  For example,
-instead of estimating a particular task will take 5 days, you might
+instead of estimating that a particular task will take 5 days, you might
 estimate it as 5--6 days if you're fairly confident you know how much
 work is required, or 1--10 days if you do not really know what needs
-to be done.  Both ranges average at 5.5 days, but the first represents
+to be done.  Both ranges average 5.5 days, but the first represents
 a more predictable delivery.
 
 When combining a set of such estimates, simply adding the lows and
 highs produces an unrealistically wide result.  Instead, =est+= adds
 the statistical mean and variance of the subtasks, generating a final
 estimate from the sum.  For example, suppose you had ten tasks, each
-of which was estimated at 0.5 to 2 days of work.  Straight addition
+of which was estimated to take 0.5 to 2 days of work.  Straight addition
 produces an estimate of 5 to 20 days, representing what to expect if
 everything goes either extremely well or extremely poorly.  In
 contrast, =est+= estimates the full job more realistically, at 10--15
 days.
 
-Here is an example for a complete columns definition, along with
+Here is an example of a complete column definition, along with
 allowed values[fn:: Please note that the =COLUMNS= definition must be
 on a single line; it is wrapped here only because of formatting
 constraints.].
@@ -5816,10 +5816,10 @@ constraints.].
 
 #+texinfo: @noindent
 The first column, =%25ITEM=, means the first 25 characters of the item
-itself, i.e., of the headline.  You probably always should start the
+itself, i.e., of the headline.  You should probably always start the
 column definition with the =ITEM= specifier.  The other specifiers
-create columns =Owner= with a list of names as allowed values, for
-=Status= with four different possible values, and for a checkbox field
+create columns: =Owner= with a list of names as allowed values;
+=Status= with four different possible values; and a checkbox field
 =Approved=.  When no width is given after the =%= character, the
 column is exactly as wide as it needs to be in order to fully display
 all values.  The =Approved= column does have a modified title
@@ -5828,12 +5828,12 @@ all values.  The =Approved= column does have a modified title
 and for the =Approved= column, by providing an =[X]= status if all
 children have been checked.
 
-The =CLOCKSUM= and =CLOCKSUM_T= column properties are special, they
+The =CLOCKSUM= and =CLOCKSUM_T= column properties are special; they
 list the sums of =CLOCK:= intervals in the subtree, either for all
-clocks (=CLOCKSUM=) or just for today (=CLOCKSUM_T=).  Unlike =:=
-summary type that ignores property values in parent headings, all the
-=CLOCK:= intervals are summed up, including =CLOCK:= lines within
-parent headings.
+clocks (=CLOCKSUM=) or just for today (=CLOCKSUM_T=).  Unlike the =:=
+summary type, which ignores property values in parent headings, the
+=CLOCKSUM= and =CLOCKSUM_T= properties sum all =CLOCK:= intervals,
+including those within parent headings.
 
 ***** Summaries in deeply nested hierarchy
 
@@ -6153,7 +6153,7 @@ The following commands insert or update the dynamic block:
   other dynamic blocks in a buffer.
 
 You can add formulas to the column view table, and you may add plotting
-instructions in front of the table---these survive an update of the
+instructions in front of the table; these survive an update of the
 block.  If there is a =TBLFM= keyword after the table, the table is
 recalculated automatically after an update.
 

@@ -5895,11 +5895,11 @@ can be set@comma{} so they are associated with a single entry@comma{} with every
 entry in a tree@comma{} or with the whole buffer.
 
 There are two main applications for properties in Org mode.  First@comma{}
-properties are like tags@comma{} but with a value.  Imagine maintaining
-a file where you document bugs and plan releases for a piece of
+properties are like tags@comma{} but with a value.  Imagine maintaining a
+file where you document bugs and plan releases for a piece of
 software.  Instead of using tags like @samp{release_1}@comma{} @samp{release_2}@comma{} you
-can use a property@comma{} say @samp{Release}@comma{} that in different subtrees has
-different values@comma{} such as @samp{1.0} or @samp{2.0}.  Second@comma{} you can use
+can use a property@comma{} say @samp{Release}@comma{} that can have different values in
+different subtrees@comma{} such as @samp{1.0} or @samp{2.0}.  Second@comma{} you can use
 properties to implement (very basic) database capabilities in an Org
 buffer.  Imagine keeping track of your music CDs@comma{} where properties
 could be things such as the album@comma{} artist@comma{} date of release@comma{} number of
@@ -5944,7 +5944,7 @@ value after it.  Keys are case-insensitive.  Here is an example:
 
 Depending on the value of @code{org-use-property-inheritance}@comma{} a property
 set this way is associated either with a single entry@comma{} or with the
-subtree defined by the entry@comma{} see @ref{Property Inheritance}.
+subtree defined by the entry; see @ref{Property Inheritance}.
 
 You may define the allowed values for a particular property @samp{Xyz} by
 setting a property @samp{Xyz_ALL}.  This special property is @emph{inherited}@comma{}
@@ -6079,7 +6079,7 @@ nearest column format definition.
 Special properties provide an alternative access method to Org mode
 features@comma{} like the TODO state or the priority of an entry@comma{} discussed
 in the previous chapters.  This interface exists so that you can
-include these states in a column view (see @ref{Column View})@comma{} or to use
+include these states in a column view (see @ref{Column View})@comma{} or use
 them in queries.  The following property names are special and should
 not be used as keys in the properties drawer:
 
@@ -6334,14 +6334,14 @@ headings are computed from the direct children.  If there is any
 existing property defined for the parent nodes@comma{} it is not used in
 the calculations.
 
-When there is an existing property in parent heading@comma{} Org does not
-only overlay the computed value in the column view@comma{} but also
-overwrites the property value in parent's property drawer@footnote{ If
-more than column definition is requested for the same property@comma{} only
-the first definition will trigger writing to the property drawer.
+When there is an existing property in a parent heading@comma{} Org not only
+overlays the computed value in the column view@comma{} but also overwrites
+the property value in the parent's property drawer@footnote{ If more than
+one column definition is requested for the same property@comma{} only the
+first definition will trigger writing to the property drawer.
 For example@comma{} @samp{%EFFORT@{mean@} %EFFORT(Sum)@{:@}} will write the mean
-value of @samp{EFFORT} property; not the sum.  If the first column
-definition does not have summary type (@samp{%EFFORT %EFFORT@{mean@}})@comma{}
+value of the @samp{EFFORT} property@comma{} not the sum.  If the first column
+definition does not have a summary type (@samp{%EFFORT %EFFORT@{mean@}})@comma{}
 nothing will be written to the property drawer}.
 
 Summary type is ignored for special properties.
@@ -6352,7 +6352,7 @@ Supported summary types are:
 @item @samp{+}
 @tab Sum numbers in this column.
 @item @samp{+;%.1f}
-@tab Like @samp{+}@comma{} but format result with @samp{%.1f}.
+@tab Like @samp{+}@comma{} but formats the result with @samp{%.1f}.
 @item @samp{$}
 @tab Currency@comma{} short for @samp{+;%.2f}.
 @item @samp{min}
@@ -6362,13 +6362,13 @@ Supported summary types are:
 @item @samp{mean}
 @tab Arithmetic mean of numbers.
 @item @samp{X}
-@tab Checkbox status@comma{} @samp{[X]} if all children are @samp{[X]}.
+@tab Checkbox status: @samp{[X]} if all children are @samp{[X]}.
 @item @samp{X/}
-@tab Checkbox status@comma{} @samp{[n/m]}.
+@tab Checkbox status: @samp{[n/m]}.
 @item @samp{X%}
-@tab Checkbox status@comma{} @samp{[n%]}.
+@tab Checkbox status: @samp{[n%]}.
 @item @samp{:}
-@tab Sum times@comma{} HH:MM@comma{} plain numbers are minutes.
+@tab Sum times (HH:MM); plain numbers are minutes.
 @item @samp{:min}
 @tab Smallest time value in column.
 @item @samp{:max}
@@ -6394,23 +6394,23 @@ You can also define custom summary types by setting
 
 The @samp{est+} summary type requires further explanation.  It is used for
 combining estimates@comma{} expressed as low-high ranges.  For example@comma{}
-instead of estimating a particular task will take 5 days@comma{} you might
+instead of estimating that a particular task will take 5 days@comma{} you might
 estimate it as 5--6 days if you're fairly confident you know how much
 work is required@comma{} or 1--10 days if you do not really know what needs
-to be done.  Both ranges average at 5.5 days@comma{} but the first represents
+to be done.  Both ranges average 5.5 days@comma{} but the first represents
 a more predictable delivery.
 
 When combining a set of such estimates@comma{} simply adding the lows and
 highs produces an unrealistically wide result.  Instead@comma{} @samp{est+} adds
 the statistical mean and variance of the subtasks@comma{} generating a final
 estimate from the sum.  For example@comma{} suppose you had ten tasks@comma{} each
-of which was estimated at 0.5 to 2 days of work.  Straight addition
+of which was estimated to take 0.5 to 2 days of work.  Straight addition
 produces an estimate of 5 to 20 days@comma{} representing what to expect if
 everything goes either extremely well or extremely poorly.  In
 contrast@comma{} @samp{est+} estimates the full job more realistically@comma{} at 10--15
 days.
 
-Here is an example for a complete columns definition@comma{} along with
+Here is an example of a complete column definition@comma{} along with
 allowed values@footnote{ Please note that the @samp{COLUMNS} definition must be
 on a single line; it is wrapped here only because of formatting
 constraints.}.
@@ -6425,10 +6425,10 @@ constraints.}.
 
 @noindent
 The first column@comma{} @samp{%25ITEM}@comma{} means the first 25 characters of the item
-itself@comma{} i.e.@comma{} of the headline.  You probably always should start the
+itself@comma{} i.e.@comma{} of the headline.  You should probably always start the
 column definition with the @samp{ITEM} specifier.  The other specifiers
-create columns @samp{Owner} with a list of names as allowed values@comma{} for
-@samp{Status} with four different possible values@comma{} and for a checkbox field
+create columns: @samp{Owner} with a list of names as allowed values;
+@samp{Status} with four different possible values; and a checkbox field
 @samp{Approved}.  When no width is given after the @samp{%} character@comma{} the
 column is exactly as wide as it needs to be in order to fully display
 all values.  The @samp{Approved} column does have a modified title
@@ -6437,12 +6437,12 @@ all values.  The @samp{Approved} column does have a modified title
 and for the @samp{Approved} column@comma{} by providing an @samp{[X]} status if all
 children have been checked.
 
-The @samp{CLOCKSUM} and @samp{CLOCKSUM_T} column properties are special@comma{} they
+The @samp{CLOCKSUM} and @samp{CLOCKSUM_T} column properties are special; they
 list the sums of @samp{CLOCK:} intervals in the subtree@comma{} either for all
-clocks (@samp{CLOCKSUM}) or just for today (@samp{CLOCKSUM_T}).  Unlike @samp{:}
-summary type that ignores property values in parent headings@comma{} all the
-@samp{CLOCK:} intervals are summed up@comma{} including @samp{CLOCK:} lines within
-parent headings.
+clocks (@samp{CLOCKSUM}) or just for today (@samp{CLOCKSUM_T}).  Unlike the @samp{:}
+summary type@comma{} which ignores property values in parent headings@comma{} the
+@samp{CLOCKSUM} and @samp{CLOCKSUM_T} properties sum all @samp{CLOCK:} intervals@comma{}
+including those within parent headings.
 
 @enumerate
 @item
@@ -6735,7 +6735,7 @@ other dynamic blocks in a buffer.
 @end table
 
 You can add formulas to the column view table@comma{} and you may add plotting
-instructions in front of the table---these survive an update of the
+instructions in front of the table; these survive an update of the
 block.  If there is a @samp{TBLFM} keyword after the table@comma{} the table is
 recalculated automatically after an update.
 
