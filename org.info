@@ -5677,9 +5677,9 @@ File: org.info,  Node: Dates and Times,  Next: Refiling and Archiving,  Prev: Pr
 To assist project planning, TODO items can be labeled with a date and/or
 a time.  The specially formatted string carrying the date and time
 information is called a _timestamp_ in Org mode.  This may be a little
-confusing because timestamp is often used as indicating when something
-was created or last changed.  However, in Org mode this term is used in
-a much wider sense.
+confusing because timestamp is often used to indicate when something was
+created or last changed.  However, in Org mode this term is used in a
+much wider sense.
 
    Timestamps can be used to plan appointments, schedule tasks, set
 deadlines, track time, and more.  The following sections describe the
@@ -5764,8 +5764,8 @@ Time/Date range
 
 Inactive timestamp
      Just like a plain timestamp, but with square brackets instead of
-     angular ones.  These timestamps are inactive in the sense that they
-     do _not_ trigger an entry to show up in the agenda.
+     angle brackets.  These timestamps are inactive in the sense that
+     they do _not_ trigger an entry to show up in the agenda.
 
           * Gillian comes late for the fifth time
             [2006-11-01 Wed]
@@ -5822,7 +5822,8 @@ format.
      Normalize timestamp, insert or fix day name if missing or wrong.
 
 ‘C-c <’ (‘org-date-from-calendar’)
-     Insert a timestamp corresponding to point date in the calendar.
+     Insert a timestamp corresponding to the date at point in the
+     calendar.
 
 ‘C-c >’ (‘org-goto-calendar’)
      Access the Emacs calendar for the current date.  If there is a
@@ -5830,15 +5831,15 @@ format.
      instead.
 
 ‘C-c C-o’ (‘org-open-at-point’)
-     Access the agenda for the date given by the timestamp or -range at
-     point (see *note Weekly/daily agenda::).
+     Access the agenda for the date given by the timestamp or timestamp
+     range at point (see *note Weekly/daily agenda::).
 
 ‘S-<LEFT>’ (‘org-timestamp-down-day’), ‘S-<RIGHT>’ (‘org-timestamp-up-day’)
      Change date at point by one day.  These key bindings conflict with
      shift-selection and related modes (see *note Conflicts::).
 
 ‘S-<UP>’ (‘org-timestamp-up’), ‘S-<DOWN>’ (‘org-timestamp-down’)
-     On the beginning or enclosing bracket of a timestamp, change its
+     At the beginning or enclosing bracket of a timestamp, change its
      type.  Within a timestamp, change the item under point.  Point can
      be on a year, month, day, hour or minute.  When the timestamp
      contains a time range like ‘15:30-16:30’, modifying the first time
@@ -5851,8 +5852,8 @@ format.
 
 ‘C-c C-y’ (‘org-evaluate-time-range’)
      Evaluate a time range by computing the difference between start and
-     end.  With a prefix argument, insert result after the time range
-     (in a table: into the following column).
+     end.  With a prefix argument, insert the result after the time
+     range (in a table: into the following column).
 
 * Menu:
 
@@ -5867,9 +5868,9 @@ File: org.info,  Node: The date/time prompt,  Next: Custom time format,  Up: Cre
 
 When Org mode prompts for a date/time, the default is shown in default
 date/time format, and the prompt therefore seems to ask for a specific
-format.  But it in fact accepts date/time information in a variety of
+format.  But in fact it accepts date/time information in a variety of
 formats.  Generally, the information should start at the beginning of
-the string.  Org mode finds whatever information is in there and derives
+the string.  Org mode finds whatever information is present and derives
 anything you have not specified from the _default date and time_.  The
 default is usually the current date and time, but when modifying an
 existing timestamp, or when entering the second stamp of a range, it is
@@ -5928,8 +5929,8 @@ outside this range, read the docstring of the variable
 ‘org-read-date-force-compatible-dates’.
 
    You can specify a time range by giving start and end times or by
-giving a start time and a duration (in HH:MM format).  Use one or two
-dash(es) as the separator in the former case and use ‘+’ as the
+giving a start time and a duration (in HH:MM format).  Use one dash or
+two dashes as the separator in the former case and use ‘+’ as the
 separator in the latter case, e.g.:
 
 ‘11am-1:15pm’    ⇒ 11:00-13:15
@@ -5997,17 +5998,17 @@ customizing the variables ‘org-display-custom-times’ and
 
    Org mode needs the default format for scanning, so the custom
 date/time format does not _replace_ the default format.  Instead, it is
-put _over_ the default format using text properties.  This has the
+overlaid on the default format using text properties.  This has the
 following consequences:
 
-   • You cannot place point onto a timestamp anymore, only before or
+   • You cannot place point on a timestamp anymore, only before or
      after.
 
    • The ‘S-<UP>’ and ‘S-<DOWN>’ keys can no longer be used to adjust
      each component of a timestamp.  If point is at the beginning of the
      stamp, ‘S-<UP>’ and ‘S-<DOWN>’ change the stamp by one day, just
-     like ‘S-<LEFT>’ ‘S-<RIGHT>’.  At the end of the stamp, change the
-     time by one minute.
+     like ‘S-<LEFT>’ and ‘S-<RIGHT>’.  At the end of the stamp, change
+     the time by one minute.
 
    • If the timestamp contains a range of clock times or a repeater,
      these are not overlaid, but remain in the buffer as they were.
@@ -6018,7 +6019,7 @@ following consequences:
 
    • If the custom timestamp format is longer than the default, and you
      are using dates in tables, table alignment will be messed up.  If
-     the custom format is shorter, things do work as expected.
+     the custom format is shorter, things work as expected.
 
 
 File: org.info,  Node: Deadlines and Scheduling,  Next: Clocking Work Time,  Prev: Creating Timestamps,  Up: Dates and Times
@@ -6045,7 +6046,7 @@ after the task they refer to.
               The editor in charge is [[bbdb:Ford Prefect]]
 
      You can specify a different lead time for warnings for a specific
-     deadlines using the following syntax.  Here is an example with a
+     deadline using the following syntax.  Here is an example with a
      warning period of 5 days ‘DEADLINE: <2004-02-29 Sun -5d>’.  This
      warning is deactivated if the task gets scheduled, and you set
      ‘org-agenda-skip-deadline-prewarning-if-scheduled’ to ‘t’.
@@ -6075,10 +6076,10 @@ after the task they refer to.
           understood in the same way that we understand _scheduling a
           meeting_.  Setting a date for a meeting is just a simple
           appointment, you should mark this entry with a simple plain
-          timestamp, to get this item shown on the date where it
-          applies.  This is a frequent misunderstanding by Org users.
-          In Org mode, _scheduling_ means setting a date when you want
-          to start working on an action item.
+          timestamp to get this item shown on the date when it applies.
+          This is a frequent misunderstanding by Org users.  In Org
+          mode, _scheduling_ means setting a date when you want to start
+          working on an action item.
 
    You may use timestamps with repeaters in scheduling and deadline
 entries.  Org mode issues early and late warnings based on the
@@ -6117,19 +6118,19 @@ schedule an item:(1)
      happens in the line directly following the headline.  Remove any
      ‘CLOSED’ timestamp.  When called with a prefix argument, also
      remove any existing deadline from the entry.  Depending on the
-     variable ‘org-log-redeadline’, take a note when changing an
-     existing deadline(2).
+     variable ‘org-log-redeadline’, take note when changing an existing
+     deadline(2).
 
 ‘C-c C-s’ (‘org-schedule’)
      Insert ‘SCHEDULED’ keyword along with a stamp.  The insertion
      happens in the line directly following the headline.  Remove any
      ‘CLOSED’ timestamp.  When called with a prefix argument, also
      remove the scheduling date from the entry.  Depending on the
-     variable ‘org-log-reschedule’, take a note when changing an
-     existing scheduling time(3).
+     variable ‘org-log-reschedule’, take note when changing an existing
+     scheduling time(3).
 
 ‘C-c / d’ (‘org-check-deadlines’)
-     Create a sparse tree with all deadlines that are either past-due,
+     Create a sparse tree with all deadlines that are either past due,
      or which will become due within ‘org-deadline-warning-days’.  With
      ‘C-u’ prefix, show all deadlines in the file.  With a numeric
      prefix, check that many days.  For example, ‘C-1 C-c / d’ shows all
@@ -6141,7 +6142,7 @@ schedule an item:(1)
 ‘C-c / a’ (‘org-check-after-date’)
      Sparse tree for deadlines and scheduled items after a given date.
 
-   Note that ‘org-schedule’ and ‘org-deadline’ supports setting the date
+   Note that ‘org-schedule’ and ‘org-deadline’ support setting the date
 by indicating a relative time e.g., ‘+1d’ sets the date to the next day
 after today, and ‘--1w’ sets the date to the previous week before any
 current timestamp.
@@ -6184,7 +6185,7 @@ entry, the repeater should come first and the warning period last
 are over-due, so it is important to be able to mark such an entry as
 done once you have done so.  When you mark a ‘DEADLINE’ or a ‘SCHEDULED’
 with the TODO keyword ‘DONE’, it no longer produces entries in the
-agenda.  The problem with this is, however, is that then also the _next_
+agenda.  The problem with this, however, is that then also the _next_
 instance of the repeated entry will not be active.  Org mode deals with
 this in the following way: when you try to mark such an entry as done,
 using ‘C-c C-t’, it shifts the base date of the repeating timestamp by
@@ -6195,7 +6196,7 @@ actually switch the date like this:
      ** TODO Pay the rent
         DEADLINE: <2005-11-01 Tue +1m>
 
-   When task contains multiple timestamps with repeater interval, all
+   When a task contains multiple timestamps with repeater interval, all
 these timestamps are shifted.
 
    To mark a task with a repeater as DONE, use ‘C-- 1 C-c C-t’, i.e.,
@@ -6280,7 +6281,7 @@ project.  When you start working on an item, you can start the clock.
 When you stop working on that task, or when you mark the task done, the
 clock is stopped and the corresponding time interval is recorded.  It
 also computes the total time spent on each subtree(1) of a project.  And
-it remembers a history or tasks recently clocked, so that you can jump
+it remembers a history of tasks recently clocked, so that you can jump
 quickly between a number of tasks absorbing your time.
 
    To save the clock history across Emacs sessions, use:
@@ -6322,10 +6323,10 @@ File: org.info,  Node: Clocking commands,  Next: The clock table,  Up: Clocking 
      ‘LOG_INTO_DRAWER’ property.  When called with a ‘C-u’ prefix
      argument, select the task from a list of recently clocked tasks.
      With two ‘C-u C-u’ prefixes, clock into the task at point and mark
-     it as the default task; the default task is always be available
-     with letter ‘d’ when selecting a clocking task.  With three ‘C-u
-     C-u C-u’ prefixes, force continuous clocking by starting the clock
-     when the last clock stopped.
+     it as the default task; the default task is always available with
+     letter ‘d’ when selecting a clocking task.  With three ‘C-u C-u
+     C-u’ prefixes, force continuous clocking by starting the clock when
+     the last clock stopped.
 
      While the clock is running, Org shows the current clocking time in
      the mode line, along with the title of the task.  The clock time
@@ -6345,7 +6346,7 @@ File: org.info,  Node: Clocking commands,  Next: The clock table,  Up: Clocking 
 ‘C-c C-x C-o’ (‘org-clock-out’)
      Stop the clock (clock-out).  This inserts another timestamp at the
      same location where the clock was last started.  It also directly
-     computes the resulting time in inserts it after the time range as
+     computes the resulting time and inserts it after the time range as
      ‘=>HH:MM’.  See the variable ‘org-log-note-clock-out’ for the
      possibility to record an additional note together with the
      clock-out timestamp(4).
@@ -6537,7 +6538,7 @@ selected:
      Matching tags and properties:: for the match syntax.
 
    Then there are options that determine the formatting of the table.
-There options are interpreted by the function
+These options are interpreted by the function
 ‘org-clocktable-write-default’, but you can specify your own function
 using the ‘:formatter’ parameter.
 
@@ -6662,7 +6663,7 @@ applying it to another one.
 such as 10 or 15, Emacs can alert you when you get back to your computer
 after being idle for that many minutes(1), and ask what you want to do
 with the idle time.  There will be a question waiting for you when you
-get back, indicating how much idle time has passed constantly updated
+get back, indicating how much idle time has passed, constantly updated
 with the current amount, as well as a set of choices to correct the
 discrepancy:
 
@@ -6722,11 +6723,11 @@ dangling clocks at any time using ‘M-x org-resolve-clocks <RET>’ (or
 Continuous clocking
 ...................
 
-You may want to start clocking from the time when you clocked out the
+You may want to start clocking from the time when you clocked out of the
 previous task.  To enable this systematically, set
 ‘org-clock-continuously’ to non-‘nil’.  Each time you clock in, Org
 retrieves the clock-out time of the last clocked entry for this session,
-and start the new clock from there.
+and starts the new clock from there.
 
    If you only want this from time to time, use three universal prefix
 arguments with ‘org-clock-in’ and two ‘C-u C-u’ with
@@ -6812,7 +6813,7 @@ added to the load estimate of the day.
    Effort estimates can be used in secondary agenda filtering that is
 triggered with the ‘/’ key in the agenda (see *note Agenda Commands::).
 If you have these estimates defined consistently, two or three key
-presses narrow down the list to stuff that fits into an available time
+presses narrow down the list to items that fit into an available time
 slot.
 
    ---------- Footnotes ----------
@@ -6830,7 +6831,8 @@ Org provides two types of timers.  There is a relative timer that counts
 up, which can be useful when taking notes during, for example, a meeting
 or a video viewing.  There is also a countdown timer.
 
-   The relative and countdown are started with separate commands.
+   The relative timer and countdown timer are started with separate
+commands.
 
 ‘C-c C-x 0’ (‘org-timer-start’)
      Start or reset the relative timer.  By default, the timer is set to
@@ -21556,7 +21558,7 @@ D Main Index
 * escape syntax, for links:              Link Format.         (line  17)
 * eval, header argument:                 Evaluating Code Blocks.
                                                               (line  82)
-* evaluate time range:                   Creating Timestamps. (line  60)
+* evaluate time range:                   Creating Timestamps. (line  61)
 * example block:                         Literal Examples.    (line  10)
 * example blocks, in LaTeX export:       Example blocks in LaTeX export.
                                                               (line   6)
@@ -22633,7 +22635,7 @@ E Key Index
 * C-c =:                                 Column formulas.     (line  33)
 * C-c = <1>:                             Editing and debugging formulas.
                                                               (line  14)
-* C-c >:                                 Creating Timestamps. (line  35)
+* C-c >:                                 Creating Timestamps. (line  36)
 * C-c |:                                 Built-in Table Editor.
                                                               (line  43)
 * C-c | <1>:                             Built-in Table Editor.
@@ -22792,7 +22794,7 @@ E Key Index
 * C-c C-M-w:                             Refile and Copy.     (line  55)
 * C-c C-n:                               Motion.              (line   9)
 * C-c C-o:                               Handling Links.      (line 128)
-* C-c C-o <1>:                           Creating Timestamps. (line  40)
+* C-c C-o <1>:                           Creating Timestamps. (line  41)
 * C-c C-o <2>:                           Agenda Commands.     (line  56)
 * C-c C-o <3>:                           Creating Footnotes.  (line  71)
 * C-c C-o <4>:                           Key bindings and Useful Functions.
@@ -22915,11 +22917,11 @@ E Key Index
 * C-c C-w <1>:                           Refile and Copy.     (line  13)
 * C-c C-w <2>:                           Agenda Commands.     (line 252)
 * C-c C-w (Capture buffer):              Using capture.       (line  21)
-* C-c C-x _:                             Timers.              (line  47)
-* C-c C-x -:                             Timers.              (line  36)
-* C-c C-x ,:                             Timers.              (line  44)
-* C-c C-x ;:                             Timers.              (line  23)
-* C-c C-x .:                             Timers.              (line  32)
+* C-c C-x _:                             Timers.              (line  48)
+* C-c C-x -:                             Timers.              (line  37)
+* C-c C-x ,:                             Timers.              (line  45)
+* C-c C-x ;:                             Timers.              (line  24)
+* C-c C-x .:                             Timers.              (line  33)
 * C-c C-x @:                             Citations.           (line  17)
 * C-c C-x \:                             Subscripts and Superscripts.
                                                               (line  29)
@@ -22927,7 +22929,7 @@ E Key Index
 * C-c C-x <:                             Agenda Files.        (line  43)
 * C-c C-x >:                             Agenda Files.        (line  52)
 * C-c C-x > <1>:                         Agenda Commands.     (line 209)
-* C-c C-x 0:                             Timers.              (line  13)
+* C-c C-x 0:                             Timers.              (line  14)
 * C-c C-x a:                             Internal archiving.  (line  39)
 * C-c C-x A:                             Internal archiving.  (line  54)
 * C-c C-x a <1>:                         Agenda Commands.     (line 260)
@@ -22997,7 +22999,7 @@ E Key Index
                                                               (line  80)
 * C-c C-x x <1>:                         The clock table.     (line  11)
 * C-c C-x x <2>:                         Dynamic Blocks.      (line  10)
-* C-c C-y:                               Creating Timestamps. (line  60)
+* C-c C-y:                               Creating Timestamps. (line  61)
 * C-c C-y <1>:                           Clocking commands.   (line  54)
 * C-c C-z:                               Drawers.             (line  40)
 * C-c C-z <1>:                           Agenda Commands.     (line 298)
@@ -23134,7 +23136,7 @@ E Key Index
 * M-RET <1>:                             Plain Lists.         (line  84)
 * M-RET <2>:                             Built-in Table Editor.
                                                               (line 169)
-* M-RET <3>:                             Timers.              (line  40)
+* M-RET <3>:                             Timers.              (line  41)
 * M-RIGHT:                               Structure Editing.   (line  43)
 * M-RIGHT <1>:                           Plain Lists.         (line 106)
 * M-RIGHT <2>:                           Built-in Table Editor.
@@ -23222,7 +23224,7 @@ E Key Index
 * S-DOWN <2>:                            Editing and debugging formulas.
                                                               (line  66)
 * S-DOWN <3>:                            Priorities.          (line  42)
-* S-DOWN <4>:                            Creating Timestamps. (line  48)
+* S-DOWN <4>:                            Creating Timestamps. (line  49)
 * S-DOWN <5>:                            The date/time prompt.
                                                               (line  84)
 * S-DOWN <6>:                            Agenda Commands.     (line 292)
@@ -23236,7 +23238,7 @@ E Key Index
                                                               (line  33)
 * S-LEFT <5>:                            Property Syntax.     (line 111)
 * S-LEFT <6>:                            Using column view.   (line  39)
-* S-LEFT <7>:                            Creating Timestamps. (line  44)
+* S-LEFT <7>:                            Creating Timestamps. (line  45)
 * S-LEFT <8>:                            The date/time prompt.
                                                               (line  84)
 * S-LEFT <9>:                            The clock table.     (line  28)
@@ -23258,7 +23260,7 @@ E Key Index
                                                               (line  33)
 * S-RIGHT <5>:                           Property Syntax.     (line 111)
 * S-RIGHT <6>:                           Using column view.   (line  39)
-* S-RIGHT <7>:                           Creating Timestamps. (line  44)
+* S-RIGHT <7>:                           Creating Timestamps. (line  45)
 * S-RIGHT <8>:                           The date/time prompt.
                                                               (line  84)
 * S-RIGHT <9>:                           The clock table.     (line  28)
@@ -23273,7 +23275,7 @@ E Key Index
 * S-UP <2>:                              Editing and debugging formulas.
                                                               (line  66)
 * S-UP <3>:                              Priorities.          (line  42)
-* S-UP <4>:                              Creating Timestamps. (line  48)
+* S-UP <4>:                              Creating Timestamps. (line  49)
 * S-UP <5>:                              The date/time prompt.
                                                               (line  84)
 * S-UP <6>:                              Agenda Commands.     (line 287)
@@ -23639,7 +23641,7 @@ F Command and Function Index
                                                               (line  40)
 * org-entry-remove-from-multivalued-property: Using the Property API.
                                                               (line  53)
-* org-evaluate-time-range:               Creating Timestamps. (line  60)
+* org-evaluate-time-range:               Creating Timestamps. (line  61)
 * org-evaluate-time-range <1>:           Clocking commands.   (line  54)
 * org-export-as:                         Advanced Export Configuration.
                                                               (line 103)
@@ -23663,7 +23665,7 @@ F Command and Function Index
 * org-global-cycle:                      Global and local cycling.
                                                               (line  19)
 * org-goto:                              Motion.              (line  24)
-* org-goto-calendar:                     Creating Timestamps. (line  35)
+* org-goto-calendar:                     Creating Timestamps. (line  36)
 * org-html-convert-region-to-html:       Export Region.       (line  17)
 * org-html-export-as-html:               HTML export commands.
                                                               (line  13)
@@ -23677,7 +23679,7 @@ F Command and Function Index
                                                               (line   6)
 * org-insert-drawer:                     Drawers.             (line  18)
 * org-insert-drawer <1>:                 Property Syntax.     (line  98)
-* org-insert-heading:                    Timers.              (line  40)
+* org-insert-heading:                    Timers.              (line  41)
 * org-insert-heading-respect-content:    Structure Editing.   (line  26)
 * org-insert-item:                       Plain Lists.         (line  84)
 * org-insert-link:                       Handling Links.      (line  91)
@@ -23745,7 +23747,7 @@ F Command and Function Index
                                                               (line  37)
 * org-odt-export-to-odt:                 ODT export commands. (line   7)
 * org-open-at-point:                     Handling Links.      (line 128)
-* org-open-at-point <1>:                 Creating Timestamps. (line  40)
+* org-open-at-point <1>:                 Creating Timestamps. (line  41)
 * org-open-at-point-global:              Using Links Outside Org.
                                                               (line   6)
 * org-org-export-to-org:                 Org Export.          (line  14)
@@ -23956,18 +23958,18 @@ F Command and Function Index
                                                               (line   7)
 * org-time-stamp:                        Creating Timestamps. (line  11)
 * org-time-stamp-inactive:               Creating Timestamps. (line  25)
-* org-timer:                             Timers.              (line  32)
-* org-timer-item:                        Timers.              (line  36)
-* org-timer-pause-or-continue:           Timers.              (line  44)
-* org-timer-set-timer:                   Timers.              (line  23)
-* org-timer-start:                       Timers.              (line  13)
-* org-timer-stop:                        Timers.              (line  47)
+* org-timer:                             Timers.              (line  33)
+* org-timer-item:                        Timers.              (line  37)
+* org-timer-pause-or-continue:           Timers.              (line  45)
+* org-timer-set-timer:                   Timers.              (line  24)
+* org-timer-start:                       Timers.              (line  14)
+* org-timer-stop:                        Timers.              (line  48)
 * org-timestamp:                         Creating Timestamps. (line  11)
 * org-timestamp-down:                    Clocking commands.   (line  63)
-* org-timestamp-down-day:                Creating Timestamps. (line  44)
+* org-timestamp-down-day:                Creating Timestamps. (line  45)
 * org-timestamp-inactive:                Creating Timestamps. (line  25)
 * org-timestamp-up:                      Clocking commands.   (line  63)
-* org-timestamp-up-day:                  Creating Timestamps. (line  44)
+* org-timestamp-up-day:                  Creating Timestamps. (line  45)
 * org-todo:                              Clocking commands.   (line  73)
 * org-todo <1>:                          Using the Mapping API.
                                                               (line  77)
@@ -24796,7 +24798,7 @@ org-customize’ and then click yourself through the tree.
 * org-time-stamp-custom-formats:         Custom time format.  (line   6)
 * org-time-stamp-custom-formats <1>:     In-buffer Settings.  (line 160)
 * org-time-stamp-rounding-minutes:       Creating Timestamps. (line  16)
-* org-timer-default-timer:               Timers.              (line  23)
+* org-timer-default-timer:               Timers.              (line  24)
 * org-timestamp-custom-formats:          Custom time format.  (line   6)
 * org-timestamp-custom-formats <1>:      In-buffer Settings.  (line 160)
 * org-todo-keyword-faces:                Faces for TODO keywords.
@@ -25010,441 +25012,441 @@ Ref: Modifying column view on-the-fly238791
 Node: Capturing column view239486
 Ref: Capturing column view-Footnote-1243461
 Node: Dates and Times243597
-Node: Timestamps244766
+Node: Timestamps244764
 Ref: Timestamps-Footnote-1247730
 Ref: Timestamps-Footnote-2248026
 Node: Creating Timestamps248814
-Node: The date/time prompt251828
-Ref: The date/time prompt-Footnote-1256779
-Ref: The date/time prompt-Footnote-2256950
-Ref: The date/time prompt-Footnote-3257061
-Ref: The date/time prompt-Footnote-4257312
-Node: Custom time format257410
-Node: Deadlines and Scheduling259178
-Ref: Deadlines and Scheduling-Footnote-1262746
-Node: Inserting deadline/schedule262909
-Ref: Inserting deadline/schedule-Footnote-1264900
-Ref: Inserting deadline/schedule-Footnote-2265061
-Ref: Inserting deadline/schedule-Footnote-3265187
-Node: Repeated tasks265313
-Ref: Repeated tasks-Footnote-1270041
-Ref: Repeated tasks-Footnote-2270124
-Ref: Repeated tasks-Footnote-3270407
-Node: Clocking Work Time270629
-Ref: Clocking Work Time-Footnote-1271832
-Ref: Clocking Work Time-Footnote-2271985
-Node: Clocking commands272127
-Ref: Clocking commands-Footnote-1277366
-Ref: Clocking commands-Footnote-2277477
-Ref: Clocking commands-Footnote-3277559
-Ref: Clocking commands-Footnote-4277622
-Node: The clock table277705
-Ref: The clock table-Footnote-1285818
-Ref: The clock table-Footnote-2285927
-Ref: The clock table-Footnote-3286025
-Node: Resolving idle time286150
-Ref: Resolving idle time (1)286346
-Ref: Continuous clocking289526
-Ref: Clocking out automatically after some idle time290032
-Ref: Resolving idle time-Footnote-1290663
-Node: Effort Estimates291110
-Ref: Effort Estimates-Footnote-1294065
-Node: Timers294176
-Node: Refiling and Archiving296389
-Node: Refile and Copy296952
-Ref: Refile and Copy-Footnote-1299782
-Node: Archiving299896
-Node: Moving subtrees300609
-Node: Internal archiving302743
-Node: Capture and Attachments305476
-Node: Capture306281
-Node: Setting up capture306801
-Node: Using capture307164
-Node: Capture templates309502
-Node: Template elements311543
-Ref: Template elements-Footnote-1320870
-Ref: Template elements-Footnote-2321203
-Ref: Template elements-Footnote-3321548
-Node: Template expansion321643
-Ref: Template expansion-Footnote-1326121
-Ref: Template expansion-Footnote-2326212
-Ref: Template expansion-Footnote-3326402
-Node: Templates in contexts326501
-Node: Attachments327340
-Node: Attachment defaults and dispatcher328384
-Ref: Attachment defaults and dispatcher-Footnote-1331726
-Node: Attachment options331877
-Node: Attachment links335883
-Node: Automatic version-control with Git336530
-Node: Attach from Dired337039
-Node: RSS Feeds338403
-Node: Agenda Views339854
-Node: Agenda Files342261
-Ref: Agenda Files-Footnote-1345170
-Ref: Agenda Files-Footnote-2345314
-Node: Agenda Dispatcher345512
-Ref: Agenda Dispatcher-Footnote-1348388
-Node: Built-in Agenda Views348486
-Node: Weekly/daily agenda349083
-Ref: Calendar/Diary integration350538
-Ref: Anniversaries from BBDB352612
-Ref: Appointment reminders354401
-Ref: Weekly/daily agenda-Footnote-1354951
-Ref: Weekly/daily agenda-Footnote-2355195
-Node: Global TODO list355415
-Node: Matching tags and properties358266
-Ref: Matching tags and properties-Footnote-1366749
-Node: Search view366854
-Node: Stuck projects368501
-Node: Presentation and Sorting370628
-Node: Categories371605
-Node: Time-of-day specifications372351
-Ref: Time-of-day specifications-Footnote-1374340
-Node: Sorting of agenda items374463
-Node: Filtering/limiting agenda items376200
-Ref: Filtering in the agenda376905
-Ref: Computed tag filtering381039
-Ref: Setting limits for the agenda382531
-Ref: Filtering/limiting agenda items-Footnote-1384080
-Node: Agenda Commands384631
-Ref: Motion (1)385360
-Ref: View/Go to Org file385563
-Ref: Change display387069
-Ref: Remote editing394835
-Ref: Bulk remote editing selected entries400193
-Ref: Calendar commands403281
-Ref: Quit and exit405161
-Ref: Agenda Commands-Footnote-1405523
-Ref: Agenda Commands-Footnote-2405599
-Ref: Agenda Commands-Footnote-3405703
-Node: Custom Agenda Views405790
-Node: Storing searches406442
-Ref: Storing searches-Footnote-1409393
-Ref: Storing searches-Footnote-2409510
-Node: Block agenda409756
-Node: Setting options411085
-Node: Exporting Agenda Views414697
-Ref: Exporting Agenda Views-Footnote-1419235
-Ref: Exporting Agenda Views-Footnote-2419452
-Ref: Exporting Agenda Views-Footnote-3419602
-Ref: Exporting Agenda Views-Footnote-4419789
-Node: Agenda Column View419871
-Node: Markup for Rich Contents423212
-Node: Paragraphs424519
-Node: Emphasis and Monospace425654
-Ref: Emphasis and Monospace-Footnote-1427235
-Node: Subscripts and Superscripts427321
-Ref: Subscripts and Superscripts-Footnote-1429075
-Node: Special Symbols429192
-Ref: Special Symbols-Footnote-1431102
-Ref: Special Symbols-Footnote-2431268
-Node: Embedded LaTeX431365
-Ref: Embedded LaTeX-Footnote-1432213
-Node: LaTeX fragments432403
-Ref: LaTeX fragments-Footnote-1434859
-Node: Previewing LaTeX fragments435052
-Ref: Previewing LaTeX fragments-Footnote-1436534
-Node: CDLaTeX mode436783
-Ref: CDLaTeX mode-Footnote-1439521
-Node: Literal Examples439668
-Ref: Literal Examples-Footnote-1444790
-Ref: Literal Examples-Footnote-2445246
-Ref: Literal Examples-Footnote-3445424
-Ref: Literal Examples-Footnote-4445578
-Ref: Literal Examples-Footnote-5445806
-Ref: Literal Examples-Footnote-6445991
-Node: Images and link previews446089
-Ref: Images and link previews-Footnote-1448814
-Node: Images448981
-Ref: Images-Footnote-1452485
-Ref: Images-Footnote-2452608
-Node: Captions452694
-Node: Horizontal Rules453410
-Node: Creating Footnotes453666
-Ref: Creating Footnotes-Footnote-1456793
-Ref: Creating Footnotes-Footnote-2456899
-Node: Exporting457006
-Node: The Export Dispatcher459774
-Node: Export Settings463221
-Ref: Export Settings-Footnote-1471997
-Ref: Export Settings-Footnote-2472109
-Ref: Export Settings-Footnote-3472209
-Node: Table of Contents472405
-Ref: Table of Contents-Footnote-1475064
-Node: Include Files475385
-Ref: Include Files-Footnote-1478475
-Node: Macro Replacement478653
-Ref: Macro Replacement-Footnote-1482533
-Ref: Macro Replacement-Footnote-2482645
-Node: Comment Lines482862
-Ref: Comment Lines-Footnote-1483728
-Ref: Comment Lines-Footnote-2483863
-Node: ASCII/Latin-1/UTF-8 export483979
-Ref: ASCII export commands484833
-Ref: ASCII specific export settings485370
-Ref: Header and sectioning structure485813
-Ref: Quoting ASCII text486087
-Ref: ASCII specific attributes486457
-Ref: ASCII special blocks486733
-Node: Beamer Export487079
-Node: Beamer export commands488019
-Node: Beamer specific export settings488724
-Node: Frames and Blocks in Beamer490626
-Ref: Frames and Blocks in Beamer-Footnote-1494162
-Node: Beamer specific syntax494321
-Node: Editing support496294
-Node: A Beamer example496765
-Node: HTML Export498042
-Node: HTML export commands499230
-Node: HTML specific export settings499772
-Node: HTML doctypes501982
-Node: HTML preamble and postamble504152
-Node: Bare HTML505205
-Node: Quoting HTML tags505793
-Node: Headlines in HTML export506474
-Node: Links in HTML export507277
-Node: Tables in HTML export508734
-Node: Images in HTML export510435
-Node: Math formatting in HTML export511989
-Ref: Math formatting in HTML export-Footnote-1513482
-Ref: Math formatting in HTML export-Footnote-2513674
-Node: Text areas in HTML export513957
-Node: CSS support515098
-Ref: CSS support-Footnote-1518728
-Node: JavaScript support518908
-Node: LaTeX Export522087
-Ref: LaTeX Export-Footnote-1524370
-Node: LaTeX/PDF export commands524518
-Ref: LaTeX/PDF export commands-Footnote-1526016
-Node: LaTeX specific export settings526214
-Node: LaTeX header and sectioning529909
-Node: Quoting LaTeX code534415
-Node: Tables in LaTeX export535299
-Node: Images in LaTeX export540551
-Node: Plain lists in LaTeX export543200
-Node: Source blocks in LaTeX export544219
-Ref: Source blocks in LaTeX export-Footnote-1546345
-Node: Example blocks in LaTeX export546503
-Node: Special blocks in LaTeX export547228
-Node: Horizontal rules in LaTeX export548487
-Node: Verse blocks in LaTeX export548923
-Node: Quote blocks in LaTeX export551646
-Node: Controlling the way the table of contents is generated552827
-Node: Markdown Export553900
-Ref: Markdown export commands554629
-Ref: Header and sectioning structure (1)555066
-Node: OpenDocument Text Export555610
-Ref: OpenDocument Text Export-Footnote-1556715
-Node: Pre-requisites for ODT export556865
-Node: ODT export commands557242
-Node: ODT specific export settings558422
-Node: Extending ODT export559467
-Ref: Automatically exporting to other formats560275
-Ref: Converting between document formats560700
-Node: Applying custom styles561240
-Ref: Applying custom styles the easy way561771
-Ref: Using third-party styles and templates562725
-Node: Links in ODT export563021
-Node: Tables in ODT export563683
-Node: Images in ODT export565689
-Ref: Embedding images565893
-Ref: Embedding clickable images566209
-Ref: Sizing and scaling of embedded images566543
-Ref: Anchoring of images568221
-Node: Math formatting in ODT export568542
-Node: LaTeX math snippets568971
-Ref: LaTeX math snippets-Footnote-1571220
-Ref: LaTeX math snippets-Footnote-2571279
-Node: MathML and OpenDocument formula files571325
-Node: Labels and captions in ODT export571833
-Node: Literal examples in ODT export573101
-Node: Advanced topics in ODT export573940
-Ref: Configuring a document converter574249
-Ref: Working with OpenDocument style files575187
-Ref: x-orgodtstyles-xml575653
-Ref: x-orgodtcontenttemplate-xml575995
-Ref: x-overriding-factory-styles576639
-Ref: Creating one-off styles577883
-Ref: Customizing tables in ODT export579884
-Ref: Validating OpenDocument XML584744
-Ref: Advanced topics in ODT export-Footnote-1585538
-Ref: Advanced topics in ODT export-Footnote-2585643
-Ref: Advanced topics in ODT export-Footnote-3585736
-Node: Org Export586084
-Ref: Org export commands586438
-Node: Texinfo Export586744
-Node: Texinfo export commands587784
-Node: Texinfo specific export settings588409
-Node: Texinfo file header590117
-Node: Texinfo title and copyright page591097
-Node: Info directory file592460
-Node: Headings and sectioning structure593174
-Node: Indices595195
-Node: Quoting Texinfo code596221
-Node: Plain lists in Texinfo export596719
-Node: Tables in Texinfo export601447
-Node: Images in Texinfo export601942
-Node: Quotations in Texinfo export602579
-Node: Key bindings in Texinfo export603531
-Node: Special blocks in Texinfo export604332
-Node: A Texinfo example605165
-Node: iCalendar Export607256
-Ref: iCalendar Export-Footnote-1612715
-Node: Other Built-in Backends612898
-Node: Advanced Export Configuration613524
-Ref: Export hooks613723
-Ref: Filters614943
-Ref: Defining filters for individual files617443
-Ref: Summary of the export process618248
-Ref: Extending an existing backend623649
-Ref: Advanced Export Configuration-Footnote-1625984
-Ref: Advanced Export Configuration-Footnote-2626340
-Ref: Advanced Export Configuration-Footnote-3626489
-Node: Export Region626575
-Node: Publishing627633
-Node: Configuration628507
-Node: Project alist629289
-Node: Sources and destinations630427
-Node: Selecting files631746
-Node: Publishing action632699
-Ref: Publishing action-Footnote-1634550
-Node: Publishing options634713
-Ref: Generic properties635465
-Ref: ASCII specific properties638153
-Ref: Beamer specific properties639753
-Ref: HTML specific properties640385
-Ref: LaTeX specific properties645621
-Ref: Markdown specific properties649199
-Ref: ODT specific properties649575
-Ref: Texinfo specific properties650647
-Node: Publishing links652075
-Node: Site map653525
-Node: Generating an index656351
-Node: Uploading Files657143
-Node: Sample Configuration658924
-Node: Simple example659422
-Node: Complex example660138
-Node: Triggering Publication662226
-Node: Citation handling663252
-Node: Citations666295
-Node: Citation export processors668657
-Node: Bibliography printing672133
-Node: Bibliography options in the biblatex and csl export processors673281
-Node: Working with Source Code675398
-Node: Features Overview677703
-Node: Structure of Code Blocks680448
-Node: Using Header Arguments683391
-Ref: System-wide header arguments684116
-Ref: Header arguments in Org mode properties685787
-Ref: Code block specific header arguments687611
-Ref: Header arguments in function calls689110
-Node: Environment of a Code Block689784
-Ref: Passing arguments689998
-Ref: Using sessions698537
-Ref: Choosing a working directory699936
-Ref: Inserting headers and footers702236
-Node: Evaluating Code Blocks702745
-Ref: How to evaluate source code703191
-Ref: Limit code block evaluation706137
-Ref: Cache results of evaluation707123
-Ref: Evaluating Code Blocks-Footnote-1709634
-Ref: Evaluating Code Blocks-Footnote-2709768
-Node: Results of Evaluation709926
-Ref: Collection710733
-Ref: Type712192
-Ref: Format716214
-Ref: Handling718853
-Ref: Post-processing720244
-Ref: Results of Evaluation-Footnote-1721994
-Node: Exporting Code Blocks722152
-Node: Extracting Source Code726174
-Ref: Header arguments727155
-Ref: Functions731848
-Ref: Tangle hooks732099
-Ref: Jumping between code and Org732875
-Node: Languages733384
-Node: Editing Source Code734385
-Node: Noweb Reference Syntax737361
-Ref: Noweb Reference Syntax-Footnote-1744088
-Ref: Noweb Reference Syntax-Footnote-2744179
-Ref: Noweb Reference Syntax-Footnote-3744792
-Node: Library of Babel744912
-Node: Key bindings and Useful Functions745626
-Node: Batch Execution748051
-Node: Miscellaneous748832
-Node: Completion750356
-Node: Structure Templates752279
-Ref: Structure Templates-Footnote-1754029
-Node: Speed Keys754121
-Node: Clean View755288
-Node: Org Indent Mode756498
-Ref: Org Indent Mode-Footnote-1757704
-Node: Hard indentation757928
-Ref: Hard indentation-Footnote-1759409
-Ref: Hard indentation-Footnote-2759515
-Node: Execute commands in the active region759659
-Node: Dynamic Headline Numbering760671
-Node: The Very Busy C-c C-c Key761837
-Node: In-buffer Settings763826
-Ref: In-buffer Settings-Footnote-1773765
-Node: Regular Expressions773963
-Node: Org Syntax774585
-Node: Documentation Access776202
-Node: Escape Character776619
-Node: Code Evaluation Security777479
-Node: Interaction780344
-Node: Cooperation780765
-Node: Conflicts783831
-Node: TTY Keys788414
-Node: Protocols790051
-Node: The store-link protocol791512
-Node: The capture protocol792671
-Node: The open-source protocol794325
-Node: Org Crypt797546
-Node: Org Mobile799419
-Node: Setting up the staging area800804
-Ref: Setting up the staging area-Footnote-1802044
-Ref: Setting up the staging area-Footnote-2802251
-Node: Pushing to the mobile application802423
-Ref: Pushing to the mobile application-Footnote-1803434
-Ref: Pushing to the mobile application-Footnote-2803525
-Ref: Pushing to the mobile application-Footnote-3803892
-Node: Pulling from the mobile application803968
-Ref: Pulling from the mobile application-Footnote-1806281
-Node: Drag and Drop & yank-media806334
-Ref: Drag and Drop & yank-media-Footnote-1808151
-Node: Repeating commands808297
-Node: Hacking810439
-Node: Hooks811462
-Node: Add-on Packages811737
-Node: Adding Hyperlink Types812193
-Node: Adding Hyperlink preview816007
-Node: Adding Export Backends818749
-Node: Tables in Arbitrary Syntax819994
-Node: Radio tables821258
-Node: A LaTeX example823388
-Ref: A LaTeX example-Footnote-1827239
-Ref: A LaTeX example-Footnote-2827282
-Ref: A LaTeX example-Footnote-3827443
-Node: Translator functions827895
-Node: Dynamic Blocks830077
-Node: Special Agenda Views832321
-Ref: Special Agenda Views-Footnote-1836032
-Ref: Special Agenda Views-Footnote-2836238
-Node: Speeding Up Your Agendas836370
-Node: Extracting Agenda Information837593
-Node: Using the Property API841400
-Node: Using the Mapping API844749
-Node: History and Acknowledgments848779
-Ref: From Carsten848977
-Ref: From Bastien852405
-Ref: List of Contributions854928
-Node: GNU Free Documentation License863591
-Ref: ADDENDUM How to use this License for your documents887352
-Node: Main Index888741
-Node: Key Index990661
-Node: Command and Function Index1048091
-Node: Variable Index1097866
+Node: The date/time prompt251853
+Ref: The date/time prompt-Footnote-1256806
+Ref: The date/time prompt-Footnote-2256977
+Ref: The date/time prompt-Footnote-3257088
+Ref: The date/time prompt-Footnote-4257339
+Node: Custom time format257437
+Node: Deadlines and Scheduling259205
+Ref: Deadlines and Scheduling-Footnote-1262770
+Node: Inserting deadline/schedule262933
+Ref: Inserting deadline/schedule-Footnote-1264919
+Ref: Inserting deadline/schedule-Footnote-2265080
+Ref: Inserting deadline/schedule-Footnote-3265206
+Node: Repeated tasks265332
+Ref: Repeated tasks-Footnote-1270059
+Ref: Repeated tasks-Footnote-2270142
+Ref: Repeated tasks-Footnote-3270425
+Node: Clocking Work Time270647
+Ref: Clocking Work Time-Footnote-1271850
+Ref: Clocking Work Time-Footnote-2272003
+Node: Clocking commands272145
+Ref: Clocking commands-Footnote-1277382
+Ref: Clocking commands-Footnote-2277493
+Ref: Clocking commands-Footnote-3277575
+Ref: Clocking commands-Footnote-4277638
+Node: The clock table277721
+Ref: The clock table-Footnote-1285834
+Ref: The clock table-Footnote-2285943
+Ref: The clock table-Footnote-3286041
+Node: Resolving idle time286166
+Ref: Resolving idle time (1)286362
+Ref: Continuous clocking289543
+Ref: Clocking out automatically after some idle time290053
+Ref: Resolving idle time-Footnote-1290684
+Node: Effort Estimates291131
+Ref: Effort Estimates-Footnote-1294085
+Node: Timers294196
+Node: Refiling and Archiving296421
+Node: Refile and Copy296984
+Ref: Refile and Copy-Footnote-1299814
+Node: Archiving299928
+Node: Moving subtrees300641
+Node: Internal archiving302775
+Node: Capture and Attachments305508
+Node: Capture306313
+Node: Setting up capture306833
+Node: Using capture307196
+Node: Capture templates309534
+Node: Template elements311575
+Ref: Template elements-Footnote-1320902
+Ref: Template elements-Footnote-2321235
+Ref: Template elements-Footnote-3321580
+Node: Template expansion321675
+Ref: Template expansion-Footnote-1326153
+Ref: Template expansion-Footnote-2326244
+Ref: Template expansion-Footnote-3326434
+Node: Templates in contexts326533
+Node: Attachments327372
+Node: Attachment defaults and dispatcher328416
+Ref: Attachment defaults and dispatcher-Footnote-1331758
+Node: Attachment options331909
+Node: Attachment links335915
+Node: Automatic version-control with Git336562
+Node: Attach from Dired337071
+Node: RSS Feeds338435
+Node: Agenda Views339886
+Node: Agenda Files342293
+Ref: Agenda Files-Footnote-1345202
+Ref: Agenda Files-Footnote-2345346
+Node: Agenda Dispatcher345544
+Ref: Agenda Dispatcher-Footnote-1348420
+Node: Built-in Agenda Views348518
+Node: Weekly/daily agenda349115
+Ref: Calendar/Diary integration350570
+Ref: Anniversaries from BBDB352644
+Ref: Appointment reminders354433
+Ref: Weekly/daily agenda-Footnote-1354983
+Ref: Weekly/daily agenda-Footnote-2355227
+Node: Global TODO list355447
+Node: Matching tags and properties358298
+Ref: Matching tags and properties-Footnote-1366781
+Node: Search view366886
+Node: Stuck projects368533
+Node: Presentation and Sorting370660
+Node: Categories371637
+Node: Time-of-day specifications372383
+Ref: Time-of-day specifications-Footnote-1374372
+Node: Sorting of agenda items374495
+Node: Filtering/limiting agenda items376232
+Ref: Filtering in the agenda376937
+Ref: Computed tag filtering381071
+Ref: Setting limits for the agenda382563
+Ref: Filtering/limiting agenda items-Footnote-1384112
+Node: Agenda Commands384663
+Ref: Motion (1)385392
+Ref: View/Go to Org file385595
+Ref: Change display387101
+Ref: Remote editing394867
+Ref: Bulk remote editing selected entries400225
+Ref: Calendar commands403313
+Ref: Quit and exit405193
+Ref: Agenda Commands-Footnote-1405555
+Ref: Agenda Commands-Footnote-2405631
+Ref: Agenda Commands-Footnote-3405735
+Node: Custom Agenda Views405822
+Node: Storing searches406474
+Ref: Storing searches-Footnote-1409425
+Ref: Storing searches-Footnote-2409542
+Node: Block agenda409788
+Node: Setting options411117
+Node: Exporting Agenda Views414729
+Ref: Exporting Agenda Views-Footnote-1419267
+Ref: Exporting Agenda Views-Footnote-2419484
+Ref: Exporting Agenda Views-Footnote-3419634
+Ref: Exporting Agenda Views-Footnote-4419821
+Node: Agenda Column View419903
+Node: Markup for Rich Contents423244
+Node: Paragraphs424551
+Node: Emphasis and Monospace425686
+Ref: Emphasis and Monospace-Footnote-1427267
+Node: Subscripts and Superscripts427353
+Ref: Subscripts and Superscripts-Footnote-1429107
+Node: Special Symbols429224
+Ref: Special Symbols-Footnote-1431134
+Ref: Special Symbols-Footnote-2431300
+Node: Embedded LaTeX431397
+Ref: Embedded LaTeX-Footnote-1432245
+Node: LaTeX fragments432435
+Ref: LaTeX fragments-Footnote-1434891
+Node: Previewing LaTeX fragments435084
+Ref: Previewing LaTeX fragments-Footnote-1436566
+Node: CDLaTeX mode436815
+Ref: CDLaTeX mode-Footnote-1439553
+Node: Literal Examples439700
+Ref: Literal Examples-Footnote-1444822
+Ref: Literal Examples-Footnote-2445278
+Ref: Literal Examples-Footnote-3445456
+Ref: Literal Examples-Footnote-4445610
+Ref: Literal Examples-Footnote-5445838
+Ref: Literal Examples-Footnote-6446023
+Node: Images and link previews446121
+Ref: Images and link previews-Footnote-1448846
+Node: Images449013
+Ref: Images-Footnote-1452517
+Ref: Images-Footnote-2452640
+Node: Captions452726
+Node: Horizontal Rules453442
+Node: Creating Footnotes453698
+Ref: Creating Footnotes-Footnote-1456825
+Ref: Creating Footnotes-Footnote-2456931
+Node: Exporting457038
+Node: The Export Dispatcher459806
+Node: Export Settings463253
+Ref: Export Settings-Footnote-1472029
+Ref: Export Settings-Footnote-2472141
+Ref: Export Settings-Footnote-3472241
+Node: Table of Contents472437
+Ref: Table of Contents-Footnote-1475096
+Node: Include Files475417
+Ref: Include Files-Footnote-1478507
+Node: Macro Replacement478685
+Ref: Macro Replacement-Footnote-1482565
+Ref: Macro Replacement-Footnote-2482677
+Node: Comment Lines482894
+Ref: Comment Lines-Footnote-1483760
+Ref: Comment Lines-Footnote-2483895
+Node: ASCII/Latin-1/UTF-8 export484011
+Ref: ASCII export commands484865
+Ref: ASCII specific export settings485402
+Ref: Header and sectioning structure485845
+Ref: Quoting ASCII text486119
+Ref: ASCII specific attributes486489
+Ref: ASCII special blocks486765
+Node: Beamer Export487111
+Node: Beamer export commands488051
+Node: Beamer specific export settings488756
+Node: Frames and Blocks in Beamer490658
+Ref: Frames and Blocks in Beamer-Footnote-1494194
+Node: Beamer specific syntax494353
+Node: Editing support496326
+Node: A Beamer example496797
+Node: HTML Export498074
+Node: HTML export commands499262
+Node: HTML specific export settings499804
+Node: HTML doctypes502014
+Node: HTML preamble and postamble504184
+Node: Bare HTML505237
+Node: Quoting HTML tags505825
+Node: Headlines in HTML export506506
+Node: Links in HTML export507309
+Node: Tables in HTML export508766
+Node: Images in HTML export510467
+Node: Math formatting in HTML export512021
+Ref: Math formatting in HTML export-Footnote-1513514
+Ref: Math formatting in HTML export-Footnote-2513706
+Node: Text areas in HTML export513989
+Node: CSS support515130
+Ref: CSS support-Footnote-1518760
+Node: JavaScript support518940
+Node: LaTeX Export522119
+Ref: LaTeX Export-Footnote-1524402
+Node: LaTeX/PDF export commands524550
+Ref: LaTeX/PDF export commands-Footnote-1526048
+Node: LaTeX specific export settings526246
+Node: LaTeX header and sectioning529941
+Node: Quoting LaTeX code534447
+Node: Tables in LaTeX export535331
+Node: Images in LaTeX export540583
+Node: Plain lists in LaTeX export543232
+Node: Source blocks in LaTeX export544251
+Ref: Source blocks in LaTeX export-Footnote-1546377
+Node: Example blocks in LaTeX export546535
+Node: Special blocks in LaTeX export547260
+Node: Horizontal rules in LaTeX export548519
+Node: Verse blocks in LaTeX export548955
+Node: Quote blocks in LaTeX export551678
+Node: Controlling the way the table of contents is generated552859
+Node: Markdown Export553932
+Ref: Markdown export commands554661
+Ref: Header and sectioning structure (1)555098
+Node: OpenDocument Text Export555642
+Ref: OpenDocument Text Export-Footnote-1556747
+Node: Pre-requisites for ODT export556897
+Node: ODT export commands557274
+Node: ODT specific export settings558454
+Node: Extending ODT export559499
+Ref: Automatically exporting to other formats560307
+Ref: Converting between document formats560732
+Node: Applying custom styles561272
+Ref: Applying custom styles the easy way561803
+Ref: Using third-party styles and templates562757
+Node: Links in ODT export563053
+Node: Tables in ODT export563715
+Node: Images in ODT export565721
+Ref: Embedding images565925
+Ref: Embedding clickable images566241
+Ref: Sizing and scaling of embedded images566575
+Ref: Anchoring of images568253
+Node: Math formatting in ODT export568574
+Node: LaTeX math snippets569003
+Ref: LaTeX math snippets-Footnote-1571252
+Ref: LaTeX math snippets-Footnote-2571311
+Node: MathML and OpenDocument formula files571357
+Node: Labels and captions in ODT export571865
+Node: Literal examples in ODT export573133
+Node: Advanced topics in ODT export573972
+Ref: Configuring a document converter574281
+Ref: Working with OpenDocument style files575219
+Ref: x-orgodtstyles-xml575685
+Ref: x-orgodtcontenttemplate-xml576027
+Ref: x-overriding-factory-styles576671
+Ref: Creating one-off styles577915
+Ref: Customizing tables in ODT export579916
+Ref: Validating OpenDocument XML584776
+Ref: Advanced topics in ODT export-Footnote-1585570
+Ref: Advanced topics in ODT export-Footnote-2585675
+Ref: Advanced topics in ODT export-Footnote-3585768
+Node: Org Export586116
+Ref: Org export commands586470
+Node: Texinfo Export586776
+Node: Texinfo export commands587816
+Node: Texinfo specific export settings588441
+Node: Texinfo file header590149
+Node: Texinfo title and copyright page591129
+Node: Info directory file592492
+Node: Headings and sectioning structure593206
+Node: Indices595227
+Node: Quoting Texinfo code596253
+Node: Plain lists in Texinfo export596751
+Node: Tables in Texinfo export601479
+Node: Images in Texinfo export601974
+Node: Quotations in Texinfo export602611
+Node: Key bindings in Texinfo export603563
+Node: Special blocks in Texinfo export604364
+Node: A Texinfo example605197
+Node: iCalendar Export607288
+Ref: iCalendar Export-Footnote-1612747
+Node: Other Built-in Backends612930
+Node: Advanced Export Configuration613556
+Ref: Export hooks613755
+Ref: Filters614975
+Ref: Defining filters for individual files617475
+Ref: Summary of the export process618280
+Ref: Extending an existing backend623681
+Ref: Advanced Export Configuration-Footnote-1626016
+Ref: Advanced Export Configuration-Footnote-2626372
+Ref: Advanced Export Configuration-Footnote-3626521
+Node: Export Region626607
+Node: Publishing627665
+Node: Configuration628539
+Node: Project alist629321
+Node: Sources and destinations630459
+Node: Selecting files631778
+Node: Publishing action632731
+Ref: Publishing action-Footnote-1634582
+Node: Publishing options634745
+Ref: Generic properties635497
+Ref: ASCII specific properties638185
+Ref: Beamer specific properties639785
+Ref: HTML specific properties640417
+Ref: LaTeX specific properties645653
+Ref: Markdown specific properties649231
+Ref: ODT specific properties649607
+Ref: Texinfo specific properties650679
+Node: Publishing links652107
+Node: Site map653557
+Node: Generating an index656383
+Node: Uploading Files657175
+Node: Sample Configuration658956
+Node: Simple example659454
+Node: Complex example660170
+Node: Triggering Publication662258
+Node: Citation handling663284
+Node: Citations666327
+Node: Citation export processors668689
+Node: Bibliography printing672165
+Node: Bibliography options in the biblatex and csl export processors673313
+Node: Working with Source Code675430
+Node: Features Overview677735
+Node: Structure of Code Blocks680480
+Node: Using Header Arguments683423
+Ref: System-wide header arguments684148
+Ref: Header arguments in Org mode properties685819
+Ref: Code block specific header arguments687643
+Ref: Header arguments in function calls689142
+Node: Environment of a Code Block689816
+Ref: Passing arguments690030
+Ref: Using sessions698569
+Ref: Choosing a working directory699968
+Ref: Inserting headers and footers702268
+Node: Evaluating Code Blocks702777
+Ref: How to evaluate source code703223
+Ref: Limit code block evaluation706169
+Ref: Cache results of evaluation707155
+Ref: Evaluating Code Blocks-Footnote-1709666
+Ref: Evaluating Code Blocks-Footnote-2709800
+Node: Results of Evaluation709958
+Ref: Collection710765
+Ref: Type712224
+Ref: Format716246
+Ref: Handling718885
+Ref: Post-processing720276
+Ref: Results of Evaluation-Footnote-1722026
+Node: Exporting Code Blocks722184
+Node: Extracting Source Code726206
+Ref: Header arguments727187
+Ref: Functions731880
+Ref: Tangle hooks732131
+Ref: Jumping between code and Org732907
+Node: Languages733416
+Node: Editing Source Code734417
+Node: Noweb Reference Syntax737393
+Ref: Noweb Reference Syntax-Footnote-1744120
+Ref: Noweb Reference Syntax-Footnote-2744211
+Ref: Noweb Reference Syntax-Footnote-3744824
+Node: Library of Babel744944
+Node: Key bindings and Useful Functions745658
+Node: Batch Execution748083
+Node: Miscellaneous748864
+Node: Completion750388
+Node: Structure Templates752311
+Ref: Structure Templates-Footnote-1754061
+Node: Speed Keys754153
+Node: Clean View755320
+Node: Org Indent Mode756530
+Ref: Org Indent Mode-Footnote-1757736
+Node: Hard indentation757960
+Ref: Hard indentation-Footnote-1759441
+Ref: Hard indentation-Footnote-2759547
+Node: Execute commands in the active region759691
+Node: Dynamic Headline Numbering760703
+Node: The Very Busy C-c C-c Key761869
+Node: In-buffer Settings763858
+Ref: In-buffer Settings-Footnote-1773797
+Node: Regular Expressions773995
+Node: Org Syntax774617
+Node: Documentation Access776234
+Node: Escape Character776651
+Node: Code Evaluation Security777511
+Node: Interaction780376
+Node: Cooperation780797
+Node: Conflicts783863
+Node: TTY Keys788446
+Node: Protocols790083
+Node: The store-link protocol791544
+Node: The capture protocol792703
+Node: The open-source protocol794357
+Node: Org Crypt797578
+Node: Org Mobile799451
+Node: Setting up the staging area800836
+Ref: Setting up the staging area-Footnote-1802076
+Ref: Setting up the staging area-Footnote-2802283
+Node: Pushing to the mobile application802455
+Ref: Pushing to the mobile application-Footnote-1803466
+Ref: Pushing to the mobile application-Footnote-2803557
+Ref: Pushing to the mobile application-Footnote-3803924
+Node: Pulling from the mobile application804000
+Ref: Pulling from the mobile application-Footnote-1806313
+Node: Drag and Drop & yank-media806366
+Ref: Drag and Drop & yank-media-Footnote-1808183
+Node: Repeating commands808329
+Node: Hacking810471
+Node: Hooks811494
+Node: Add-on Packages811769
+Node: Adding Hyperlink Types812225
+Node: Adding Hyperlink preview816039
+Node: Adding Export Backends818781
+Node: Tables in Arbitrary Syntax820026
+Node: Radio tables821290
+Node: A LaTeX example823420
+Ref: A LaTeX example-Footnote-1827271
+Ref: A LaTeX example-Footnote-2827314
+Ref: A LaTeX example-Footnote-3827475
+Node: Translator functions827927
+Node: Dynamic Blocks830109
+Node: Special Agenda Views832353
+Ref: Special Agenda Views-Footnote-1836064
+Ref: Special Agenda Views-Footnote-2836270
+Node: Speeding Up Your Agendas836402
+Node: Extracting Agenda Information837625
+Node: Using the Property API841432
+Node: Using the Mapping API844781
+Node: History and Acknowledgments848811
+Ref: From Carsten849009
+Ref: From Bastien852437
+Ref: List of Contributions854960
+Node: GNU Free Documentation License863623
+Ref: ADDENDUM How to use this License for your documents887384
+Node: Main Index888773
+Node: Key Index990693
+Node: Command and Function Index1048123
+Node: Variable Index1097898
 
 End Tag Table
 

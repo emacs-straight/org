@@ -6759,7 +6759,7 @@ or a dynamic block.
 To assist project planning@comma{} TODO items can be labeled with a date
 and/or a time.  The specially formatted string carrying the date and
 time information is called a @emph{timestamp} in Org mode.  This may be
-a little confusing because timestamp is often used as indicating when
+a little confusing because timestamp is often used to indicate when
 something was created or last changed.  However@comma{} in Org mode this term
 is used in a much wider sense.
 
@@ -6889,7 +6889,7 @@ specifies a time range for each date.
 @cindex timestamp, inactive
 @cindex inactive timestamp
 Just like a plain timestamp@comma{} but with square brackets instead of
-angular ones.  These timestamps are inactive in the sense that they
+angle brackets.  These timestamps are inactive in the sense that they
 do @emph{not} trigger an entry to show up in the agenda.
 
 @example
@@ -6942,7 +6942,7 @@ Normalize timestamp@comma{} insert or fix day name if missing or wrong.
 @item @kbd{C-c <} (@code{org-date-from-calendar})
 @kindex C-c <
 @findex org-date-from-calendar
-Insert a timestamp corresponding to point date in the calendar.
+Insert a timestamp corresponding to the date at point in the calendar.
 
 @item @kbd{C-c >} (@code{org-goto-calendar})
 @kindex C-c >
@@ -6954,8 +6954,8 @@ instead.
 @item @kbd{C-c C-o} (@code{org-open-at-point})
 @kindex C-c C-o
 @findex org-open-at-point
-Access the agenda for the date given by the timestamp or -range at
-point (see @ref{Weekly/daily agenda}).
+Access the agenda for the date given by the timestamp or timestamp
+range at point (see @ref{Weekly/daily agenda}).
 
 @item @kbd{S-@key{LEFT}} (@code{org-timestamp-down-day})@comma{} @kbd{S-@key{RIGHT}} (@code{org-timestamp-up-day})
 @kindex S-LEFT
@@ -6968,7 +6968,7 @@ shift-selection and related modes (see @ref{Conflicts}).
 @item @kbd{S-@key{UP}} (@code{org-timestamp-up})@comma{} @kbd{S-@key{DOWN}} (@code{org-timestamp-down})
 @kindex S-UP
 @kindex S-DOWN
-On the beginning or enclosing bracket of a timestamp@comma{} change its
+At the beginning or enclosing bracket of a timestamp@comma{} change its
 type.  Within a timestamp@comma{} change the item under point.  Point can
 be on a year@comma{} month@comma{} day@comma{} hour or minute.  When the timestamp
 contains a time range like @samp{15:30-16:30}@comma{} modifying the first time
@@ -6983,7 +6983,7 @@ also conflict with shift-selection and related modes (see @ref{Conflicts}).
 @findex org-evaluate-time-range
 @cindex evaluate time range
 Evaluate a time range by computing the difference between start and
-end.  With a prefix argument@comma{} insert result after the time range (in
+end.  With a prefix argument@comma{} insert the result after the time range (in
 a table: into the following column).
 @end table
 
@@ -7001,9 +7001,9 @@ a table: into the following column).
 @vindex org-read-date-prefer-future
 When Org mode prompts for a date/time@comma{} the default is shown in default
 date/time format@comma{} and the prompt therefore seems to ask for a specific
-format.  But it in fact accepts date/time information in a variety of
+format.  But in fact it accepts date/time information in a variety of
 formats.  Generally@comma{} the information should start at the beginning of
-the string.  Org mode finds whatever information is in there and
+the string.  Org mode finds whatever information is present and
 derives anything you have not specified from the @emph{default date and
 time}.  The default is usually the current date and time@comma{} but when
 modifying an existing timestamp@comma{} or when entering the second stamp of
@@ -7093,8 +7093,8 @@ outside this range@comma{} read the docstring of the variable
 @code{org-read-date-force-compatible-dates}.
 
 You can specify a time range by giving start and end times or by
-giving a start time and a duration (in HH:MM format).  Use one or two
-dash(es) as the separator in the former case and use @samp{+} as the
+giving a start time and a duration (in HH:MM format).  Use one dash or
+two dashes as the separator in the former case and use @samp{+} as the
 separator in the latter case@comma{} e.g.:
 
 @multitable {aaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaa}
@@ -7198,19 +7198,19 @@ Toggle the display of custom formats for dates and times.
 
 Org mode needs the default format for scanning@comma{} so the custom
 date/time format does not @emph{replace} the default format.  Instead@comma{} it
-is put @emph{over} the default format using text properties.  This has the
+is overlaid on the default format using text properties.  This has the
 following consequences:
 
 @itemize
 @item
-You cannot place point onto a timestamp anymore@comma{} only before or
+You cannot place point on a timestamp anymore@comma{} only before or
 after.
 
 @item
 The @kbd{S-@key{UP}} and @kbd{S-@key{DOWN}} keys can no longer be used
 to adjust each component of a timestamp.  If point is at the
 beginning of the stamp@comma{} @kbd{S-@key{UP}} and @kbd{S-@key{DOWN}} change
-the stamp by one day@comma{} just like @kbd{S-@key{LEFT}}
+the stamp by one day@comma{} just like @kbd{S-@key{LEFT}} and
 @kbd{S-@key{RIGHT}}.  At the end of the stamp@comma{} change the time by one
 minute.
 
@@ -7226,7 +7226,7 @@ belonging to the ISO timestamp have been removed.
 @item
 If the custom timestamp format is longer than the default@comma{} and you
 are using dates in tables@comma{} table alignment will be messed up.  If
-the custom format is shorter@comma{} things do work as expected.
+the custom format is shorter@comma{} things work as expected.
 @end itemize
 
 @node Deadlines and Scheduling
@@ -7257,8 +7257,8 @@ done.  An example:
 
 @vindex org-agenda-skip-deadline-prewarning-if-scheduled
 You can specify a different lead time for warnings for a specific
-deadlines using the following syntax.  Here is an example with
-a warning period of 5 days @samp{DEADLINE: <2004-02-29 Sun -5d>}.  This
+deadline using the following syntax.  Here is an example with a
+warning period of 5 days @samp{DEADLINE: <2004-02-29 Sun -5d>}.  This
 warning is deactivated if the task gets scheduled@comma{} and you set
 @code{org-agenda-skip-deadline-prewarning-if-scheduled} to @code{t}.
 
@@ -7295,8 +7295,8 @@ control this globally or per agenda.
 Scheduling an item in Org mode should @emph{not} be understood in the
 same way that we understand @emph{scheduling a meeting}.  Setting a date
 for a meeting is just a simple appointment@comma{} you should mark this
-entry with a simple plain timestamp@comma{} to get this item shown on the
-date where it applies.  This is a frequent misunderstanding by Org
+entry with a simple plain timestamp to get this item shown on the
+date when it applies.  This is a frequent misunderstanding by Org
 users.  In Org mode@comma{} @emph{scheduling} means setting a date when you want
 to start working on an action item.
 
@@ -7340,7 +7340,7 @@ Insert @samp{DEADLINE} keyword along with a stamp.  The insertion happens
 in the line directly following the headline.  Remove any @samp{CLOSED}
 timestamp.  When called with a prefix argument@comma{} also remove any
 existing deadline from the entry.  Depending on the variable
-@code{org-log-redeadline}@comma{} take a note when changing an existing
+@code{org-log-redeadline}@comma{} take note when changing an existing
 deadline@footnote{ Note the corresponding @samp{STARTUP} options
 @samp{logredeadline}@comma{} @samp{lognoteredeadline}@comma{} and @samp{nologredeadline}.}.
 
@@ -7352,16 +7352,16 @@ Insert @samp{SCHEDULED} keyword along with a stamp.  The insertion
 happens in the line directly following the headline.  Remove any
 @samp{CLOSED} timestamp.  When called with a prefix argument@comma{} also remove
 the scheduling date from the entry.  Depending on the variable
-@code{org-log-reschedule}@comma{} take a note when changing an existing
-scheduling time@footnote{ Note the corresponding @samp{STARTUP} options
-@samp{logreschedule}@comma{} @samp{lognotereschedule}@comma{} and @samp{nologreschedule}.}.
+@code{org-log-reschedule}@comma{} take note when changing an existing scheduling
+time@footnote{ Note the corresponding @samp{STARTUP} options @samp{logreschedule}@comma{}
+@samp{lognotereschedule}@comma{} and @samp{nologreschedule}.}.
 
 @item @kbd{C-c / d} (@code{org-check-deadlines})
 @kindex C-c / d
 @findex org-check-deadlines
 @cindex sparse tree, for deadlines
 @vindex org-deadline-warning-days
-Create a sparse tree with all deadlines that are either past-due@comma{} or
+Create a sparse tree with all deadlines that are either past due@comma{} or
 which will become due within @code{org-deadline-warning-days}.  With
 @kbd{C-u} prefix@comma{} show all deadlines in the file.  With
 a numeric prefix@comma{} check that many days.  For example@comma{} @kbd{C-1 C-c / d} shows all deadlines due tomorrow.
@@ -7377,7 +7377,7 @@ Sparse tree for deadlines and scheduled items before a given date.
 Sparse tree for deadlines and scheduled items after a given date.
 @end table
 
-Note that @code{org-schedule} and @code{org-deadline} supports setting the date
+Note that @code{org-schedule} and @code{org-deadline} support setting the date
 by indicating a relative time e.g.@comma{} @samp{+1d} sets the date to the next
 day after today@comma{} and @samp{--1w} sets the date to the previous week before
 any current timestamp.
@@ -7416,7 +7416,7 @@ Deadlines and scheduled items produce entries in the agenda when they
 are over-due@comma{} so it is important to be able to mark such an entry as
 done once you have done so.  When you mark a @samp{DEADLINE} or a
 @samp{SCHEDULED} with the TODO keyword @samp{DONE}@comma{} it no longer produces
-entries in the agenda.  The problem with this is@comma{} however@comma{} is that
+entries in the agenda.  The problem with this@comma{} however@comma{} is that
 then also the @emph{next} instance of the repeated entry will not be
 active.  Org mode deals with this in the following way: when you try
 to mark such an entry as done@comma{} using @kbd{C-c C-t}@comma{} it shifts the
@@ -7433,7 +7433,7 @@ state to @samp{DONE} would actually switch the date like this:
    DEADLINE: <2005-11-01 Tue +1m>
 @end example
 
-When task contains multiple timestamps with repeater interval@comma{} all
+When a task contains multiple timestamps with repeater interval@comma{} all
 these timestamps are shifted.
 
 To mark a task with a repeater as DONE@comma{} use @kbd{C-- 1 C-c C-t}@comma{}
@@ -7513,7 +7513,7 @@ done@comma{} the clock is stopped and the corresponding time interval is
 recorded.  It also computes the total time spent on each
 subtree@footnote{Clocking only works if all headings are indented with less
 than 30 stars.  This is a hard-coded limitation of @code{lmax} in
-@code{org-clock-sum}.} of a project.  And it remembers a history or tasks
+@code{org-clock-sum}.} of a project.  And it remembers a history of tasks
 recently clocked@comma{} so that you can jump quickly between a number of
 tasks absorbing your time.
 
@@ -7556,7 +7556,7 @@ setting a @samp{CLOCK_INTO_DRAWER} or @samp{LOG_INTO_DRAWER} property.  When
 called with a @kbd{C-u} prefix argument@comma{} select the task from
 a list of recently clocked tasks.  With two @kbd{C-u C-u}
 prefixes@comma{} clock into the task at point and mark it as the default
-task; the default task is always be available with letter
+task; the default task is always available with letter
 @kbd{d} when selecting a clocking task.  With three @kbd{C-u C-u C-u} prefixes@comma{} force continuous clocking by starting the
 clock when the last clock stopped.
 
@@ -7588,7 +7588,7 @@ onto the mode line entry pops up a menu with clocking options.
 @vindex org-log-note-clock-out
 Stop the clock (clock-out).  This inserts another timestamp at the
 same location where the clock was last started.  It also directly
-computes the resulting time in inserts it after the time range as
+computes the resulting time and inserts it after the time range as
 @samp{=>HH:MM}.  See the variable @code{org-log-note-clock-out} for the
 possibility to record an additional note together with the clock-out
 timestamp@footnote{ The corresponding in-buffer setting is: @samp{#+STARTUP:
@@ -7841,7 +7841,7 @@ A tags match to select entries that should contribute.  See
 
 @findex org-clocktable-write-default
 Then there are options that determine the formatting of the table.
-There options are interpreted by the function
+These options are interpreted by the function
 @code{org-clocktable-write-default}@comma{} but you can specify your own function
 using the @samp{:formatter} parameter.
 
@@ -7983,7 +7983,7 @@ variable @code{org-clock-x11idle-program-name} if you are running Debian@comma{}
 to get the same general treatment of idleness.  On other systems@comma{} idle
 time refers to Emacs idle time only.}@comma{} and ask what
 you want to do with the idle time.  There will be a question waiting
-for you when you get back@comma{} indicating how much idle time has passed
+for you when you get back@comma{} indicating how much idle time has passed@comma{}
 constantly updated with the current amount@comma{} as well as a set of
 choices to correct the discrepancy:
 
@@ -8053,11 +8053,11 @@ dangling clocks at any time using @kbd{M-x org-resolve-clocks @key{RET}} (or @kb
 @cindex continuous clocking
 
 @vindex org-clock-continuously
-You may want to start clocking from the time when you clocked out the
+You may want to start clocking from the time when you clocked out of the
 previous task.  To enable this systematically@comma{} set
 @code{org-clock-continuously} to non-@code{nil}.  Each time you clock in@comma{} Org
 retrieves the clock-out time of the last clocked entry for this
-session@comma{} and start the new clock from there.
+session@comma{} and starts the new clock from there.
 
 If you only want this from time to time@comma{} use three universal prefix
 arguments with @code{org-clock-in} and two @kbd{C-u C-u} with
@@ -8154,7 +8154,7 @@ added to the load estimate of the day.
 
 Effort estimates can be used in secondary agenda filtering that is
 triggered with the @kbd{/} key in the agenda (see @ref{Agenda Commands}).  If you have these estimates defined consistently@comma{}
-two or three key presses narrow down the list to stuff that fits into
+two or three key presses narrow down the list to items that fit into
 an available time slot.
 
 @node Timers
@@ -8167,7 +8167,7 @@ Org provides two types of timers.  There is a relative timer that
 counts up@comma{} which can be useful when taking notes during@comma{} for example@comma{}
 a meeting or a video viewing.  There is also a countdown timer.
 
-The relative and countdown are started with separate commands.
+The relative timer and countdown timer are started with separate commands.
 
 @table @asis
 @item @kbd{C-c C-x 0} (@code{org-timer-start})

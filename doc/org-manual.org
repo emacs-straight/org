@@ -6178,7 +6178,7 @@ or a dynamic block.
 To assist project planning, TODO items can be labeled with a date
 and/or a time.  The specially formatted string carrying the date and
 time information is called a /timestamp/ in Org mode.  This may be
-a little confusing because timestamp is often used as indicating when
+a little confusing because timestamp is often used to indicate when
 something was created or last changed.  However, in Org mode this term
 is used in a much wider sense.
 
@@ -6290,7 +6290,7 @@ the agenda (see [[*Weekly/daily agenda]]).  We distinguish:
   #+cindex: timestamp, inactive
   #+cindex: inactive timestamp
   Just like a plain timestamp, but with square brackets instead of
-  angular ones.  These timestamps are inactive in the sense that they
+  angle brackets.  These timestamps are inactive in the sense that they
   do /not/ trigger an entry to show up in the agenda.
 
   #+begin_example
@@ -6348,7 +6348,7 @@ format.
 
   #+kindex: C-c <
   #+findex: org-date-from-calendar
-  Insert a timestamp corresponding to point date in the calendar.
+  Insert a timestamp corresponding to the date at point in the calendar.
 
 - {{{kbd(C-c >)}}} (~org-goto-calendar~) ::
 
@@ -6362,8 +6362,8 @@ format.
 
   #+kindex: C-c C-o
   #+findex: org-open-at-point
-  Access the agenda for the date given by the timestamp or -range at
-  point (see [[*Weekly/daily agenda]]).
+  Access the agenda for the date given by the timestamp or timestamp
+  range at point (see [[*Weekly/daily agenda]]).
 
 - {{{kbd(S-LEFT)}}} (~org-timestamp-down-day~), {{{kbd(S-RIGHT)}}} (~org-timestamp-up-day~) ::
 
@@ -6379,7 +6379,7 @@ format.
 
   #+kindex: S-UP
   #+kindex: S-DOWN
-  On the beginning or enclosing bracket of a timestamp, change its
+  At the beginning or enclosing bracket of a timestamp, change its
   type.  Within a timestamp, change the item under point.  Point can
   be on a year, month, day, hour or minute.  When the timestamp
   contains a time range like =15:30-16:30=, modifying the first time
@@ -6396,7 +6396,7 @@ format.
   #+findex: org-evaluate-time-range
   #+cindex: evaluate time range
   Evaluate a time range by computing the difference between start and
-  end.  With a prefix argument, insert result after the time range (in
+  end.  With a prefix argument, insert the result after the time range (in
   a table: into the following column).
 
 *** The date/time prompt
@@ -6409,9 +6409,9 @@ format.
 #+vindex: org-read-date-prefer-future
 When Org mode prompts for a date/time, the default is shown in default
 date/time format, and the prompt therefore seems to ask for a specific
-format.  But it in fact accepts date/time information in a variety of
+format.  But in fact it accepts date/time information in a variety of
 formats.  Generally, the information should start at the beginning of
-the string.  Org mode finds whatever information is in there and
+the string.  Org mode finds whatever information is present and
 derives anything you have not specified from the /default date and
 time/.  The default is usually the current date and time, but when
 modifying an existing timestamp, or when entering the second stamp of
@@ -6473,8 +6473,8 @@ outside this range, read the docstring of the variable
 ~org-read-date-force-compatible-dates~.
 
 You can specify a time range by giving start and end times or by
-giving a start time and a duration (in HH:MM format).  Use one or two
-dash(es) as the separator in the former case and use =+= as the
+giving a start time and a duration (in HH:MM format).  Use one dash or
+two dashes as the separator in the former case and use =+= as the
 separator in the latter case, e.g.:
 
 | =11am-1:15pm=  | \rArr{} 11:00-13:15   |
@@ -6555,16 +6555,16 @@ it by customizing the variables ~org-display-custom-times~ and
 
 Org mode needs the default format for scanning, so the custom
 date/time format does not /replace/ the default format.  Instead, it
-is put /over/ the default format using text properties.  This has the
+is overlaid on the default format using text properties.  This has the
 following consequences:
 
-- You cannot place point onto a timestamp anymore, only before or
+- You cannot place point on a timestamp anymore, only before or
   after.
 
 - The {{{kbd(S-UP)}}} and {{{kbd(S-DOWN)}}} keys can no longer be used
   to adjust each component of a timestamp.  If point is at the
   beginning of the stamp, {{{kbd(S-UP)}}} and {{{kbd(S-DOWN)}}} change
-  the stamp by one day, just like {{{kbd(S-LEFT)}}}
+  the stamp by one day, just like {{{kbd(S-LEFT)}}} and
   {{{kbd(S-RIGHT)}}}.  At the end of the stamp, change the time by one
   minute.
 
@@ -6577,7 +6577,7 @@ following consequences:
 
 - If the custom timestamp format is longer than the default, and you
   are using dates in tables, table alignment will be messed up.  If
-  the custom format is shorter, things do work as expected.
+  the custom format is shorter, things work as expected.
 
 ** Deadlines and Scheduling
 :PROPERTIES:
@@ -6609,8 +6609,8 @@ immediately after the task they refer to.
 
   #+vindex: org-agenda-skip-deadline-prewarning-if-scheduled
   You can specify a different lead time for warnings for a specific
-  deadlines using the following syntax.  Here is an example with
-  a warning period of 5 days =DEADLINE: <2004-02-29 Sun -5d>=.  This
+  deadline using the following syntax.  Here is an example with a
+  warning period of 5 days =DEADLINE: <2004-02-29 Sun -5d>=.  This
   warning is deactivated if the task gets scheduled, and you set
   ~org-agenda-skip-deadline-prewarning-if-scheduled~ to ~t~.
 
@@ -6647,8 +6647,8 @@ immediately after the task they refer to.
   Scheduling an item in Org mode should /not/ be understood in the
   same way that we understand /scheduling a meeting/.  Setting a date
   for a meeting is just a simple appointment, you should mark this
-  entry with a simple plain timestamp, to get this item shown on the
-  date where it applies.  This is a frequent misunderstanding by Org
+  entry with a simple plain timestamp to get this item shown on the
+  date when it applies.  This is a frequent misunderstanding by Org
   users.  In Org mode, /scheduling/ means setting a date when you want
   to start working on an action item.
   #+end_quote
@@ -6684,7 +6684,7 @@ schedule an item:[fn:24]
   in the line directly following the headline.  Remove any =CLOSED=
   timestamp.  When called with a prefix argument, also remove any
   existing deadline from the entry.  Depending on the variable
-  ~org-log-redeadline~, take a note when changing an existing
+  ~org-log-redeadline~, take note when changing an existing
   deadline[fn:: Note the corresponding =STARTUP= options
   =logredeadline=, =lognoteredeadline=, and =nologredeadline=.].
 
@@ -6697,9 +6697,9 @@ schedule an item:[fn:24]
   happens in the line directly following the headline.  Remove any
   =CLOSED= timestamp.  When called with a prefix argument, also remove
   the scheduling date from the entry.  Depending on the variable
-  ~org-log-reschedule~, take a note when changing an existing
-  scheduling time[fn:: Note the corresponding =STARTUP= options
-  =logreschedule=, =lognotereschedule=, and =nologreschedule=.].
+  ~org-log-reschedule~, take note when changing an existing scheduling
+  time[fn:: Note the corresponding =STARTUP= options =logreschedule=,
+  =lognotereschedule=, and =nologreschedule=.].
 
 - {{{kbd(C-c / d)}}} (~org-check-deadlines~) ::
 
@@ -6707,7 +6707,7 @@ schedule an item:[fn:24]
   #+findex: org-check-deadlines
   #+cindex: sparse tree, for deadlines
   #+vindex: org-deadline-warning-days
-  Create a sparse tree with all deadlines that are either past-due, or
+  Create a sparse tree with all deadlines that are either past due, or
   which will become due within ~org-deadline-warning-days~.  With
   {{{kbd(C-u)}}} prefix, show all deadlines in the file.  With
   a numeric prefix, check that many days.  For example, {{{kbd(C-1 C-c
@@ -6725,7 +6725,7 @@ schedule an item:[fn:24]
   #+findex: org-check-after-date
   Sparse tree for deadlines and scheduled items after a given date.
 
-Note that ~org-schedule~ and ~org-deadline~ supports setting the date
+Note that ~org-schedule~ and ~org-deadline~ support setting the date
 by indicating a relative time e.g., =+1d= sets the date to the next
 day after today, and =--1w= sets the date to the previous week before
 any current timestamp.
@@ -6762,7 +6762,7 @@ Deadlines and scheduled items produce entries in the agenda when they
 are over-due, so it is important to be able to mark such an entry as
 done once you have done so.  When you mark a =DEADLINE= or a
 =SCHEDULED= with the TODO keyword =DONE=, it no longer produces
-entries in the agenda.  The problem with this is, however, is that
+entries in the agenda.  The problem with this, however, is that
 then also the /next/ instance of the repeated entry will not be
 active.  Org mode deals with this in the following way: when you try
 to mark such an entry as done, using {{{kbd(C-c C-t)}}}, it shifts the
@@ -6779,7 +6779,7 @@ state to =DONE= would actually switch the date like this:
    DEADLINE: <2005-11-01 Tue +1m>
 #+end_example
 
-When task contains multiple timestamps with repeater interval, all
+When a task contains multiple timestamps with repeater interval, all
 these timestamps are shifted.
 
 To mark a task with a repeater as DONE, use {{{kbd(C-- 1 C-c C-t)}}},
@@ -6856,7 +6856,7 @@ a project.  When you start working on an item, you can start the
 clock.  When you stop working on that task, or when you mark the task
 done, the clock is stopped and the corresponding time interval is
 recorded.  It also computes the total time spent on each
-subtree[fn:27] of a project.  And it remembers a history or tasks
+subtree[fn:27] of a project.  And it remembers a history of tasks
 recently clocked, so that you can jump quickly between a number of
 tasks absorbing your time.
 
@@ -6896,7 +6896,7 @@ about what to do with it.
   called with a {{{kbd(C-u)}}} prefix argument, select the task from
   a list of recently clocked tasks.  With two {{{kbd(C-u C-u)}}}
   prefixes, clock into the task at point and mark it as the default
-  task; the default task is always be available with letter
+  task; the default task is always available with letter
   {{{kbd(d)}}} when selecting a clocking task.  With three {{{kbd(C-u
   C-u C-u)}}} prefixes, force continuous clocking by starting the
   clock when the last clock stopped.
@@ -6930,7 +6930,7 @@ about what to do with it.
   #+vindex: org-log-note-clock-out
   Stop the clock (clock-out).  This inserts another timestamp at the
   same location where the clock was last started.  It also directly
-  computes the resulting time in inserts it after the time range as
+  computes the resulting time and inserts it after the time range as
   ==>HH:MM=.  See the variable ~org-log-note-clock-out~ for the
   possibility to record an additional note together with the clock-out
   timestamp[fn:: The corresponding in-buffer setting is: =#+STARTUP:
@@ -7182,7 +7182,7 @@ be selected:
 
 #+findex: org-clocktable-write-default
 Then there are options that determine the formatting of the table.
-There options are interpreted by the function
+These options are interpreted by the function
 ~org-clocktable-write-default~, but you can specify your own function
 using the =:formatter= parameter.
 
@@ -7338,7 +7338,7 @@ By customizing the variable ~org-clock-idle-time~ to some integer,
 such as 10 or 15, Emacs can alert you when you get back to your
 computer after being idle for that many minutes[fn:29], and ask what
 you want to do with the idle time.  There will be a question waiting
-for you when you get back, indicating how much idle time has passed
+for you when you get back, indicating how much idle time has passed,
 constantly updated with the current amount, as well as a set of
 choices to correct the discrepancy:
 
@@ -7413,11 +7413,11 @@ RET)}}} (or {{{kbd(C-c C-x C-z)}}}).
 #+cindex: continuous clocking
 
 #+vindex: org-clock-continuously
-You may want to start clocking from the time when you clocked out the
+You may want to start clocking from the time when you clocked out of the
 previous task.  To enable this systematically, set
 ~org-clock-continuously~ to non-~nil~.  Each time you clock in, Org
 retrieves the clock-out time of the last clocked entry for this
-session, and start the new clock from there.
+session, and starts the new clock from there.
 
 If you only want this from time to time, use three universal prefix
 arguments with ~org-clock-in~ and two {{{kbd(C-u C-u)}}} with
@@ -7517,7 +7517,7 @@ added to the load estimate of the day.
 Effort estimates can be used in secondary agenda filtering that is
 triggered with the {{{kbd(/)}}} key in the agenda (see [[*Commands in
 the Agenda Buffer]]).  If you have these estimates defined consistently,
-two or three key presses narrow down the list to stuff that fits into
+two or three key presses narrow down the list to items that fit into
 an available time slot.
 
 ** Taking Notes with a Relative Timer
@@ -7532,7 +7532,7 @@ Org provides two types of timers.  There is a relative timer that
 counts up, which can be useful when taking notes during, for example,
 a meeting or a video viewing.  There is also a countdown timer.
 
-The relative and countdown are started with separate commands.
+The relative timer and countdown timer are started with separate commands.
 
 - {{{kbd(C-c C-x 0)}}} (~org-timer-start~) ::
 
