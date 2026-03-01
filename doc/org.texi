@@ -689,7 +689,7 @@ You can also compile with @samp{make}@comma{} generate the documentation with
 install Org with @samp{make install}.  Please run @samp{make help} to get the
 list of compilation/installation options.
 
-For more detailed explanations on Org's build system@comma{} please check the
+For more detailed explanations of Org's build system@comma{} please check the
 Org Build System page on @uref{https://orgmode.org/worg/dev/org-build-system.html, Worg}.
 
 @anchor{Installing Org's contributed packages}
@@ -783,7 +783,7 @@ respect the
 @uref{https://www.gnu.org/philosophy/kind-communication.html, GNU Kind
 Communications Guidelines} when sending messages on this mailing
 list.  Please allow up to one month for a response and follow up if
-no response is received on the bug report.
+no response is received to the bug report.
 
 @findex org-version
 @findex org-submit-bug-report
@@ -15464,6 +15464,24 @@ to specify a custom environment.
 #+BEGIN_EXAMPLE
   This sentence is false.
 #+END_EXAMPLE
+@end example
+
+You can also pass options to the environment with the @code{:options}
+parameter. For example:
+
+@example
+#+ATTR_LATEX: :environment Verbatim :options [fontsize=\footnotesize]
+#+BEGIN_EXAMPLE
+  This sentence is false.
+#+END_EXAMPLE
+@end example
+
+exports to:
+
+@example
+\begin@{Verbatim@}[fontsize=\footnotesize]
+  This sentence is false.
+\end@{Verbatim@}
 @end example
 
 @node Special blocks in @LaTeX{} export
