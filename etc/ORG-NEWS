@@ -46,6 +46,11 @@ set interactively from the priority context menus.
 # adding new customizations, or changing the interpretation of the
 # existing customizations.
 
+*** New custom variable ~org-latex-default-example-environment~
+
+You can set the LaTeX environment used in ~example~ blocks with this
+variable.
+
 ** New functions and changes in function arguments
 
 # This also includes changes in function behavior from Elisp perspective.

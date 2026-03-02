@@ -46,6 +46,11 @@ set interactively from the priority context menus.
 # adding new customizations, or changing the interpretation of the
 # existing customizations.
 
+*** New custom variable ~org-latex-default-example-environment~
+
+You can set the LaTeX environment used in ~example~ blocks with this
+variable.
+
 ** New functions and changes in function arguments
 
 # This also includes changes in function behavior from Elisp perspective.
@@ -113,8 +118,5 @@ uses different defaults:
    point are cleared instead
 
 4. The =C-u C-u= argument unconditionally shows all images in the
-   accessible portion of the buffer
-
-5. The =C-u C-u C-u= argument unconditionally clears all images in the
 ...
 ...
