@@ -20788,11 +20788,54 @@ The default.  Do not extract the code in a source code file.
 Example: @samp{:tangle no}.
 
 @item @var{FILENAME}
-Export the code block to source file whose file name is derived from
-any string passed to the @samp{tangle} header argument.  Org derives the
-file name as being relative to the directory of the Org file's
-location.  Example: @samp{:tangle FILENAME}.
+Export the code block to source file(s) whose file name(s) are
+derived from the value passed to the @samp{tangle} header argument.  Org
+derives the file names as being relative to the directory of the Org
+file's location@comma{} or relative to the directory specified by the
+@samp{tangle-directory} header argument if provided.
+
+The FILENAME can take several forms:
+@table @asis
+@item A single file name (string)
+Example: @samp{:tangle script.py}.
+
+@item A list of file names
+Tangle the block to multiple files.  Example: @samp{:tangle
+    '("src/main.py" "src/utils.py")}.
+
+@item A variable or function call
+Evaluate to get the target file name(s).  Example: @samp{:tangle
+    'tangle-targets} or @samp{:tangle (get-tangle-targets)}.
 @end table
+
+When both @samp{:tangle-directory} and multiple @samp{:tangle} files are
+specified@comma{} the block is tangled to all combinations of directories
+and files.
+
+Example:
+@example
+#+begin_src emacs-lisp :tangle '("config.el" "backup.el") :tangle-directory '("~/.config" "/backup")
+(message "Tangling to multiple targets specified by :tangle and :tangle-directory")
+#+end_src
+@end example
+
+This tangles the block to four files:
+@itemize
+@item
+~/.config/config.el
+@item
+~/.config/backup.el
+@item
+/backup/config.el
+@item
+/backup/backup.el
+@end itemize
+@end table
+
+@cindex @samp{tangle-directory}, header argument
+The @samp{tangle-directory} header argument specifies one or more base
+directories for relative tangle file paths. This works similarly to
+@samp{tangle} and accepts the same types of values.
 
 @cindex comment trees
 Additionally@comma{} code blocks inside commented subtrees (see @ref{Comment Lines}) are never exported.

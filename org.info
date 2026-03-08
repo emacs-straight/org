@@ -17337,10 +17337,42 @@ source file(s).
      Example: ‘:tangle no’.
 
 FILENAME
-     Export the code block to source file whose file name is derived
-     from any string passed to the ‘tangle’ header argument.  Org
-     derives the file name as being relative to the directory of the Org
-     file's location.  Example: ‘:tangle FILENAME’.
+     Export the code block to source file(s) whose file name(s) are
+     derived from the value passed to the ‘tangle’ header argument.  Org
+     derives the file names as being relative to the directory of the
+     Org file's location, or relative to the directory specified by the
+     ‘tangle-directory’ header argument if provided.
+
+     The FILENAME can take several forms:
+     A single file name (string)
+          Example: ‘:tangle script.py’.
+
+     A list of file names
+          Tangle the block to multiple files.  Example: ‘:tangle
+          '("src/main.py" "src/utils.py")’.
+
+     A variable or function call
+          Evaluate to get the target file name(s).  Example: ‘:tangle
+          'tangle-targets’ or ‘:tangle (get-tangle-targets)’.
+
+     When both ‘:tangle-directory’ and multiple ‘:tangle’ files are
+     specified, the block is tangled to all combinations of directories
+     and files.
+
+     Example:
+          #+begin_src emacs-lisp :tangle '("config.el" "backup.el") :tangle-directory '("~/.config" "/backup")
+          (message "Tangling to multiple targets specified by :tangle and :tangle-directory")
+          #+end_src
+
+     This tangles the block to four files:
+        • ~/.config/config.el
+        • ~/.config/backup.el
+        • /backup/config.el
+        • /backup/backup.el
+
+   The ‘tangle-directory’ header argument specifies one or more base
+directories for relative tangle file paths.  This works similarly to
+‘tangle’ and accepts the same types of values.
 
    Additionally, code blocks inside commented subtrees (see *note
 Comment Lines::) are never exported.
@@ -21414,10 +21446,10 @@ D Main Index
 * comment lines:                         Comment Lines.       (line   6)
 * comment trees:                         Comment Lines.       (line  13)
 * comment trees <1>:                     Extracting Source Code.
-                                                              (line  42)
+                                                              (line  74)
 * commented entries, in agenda views:    Agenda Views.        (line  37)
 * comments, header argument:             Extracting Source Code.
-                                                              (line  49)
+                                                              (line  81)
 * completion, of dictionary words:       Completion.          (line   6)
 * completion, of file names:             Handling Links.      (line 114)
 * completion, of link abbreviations:     Completion.          (line   6)
@@ -21961,7 +21993,7 @@ D Main Index
 * mkdirp, header argument:               Environment of a Code Block.
                                                               (line 315)
 * mkdirp, header argument <1>:           Extracting Source Code.
-                                                              (line  45)
+                                                              (line  77)
 * mode, for Calc:                        Formula syntax for Calc.
                                                               (line  17)
 * modification-time, macro:              Macro Replacement.   (line  56)
@@ -21983,7 +22015,7 @@ D Main Index
 * narrow columns in tables:              Column Width and Alignment.
                                                               (line   6)
 * no-expand, header argument:            Extracting Source Code.
-                                                              (line 116)
+                                                              (line 148)
 * NOBLOCKING, property:                  TODO dependencies.   (line  29)
 * not responsive:                        Feedback.            (line  72)
 * noweb-ref, header argument:            Noweb Reference Syntax.
@@ -22042,7 +22074,7 @@ D Main Index
                                                               (line  19)
 * packages, interaction with other:      Interaction.         (line   6)
 * padline, header argument:              Extracting Source Code.
-                                                              (line  82)
+                                                              (line 114)
 * paragraphs, markup rules:              Paragraphs.          (line   6)
 * passing arguments to code blocks:      Environment of a Code Block.
                                                               (line   9)
@@ -22205,7 +22237,7 @@ D Main Index
 * SETUPFILE, keyword <1>:                In-buffer Settings.  (line  54)
 * sexp timestamps:                       Timestamps.          (line  39)
 * shebang, header argument:              Extracting Source Code.
-                                                              (line  92)
+                                                              (line 124)
 * shell links:                           External Links.      (line   6)
 * shift-selection:                       Conflicts.           (line   6)
 * shift-selection-mode:                  Plain Lists.         (line  95)
@@ -22366,8 +22398,10 @@ D Main Index
 * TAGS, keyword <1>:                     In-buffer Settings.  (line 202)
 * tags, setting:                         Setting Tags.        (line   6)
 * TAGS, special property:                Special Properties.  (line  13)
+* tangle-directory, header argument:     Extracting Source Code.
+                                                              (line  70)
 * tangle-mode, header argument:          Extracting Source Code.
-                                                              (line  98)
+                                                              (line 130)
 * tangle, header argument:               Extracting Source Code.
                                                               (line  23)
 * tangling:                              Extracting Source Code.
@@ -22891,7 +22925,7 @@ E Key Index
 * C-c C-v e <1>:                         Key bindings and Useful Functions.
                                                               (line  20)
 * C-c C-v f:                             Extracting Source Code.
-                                                              (line 135)
+                                                              (line 167)
 * C-c C-v f <1>:                         Key bindings and Useful Functions.
                                                               (line  20)
 * C-c C-v g:                             Key bindings and Useful Functions.
@@ -22918,7 +22952,7 @@ E Key Index
 * C-c C-v s:                             Key bindings and Useful Functions.
                                                               (line  20)
 * C-c C-v t:                             Extracting Source Code.
-                                                              (line 130)
+                                                              (line 162)
 * C-c C-v t <1>:                         Key bindings and Useful Functions.
                                                               (line  20)
 * C-c C-v u:                             Key bindings and Useful Functions.
@@ -23532,15 +23566,15 @@ F Command and Function Index
 * org-babel-switch-to-session-with-code: Key bindings and Useful Functions.
                                                               (line  20)
 * org-babel-tangle:                      Extracting Source Code.
-                                                              (line 130)
+                                                              (line 162)
 * org-babel-tangle <1>:                  Key bindings and Useful Functions.
                                                               (line  20)
 * org-babel-tangle-file:                 Extracting Source Code.
-                                                              (line 135)
+                                                              (line 167)
 * org-babel-tangle-file <1>:             Key bindings and Useful Functions.
                                                               (line  20)
 * org-babel-tangle-jump-to-org:          Extracting Source Code.
-                                                              (line 161)
+                                                              (line 193)
 * org-babel-view-src-block-info:         Key bindings and Useful Functions.
                                                               (line  20)
 * org-backward-heading-same-level:       Motion.              (line  18)
@@ -23835,7 +23869,7 @@ F Command and Function Index
 * org-store-link:                        Activation.          (line  13)
 * org-store-link <1>:                    Handling Links.      (line   9)
 * org-store-link <2>:                    Extracting Source Code.
-                                                              (line  60)
+                                                              (line  92)
 * org-submit-bug-report:                 Feedback.            (line  17)
 * org-switchb:                           Agenda Files.        (line  29)
 * org-table-align:                       Built-in Table Editor.
@@ -24206,13 +24240,13 @@ org-customize’ and then click yourself through the tree.
                                                               (line  28)
 * org-babel-load-languages:              Languages.           (line  10)
 * org-babel-post-tangle-hook:            Extracting Source Code.
-                                                              (line 151)
+                                                              (line 183)
 * org-babel-pre-tangle-hook:             Extracting Source Code.
-                                                              (line 141)
+                                                              (line 173)
 * org-babel-tangle-body-hook:            Extracting Source Code.
-                                                              (line 145)
+                                                              (line 177)
 * org-babel-tangle-finished-hook:        Extracting Source Code.
-                                                              (line 156)
+                                                              (line 188)
 * org-beamer-environments-default:       Frames and Blocks in Beamer.
                                                               (line  25)
 * org-beamer-environments-extra:         Frames and Blocks in Beamer.
@@ -24519,7 +24553,7 @@ org-customize’ and then click yourself through the tree.
 * org-id-link-consider-parent-id:        Handling Links.      (line  33)
 * org-id-link-to-org-use-id:             Handling Links.      (line  22)
 * org-id-link-to-org-use-id <1>:         Extracting Source Code.
-                                                              (line  60)
+                                                              (line  92)
 * org-id-link-use-context:               Handling Links.      (line  33)
 * org-image-actual-width:                Images.              (line  23)
 * org-image-align:                       Images.              (line  51)
@@ -25383,92 +25417,92 @@ Ref: Results of Evaluation-Footnote-1722569
 Node: Exporting Code Blocks722727
 Node: Extracting Source Code726749
 Ref: Header arguments727730
-Ref: Functions732423
-Ref: Tangle hooks732674
-Ref: Jumping between code and Org733450
-Node: Languages733959
-Node: Editing Source Code734960
-Node: Noweb Reference Syntax737936
-Ref: Noweb Reference Syntax-Footnote-1744663
-Ref: Noweb Reference Syntax-Footnote-2744754
-Ref: Noweb Reference Syntax-Footnote-3745367
-Node: Library of Babel745487
-Node: Key bindings and Useful Functions746201
-Node: Batch Execution748626
-Node: Miscellaneous749407
-Node: Completion750931
-Node: Structure Templates752854
-Ref: Structure Templates-Footnote-1754604
-Node: Speed Keys754696
-Node: Clean View755863
-Node: Org Indent Mode757073
-Ref: Org Indent Mode-Footnote-1758279
-Node: Hard indentation758503
-Ref: Hard indentation-Footnote-1759984
-Ref: Hard indentation-Footnote-2760090
-Node: Execute commands in the active region760234
-Node: Dynamic Headline Numbering761246
-Node: The Very Busy C-c C-c Key762412
-Node: In-buffer Settings764401
-Ref: In-buffer Settings-Footnote-1774340
-Node: Regular Expressions774538
-Node: Org Syntax775160
-Node: Documentation Access776777
-Node: Escape Character777194
-Node: Code Evaluation Security778054
-Node: Interaction780919
-Node: Cooperation781340
-Node: Conflicts784406
-Node: TTY Keys788989
-Node: Protocols790626
-Node: The store-link protocol792087
-Node: The capture protocol793246
-Node: The open-source protocol794900
-Node: Org Crypt798121
-Node: Org Mobile799994
-Node: Setting up the staging area801379
-Ref: Setting up the staging area-Footnote-1802619
-Ref: Setting up the staging area-Footnote-2802826
-Node: Pushing to the mobile application802998
-Ref: Pushing to the mobile application-Footnote-1804009
-Ref: Pushing to the mobile application-Footnote-2804100
-Ref: Pushing to the mobile application-Footnote-3804467
-Node: Pulling from the mobile application804543
-Ref: Pulling from the mobile application-Footnote-1806856
-Node: Drag and Drop & yank-media806909
-Ref: Drag and Drop & yank-media-Footnote-1808726
-Node: Repeating commands808872
-Node: Hacking811014
-Node: Hooks812037
-Node: Add-on Packages812312
-Node: Adding Hyperlink Types812768
-Node: Adding Hyperlink preview816582
-Node: Adding Export Backends819324
-Node: Tables in Arbitrary Syntax820569
-Node: Radio tables821833
-Node: A LaTeX example823963
-Ref: A LaTeX example-Footnote-1827814
-Ref: A LaTeX example-Footnote-2827857
-Ref: A LaTeX example-Footnote-3828018
-Node: Translator functions828470
-Node: Dynamic Blocks830652
-Node: Special Agenda Views832896
-Ref: Special Agenda Views-Footnote-1836607
-Ref: Special Agenda Views-Footnote-2836813
-Node: Speeding Up Your Agendas836945
-Node: Extracting Agenda Information838168
-Node: Using the Property API841975
-Node: Using the Mapping API845324
-Node: History and Acknowledgments849354
-Ref: From Carsten849552
-Ref: From Bastien852980
-Ref: List of Contributions855503
-Node: GNU Free Documentation License864166
-Ref: ADDENDUM How to use this License for your documents887927
-Node: Main Index889316
-Node: Key Index991236
-Node: Command and Function Index1048666
-Node: Variable Index1098441
+Ref: Functions733700
+Ref: Tangle hooks733951
+Ref: Jumping between code and Org734727
+Node: Languages735236
+Node: Editing Source Code736237
+Node: Noweb Reference Syntax739213
+Ref: Noweb Reference Syntax-Footnote-1745940
+Ref: Noweb Reference Syntax-Footnote-2746031
+Ref: Noweb Reference Syntax-Footnote-3746644
+Node: Library of Babel746764
+Node: Key bindings and Useful Functions747478
+Node: Batch Execution749903
+Node: Miscellaneous750684
+Node: Completion752208
+Node: Structure Templates754131
+Ref: Structure Templates-Footnote-1755881
+Node: Speed Keys755973
+Node: Clean View757140
+Node: Org Indent Mode758350
+Ref: Org Indent Mode-Footnote-1759556
+Node: Hard indentation759780
+Ref: Hard indentation-Footnote-1761261
+Ref: Hard indentation-Footnote-2761367
+Node: Execute commands in the active region761511
+Node: Dynamic Headline Numbering762523
+Node: The Very Busy C-c C-c Key763689
+Node: In-buffer Settings765678
+Ref: In-buffer Settings-Footnote-1775617
+Node: Regular Expressions775815
+Node: Org Syntax776437
+Node: Documentation Access778054
+Node: Escape Character778471
+Node: Code Evaluation Security779331
+Node: Interaction782196
+Node: Cooperation782617
+Node: Conflicts785683
+Node: TTY Keys790266
+Node: Protocols791903
+Node: The store-link protocol793364
+Node: The capture protocol794523
+Node: The open-source protocol796177
+Node: Org Crypt799398
+Node: Org Mobile801271
+Node: Setting up the staging area802656
+Ref: Setting up the staging area-Footnote-1803896
+Ref: Setting up the staging area-Footnote-2804103
+Node: Pushing to the mobile application804275
+Ref: Pushing to the mobile application-Footnote-1805286
+Ref: Pushing to the mobile application-Footnote-2805377
+Ref: Pushing to the mobile application-Footnote-3805744
+Node: Pulling from the mobile application805820
+Ref: Pulling from the mobile application-Footnote-1808133
+Node: Drag and Drop & yank-media808186
+Ref: Drag and Drop & yank-media-Footnote-1810003
+Node: Repeating commands810149
+Node: Hacking812291
+Node: Hooks813314
+Node: Add-on Packages813589
+Node: Adding Hyperlink Types814045
+Node: Adding Hyperlink preview817859
+Node: Adding Export Backends820601
+Node: Tables in Arbitrary Syntax821846
+Node: Radio tables823110
+Node: A LaTeX example825240
+Ref: A LaTeX example-Footnote-1829091
+Ref: A LaTeX example-Footnote-2829134
+Ref: A LaTeX example-Footnote-3829295
+Node: Translator functions829747
+Node: Dynamic Blocks831929
+Node: Special Agenda Views834173
+Ref: Special Agenda Views-Footnote-1837884
+Ref: Special Agenda Views-Footnote-2838090
+Node: Speeding Up Your Agendas838222
+Node: Extracting Agenda Information839445
+Node: Using the Property API843252
+Node: Using the Mapping API846601
+Node: History and Acknowledgments850631
+Ref: From Carsten850829
+Ref: From Bastien854257
+Ref: List of Contributions856780
+Node: GNU Free Documentation License865443
+Ref: ADDENDUM How to use this License for your documents889204
+Node: Main Index890593
+Node: Key Index992651
+Node: Command and Function Index1050081
+Node: Variable Index1099856
 
 End Tag Table
 
