@@ -10584,7 +10584,7 @@ the Internet@comma{} and outside of business hours@comma{} with something like t
                (/= 0 (call-process "/sbin/ping" nil nil nil
                                    "-c1" "-q" "-t1" "mail.gnu.org")))
               ((member tag '("errand" "call"))
-               (let ((hr (nth 2 (decode-time))))
+               (let ((hr (decoded-time-hour (decode-time))))
                  (or (< hr 8) (> hr 21)))))
     (concat "-" tag)))
 
@@ -14934,8 +14934,12 @@ be an element of @code{org-latex-classes}.
 @item @samp{LATEX_CLASS_OPTIONS}
 @cindex @samp{LATEX_CLASS_OPTIONS}, keyword
 Options the @LaTeX{} export backend uses when calling the @LaTeX{}
-document class.
+document class. Square brackets around the class options are
+optional.  If missing@comma{} they will be added by Org.
+@end table
 
+
+@table @asis
 @item @samp{LATEX_COMPILER}
 @cindex @samp{LATEX_COMPILER}, keyword
 @vindex org-latex-compiler
@@ -15016,12 +15020,20 @@ custom sectioning or custom classes.
 The @LaTeX{} export backend sends the @samp{LATEX_CLASS_OPTIONS} keyword and
 @samp{EXPORT_LATEX_CLASS_OPTIONS} property as options to the @LaTeX{}
 @code{\documentclass} macro.  The options and the syntax for specifying
-them@comma{} including enclosing them in square brackets@comma{} follow @LaTeX{}
-conventions.
+them@comma{} follow @LaTeX{} conventions.  Square brackets around them are
+optional:
 
 @example
-#+LATEX_CLASS_OPTIONS: [a4paper@comma{}11pt@comma{}twoside@comma{}twocolumn]
+#+LATEX_CLASS_OPTIONS: a4paper@comma{}11pt@comma{}twoside@comma{}twocolumn
 @end example
+
+and
+
+@example
+#+LATEX_CLASS_OPTIONS: a4paper@comma{}11pt@comma{}twoside@comma{}twocolumn
+@end example
+
+are equivalent.
 
 @cindex @samp{LATEX_HEADER}, keyword
 @cindex @samp{LATEX_HEADER_EXTRA}, keyword
