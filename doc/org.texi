@@ -987,7 +987,7 @@ recorded.
 @node Conventions
 @section Typesetting Conventions Used in this Manual
 
-@anchor{TODO keywords@comma{} tags@comma{} properties@comma{} etc}
+@anchor{TODO keywords tags properties etc}
 @subheading TODO keywords@comma{} tags@comma{} properties@comma{} etc.
 
 Org uses various syntactic elements: TODO keywords@comma{} tags@comma{} property

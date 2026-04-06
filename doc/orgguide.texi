@@ -65,7 +65,7 @@ modify this GNU manual.''
 * Tags::                         Tagging headlines and matching sets of tags.
 * Properties::                   Storing information about an entry.
 * Dates and Times::              Making items useful for planning.
-* Capture@comma{} Refile@comma{} Archive:: The ins and outs for projects.
+* Capture@comma{} Refile@comma{} Archive: Capture Refile Archive.  The ins and outs for projects.
 * Agenda Views::                 Collecting information into views.
 * Markup::                       Compose beautiful documents.
 * Exporting::                    Sharing and publishing notes.
@@ -1416,7 +1416,7 @@ of recently clocked tasks.
 The @kbd{l} key may be used in the agenda (see @ref{Built-in Agenda Views}) to show which tasks have been worked on or closed during
 a day.
 
-@node Capture@comma{} Refile@comma{} Archive
+@node Capture Refile Archive
 @chapter Capture@comma{} Refile@comma{} Archive
 
 An important part of any organization system is the ability to quickly

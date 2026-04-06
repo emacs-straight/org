@@ -411,7 +411,7 @@ see.
 
 ;;; Generated autoloads from ob-ref.el
 
-(register-definition-prefixes "ob-ref" '("org-babel-"))
+(register-definition-prefixes "ob-ref" '("org-babel-ref-"))
 
 
 ;;; Generated autoloads from ob-ruby.el

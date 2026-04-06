@@ -50,7 +50,7 @@ Copyright © 2004-2026 Free Software Foundation, Inc.
 * Tags::                         Tagging headlines and matching sets of tags.
 * Properties::                   Storing information about an entry.
 * Dates and Times::              Making items useful for planning.
-* Capture, Refile, Archive:: The ins and outs for projects.
+* Capture, Refile, Archive: Capture Refile Archive.  The ins and outs for projects.
 * Agenda Views::                 Collecting information into views.
 * Markup::                       Compose beautiful documents.
 * Exporting::                    Sharing and publishing notes.
@@ -1095,7 +1095,7 @@ Tags::).  The syntax for the search string is described in *note
 Matching Tags and Properties::.
 
 
-File: orgguide.info,  Node: Dates and Times,  Next: Capture, Refile, Archive,  Prev: Properties,  Up: Top
+File: orgguide.info,  Node: Dates and Times,  Next: Capture Refile Archive,  Prev: Properties,  Up: Top
 
 8 Dates and Times
 *****************
@@ -1326,7 +1326,7 @@ project.
 Views::) to show which tasks have been worked on or closed during a day.
 
 
-File: orgguide.info,  Node: Capture, Refile, Archive,  Next: Agenda Views,  Prev: Dates and Times,  Up: Top
+File: orgguide.info,  Node: Capture Refile Archive,  Next: Agenda Views,  Prev: Dates and Times,  Up: Top
 
 9 Capture, Refile, Archive
 **************************
@@ -1346,7 +1346,7 @@ fast.
 * Archiving::                    What to do with finished products.
 
 
-File: orgguide.info,  Node: Capture,  Next: Refile and Copy,  Up: Capture, Refile, Archive
+File: orgguide.info,  Node: Capture,  Next: Refile and Copy,  Up: Capture Refile Archive
 
 9.1 Capture
 ===========
@@ -1426,7 +1426,7 @@ locations.  See *note Capture templates::.
 a backslash.
 
 
-File: orgguide.info,  Node: Refile and Copy,  Next: Archiving,  Prev: Capture,  Up: Capture, Refile, Archive
+File: orgguide.info,  Node: Refile and Copy,  Next: Archiving,  Prev: Capture,  Up: Capture Refile Archive
 
 9.2 Refile and Copy
 ===================
@@ -1459,7 +1459,7 @@ command:
      deleted.
 
 
-File: orgguide.info,  Node: Archiving,  Prev: Refile and Copy,  Up: Capture, Refile, Archive
+File: orgguide.info,  Node: Archiving,  Prev: Refile and Copy,  Up: Capture Refile Archive
 
 9.3 Archiving
 =============
@@ -1493,7 +1493,7 @@ example:
      #+ARCHIVE: %s_done::
 
 
-File: orgguide.info,  Node: Agenda Views,  Next: Markup,  Prev: Capture, Refile, Archive,  Up: Top
+File: orgguide.info,  Node: Agenda Views,  Next: Markup,  Prev: Capture Refile Archive,  Up: Top
 
 10 Agenda Views
 ***************
@@ -2539,63 +2539,63 @@ file, use
 
 Tag Table:
 Node: Top907
-Node: Introduction5611
-Ref: Installation6298
-Ref: Activation7010
-Ref: Feedback7453
-Node: Document Structure7710
-Node: Headlines8784
-Ref: Headlines-Footnote-19682
-Node: Visibility Cycling9805
-Node: Motion11205
-Node: Structure Editing11799
-Ref: Structure Editing-Footnote-113235
-Node: Sparse Trees13339
-Ref: Sparse Trees-Footnote-114449
-Node: Plain Lists14569
-Node: Tables17361
-Ref: Creation and conversion19054
-Ref: Re-aligning and field motion19654
-Ref: Column and row editing20417
-Node: Hyperlinks21768
-Ref: Internal links22526
-Ref: External Links22979
-Ref: Handling Links24808
-Node: TODO Items26298
-Node: TODO Basics27275
-Node: Multi-state Workflow28808
-Node: Progress Logging30598
-Ref: Closing items31360
-Ref: Tracking TODO state changes31915
-Ref: Progress Logging-Footnote-132914
-Ref: Progress Logging-Footnote-232987
-Node: Priorities33065
-Node: Breaking Down Tasks33982
-Node: Checkboxes34785
-Node: Tags35922
-Ref: Tag inheritance36565
-Ref: Setting tags37303
-Ref: Tag groups39081
-Ref: Tag searches39875
-Ref: Tags-Footnote-140955
-Node: Properties41059
-Node: Dates and Times42871
-Node: Timestamps43912
-Node: Creating Timestamps46666
-Node: Deadlines and Scheduling48511
-Ref: Deadlines and Scheduling-Footnote-150575
-Ref: Deadlines and Scheduling-Footnote-250736
-Node: Clocking Work Time50899
-Node: Capture, Refile, Archive52334
-Node: Capture53146
-Ref: Setting up capture53452
-Ref: Using capture53723
-Ref: Capture templates54419
-Ref: Capture-Footnote-155852
-Ref: Capture-Footnote-255963
-Node: Refile and Copy56054
-Node: Archiving57368
-Node: Agenda Views58748
+Node: Introduction5635
+Ref: Installation6322
+Ref: Activation7034
+Ref: Feedback7477
+Node: Document Structure7734
+Node: Headlines8808
+Ref: Headlines-Footnote-19706
+Node: Visibility Cycling9829
+Node: Motion11229
+Node: Structure Editing11823
+Ref: Structure Editing-Footnote-113259
+Node: Sparse Trees13363
+Ref: Sparse Trees-Footnote-114473
+Node: Plain Lists14593
+Node: Tables17385
+Ref: Creation and conversion19078
+Ref: Re-aligning and field motion19678
+Ref: Column and row editing20441
+Node: Hyperlinks21792
+Ref: Internal links22550
+Ref: External Links23003
+Ref: Handling Links24832
+Node: TODO Items26322
+Node: TODO Basics27299
+Node: Multi-state Workflow28832
+Node: Progress Logging30622
+Ref: Closing items31384
+Ref: Tracking TODO state changes31939
+Ref: Progress Logging-Footnote-132938
+Ref: Progress Logging-Footnote-233011
+Node: Priorities33089
+Node: Breaking Down Tasks34006
+Node: Checkboxes34809
+Node: Tags35946
+Ref: Tag inheritance36589
+Ref: Setting tags37327
+Ref: Tag groups39105
+Ref: Tag searches39899
+Ref: Tags-Footnote-140979
+Node: Properties41083
+Node: Dates and Times42895
+Node: Timestamps43932
+Node: Creating Timestamps46686
+Node: Deadlines and Scheduling48531
+Ref: Deadlines and Scheduling-Footnote-150595
+Ref: Deadlines and Scheduling-Footnote-250756
+Node: Clocking Work Time50919
+Node: Capture Refile Archive52354
+Node: Capture53162
+Ref: Setting up capture53464
+Ref: Using capture53735
+Ref: Capture templates54431
+Ref: Capture-Footnote-155864
+Ref: Capture-Footnote-255975
+Node: Refile and Copy56066
+Node: Archiving57376
+Node: Agenda Views58752
 Node: Agenda Files60207
 Node: Agenda Dispatcher60955
 Node: Built-in Agenda Views61877

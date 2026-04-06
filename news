@@ -47,6 +47,26 @@ the correct ~(FILE . ...)~ cons.
 # We list the most important features, and the features that may
 # require user action to be used.
 
+*** Link targets can be used as search option in =id:= links
+
+When storing an =id:= link to target, the target will now be used as a
+search option. This mirrors what happens with =file:= links.
+You need to set ~org-id-link-to-org-use-id~ to make Org store =id:=
+link by default.
+
+See also ~org-id-link-use-context~ and ~org-link-context-for-files~.
+
+For example, link to =<<target>>=
+
+: * Heading
+: :PROPERTIES:
+: :ID: foo
+: :END:
+: Some text with <<target>>.
+
+will be stored as
+: [[id:foo::target][target]]
+
 *** New actions in the ~org-mouse~ priority menus
 
 Priorities can now be increased, decreased, set to the default, and
@@ -95,24 +115,5 @@ This tangles the block to four files:
 *** New custom variable ~org-latex-default-example-environment~
 
 You can set the LaTeX environment used in ~example~ blocks with this
-variable.
-
-*** Square brackets around LATEX_CLASS_OPTIONS are now optional.
-
-#+BEGIN_SRC org
-,#+LATEX_CLASS_OPTIONS: [a4paper,12pt]
-#+END_SRC
-can be also written as:
-#+BEGIN_SRC org
-,#+LATEX_CLASS_OPTIONS: a4paper,12pt
-#+END_SRC
-
-** New functions and changes in function arguments
-
-# This also includes changes in function behavior from Elisp perspective.
-
-*** New function ~org-format-percent-cookie~
-
-Given the completed and total number of tasks, format the percent
 ...
 ...
