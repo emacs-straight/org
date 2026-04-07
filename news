@@ -112,8 +112,8 @@ This tangles the block to four files:
 # adding new customizations, or changing the interpretation of the
 # existing customizations.
 
-*** New custom variable ~org-latex-default-example-environment~
+*** ~org-support-shift-select~ can now make shift-cursor selection work on timestamps
 
-You can set the LaTeX environment used in ~example~ blocks with this
+Previously, when ~org-support-shift-select~ was set to ~always~,
 ...
 ...

@@ -18993,6 +18993,7 @@ search for citation keys.
 One can then insert and edit citations using @code{org-cite-insert}@comma{} called
 with @kbd{C-c C-x @@}.
 
+@cindex citation
 A @emph{citation} requires one or more citation @emph{key(s)}@comma{} elements
 identifying a reference in the bibliography.
 
@@ -19018,8 +19019,8 @@ reference.
 @end example
 
 @item
-A single citation can cite more than one reference ; the keys are
-separated by semicolons ; the formatting of such citation groups is
+A single citation can cite more than one reference; the keys are
+separated by semicolons; the formatting of such citation groups is
 specified by the style.
 
 @example
@@ -19029,14 +19030,260 @@ specified by the style.
 @item
 One can also specify a stylistic variation for the citations by
 inserting a @samp{/} and a style name between the @samp{cite} keyword and the
-colon; this usually makes sense only for the author-year styles.
+colon; this usually makes sense only for the author-year
+styles.  Additionally@comma{} one can insert a @samp{/} and a variant name after
+the style.
 
 @example
-[cite/style:common prefix ;prefix @@key suffix; ... ; common suffix]
+[cite/<style>:@@key]
+[cite/<style>/<variant>:@@key]
 @end example
 
-When @samp{style} is not specified@comma{} one of the two default styles are
-used
+@item
+The only mandatory elements are:
+
+@itemize
+@item
+The @samp{cite} keyword and the colon.
+@item
+The @samp{@@} character immediately preceding each key.
+@item
+The brackets surrounding the citation(s) (group).
+@end itemize
+@end itemize
+
+@cindex styles, for citations
+Support for styles varies between processors.  Supported styles and
+variants are detailed below.  The examples illustrate default results
+for the @samp{csl} processor except for styles only supported by @samp{basic}.
+Citation styles and variants can be specified by their full name
+(e.g.@comma{} @samp{author/bare}) or shortcut (e.g.@comma{} @samp{a/b}).
+
+@table @asis
+@item default style @samp{nil} (<omitted>)
+Provide a typical author-date
+citation in parentheses.@*
+Variants: @samp{bare} (@samp{b})@comma{} @samp{caps} (@samp{c})@comma{} @samp{bare-caps} (@samp{bc})@comma{} @samp{full}
+(@samp{f})@comma{} @samp{bare-full} (@samp{bf})@comma{} @samp{caps-full} (@samp{cf})@comma{} @samp{bare-caps-full}
+(@samp{bcf}).@*
+Support: @samp{basic} (@samp{b}@comma{} @samp{c}@comma{} @samp{bc})@comma{} @samp{csl} (@samp{b}@comma{} @samp{c}@comma{} @samp{bc})@comma{} @samp{natbib}
+(all variants)@comma{} @samp{bibtex} (variants not supported)@comma{} @samp{biblatex} (@samp{b}@comma{}
+@samp{c}@comma{} @samp{bc}).
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite:@@dewaal06 p. 5]}
+@tab (de Waal et al. 2006@comma{} 5)
+@item @samp{[cite//bare-caps:@@dewaal06 p. 5]}
+@tab De Waal et al. 2006@comma{} 5
+@item @samp{[cite//bc:@@dewaal06 p. 5]}
+@tab De Waal et al. 2006@comma{} 5
+@end multitable
+
+@item @samp{author} (@samp{a})
+Provide the author names only.@*
+Variants: @samp{bare} (@samp{b})@comma{} @samp{caps} (@samp{c})@comma{} @samp{full} (@samp{f})@comma{} and all their
+combinations.@*
+Support: @samp{basic} (only @samp{c})@comma{} @samp{csl} (all variants)@comma{} @samp{natbib} (@samp{c}@comma{}
+@samp{f})@comma{} @samp{biblatex} (@samp{c}@comma{} @samp{f}@comma{} @samp{cf}).
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaa}
+@item @samp{[cite/author:@@dewaal06 p. 5]}
+@tab (de Waal et al.)
+@item @samp{[cite/a:@@dewaal06 p. 5]}
+@tab (de Waal et al.)
+@end multitable
+
+@item @samp{noauthor} (@samp{na})
+As default@comma{} but suppress author names.@*
+Variants: @samp{bare} (@samp{b})@comma{} @samp{caps} (@samp{c})@comma{} and @samp{bare-caps} (@samp{bc}).@*
+Support: @samp{basic} (only @samp{b})@comma{} @samp{csl} (all variants)@comma{} @samp{natbib} (only
+@samp{b})@comma{} @samp{biblatex} (only @samp{b}).
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaa}
+@item @samp{[cite/noauthor:@@dewaal06@comma{} p. 5]}
+@tab (2006@comma{} 5)
+@item @samp{[cite/na:@@dewaal06@comma{} p. 5]}
+@tab (2006@comma{} 5)
+@end multitable
+
+@item @samp{year} (@samp{y})
+Provide the year only@comma{} like @samp{noauthor}@comma{} but also suppress
+locators.@*
+Variant: @samp{bare}.@*
+Support: @samp{csl}.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaa}
+@item @samp{[cite/year:@@dewaal06@comma{} p. 5]}
+@tab (2006)
+@item @samp{[cite/y:@@dewaal06@comma{} p. 5]}
+@tab (2006)
+@end multitable
+
+@item @samp{nocite} (@samp{n})
+Suppress the whole citation (but list the item in
+the bibliography).  As a special case@comma{} @samp{[cite/n:@@*]} will cause all
+works in the bibliography file(s) to be printed in the bibliography.@*
+Variants: none.@*
+Support: @samp{basic}@comma{} @samp{csl}@comma{} @samp{natbib}@comma{} @samp{bibtex}@comma{} @samp{biblatex}.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaa}
+@item @samp{[cite/nocite:@@dewaal06]}
+@tab <empty>
+@item @samp{[cite/n:@@dewaal06]}
+@tab <empty>
+@end multitable
+
+@item @samp{text} (@samp{t})
+Provide an author-date citation with the author
+outside the parentheses.@*
+Variants: @samp{caps} (@samp{c})@comma{} @samp{full} (@samp{f})@comma{} and @samp{caps-full} (@samp{cf}).@*
+Support: @samp{basic} (only @samp{c})@comma{} @samp{natbib} (all variants)@comma{} @samp{biblatex}
+(only @samp{c}).
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite/text:@@dewaal06 p. 5]}
+@tab de Waal et al. (2006@comma{} 5)
+@item @samp{[cite/t/cf:@@dewaal06 p. 5]}
+@tab De Waal@comma{} Li@comma{} Wu@comma{} and Roy (2006@comma{} 5)
+@end multitable
+
+@item @samp{title} (@samp{ti})
+Provide the title only.@*
+Variant: @samp{bare}.@*
+Support: @samp{csl}.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite/title:@@dewaal06@comma{} p. 5]}
+@tab (``Unicorn Conservation'')
+@item @samp{[cite/ti/b:@@dewaal06@comma{} p. 5]}
+@tab ``Unicorn Conservation''
+@end multitable
+
+@item @samp{locators} (@samp{l})
+Provide the locator(s) only@comma{} e.g.@comma{} the page
+number.@*
+Variant: @samp{bare} (@samp{b})@comma{} @samp{caps} (@samp{c})@comma{} @samp{bare-caps} (@samp{bc}).@*
+Support: @samp{csl} (only @samp{b})@comma{} @samp{biblatex} (all variants).
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaa}
+@item @samp{[cite/locators:@@dewaal06 p. 5]}
+@tab (5)
+@item @samp{[cite/l:@@dewaal06 sec. 2]}
+@tab (sec. 2)
+@end multitable
+
+@item @samp{numeric} (@samp{nb})
+Provide the citation number.@*
+Variant: none.@*
+Support: @samp{basic}.@footnote{Other processors than the @samp{basic} one
+can also make numeric- or note-style citations@comma{} but this is done by
+using an appropriate style file@comma{} rather than adding style variants
+to the individual citations.  A numeric style is the default for the
+@samp{bibtex} exporter.}
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaa}
+@item @samp{[cite/numeric:@@dewaal06 p. 5]}
+@tab (1 p. 5)
+@item @samp{[cite/n:@@dewaal06 p. 5]}
+@tab (1 p. 5)
+@end multitable
+
+@item @samp{note} (@samp{ft})
+Provide a footnote.@*
+Variant:@*
+Support: @samp{basic}.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaa}
+@item @samp{[cite/note:@@dewaal06 p. 5]}
+@tab [1]
+@item @samp{[cite/n:@@dewaal06 p. 5]}
+@tab [1]
+@end multitable
+
+@item @samp{bibentry} (@samp{b})
+Provide full bibliographic information as an
+in-text citation.@*
+Variant: @samp{bare}.@*
+Support: @samp{csl}.
+@end table
+
+Here is the full list of all the variants and their meaning:
+
+@table @asis
+@item @samp{bare} (@samp{b})
+Do not enclose the citation in parentheses.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite//bare:@@dewaal06 p. 5]}
+@tab de Waal et al. 2006@comma{} 5
+@item @samp{[cite//b:@@dewaal06 p. 5]}
+@tab de Waal et al. 2006@comma{} 5
+@end multitable
+
+@item @samp{caps} (@samp{c})
+Capitalize the first word.  This is sometimes useful
+for last names beginning e.g.@tie{}with ``von'' or ``de''.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite//caps:@@dewaal06 p. 5]}
+@tab (De Waal et al. 2006@comma{} 5)
+@item @samp{[cite//c:@@dewaal06 p. 5]}
+@tab (De Waal et al. 2006@comma{} 5)
+@end multitable
+
+@item @samp{bare-caps} (@samp{bc})
+Combine @samp{bare} and @samp{caps}.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite//bare-caps:@@dewaal06 p. 5]}
+@tab De Waal et al. 2006@comma{} 5
+@item @samp{[cite//bc:@@dewaal06 p. 5]}
+@tab De Waal et al. 2006@comma{} 5
+@end multitable
+
+@item @samp{full} (@samp{f})
+List all author names instead of replacing them with
+``et al.''
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite//full:@@dewaal06 p. 5]}
+@tab (de Waal@comma{} Li@comma{} Wu@comma{} and Roy 2006@comma{} 5)
+@item @samp{[cite//f:@@dewaal06 p. 5]}
+@tab (de Waal@comma{} Li@comma{} Wu@comma{} and Roy 2006@comma{} 5)
+@end multitable
+
+@item @samp{bare-full} (@samp{bf})
+Combine @samp{bare} and @samp{full}.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite//bare-full:@@dewaal06 p. 5]}
+@tab de Waal@comma{} Li@comma{} Wu@comma{} and Roy 2006@comma{} 5
+@item @samp{[cite//bf:@@dewaal06 p. 5]}
+@tab de Waal@comma{} Li@comma{} Wu@comma{} and Roy 2006@comma{} 5
+@end multitable
+
+@item @samp{caps-full} (@samp{cf})
+Combine @samp{caps} and @samp{full}.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite//caps-full:@@dewaal06 p. 5]}
+@tab (De Waal@comma{} Li@comma{} Wu@comma{} and Roy 2006@comma{} 5)
+@item @samp{[cite//cf:@@dewaal06 p. 5]}
+@tab (De Waal@comma{} Li@comma{} Wu@comma{} and Roy 2006@comma{} 5)
+@end multitable
+
+@item @samp{bare-caps-full} (@samp{bcf})
+Combine @samp{bare}@comma{} @samp{caps}@comma{} and @samp{full}.
+
+@multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@item @samp{[cite//bare-caps-full:@@dewaal06 p. 5]}
+@tab De Waal@comma{} Li@comma{} Wu@comma{} and Roy 2006@comma{} 5
+@item @samp{[cite//bcf:@@dewaal06 p. 5]}
+@tab De Waal@comma{} Li@comma{} Wu@comma{} and Roy 2006@comma{} 5
+@end multitable
+@end table
+
+When @samp{style} is not specified@comma{} one of the two default styles is used:
 
 @itemize
 @item
@@ -19049,25 +19296,44 @@ either the default style specified in the @samp{CITE_EXPORT} keyword
 @end example
 
 @item
-or@comma{} if @samp{CITE_EXPORT} is not set@comma{} using the default @samp{nil} style
+or@comma{} if @samp{CITE_EXPORT} is not set@comma{} the default @samp{nil} style
 
 @example
 [cite:@@key] is the same as [cite/nil:@@key]
 @end example
 @end itemize
-@end itemize
 
+@vindex org-cite-biblatex-styles
+While the @samp{basic} and @samp{csl} processors format citations directly in
+the final output format@comma{} the @samp{bibtex}@comma{} @samp{natbib}@comma{} and @samp{biblatex}
+processors output corresponding Bib(La)@TeX{} cite commands for further
+processing.  For example@comma{} the @samp{natbib} processor renders
+@samp{[cite/author:@@Jones]} as @code{\citeauthor@{Jones@}}.  With the @samp{biblatex}
+processor the resulting commands can be controlled by customizing
+`org-cite-biblatex-styles'.  Results will depend on the style as well
+as the engine used (bibtex or biber)@comma{} and will vary between
+processors.
 
-The only mandatory elements are:
+@cindex locators
+When the @samp{csl} processor is used@comma{} ``locators'' such as page references
+will be recognized and rendered according to the selected CSL style
+(other processors will render them verbatim).  A locator is a part of
+the citation suffix that starts with a locator term and ends with the
+last comma or digit in the suffix@comma{} whichever comes last.  Locator
+terms include ``p.''@comma{} ``page''@comma{} and ``chap.''@footnote{The CSL locator terms are
+``book''@comma{} ``bk.''@comma{} ``bks.''@comma{} ``chapter''@comma{} ``chap.''@comma{} ``chaps.''@comma{} ``column''@comma{} ``col.''@comma{}
+``cols.''@comma{} ``figure''@comma{} ``fig.''@comma{} ``figs.''@comma{} ``folio''@comma{} ``fol.''@comma{} ``fols.''@comma{}
+``number''@comma{} ``no.''@comma{} ``nos.''@comma{} ``line''@comma{} ``l.''@comma{} ``ll.''@comma{} ``note''@comma{} ``n.''@comma{} ``nn.''@comma{}
+``opus''@comma{} ``op.''@comma{} ``opp.''@comma{} ``page''@comma{} ``p.''@comma{} ``pp.''@comma{} ``paragraph''@comma{} ``para.''@comma{}
+``paras.''@comma{} ``¶''@comma{} ``¶¶''@comma{} ``part''@comma{} ``pt.''@comma{} ``pts.''@comma{} ``section''@comma{} ``sec.''@comma{}
+``secs.''@comma{} ``§''@comma{} ``§§''@comma{} ``sub verbo''@comma{} ``s.v.''@comma{} ``s.vv.''@comma{} ``verse''@comma{} ``v.''@comma{}
+``vv.''@comma{} ``volume''@comma{} ``vol.''@comma{} ``vols.''}.  In the following example@comma{} the
+locator @samp{p. 3-4} might be rendered ``pp. 3--4'' or just ``3--4'' in
+export@comma{} depending on the CSL style.
 
-@itemize
-@item
-The @samp{cite} keyword and the colon.
-@item
-The @samp{@@} character immediately preceding each key.
-@item
-The brackets surrounding the citation(s) (group).
-@end itemize
+@example
+[cite:see @@Tarski1965 p. 3-4 for an example]
+@end example
 
 @node Citation export processors
 @section Citation export processors

@@ -15778,8 +15778,8 @@ identifying a reference in the bibliography.
 
           [cite:see @key p. 123]
 
-   • A single citation can cite more than one reference ; the keys are
-     separated by semicolons ; the formatting of such citation groups is
+   • A single citation can cite more than one reference; the keys are
+     separated by semicolons; the formatting of such citation groups is
      specified by the style.
 
           [cite:@key1;@key2;@key3]
@@ -15787,27 +15787,223 @@ identifying a reference in the bibliography.
    • One can also specify a stylistic variation for the citations by
      inserting a ‘/’ and a style name between the ‘cite’ keyword and the
      colon; this usually makes sense only for the author-year styles.
+     Additionally, one can insert a ‘/’ and a variant name after the
+     style.
 
-          [cite/style:common prefix ;prefix @key suffix; ... ; common suffix]
+          [cite/<style>:@key]
+          [cite/<style>/<variant>:@key]
 
-     When ‘style’ is not specified, one of the two default styles are
-     used
+   • The only mandatory elements are:
 
-        • either the default style specified in the ‘CITE_EXPORT’
-          keyword (see *note Citation export processors::)
+        • The ‘cite’ keyword and the colon.
+        • The ‘@’ character immediately preceding each key.
+        • The brackets surrounding the citation(s) (group).
 
-               #+cite_export: basic numeric noauthor/bare
-               [cite:@key] is the same as [cite/noauthor/bare:@key]
+   Support for styles varies between processors.  Supported styles and
+variants are detailed below.  The examples illustrate default results
+for the ‘csl’ processor except for styles only supported by ‘basic’.
+Citation styles and variants can be specified by their full name (e.g.,
+‘author/bare’) or shortcut (e.g., ‘a/b’).
 
-        • or, if ‘CITE_EXPORT’ is not set, using the default ‘nil’ style
+default style ‘nil’ (<omitted>)
+     Provide a typical author-date citation in parentheses.
+     Variants: ‘bare’ (‘b’), ‘caps’ (‘c’), ‘bare-caps’ (‘bc’), ‘full’
+     (‘f’), ‘bare-full’ (‘bf’), ‘caps-full’ (‘cf’), ‘bare-caps-full’
+     (‘bcf’).
+     Support: ‘basic’ (‘b’, ‘c’, ‘bc’), ‘csl’ (‘b’, ‘c’, ‘bc’), ‘natbib’
+     (all variants), ‘bibtex’ (variants not supported), ‘biblatex’ (‘b’,
+     ‘c’, ‘bc’).
 
-               [cite:@key] is the same as [cite/nil:@key]
+     ‘[cite:@dewaal06 p. 5]’              (de Waal et al.  2006,
+                                          5)
+     ‘[cite//bare-caps:@dewaal06 p. 5]’   De Waal et al.  2006, 5
+     ‘[cite//bc:@dewaal06 p. 5]’          De Waal et al.  2006, 5
 
-   The only mandatory elements are:
+‘author’ (‘a’)
+     Provide the author names only.
+     Variants: ‘bare’ (‘b’), ‘caps’ (‘c’), ‘full’ (‘f’), and all their
+     combinations.
+     Support: ‘basic’ (only ‘c’), ‘csl’ (all variants), ‘natbib’ (‘c’,
+     ‘f’), ‘biblatex’ (‘c’, ‘f’, ‘cf’).
 
-   • The ‘cite’ keyword and the colon.
-   • The ‘@’ character immediately preceding each key.
-   • The brackets surrounding the citation(s) (group).
+     ‘[cite/author:@dewaal06 p. 5]’   (de Waal et al.)
+     ‘[cite/a:@dewaal06 p. 5]’        (de Waal et al.)
+
+‘noauthor’ (‘na’)
+     As default, but suppress author names.
+     Variants: ‘bare’ (‘b’), ‘caps’ (‘c’), and ‘bare-caps’ (‘bc’).
+     Support: ‘basic’ (only ‘b’), ‘csl’ (all variants), ‘natbib’ (only
+     ‘b’), ‘biblatex’ (only ‘b’).
+
+     ‘[cite/noauthor:@dewaal06, p. 5]’   (2006, 5)
+     ‘[cite/na:@dewaal06, p. 5]’         (2006, 5)
+
+‘year’ (‘y’)
+     Provide the year only, like ‘noauthor’, but also suppress locators.
+     Variant: ‘bare’.
+     Support: ‘csl’.
+
+     ‘[cite/year:@dewaal06, p. 5]’   (2006)
+     ‘[cite/y:@dewaal06, p. 5]’      (2006)
+
+‘nocite’ (‘n’)
+     Suppress the whole citation (but list the item in the
+     bibliography).  As a special case, ‘[cite/n:@*]’ will cause all
+     works in the bibliography file(s) to be printed in the
+     bibliography.
+     Variants: none.
+     Support: ‘basic’, ‘csl’, ‘natbib’, ‘bibtex’, ‘biblatex’.
+
+     ‘[cite/nocite:@dewaal06]’   <empty>
+     ‘[cite/n:@dewaal06]’        <empty>
+
+‘text’ (‘t’)
+     Provide an author-date citation with the author outside the
+     parentheses.
+     Variants: ‘caps’ (‘c’), ‘full’ (‘f’), and ‘caps-full’ (‘cf’).
+     Support: ‘basic’ (only ‘c’), ‘natbib’ (all variants), ‘biblatex’
+     (only ‘c’).
+
+     ‘[cite/text:@dewaal06 p. 5]’   de Waal et al.  (2006, 5)
+     ‘[cite/t/cf:@dewaal06 p. 5]’   De Waal, Li, Wu, and Roy (2006, 5)
+
+‘title’ (‘ti’)
+     Provide the title only.
+     Variant: ‘bare’.
+     Support: ‘csl’.
+
+     ‘[cite/title:@dewaal06, p. 5]’   ("Unicorn Conservation")
+     ‘[cite/ti/b:@dewaal06, p. 5]’    "Unicorn Conservation"
+
+‘locators’ (‘l’)
+     Provide the locator(s) only, e.g., the page number.
+     Variant: ‘bare’ (‘b’), ‘caps’ (‘c’), ‘bare-caps’ (‘bc’).
+     Support: ‘csl’ (only ‘b’), ‘biblatex’ (all variants).
+
+     ‘[cite/locators:@dewaal06 p. 5]’   (5)
+     ‘[cite/l:@dewaal06 sec. 2]’        (sec.
+                                        2)
+
+‘numeric’ (‘nb’)
+     Provide the citation number.
+     Variant: none.
+     Support: ‘basic’.(1)
+
+     ‘[cite/numeric:@dewaal06 p. 5]’   (1 p.
+                                       5)
+     ‘[cite/n:@dewaal06 p. 5]’         (1 p.
+                                       5)
+
+‘note’ (‘ft’)
+     Provide a footnote.
+     Variant:
+     Support: ‘basic’.
+
+     ‘[cite/note:@dewaal06 p. 5]’   [1]
+     ‘[cite/n:@dewaal06 p. 5]’      [1]
+
+‘bibentry’ (‘b’)
+     Provide full bibliographic information as an in-text citation.
+     Variant: ‘bare’.
+     Support: ‘csl’.
+
+   Here is the full list of all the variants and their meaning:
+
+‘bare’ (‘b’)
+     Do not enclose the citation in parentheses.
+
+     ‘[cite//bare:@dewaal06 p. 5]’   de Waal et al.  2006,
+                                     5
+     ‘[cite//b:@dewaal06 p. 5]’      de Waal et al.  2006,
+                                     5
+
+‘caps’ (‘c’)
+     Capitalize the first word.  This is sometimes useful for last names
+     beginning e.g. with "von" or "de".
+
+     ‘[cite//caps:@dewaal06 p. 5]’   (De Waal et al.  2006,
+                                     5)
+     ‘[cite//c:@dewaal06 p. 5]’      (De Waal et al.  2006,
+                                     5)
+
+‘bare-caps’ (‘bc’)
+     Combine ‘bare’ and ‘caps’.
+
+     ‘[cite//bare-caps:@dewaal06 p. 5]’   De Waal et al.  2006,
+                                          5
+     ‘[cite//bc:@dewaal06 p. 5]’          De Waal et al.  2006,
+                                          5
+
+‘full’ (‘f’)
+     List all author names instead of replacing them with "et al."
+
+     ‘[cite//full:@dewaal06 p. 5]’   (de Waal, Li, Wu, and Roy 2006, 5)
+     ‘[cite//f:@dewaal06 p. 5]’      (de Waal, Li, Wu, and Roy 2006, 5)
+
+‘bare-full’ (‘bf’)
+     Combine ‘bare’ and ‘full’.
+
+     ‘[cite//bare-full:@dewaal06 p. 5]’   de Waal, Li, Wu, and Roy 2006, 5
+     ‘[cite//bf:@dewaal06 p. 5]’          de Waal, Li, Wu, and Roy 2006, 5
+
+‘caps-full’ (‘cf’)
+     Combine ‘caps’ and ‘full’.
+
+     ‘[cite//caps-full:@dewaal06 p. 5]’   (De Waal, Li, Wu, and Roy 2006, 5)
+     ‘[cite//cf:@dewaal06 p. 5]’          (De Waal, Li, Wu, and Roy 2006, 5)
+
+‘bare-caps-full’ (‘bcf’)
+     Combine ‘bare’, ‘caps’, and ‘full’.
+
+     ‘[cite//bare-caps-full:@dewaal06 p. 5]’   De Waal, Li, Wu, and Roy 2006, 5
+     ‘[cite//bcf:@dewaal06 p. 5]’              De Waal, Li, Wu, and Roy 2006, 5
+
+   When ‘style’ is not specified, one of the two default styles is used:
+
+   • either the default style specified in the ‘CITE_EXPORT’ keyword
+     (see *note Citation export processors::)
+
+          #+cite_export: basic numeric noauthor/bare
+          [cite:@key] is the same as [cite/noauthor/bare:@key]
+
+   • or, if ‘CITE_EXPORT’ is not set, the default ‘nil’ style
+
+          [cite:@key] is the same as [cite/nil:@key]
+
+   While the ‘basic’ and ‘csl’ processors format citations directly in
+the final output format, the ‘bibtex’, ‘natbib’, and ‘biblatex’
+processors output corresponding Bib(La)TeX cite commands for further
+processing.  For example, the ‘natbib’ processor renders
+‘[cite/author:@Jones]’ as ‘\citeauthor{Jones}’.  With the ‘biblatex’
+processor the resulting commands can be controlled by customizing
+'org-cite-biblatex-styles'.  Results will depend on the style as well as
+the engine used (bibtex or biber), and will vary between processors.
+
+   When the ‘csl’ processor is used, "locators" such as page references
+will be recognized and rendered according to the selected CSL style
+(other processors will render them verbatim).  A locator is a part of
+the citation suffix that starts with a locator term and ends with the
+last comma or digit in the suffix, whichever comes last.  Locator terms
+include "p.", "page", and "chap."(2).  In the following example, the
+locator ‘p. 3-4’ might be rendered "pp.  3-4" or just "3-4" in export,
+depending on the CSL style.
+
+     [cite:see @Tarski1965 p. 3-4 for an example]
+
+   ---------- Footnotes ----------
+
+   (1) Other processors than the ‘basic’ one can also make numeric- or
+note-style citations, but this is done by using an appropriate style
+file, rather than adding style variants to the individual citations.  A
+numeric style is the default for the ‘bibtex’ exporter.
+
+   (2) The CSL locator terms are "book", "bk.", "bks.", "chapter",
+"chap.", "chaps.", "column", "col.", "cols.", "figure", "fig.", "figs.",
+"folio", "fol.", "fols.", "number", "no.", "nos.", "line", "l.", "ll.",
+"note", "n.", "nn.", "opus", "op.", "opp.", "page", "p.", "pp.",
+"paragraph", "para.", "paras.", "¶", "¶¶", "part", "pt.", "pts.",
+"section", "sec.", "secs.", "§", "§§", "sub verbo", "s.v.", "s.vv.",
+"verse", "v.", "vv.", "volume", "vol.", "vols."
 
 
 File: org.info,  Node: Citation export processors,  Next: Bibliography printing,  Prev: Citations,  Up: Citation handling
@@ -21402,6 +21598,7 @@ D Main Index
                                                               (line   6)
 * CINDEX, keyword:                       Indices.             (line   6)
 * citation:                              Citation handling.   (line   6)
+* citation <1>:                          Citations.           (line  20)
 * citation processor:                    Citation handling.   (line   6)
 * CITE_EXPORT, keyword:                  Citation export processors.
                                                               (line  43)
@@ -21962,6 +22159,7 @@ D Main Index
 * lists, plain:                          Plain Lists.         (line   6)
 * literal examples, markup rules:        Literal Examples.    (line   6)
 * LOCATION, property:                    iCalendar Export.    (line  60)
+* locators:                              Citations.           (line 237)
 * LOG_INTO_DRAWER, property:             Tracking TODO state changes.
                                                               (line   6)
 * LOG_INTO_DRAWER, property <1>:         Clocking commands.   (line   7)
@@ -22326,6 +22524,7 @@ D Main Index
                                                               (line   6)
 * styles, custom <1>:                    Advanced topics in ODT export.
                                                               (line  34)
+* styles, for citations:                 Citations.           (line  57)
 * SUBAUTHOR, keyword:                    Texinfo specific export settings.
                                                               (line  14)
 * SUBAUTHOR, keyword <1>:                Texinfo title and copyright page.
@@ -24274,6 +24473,7 @@ org-customize’ and then click yourself through the tree.
 * org-cite-activate-processor:           Citation handling.   (line  53)
 * org-cite-biblatex-options:             Citation export processors.
                                                               (line  68)
+* org-cite-biblatex-styles:              Citations.           (line 228)
 * org-cite-export-processor:             Citation handling.   (line  53)
 * org-cite-follow-processor:             Citation handling.   (line  53)
 * org-cite-global-bibliography:          Citations.           (line   6)
@@ -25392,124 +25592,126 @@ Node: Complex example660910
 Node: Triggering Publication662998
 Node: Citation handling664024
 Node: Citations667067
-Node: Citation export processors669429
-Node: Bibliography printing672905
-Node: Bibliography options in the biblatex and csl export processors674053
-Node: Working with Source Code676170
-Node: Features Overview678475
-Node: Structure of Code Blocks681220
-Node: Using Header Arguments684163
-Ref: System-wide header arguments684888
-Ref: Header arguments in Org mode properties686559
-Ref: Code block specific header arguments688383
-Ref: Header arguments in function calls689882
-Node: Environment of a Code Block690556
-Ref: Passing arguments690770
-Ref: Using sessions699309
-Ref: Choosing a working directory700708
-Ref: Inserting headers and footers703008
-Node: Evaluating Code Blocks703517
-Ref: How to evaluate source code703963
-Ref: Limit code block evaluation706909
-Ref: Cache results of evaluation707895
-Ref: Evaluating Code Blocks-Footnote-1710406
-Ref: Evaluating Code Blocks-Footnote-2710540
-Node: Results of Evaluation710698
-Ref: Collection711505
-Ref: Type712964
-Ref: Format716986
-Ref: Handling719625
-Ref: Post-processing721016
-Ref: Results of Evaluation-Footnote-1722766
-Node: Exporting Code Blocks722924
-Node: Extracting Source Code726946
-Ref: Header arguments727927
-Ref: Functions733897
-Ref: Tangle hooks734148
-Ref: Jumping between code and Org734924
-Node: Languages735433
-Node: Editing Source Code736434
-Node: Noweb Reference Syntax739410
-Ref: Noweb Reference Syntax-Footnote-1746137
-Ref: Noweb Reference Syntax-Footnote-2746228
-Ref: Noweb Reference Syntax-Footnote-3746841
-Node: Library of Babel746961
-Node: Key bindings and Useful Functions747675
-Node: Batch Execution750100
-Node: Miscellaneous750881
-Node: Completion752405
-Node: Structure Templates754328
-Ref: Structure Templates-Footnote-1756078
-Node: Speed Keys756170
-Node: Clean View757337
-Node: Org Indent Mode758547
-Ref: Org Indent Mode-Footnote-1759753
-Node: Hard indentation759977
-Ref: Hard indentation-Footnote-1761458
-Ref: Hard indentation-Footnote-2761564
-Node: Execute commands in the active region761708
-Node: Dynamic Headline Numbering762720
-Node: The Very Busy C-c C-c Key763886
-Node: In-buffer Settings765875
-Ref: In-buffer Settings-Footnote-1775814
-Node: Regular Expressions776012
-Node: Org Syntax776634
-Node: Documentation Access778251
-Node: Escape Character778668
-Node: Code Evaluation Security779528
-Node: Interaction782393
-Node: Cooperation782814
-Node: Conflicts785880
-Node: TTY Keys790463
-Node: Protocols792100
-Node: The store-link protocol793561
-Node: The capture protocol794720
-Node: The open-source protocol796374
-Node: Org Crypt799595
-Node: Org Mobile801468
-Node: Setting up the staging area802853
-Ref: Setting up the staging area-Footnote-1804093
-Ref: Setting up the staging area-Footnote-2804300
-Node: Pushing to the mobile application804472
-Ref: Pushing to the mobile application-Footnote-1805483
-Ref: Pushing to the mobile application-Footnote-2805574
-Ref: Pushing to the mobile application-Footnote-3805941
-Node: Pulling from the mobile application806017
-Ref: Pulling from the mobile application-Footnote-1808330
-Node: Drag and Drop & yank-media808383
-Ref: Drag and Drop & yank-media-Footnote-1810200
-Node: Repeating commands810346
-Node: Hacking812488
-Node: Hooks813511
-Node: Add-on Packages813786
-Node: Adding Hyperlink Types814242
-Node: Adding Hyperlink preview818056
-Node: Adding Export Backends820798
-Node: Tables in Arbitrary Syntax822043
-Node: Radio tables823307
-Node: A LaTeX example825437
-Ref: A LaTeX example-Footnote-1829288
-Ref: A LaTeX example-Footnote-2829331
-Ref: A LaTeX example-Footnote-3829492
-Node: Translator functions829944
-Node: Dynamic Blocks832126
-Node: Special Agenda Views834370
-Ref: Special Agenda Views-Footnote-1838081
-Ref: Special Agenda Views-Footnote-2838287
-Node: Speeding Up Your Agendas838419
-Node: Extracting Agenda Information839642
-Node: Using the Property API843449
-Node: Using the Mapping API846798
-Node: History and Acknowledgments850828
-Ref: From Carsten851026
-Ref: From Bastien854454
-Ref: List of Contributions856977
-Node: GNU Free Documentation License865640
-Ref: ADDENDUM How to use this License for your documents889401
-Node: Main Index890790
-Node: Key Index992848
-Node: Command and Function Index1050278
-Node: Variable Index1100053
+Ref: Citations-Footnote-1676932
+Ref: Citations-Footnote-2677209
+Node: Citation export processors677676
+Node: Bibliography printing681152
+Node: Bibliography options in the biblatex and csl export processors682300
+Node: Working with Source Code684417
+Node: Features Overview686722
+Node: Structure of Code Blocks689467
+Node: Using Header Arguments692410
+Ref: System-wide header arguments693135
+Ref: Header arguments in Org mode properties694806
+Ref: Code block specific header arguments696630
+Ref: Header arguments in function calls698129
+Node: Environment of a Code Block698803
+Ref: Passing arguments699017
+Ref: Using sessions707556
+Ref: Choosing a working directory708955
+Ref: Inserting headers and footers711255
+Node: Evaluating Code Blocks711764
+Ref: How to evaluate source code712210
+Ref: Limit code block evaluation715156
+Ref: Cache results of evaluation716142
+Ref: Evaluating Code Blocks-Footnote-1718653
+Ref: Evaluating Code Blocks-Footnote-2718787
+Node: Results of Evaluation718945
+Ref: Collection719752
+Ref: Type721211
+Ref: Format725233
+Ref: Handling727872
+Ref: Post-processing729263
+Ref: Results of Evaluation-Footnote-1731013
+Node: Exporting Code Blocks731171
+Node: Extracting Source Code735193
+Ref: Header arguments736174
+Ref: Functions742144
+Ref: Tangle hooks742395
+Ref: Jumping between code and Org743171
+Node: Languages743680
+Node: Editing Source Code744681
+Node: Noweb Reference Syntax747657
+Ref: Noweb Reference Syntax-Footnote-1754384
+Ref: Noweb Reference Syntax-Footnote-2754475
+Ref: Noweb Reference Syntax-Footnote-3755088
+Node: Library of Babel755208
+Node: Key bindings and Useful Functions755922
+Node: Batch Execution758347
+Node: Miscellaneous759128
+Node: Completion760652
+Node: Structure Templates762575
+Ref: Structure Templates-Footnote-1764325
+Node: Speed Keys764417
+Node: Clean View765584
+Node: Org Indent Mode766794
+Ref: Org Indent Mode-Footnote-1768000
+Node: Hard indentation768224
+Ref: Hard indentation-Footnote-1769705
+Ref: Hard indentation-Footnote-2769811
+Node: Execute commands in the active region769955
+Node: Dynamic Headline Numbering770967
+Node: The Very Busy C-c C-c Key772133
+Node: In-buffer Settings774122
+Ref: In-buffer Settings-Footnote-1784061
+Node: Regular Expressions784259
+Node: Org Syntax784881
+Node: Documentation Access786498
+Node: Escape Character786915
+Node: Code Evaluation Security787775
+Node: Interaction790640
+Node: Cooperation791061
+Node: Conflicts794127
+Node: TTY Keys798710
+Node: Protocols800347
+Node: The store-link protocol801808
+Node: The capture protocol802967
+Node: The open-source protocol804621
+Node: Org Crypt807842
+Node: Org Mobile809715
+Node: Setting up the staging area811100
+Ref: Setting up the staging area-Footnote-1812340
+Ref: Setting up the staging area-Footnote-2812547
+Node: Pushing to the mobile application812719
+Ref: Pushing to the mobile application-Footnote-1813730
+Ref: Pushing to the mobile application-Footnote-2813821
+Ref: Pushing to the mobile application-Footnote-3814188
+Node: Pulling from the mobile application814264
+Ref: Pulling from the mobile application-Footnote-1816577
+Node: Drag and Drop & yank-media816630
+Ref: Drag and Drop & yank-media-Footnote-1818447
+Node: Repeating commands818593
+Node: Hacking820735
+Node: Hooks821758
+Node: Add-on Packages822033
+Node: Adding Hyperlink Types822489
+Node: Adding Hyperlink preview826303
+Node: Adding Export Backends829045
+Node: Tables in Arbitrary Syntax830290
+Node: Radio tables831554
+Node: A LaTeX example833684
+Ref: A LaTeX example-Footnote-1837535
+Ref: A LaTeX example-Footnote-2837578
+Ref: A LaTeX example-Footnote-3837739
+Node: Translator functions838191
+Node: Dynamic Blocks840373
+Node: Special Agenda Views842617
+Ref: Special Agenda Views-Footnote-1846328
+Ref: Special Agenda Views-Footnote-2846534
+Node: Speeding Up Your Agendas846666
+Node: Extracting Agenda Information847889
+Node: Using the Property API851696
+Node: Using the Mapping API855045
+Node: History and Acknowledgments859075
+Ref: From Carsten859273
+Ref: From Bastien862701
+Ref: List of Contributions865224
+Node: GNU Free Documentation License873887
+Ref: ADDENDUM How to use this License for your documents897648
+Node: Main Index899037
+Node: Key Index1001314
+Node: Command and Function Index1058744
+Node: Variable Index1108519
 
 End Tag Table
 
