@@ -438,8 +438,8 @@ Sample Configuration
 
 Citation handling
 
-* Citations::
 * Citation export processors::
+* Citations::
 * Bibliography printing::
 
 Bibliography printing
@@ -18934,13 +18934,12 @@ You can customize every aspect (@emph{capability}) of citation handling
 using built-in or external @emph{citation processors}.
 
 Org mode ships with several built-in citation processors tailored to
-work with @LaTeX{} export and Bib@TeX{} bibliographies (@samp{bibtex}@comma{}
-@samp{biblatex}@comma{} and @samp{natbib} processors)@comma{} or with more generic formats
-described using @uref{https://citationstyles.org/, Citation Style
-Language} (@samp{csl} processor).
-The default citation processor is @samp{basic} - it works with arbitrary
-export formats and recognizes both Bib@TeX{} and CSL bibliographies.
-More citation processors are distributed as Emacs packages.
+work with @LaTeX{} export and Bib@TeX{} bibliographies@comma{} or with more generic
+formats described using @uref{https://citationstyles.org/, Citation Style
+Language}.  The default citation processor is @samp{basic} - it works with
+arbitrary export formats and recognizes both Bib@TeX{} and CSL
+bibliographies.  More citation processors are distributed as Emacs
+packages.
 
 @vindex org-cite-activate-processor
 @vindex org-cite-follow-processor
@@ -18963,10 +18962,112 @@ Via different libraries for different target formats.
 @end table
 
 @menu
-* Citations::
 * Citation export processors::
+* Citations::
 * Bibliography printing::
 @end menu
+
+@node Citation export processors
+@section Citation export processors
+
+Org currently includes the following export processors:
+
+@itemize
+@item
+Two processors can export to a variety of formats@comma{} including @samp{latex}
+(and therefore @samp{pdf})@comma{} @samp{html}@comma{} @samp{odt} and plain (UTF8) text:
+
+@table @asis
+@item basic
+a basic export processor@comma{} well adapted to situations
+where backward compatibility is not a requirement and formatting
+needs are minimal;
+
+@item csl
+this export processor uses format files written in
+@uref{https://en.wikipedia.org/wiki/Citation_Style_Language, Citation
+Style Language} via
+@uref{https://github.com/andras-simonyi/citeproc-el, citeproc-el};
+@end table
+
+@item
+In contrast@comma{} three other processors target @LaTeX{} and @LaTeX{}-derived
+formats exclusively:
+
+@table @asis
+@item bibtex
+this export processor uses Bib@TeX{}@comma{} the historical
+bibliographic processor used with @LaTeX{}@comma{} thus allowing the use of
+data and style files compatible with this processor (including a
+large number of publishers' styles).  It only supports @LaTeX{}'s
+@samp{\cite} and @samp{\nocite} commands.
+
+@item natbib
+as with the @samp{bibtex} processor@comma{} but using the @LaTeX{}
+package @samp{natbib}@comma{} allowing more stylistic variants than @LaTeX{}'s
+@samp{\cite} command.
+
+@item biblatex
+this backend allows the use of data and formats
+prepared for Bib@LaTeX{}@comma{} an alternate bibliographic processor used
+with @LaTeX{}@comma{} which overcomes some serious Bib@TeX{} limitations@comma{} but
+has not (yet?)@tie{}been widely adopted by publishers.
+@end table
+@end itemize
+
+@cindex @samp{CITE_EXPORT}, keyword
+The @samp{CITE_EXPORT} keyword specifies the export processor@comma{} citation
+style@comma{} and bibliography style; for example (all arguments are
+optional)
+
+@example
+#+cite_export: [export processor name] [bibliography style] [default citation style]
+#+cite_export: basic author-year author
+@end example
+
+@noindent
+specifies the @samp{basic} export processor with citations inserted as
+author's name and references indexed by author's names and year;
+
+@example
+#+cite_export: csl /some/path/to/vancouver-brackets.csl
+@end example
+
+@noindent
+specifies the @samp{csl} processor and CSL style@comma{} which in this case
+defines numeric citations and numeric references according to the
+@samp{Vancouver} specification (as style used in many medical journals)@comma{}
+following a typesetting variation putting citations between brackets;
+
+@example
+#+cite_export: natbib kluwer
+@end example
+
+@noindent
+specifies the @samp{natbib} export processor with a label citation style
+conformant to the Harvard style and the specification of the
+Wolkers-Kluwer publisher; since it relies on the @code{bibtex} processor of
+your @LaTeX{} installation@comma{} it won't export to anything but PDF@.
+
+@example
+#+cite_export: biblatex numeric@comma{}backend=bibtex
+@end example
+
+@vindex org-cite-biblatex-options
+@noindent
+specifies the @samp{biblatex} export processor with the default @samp{numeric}
+style and the @samp{bibtex} backend.  Always define the style first and then
+the rest of load-time options for the @samp{biblatex}
+package.  Alternatively@comma{} you can use the @code{key=val@comma{}key=val} format for
+the options as documented in the @samp{biblatex} package documentation:
+
+@example
+#+cite_export: biblatex backend=bibtex@comma{}style=numeric
+@end example
+
+The @code{org-cite-biblatex-options} variable in your Emacs configuration
+uses this format.  It will only export to PDF@comma{} since it relies on the
+@code{biblatex} processor of your @LaTeX{} installation.
 
 @node Citations
 @section Citations
@@ -19334,108 +19435,6 @@ export@comma{} depending on the CSL style.
 @example
 [cite:see @@Tarski1965 p. 3-4 for an example]
 @end example
-
-@node Citation export processors
-@section Citation export processors
-
-Org currently includes the following export processors:
-
-@itemize
-@item
-Two processors can export to a variety of formats@comma{} including @samp{latex}
-(and therefore @samp{pdf})@comma{} @samp{html}@comma{} @samp{odt} and plain (UTF8) text:
-
-@table @asis
-@item basic
-a basic export processor@comma{} well adapted to situations
-where backward compatibility is not a requirement and formatting
-needs are minimal;
-
-@item csl
-this export processor uses format files written in
-@uref{https://en.wikipedia.org/wiki/Citation_Style_Language, Citation
-Style Language} via
-@uref{https://github.com/andras-simonyi/citeproc-el, citeproc-el};
-@end table
-
-@item
-In contrast@comma{} three other processors target @LaTeX{} and @LaTeX{}-derived
-formats exclusively:
-
-@table @asis
-@item bibtex
-this export processor uses Bib@TeX{}@comma{} the historical
-bibliographic processor used with @LaTeX{}@comma{} thus allowing the use of
-data and style files compatible with this processor (including a
-large number of publishers' styles).  It only supports @LaTeX{}'s
-@samp{\cite} and @samp{\nocite} commands.
-
-@item natbib
-as with the @samp{bibtex} processor@comma{} but using the @LaTeX{}
-package @samp{natbib}@comma{} allowing more stylistic variants than @LaTeX{}'s
-@samp{\cite} command.
-
-@item biblatex
-this backend allows the use of data and formats
-prepared for Bib@LaTeX{}@comma{} an alternate bibliographic processor used
-with @LaTeX{}@comma{} which overcomes some serious Bib@TeX{} limitations@comma{} but
-has not (yet?)@tie{}been widely adopted by publishers.
-@end table
-@end itemize
-
-@cindex @samp{CITE_EXPORT}, keyword
-The @samp{CITE_EXPORT} keyword specifies the export processor@comma{} citation
-style@comma{} and bibliography style; for example (all arguments are
-optional)
-
-@example
-#+cite_export: [export processor name] [bibliography style] [default citation style]
-#+cite_export: basic author-year author
-@end example
-
-@noindent
-specifies the @samp{basic} export processor with citations inserted as
-author's name and references indexed by author's names and year;
-
-@example
-#+cite_export: csl /some/path/to/vancouver-brackets.csl
-@end example
-
-@noindent
-specifies the @samp{csl} processor and CSL style@comma{} which in this case
-defines numeric citations and numeric references according to the
-@samp{Vancouver} specification (as style used in many medical journals)@comma{}
-following a typesetting variation putting citations between brackets;
-
-@example
-#+cite_export: natbib kluwer
-@end example
-
-@noindent
-specifies the @samp{natbib} export processor with a label citation style
-conformant to the Harvard style and the specification of the
-Wolkers-Kluwer publisher; since it relies on the @code{bibtex} processor of
-your @LaTeX{} installation@comma{} it won't export to anything but PDF@.
-
-@example
-#+cite_export: biblatex numeric@comma{}backend=bibtex
-@end example
-
-@vindex org-cite-biblatex-options
-@noindent
-specifies the @samp{biblatex} export processor with the default @samp{numeric}
-style and the @samp{bibtex} backend.  Always define the style first and then
-the rest of load-time options for the @samp{biblatex}
-package.  Alternatively@comma{} you can use the @code{key=val@comma{}key=val} format for
-the options as documented in the @samp{biblatex} package documentation:
-
-@example
-#+cite_export: biblatex backend=bibtex@comma{}style=numeric
-@end example
-
-The @code{org-cite-biblatex-options} variable in your Emacs configuration
-uses this format.  It will only export to PDF@comma{} since it relies on the
-@code{biblatex} processor of your @LaTeX{} installation.
 
 @node Bibliography printing
 @section Bibliography printing

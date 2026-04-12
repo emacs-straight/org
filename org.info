@@ -423,8 +423,8 @@ Sample Configuration
 
 Citation handling
 
-* Citations::
 * Citation export processors::
+* Citations::
 * Bibliography printing::
 
 Bibliography printing
@@ -15715,12 +15715,12 @@ act like ordinary links, jumping to the citation metadata when
 using built-in or external _citation processors_.
 
    Org mode ships with several built-in citation processors tailored to
-work with LaTeX export and BibTeX bibliographies (‘bibtex’, ‘biblatex’,
-and ‘natbib’ processors), or with more generic formats described using
-Citation Style Language (https://citationstyles.org/) (‘csl’ processor).
-The default citation processor is ‘basic’ - it works with arbitrary
-export formats and recognizes both BibTeX and CSL bibliographies.  More
-citation processors are distributed as Emacs packages.
+work with LaTeX export and BibTeX bibliographies, or with more generic
+formats described using Citation Style Language
+(https://citationstyles.org/).  The default citation processor is
+‘basic’ - it works with arbitrary export formats and recognizes both
+BibTeX and CSL bibliographies.  More citation processors are distributed
+as Emacs packages.
 
    Multiple citation processors can be mixed to meet your preferences.
 Configure ‘org-cite-activate-processor’, ‘org-cite-follow-processor’,
@@ -15738,14 +15738,94 @@ export
 
 * Menu:
 
-* Citations::
 * Citation export processors::
+* Citations::
 * Bibliography printing::
 
 
-File: org.info,  Node: Citations,  Next: Citation export processors,  Up: Citation handling
+File: org.info,  Node: Citation export processors,  Next: Citations,  Up: Citation handling
 
-15.1 Citations
+15.1 Citation export processors
+===============================
+
+Org currently includes the following export processors:
+
+   • Two processors can export to a variety of formats, including
+     ‘latex’ (and therefore ‘pdf’), ‘html’, ‘odt’ and plain (UTF8) text:
+
+     basic
+          a basic export processor, well adapted to situations where
+          backward compatibility is not a requirement and formatting
+          needs are minimal;
+
+     csl
+          this export processor uses format files written in Citation
+          Style Language
+          (https://en.wikipedia.org/wiki/Citation_Style_Language) via
+          citeproc-el (https://github.com/andras-simonyi/citeproc-el);
+
+   • In contrast, three other processors target LaTeX and LaTeX-derived
+     formats exclusively:
+
+     bibtex
+          this export processor uses BibTeX, the historical
+          bibliographic processor used with LaTeX, thus allowing the use
+          of data and style files compatible with this processor
+          (including a large number of publishers' styles).  It only
+          supports LaTeX's ‘\cite’ and ‘\nocite’ commands.
+
+     natbib
+          as with the ‘bibtex’ processor, but using the LaTeX package
+          ‘natbib’, allowing more stylistic variants than LaTeX's
+          ‘\cite’ command.
+
+     biblatex
+          this backend allows the use of data and formats prepared for
+          BibLaTeX, an alternate bibliographic processor used with
+          LaTeX, which overcomes some serious BibTeX limitations, but
+          has not (yet?) been widely adopted by publishers.
+
+   The ‘CITE_EXPORT’ keyword specifies the export processor, citation
+style, and bibliography style; for example (all arguments are optional)
+
+     #+cite_export: [export processor name] [bibliography style] [default citation style]
+     #+cite_export: basic author-year author
+
+specifies the ‘basic’ export processor with citations inserted as
+author's name and references indexed by author's names and year;
+
+     #+cite_export: csl /some/path/to/vancouver-brackets.csl
+
+specifies the ‘csl’ processor and CSL style, which in this case defines
+numeric citations and numeric references according to the ‘Vancouver’
+specification (as style used in many medical journals), following a
+typesetting variation putting citations between brackets;
+
+     #+cite_export: natbib kluwer
+
+specifies the ‘natbib’ export processor with a label citation style
+conformant to the Harvard style and the specification of the
+Wolkers-Kluwer publisher; since it relies on the ‘bibtex’ processor of
+your LaTeX installation, it won't export to anything but PDF.
+
+     #+cite_export: biblatex numeric,backend=bibtex
+
+specifies the ‘biblatex’ export processor with the default ‘numeric’
+style and the ‘bibtex’ backend.  Always define the style first and then
+the rest of load-time options for the ‘biblatex’ package.
+Alternatively, you can use the ‘key=val,key=val’ format for the options
+as documented in the ‘biblatex’ package documentation:
+
+     #+cite_export: biblatex backend=bibtex,style=numeric
+
+   The ‘org-cite-biblatex-options’ variable in your Emacs configuration
+uses this format.  It will only export to PDF, since it relies on the
+‘biblatex’ processor of your LaTeX installation.
+
+
+File: org.info,  Node: Citations,  Next: Bibliography printing,  Prev: Citation export processors,  Up: Citation handling
+
+15.2 Citations
 ==============
 
 Before adding citations, first set one-or-more bibliographies, either
@@ -16006,87 +16086,7 @@ numeric style is the default for the ‘bibtex’ exporter.
 "verse", "v.", "vv.", "volume", "vol.", "vols."
 
 
-File: org.info,  Node: Citation export processors,  Next: Bibliography printing,  Prev: Citations,  Up: Citation handling
-
-15.2 Citation export processors
-===============================
-
-Org currently includes the following export processors:
-
-   • Two processors can export to a variety of formats, including
-     ‘latex’ (and therefore ‘pdf’), ‘html’, ‘odt’ and plain (UTF8) text:
-
-     basic
-          a basic export processor, well adapted to situations where
-          backward compatibility is not a requirement and formatting
-          needs are minimal;
-
-     csl
-          this export processor uses format files written in Citation
-          Style Language
-          (https://en.wikipedia.org/wiki/Citation_Style_Language) via
-          citeproc-el (https://github.com/andras-simonyi/citeproc-el);
-
-   • In contrast, three other processors target LaTeX and LaTeX-derived
-     formats exclusively:
-
-     bibtex
-          this export processor uses BibTeX, the historical
-          bibliographic processor used with LaTeX, thus allowing the use
-          of data and style files compatible with this processor
-          (including a large number of publishers' styles).  It only
-          supports LaTeX's ‘\cite’ and ‘\nocite’ commands.
-
-     natbib
-          as with the ‘bibtex’ processor, but using the LaTeX package
-          ‘natbib’, allowing more stylistic variants than LaTeX's
-          ‘\cite’ command.
-
-     biblatex
-          this backend allows the use of data and formats prepared for
-          BibLaTeX, an alternate bibliographic processor used with
-          LaTeX, which overcomes some serious BibTeX limitations, but
-          has not (yet?) been widely adopted by publishers.
-
-   The ‘CITE_EXPORT’ keyword specifies the export processor, citation
-style, and bibliography style; for example (all arguments are optional)
-
-     #+cite_export: [export processor name] [bibliography style] [default citation style]
-     #+cite_export: basic author-year author
-
-specifies the ‘basic’ export processor with citations inserted as
-author's name and references indexed by author's names and year;
-
-     #+cite_export: csl /some/path/to/vancouver-brackets.csl
-
-specifies the ‘csl’ processor and CSL style, which in this case defines
-numeric citations and numeric references according to the ‘Vancouver’
-specification (as style used in many medical journals), following a
-typesetting variation putting citations between brackets;
-
-     #+cite_export: natbib kluwer
-
-specifies the ‘natbib’ export processor with a label citation style
-conformant to the Harvard style and the specification of the
-Wolkers-Kluwer publisher; since it relies on the ‘bibtex’ processor of
-your LaTeX installation, it won't export to anything but PDF.
-
-     #+cite_export: biblatex numeric,backend=bibtex
-
-specifies the ‘biblatex’ export processor with the default ‘numeric’
-style and the ‘bibtex’ backend.  Always define the style first and then
-the rest of load-time options for the ‘biblatex’ package.
-Alternatively, you can use the ‘key=val,key=val’ format for the options
-as documented in the ‘biblatex’ package documentation:
-
-     #+cite_export: biblatex backend=bibtex,style=numeric
-
-   The ‘org-cite-biblatex-options’ variable in your Emacs configuration
-uses this format.  It will only export to PDF, since it relies on the
-‘biblatex’ processor of your LaTeX installation.
-
-
-File: org.info,  Node: Bibliography printing,  Prev: Citation export processors,  Up: Citation handling
+File: org.info,  Node: Bibliography printing,  Prev: Citations,  Up: Citation handling
 
 15.3 Bibliography printing
 ==========================
@@ -25591,127 +25591,127 @@ Node: Simple example660194
 Node: Complex example660910
 Node: Triggering Publication662998
 Node: Citation handling664024
-Node: Citations667067
-Ref: Citations-Footnote-1676932
-Ref: Citations-Footnote-2677209
-Node: Citation export processors677676
-Node: Bibliography printing681152
-Node: Bibliography options in the biblatex and csl export processors682300
-Node: Working with Source Code684417
-Node: Features Overview686722
-Node: Structure of Code Blocks689467
-Node: Using Header Arguments692410
-Ref: System-wide header arguments693135
-Ref: Header arguments in Org mode properties694806
-Ref: Code block specific header arguments696630
-Ref: Header arguments in function calls698129
-Node: Environment of a Code Block698803
-Ref: Passing arguments699017
-Ref: Using sessions707556
-Ref: Choosing a working directory708955
-Ref: Inserting headers and footers711255
-Node: Evaluating Code Blocks711764
-Ref: How to evaluate source code712210
-Ref: Limit code block evaluation715156
-Ref: Cache results of evaluation716142
-Ref: Evaluating Code Blocks-Footnote-1718653
-Ref: Evaluating Code Blocks-Footnote-2718787
-Node: Results of Evaluation718945
-Ref: Collection719752
-Ref: Type721211
-Ref: Format725233
-Ref: Handling727872
-Ref: Post-processing729263
-Ref: Results of Evaluation-Footnote-1731013
-Node: Exporting Code Blocks731171
-Node: Extracting Source Code735193
-Ref: Header arguments736174
-Ref: Functions742144
-Ref: Tangle hooks742395
-Ref: Jumping between code and Org743171
-Node: Languages743680
-Node: Editing Source Code744681
-Node: Noweb Reference Syntax747657
-Ref: Noweb Reference Syntax-Footnote-1754384
-Ref: Noweb Reference Syntax-Footnote-2754475
-Ref: Noweb Reference Syntax-Footnote-3755088
-Node: Library of Babel755208
-Node: Key bindings and Useful Functions755922
-Node: Batch Execution758347
-Node: Miscellaneous759128
-Node: Completion760652
-Node: Structure Templates762575
-Ref: Structure Templates-Footnote-1764325
-Node: Speed Keys764417
-Node: Clean View765584
-Node: Org Indent Mode766794
-Ref: Org Indent Mode-Footnote-1768000
-Node: Hard indentation768224
-Ref: Hard indentation-Footnote-1769705
-Ref: Hard indentation-Footnote-2769811
-Node: Execute commands in the active region769955
-Node: Dynamic Headline Numbering770967
-Node: The Very Busy C-c C-c Key772133
-Node: In-buffer Settings774122
-Ref: In-buffer Settings-Footnote-1784061
-Node: Regular Expressions784259
-Node: Org Syntax784881
-Node: Documentation Access786498
-Node: Escape Character786915
-Node: Code Evaluation Security787775
-Node: Interaction790640
-Node: Cooperation791061
-Node: Conflicts794127
-Node: TTY Keys798710
-Node: Protocols800347
-Node: The store-link protocol801808
-Node: The capture protocol802967
-Node: The open-source protocol804621
-Node: Org Crypt807842
-Node: Org Mobile809715
-Node: Setting up the staging area811100
-Ref: Setting up the staging area-Footnote-1812340
-Ref: Setting up the staging area-Footnote-2812547
-Node: Pushing to the mobile application812719
-Ref: Pushing to the mobile application-Footnote-1813730
-Ref: Pushing to the mobile application-Footnote-2813821
-Ref: Pushing to the mobile application-Footnote-3814188
-Node: Pulling from the mobile application814264
-Ref: Pulling from the mobile application-Footnote-1816577
-Node: Drag and Drop & yank-media816630
-Ref: Drag and Drop & yank-media-Footnote-1818447
-Node: Repeating commands818593
-Node: Hacking820735
-Node: Hooks821758
-Node: Add-on Packages822033
-Node: Adding Hyperlink Types822489
-Node: Adding Hyperlink preview826303
-Node: Adding Export Backends829045
-Node: Tables in Arbitrary Syntax830290
-Node: Radio tables831554
-Node: A LaTeX example833684
-Ref: A LaTeX example-Footnote-1837535
-Ref: A LaTeX example-Footnote-2837578
-Ref: A LaTeX example-Footnote-3837739
-Node: Translator functions838191
-Node: Dynamic Blocks840373
-Node: Special Agenda Views842617
-Ref: Special Agenda Views-Footnote-1846328
-Ref: Special Agenda Views-Footnote-2846534
-Node: Speeding Up Your Agendas846666
-Node: Extracting Agenda Information847889
-Node: Using the Property API851696
-Node: Using the Mapping API855045
-Node: History and Acknowledgments859075
-Ref: From Carsten859273
-Ref: From Bastien862701
-Ref: List of Contributions865224
-Node: GNU Free Documentation License873887
-Ref: ADDENDUM How to use this License for your documents897648
-Node: Main Index899037
-Node: Key Index1001314
-Node: Command and Function Index1058744
-Node: Variable Index1108519
+Node: Citation export processors666986
+Node: Citations670432
+Ref: Citations-Footnote-1680327
+Ref: Citations-Footnote-2680604
+Node: Bibliography printing681071
+Node: Bibliography options in the biblatex and csl export processors682202
+Node: Working with Source Code684319
+Node: Features Overview686624
+Node: Structure of Code Blocks689369
+Node: Using Header Arguments692312
+Ref: System-wide header arguments693037
+Ref: Header arguments in Org mode properties694708
+Ref: Code block specific header arguments696532
+Ref: Header arguments in function calls698031
+Node: Environment of a Code Block698705
+Ref: Passing arguments698919
+Ref: Using sessions707458
+Ref: Choosing a working directory708857
+Ref: Inserting headers and footers711157
+Node: Evaluating Code Blocks711666
+Ref: How to evaluate source code712112
+Ref: Limit code block evaluation715058
+Ref: Cache results of evaluation716044
+Ref: Evaluating Code Blocks-Footnote-1718555
+Ref: Evaluating Code Blocks-Footnote-2718689
+Node: Results of Evaluation718847
+Ref: Collection719654
+Ref: Type721113
+Ref: Format725135
+Ref: Handling727774
+Ref: Post-processing729165
+Ref: Results of Evaluation-Footnote-1730915
+Node: Exporting Code Blocks731073
+Node: Extracting Source Code735095
+Ref: Header arguments736076
+Ref: Functions742046
+Ref: Tangle hooks742297
+Ref: Jumping between code and Org743073
+Node: Languages743582
+Node: Editing Source Code744583
+Node: Noweb Reference Syntax747559
+Ref: Noweb Reference Syntax-Footnote-1754286
+Ref: Noweb Reference Syntax-Footnote-2754377
+Ref: Noweb Reference Syntax-Footnote-3754990
+Node: Library of Babel755110
+Node: Key bindings and Useful Functions755824
+Node: Batch Execution758249
+Node: Miscellaneous759030
+Node: Completion760554
+Node: Structure Templates762477
+Ref: Structure Templates-Footnote-1764227
+Node: Speed Keys764319
+Node: Clean View765486
+Node: Org Indent Mode766696
+Ref: Org Indent Mode-Footnote-1767902
+Node: Hard indentation768126
+Ref: Hard indentation-Footnote-1769607
+Ref: Hard indentation-Footnote-2769713
+Node: Execute commands in the active region769857
+Node: Dynamic Headline Numbering770869
+Node: The Very Busy C-c C-c Key772035
+Node: In-buffer Settings774024
+Ref: In-buffer Settings-Footnote-1783963
+Node: Regular Expressions784161
+Node: Org Syntax784783
+Node: Documentation Access786400
+Node: Escape Character786817
+Node: Code Evaluation Security787677
+Node: Interaction790542
+Node: Cooperation790963
+Node: Conflicts794029
+Node: TTY Keys798612
+Node: Protocols800249
+Node: The store-link protocol801710
+Node: The capture protocol802869
+Node: The open-source protocol804523
+Node: Org Crypt807744
+Node: Org Mobile809617
+Node: Setting up the staging area811002
+Ref: Setting up the staging area-Footnote-1812242
+Ref: Setting up the staging area-Footnote-2812449
+Node: Pushing to the mobile application812621
+Ref: Pushing to the mobile application-Footnote-1813632
+Ref: Pushing to the mobile application-Footnote-2813723
+Ref: Pushing to the mobile application-Footnote-3814090
+Node: Pulling from the mobile application814166
+Ref: Pulling from the mobile application-Footnote-1816479
+Node: Drag and Drop & yank-media816532
+Ref: Drag and Drop & yank-media-Footnote-1818349
+Node: Repeating commands818495
+Node: Hacking820637
+Node: Hooks821660
+Node: Add-on Packages821935
+Node: Adding Hyperlink Types822391
+Node: Adding Hyperlink preview826205
+Node: Adding Export Backends828947
+Node: Tables in Arbitrary Syntax830192
+Node: Radio tables831456
+Node: A LaTeX example833586
+Ref: A LaTeX example-Footnote-1837437
+Ref: A LaTeX example-Footnote-2837480
+Ref: A LaTeX example-Footnote-3837641
+Node: Translator functions838093
+Node: Dynamic Blocks840275
+Node: Special Agenda Views842519
+Ref: Special Agenda Views-Footnote-1846230
+Ref: Special Agenda Views-Footnote-2846436
+Node: Speeding Up Your Agendas846568
+Node: Extracting Agenda Information847791
+Node: Using the Property API851598
+Node: Using the Mapping API854947
+Node: History and Acknowledgments858977
+Ref: From Carsten859175
+Ref: From Bastien862603
+Ref: List of Contributions865126
+Node: GNU Free Documentation License873789
+Ref: ADDENDUM How to use this License for your documents897550
+Node: Main Index898939
+Node: Key Index1001216
+Node: Command and Function Index1058646
+Node: Variable Index1108421
 
 End Tag Table
 
