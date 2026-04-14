@@ -106,14 +106,18 @@ This tangles the block to four files:
 - /backup/config.el
 - /backup/backup.el
 
-** New and changed options
+*** iCalendar export blocks and keywords
 
-# Changes dealing with changing default values of customizations,
-# adding new customizations, or changing the interpretation of the
-# existing customizations.
+The iCalendar exporter now allows using export blocks and keywords
+to insert literal text into the exported document. For example:
 
-*** ~org-support-shift-select~ can now make shift-cursor selection work on timestamps
+#+begin_src org
+  ,* An event
+  :PROPERTIES:
+  :ID:       abc123
+  :END:
+  <2026-03-12 Thu>
 
-Previously, when ~org-support-shift-select~ was set to ~always~,
+  ,#+ICALENDAR: CONTACT:Jim Dolittle\, ABC Industries\, +1-919-555-1234
 ...
 ...
