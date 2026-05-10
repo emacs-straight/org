@@ -2774,7 +2774,7 @@ instead of letting Calc handle the formatting.  A few examples:
 @item @samp{($3-32)*5/9}
 @tab Fahrenheit to Celsius conversion
 @item @samp{$c/$1/$cm}
-@tab Herz to centimeter conversion@comma{} using @samp{constants.el}
+@tab Hertz to centimeter conversion using @samp{constants.el}
 @item @samp{tan($1);Dp3s1}
 @tab Compute in degrees@comma{} precision 3@comma{} display SCI 1
 @item @samp{sin($1);Dp3%.1e}
