@@ -487,7 +487,7 @@ be used to limit the exported source code blocks by languages
 matching a regular expression.
 
 (fn &optional ARG TARGET-FILE LANG-RE)" '(org-mode))
-(register-definition-prefixes "ob-tangle" '("org-babel-"))
+(register-definition-prefixes "ob-tangle" '("org-"))
 
 
 ;;; Generated autoloads from oc.el
