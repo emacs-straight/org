@@ -450,7 +450,43 @@ DATELINE non-nil selects the agenda dateline variant."
 	  (if dateline 'org-agenda-column-dateline 'org-column)
 	  ref-face)))
 
-(defun org-columns--display-here-column (value fmt width property original face)
+(defun org-columns--mark-line-read-only ()
+  "Mark the column view rendered line as read-only.
+The property covers from the previous line-end through the next
+line-beginning, keeping the rendered overlay region uneditable."
+  (with-silent-modifications
+    (let ((inhibit-read-only t))
+      (put-text-property
+       (line-end-position 0)
+       (line-beginning-position 2)
+       'read-only
+       (or org-columns--read-only-string
+	   (setq org-columns--read-only-string
+		 (substitute-command-keys
+		  "Type \\<org-columns-map>`\\[org-columns-edit-value]' \
+to edit property" t)))))))
+
+(defun org-columns--remap-header-line ()
+  "Remap the header line to default face if not already done."
+  (unless org-columns-header-line-remap
+    (setq org-columns-header-line-remap
+	  (face-remap-add-relative 'header-line '(:inherit default)))))
+
+(defun org-columns--make-row (columns face)
+  "Create and install the overlay for each column on the next character."
+  (let ((i 0)
+	(last (1- (length columns))))
+    (dolist (column columns)
+      (pcase column
+	(`(,spec ,original ,value)
+	 (let* ((property (car spec))
+		(width (aref org-columns-current-maxwidths i))
+		(fmt (org-columns--overlay-fmt width (= i last))))
+	   (org-columns--make-cell-overlay
+	    value fmt width property original face))))
+      (cl-incf i))))
+
+(defun org-columns--make-cell-overlay (value fmt width property original face)
   "Place an overlay rendering one column on the next character at point.
 The overlay covers a single character starting at point and shows VALUE
 formatted with FMT to WIDTH, associated with column PROPERTY whose
@@ -468,42 +504,6 @@ advances by one character so the next column may be installed."
     (overlay-put ov 'line-prefix "")
     (overlay-put ov 'wrap-prefix ""))
   (forward-char))
-
-(defun org-columns--mark-line-read-only ()
-  "Mark the column view rendered line as read-only.
-The property covers from the previous line-end through the next
-line-beginning, keeping the rendered overlay region uneditable."
-  (with-silent-modifications
-    (let ((inhibit-read-only t))
-      (put-text-property
-       (line-end-position 0)
-       (line-beginning-position 2)
-       'read-only
-       (or org-columns--read-only-string
-	   (setq org-columns--read-only-string
-		 (substitute-command-keys
-		  "Type \\<org-columns-map>`\\[org-columns-edit-value]' \
-to edit property")))))))
-
-(defun org-columns--remap-header-line ()
-  "Remap the header line to default face if not already done."
-  (unless org-columns-header-line-remap
-    (setq org-columns-header-line-remap
-	  (face-remap-add-relative 'header-line '(:inherit default)))))
-
-(defun org-columns--display-columns (columns face)
-  "Create and install the overlay for each column on the next character."
-  (let ((i 0)
-	(last (1- (length columns))))
-    (dolist (column columns)
-      (pcase column
-	(`(,spec ,original ,value)
-	 (let* ((property (car spec))
-		(width (aref org-columns-current-maxwidths i))
-		(fmt (org-columns--overlay-fmt width (= i last))))
-	   (org-columns--display-here-column
-	    value fmt width property original face))))
-      (cl-incf i))))
 
 (defun org-columns--hide-rest-of-line ()
   "Make the rest of the line disappear using overlays."
@@ -527,7 +527,7 @@ DATELINE is non-nil when the face used should be
     (forward-line 0)
     (let ((face (org-columns--display-here-face dateline)))
       (org-columns--pad-line-for-overlays)
-      (org-columns--display-columns columns face)
+      (org-columns--make-row columns face)
       (org-columns--hide-rest-of-line)
       (org-columns--mark-line-read-only))))
 
