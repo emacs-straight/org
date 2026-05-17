@@ -57,6 +57,7 @@
 (defvar org-agenda-columns-show-summaries)
 (defvar org-agenda-view-columns-initially)
 (defvar org-inlinetask-min-level)
+(defvar org-columns-summary-types-default) ; defined below
 
 
 ;;;; Customizable variables
@@ -167,45 +168,12 @@ This is the compiled version of the format.")
 
 ;;;; Column specifications
 
-(defsubst org-columns--spec-property (spec)
-  "Return property name from column specification SPEC."
-  (car spec))
-
-(defsubst org-columns--spec-title (spec)
-  "Return column title from column specification SPEC."
-  (nth 1 spec))
-
-(defsubst org-columns--spec-width (spec)
-  "Return column width from column specification SPEC."
-  (nth 2 spec))
-
-(defsubst org-columns--spec-operator (spec)
-  "Return summary operator from column specification SPEC."
-  (nth 3 spec))
-
-(defsubst org-columns--spec-format-string (spec)
-  "Return format string from column specification SPEC."
-  (nth 4 spec))
-
-(defconst org-columns-summary-types-default
-  '(("+"     . org-columns--summary-sum)
-    ("$"     . org-columns--summary-currencies)
-    ("X"     . org-columns--summary-checkbox)
-    ("X/"    . org-columns--summary-checkbox-count)
-    ("X%"    . org-columns--summary-checkbox-percent)
-    ("max"   . org-columns--summary-max)
-    ("mean"  . org-columns--summary-mean)
-    ("min"   . org-columns--summary-min)
-    (":"     . org-columns--summary-sum-times)
-    (":max"  . org-columns--summary-max-time)
-    (":mean" . org-columns--summary-mean-time)
-    (":min"  . org-columns--summary-min-time)
-    ("@max"  . org-columns--summary-max-age)
-    ("@mean" . org-columns--summary-mean-age)
-    ("@min"  . org-columns--summary-min-age)
-    ("est+"  . org-columns--summary-estimate))
-  "Map operators to summary functions.
-See `org-columns-summary-types' for details.")
+(cl-defstruct (org-columns--spec
+	       (:type list)
+	       (:constructor org-columns--make-spec
+		   (property title width operator format-string)))
+  "Compiled column specification."
+  property title width operator format-string)
 
 ;;;; Keymap and menu
 
@@ -458,12 +426,11 @@ DATELINE non-nil selects the agenda dateline variant."
 	 (ref-face (or level-face
 		       (and (eq major-mode 'org-agenda-mode)
 			    (org-get-at-bol 'face))
-		       'default))
-	 (color (list :foreground (face-attribute ref-face :foreground)))
-	 (font (list :family (face-attribute 'default :family))))
-    (list color font
-	  (if dateline 'org-agenda-column-dateline 'org-column)
-	  ref-face)))
+		       'default)))
+    (cons (list :foreground (face-attribute ref-face :foreground)
+		:family (face-attribute 'default :family))
+	  (list (if dateline 'org-agenda-column-dateline 'org-column)
+		ref-face))))
 
 (defun org-columns--mark-line-read-only ()
   "Mark the column view rendered line as read-only.
@@ -663,7 +630,7 @@ This is needed to later remove this relative remapping.")
 	    org-columns-previous-hscroll hscroll)
       (force-mode-line-update))))
 
-;;;; View lifecycle
+;;;; Removing overlays / quitting
 
 ;;;###autoload
 (defun org-columns-remove-overlays ()
@@ -940,6 +907,10 @@ dynamic scoping for `org-overriding-columns-format'.")
     (org-columns-goto-top-level)
     fmt))
 
+(defun org-columns--get-columns-keyword ()
+  "Return the first COLUMNS keyword value in the current buffer."
+  (cdr (assoc "COLUMNS" (org-collect-keywords '("COLUMNS") '("COLUMNS")))))
+
 (defun org-columns-get-format (&optional fmt-string)
   "Return columns format specifications.
 When optional argument FMT-STRING is non-nil, use it as the
@@ -950,15 +921,7 @@ current specifications.  This function also sets
   (let ((format
 	 (or fmt-string
 	     (org-entry-get nil "COLUMNS" t)
-	     (org-with-wide-buffer
-	      (goto-char (point-min))
-	      (catch :found
-		(let ((case-fold-search t))
-		  (while (re-search-forward "^[ \t]*#\\+COLUMNS: .+$" nil t)
-		    (let ((element (org-element-at-point)))
-		      (when (org-element-type-p element 'keyword)
-			(throw :found (org-element-property :value element)))))
-		  nil)))
+	     (org-columns--get-columns-keyword)
 	     org-columns-default-format)))
     (setq org-columns-current-fmt format)
     (org-columns-compile-format format)
@@ -1336,9 +1299,10 @@ Set and return `org-columns-current-fmt-compiled'."
                 (operator (org-string-nw-p (match-string-no-properties 4 fmt))))
            (if operator
                (seq-let (operator format-string) (split-string operator ";")
-                 (list (upcase prop) title width operator
-                       (if (equal operator "$") "%.2f" format-string)))
-             (list (upcase prop) title width nil nil))))))
+                 (org-columns--make-spec
+		  (upcase prop) title width operator
+		  (if (equal operator "$") "%.2f" format-string)))
+             (org-columns--make-spec (upcase prop) title width nil nil))))))
 
 
 ;;;; Column View Summary
@@ -1493,6 +1457,26 @@ column specification."
 	(push property seen)))))
 
 ;;;;; Summary operators
+
+(defconst org-columns-summary-types-default
+  '(("+"     . org-columns--summary-sum)
+    ("$"     . org-columns--summary-currencies)
+    ("X"     . org-columns--summary-checkbox)
+    ("X/"    . org-columns--summary-checkbox-count)
+    ("X%"    . org-columns--summary-checkbox-percent)
+    ("max"   . org-columns--summary-max)
+    ("mean"  . org-columns--summary-mean)
+    ("min"   . org-columns--summary-min)
+    (":"     . org-columns--summary-sum-times)
+    (":max"  . org-columns--summary-max-time)
+    (":mean" . org-columns--summary-mean-time)
+    (":min"  . org-columns--summary-min-time)
+    ("@max"  . org-columns--summary-max-age)
+    ("@mean" . org-columns--summary-mean-age)
+    ("@min"  . org-columns--summary-min-age)
+    ("est+"  . org-columns--summary-estimate))
+  "Map operators to summary functions.
+See `org-columns-summary-types' for details.")
 
 (defun org-columns--summary-sum (values fmt)
   "Compute the sum of VALUES.
@@ -1944,7 +1928,7 @@ This will add overlays to the date lines, to show the summary for each day."
 		(pcase spec
 		  (`(,property ,title ,width . ,_)
 		   (if (member property '("CLOCKSUM" "CLOCKSUM_T"))
-		       (list property title width ":" nil)
+		       (org-columns--make-spec property title width ":" nil)
 		     spec))))
 	      org-columns-current-fmt-compiled)))
     ;; Ensure there's at least one summation column.
