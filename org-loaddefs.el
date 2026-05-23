@@ -1433,7 +1433,7 @@ PARAMS is a property list of parameters:
 
 `:id' (mandatory)
 
-    The ID property of the entry where the columns view should be
+    The ID property of the entry where column view should be
     built.  When the symbol `local', call locally.  When `global'
     call column view with the cursor at the beginning of the
     buffer (usually this means that the whole buffer switches to
