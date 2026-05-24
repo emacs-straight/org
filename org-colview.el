@@ -296,7 +296,7 @@ pointing to the agenda line; it is non-nil only when called from
   "Collect values for columns on the current line.
 
 Return a list of triplets (SPEC VALUE DISPLAYED) suitable for
-`org-columns--display-here'.
+`org-columns--display-line'.
 
 This function assumes `org-columns-current-fmt-compiled' is set
 in the current buffer.  However, it is possible to override it
@@ -376,13 +376,13 @@ non-nil, omit the trailing space after the separator, since no
 further column follows."
   (format (if lastp "%%-%d.%ds |" "%%-%d.%ds | ") width width))
 
-(defun org-columns--overlay-text (value fmt width property original)
+(defun org-columns--overlay-text (value format-string width property original)
   "Return decorated VALUE string for column overlay display.
-FMT is a format string.  WIDTH is the width of the column, as an
-integer.  PROPERTY is the property being displayed, as a string.
-ORIGINAL is the real string, i.e., before it is modified by
-`org-columns--displayed-value'."
-  (format fmt
+FORMAT-STRING is a `format' string.  WIDTH is the width of the
+column, as an integer.  PROPERTY is the property being displayed,
+as a string.  ORIGINAL is the real string, i.e., before it is
+modified by `org-columns--displayed-value'."
+  (format format-string
           (let ((v (org-columns-add-ellipses value width)))
             (pcase property
               ("PRIORITY"
@@ -418,7 +418,7 @@ FIXME: find a way to display columns without inserting characters."
 	(let ((inhibit-read-only t))
 	  (insert (make-string (- columns chars) ?\s)))))))
 
-(defun org-columns--display-here-face (dateline)
+(defun org-columns--line-face (dateline)
   "Return the column overlay face for the current line.
 DATELINE non-nil selects the agenda dateline variant."
   (let* ((level-face (and (looking-at "\\(\\**\\)\\(\\* \\)")
@@ -457,27 +457,30 @@ to edit property" t)))))))
 	(`(,spec ,original ,value)
 	 (let* ((property (org-columns--spec-property spec))
 		(width (aref org-columns-current-maxwidths i))
-		(fmt (org-columns--overlay-fmt width (= i last))))
+		(cell-format-string (org-columns--overlay-fmt width (= i last))))
 	   (org-columns--make-cell-overlay
-	    value fmt width property original face))))
+	    value cell-format-string width property original face))))
       (forward-char)
       (cl-incf i))))
 
-(defun org-columns--make-cell-overlay (value fmt width property original face)
+(defun org-columns--make-cell-overlay
+    (value cell-format-string width property original face)
   "Place an overlay rendering one column on the next character at point.
 The overlay covers a single character starting at point and shows VALUE
-formatted with FMT to WIDTH, associated with column PROPERTY whose
-unmodified value is ORIGINAL.  FACE is applied to the overlay.  Point
-advances by one character so the next column may be installed."
+formatted with CELL-FORMAT-STRING to WIDTH, associated with column
+PROPERTY whose unmodified value is ORIGINAL.  FACE is applied to the
+overlay.  Point advances by one character so the next column may be
+installed."
   (let ((ov (org-columns--new-overlay
 	     (point) (1+ (point))
-	     (org-columns--overlay-text value fmt width property original)
+	     (org-columns--overlay-text
+	      value cell-format-string width property original)
 	     face)))
     (overlay-put ov 'keymap org-columns-map)
     (overlay-put ov 'org-columns-key property)
     (overlay-put ov 'org-columns-value original)
     (overlay-put ov 'org-columns-value-modified value)
-    (overlay-put ov 'org-columns-format fmt)
+    (overlay-put ov 'org-columns-format cell-format-string)
     (overlay-put ov 'line-prefix "")
     (overlay-put ov 'wrap-prefix "")))
 
@@ -493,7 +496,7 @@ advances by one character so the next column may be installed."
     (overlay-put ov 'keymap org-columns-map)
     (push ov org-columns-overlays)))
 
-(defun org-columns--display-here (columns &optional dateline)
+(defun org-columns--display-line (columns &optional dateline)
   "Overlay the current line with column display.
 COLUMNS is an alist (SPEC VALUE DISPLAYED).  Optional argument
 DATELINE is non-nil when the face used should be
@@ -501,7 +504,7 @@ DATELINE is non-nil when the face used should be
   (org-columns--remap-header-line)
   (save-excursion
     (forward-line 0)
-    (let ((face (org-columns--display-here-face dateline)))
+    (let ((face (org-columns--line-face dateline)))
       (org-columns--pad-line-for-overlays)
       (org-columns--make-row columns face)
       (org-columns--hide-rest-of-line)
@@ -596,7 +599,7 @@ This is needed to later remove this relative remapping.")
     (setq org-columns-header-line-remap
 	  (face-remap-add-relative 'header-line '(:inherit default)))))
 
-(defun org-columns--display-here-title ()
+(defun org-columns--display-header-line ()
   "Prepare the table heading with column titles for the window's header line."
   (let ((title "")
 	(linum-offset (org-line-number-display-width 'columns))
@@ -606,8 +609,9 @@ This is needed to later remove this relative remapping.")
       (pcase column
 	(`(,property ,name . ,_)
 	 (let* ((width (aref org-columns-current-maxwidths i))
-		(fmt (org-columns--overlay-fmt width (= i last))))
-	   (setq title (concat title (format fmt (or name property)))))))
+		(format-string (org-columns--overlay-fmt width (= i last))))
+	   (setq title
+		 (concat title (format format-string (or name property)))))))
       (cl-incf i))
     (setq-local org-previous-header-line-format header-line-format)
     (setq org-columns-full-header-line-format
@@ -982,12 +986,12 @@ When COLUMNS-FMT-STRING is non-nil, use it as the column format."
 		(lambda () (cons (point-marker) (org-columns--collect-values))) t org--matcher-tags-todo-only)))
 	  (when cache
 	    (org-columns--set-widths cache)
-	    (org-columns--display-here-title)
+	    (org-columns--display-header-line)
 	    (org-columns--suspend-conflicting-modes)
 	    (org-columns--suspend-line-wrapping)
 	    (dolist (entry cache)
 	      (goto-char (car entry))
-	      (org-columns--display-here (cdr entry)))))))))
+	      (org-columns--display-line (cdr entry)))))))))
 
 ;;;; Column definition editing
 
@@ -1924,11 +1928,11 @@ definition."
 	  (forward-line))
 	(when cache
 	  (org-columns--set-widths cache)
-	  (org-columns--display-here-title)
+	  (org-columns--display-header-line)
 	  (org-columns--suspend-conflicting-modes)
 	  (dolist (entry cache)
 	    (goto-char (car entry))
-	    (org-columns--display-here (cdr entry)))
+	    (org-columns--display-line (cdr entry)))
 	  (setq-local org-agenda-columns-active t)
 	  (when org-agenda-columns-show-summaries
 	    (org-agenda-colview-summarize cache)))))))
@@ -1964,7 +1968,7 @@ This will add overlays to the date lines, to show the summary for each day."
 	      ;; CACHE is the rest.  Compute the summaries for the
 	      ;; properties we want, set nil properties for the rest.
 	      (when (setq entries (mapcar #'cdr entries))
-		(org-columns--display-here
+		(org-columns--display-line
 		 (mapcar
 		  (lambda (spec)
 		    (pcase spec
