@@ -1417,9 +1417,9 @@ headline.  Otherwise, it applies to the first ancestor setting
 headline.  With a `\\[universal-argument]' prefix argument, GLOBAL,
 turn on column view for the whole buffer unconditionally.
 
-When COLUMNS-FMT-STRING is non-nil, use it as the column format.
+When COLUMNS-FORMAT is non-nil, use it as the column format.
 
-(fn &optional GLOBAL COLUMNS-FMT-STRING)" '(org-mode))
+(fn &optional GLOBAL COLUMNS-FORMAT)" '(org-mode))
 (autoload 'org-columns-compute "org-colview" "\
 Summarize the values of PROPERTY hierarchically.
 Also update existing values for PROPERTY according to the first
