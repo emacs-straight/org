@@ -335,6 +335,16 @@ displayed without leading stars."
 
 ;;;; Column widths
 
+(defun org-columns--update-column-width (spec cell widths)
+  "Update WIDTHS according to SPEC and CELL.
+WIDTHS is the current tail of the column widths list.  CELL is a
+list (SPEC VALUE DISPLAYED-VALUE), as returned by
+`org-columns--collect-values'."
+  (unless (wholenump (org-columns--spec-width spec))
+    (setcar widths
+	    (max (car widths)
+                 (string-width (nth 2 cell))))))
+
 (defun org-columns--set-widths (rows)
   "Compute the maximum column widths from the format and ROWS.
 This function sets `org-columns-current-maxwidths' as a vector of
@@ -360,15 +370,16 @@ where:
 				  (`(,_ ,title . ,_) (string-width title))))
 			      org-columns-current-fmt-compiled)))
 	  (dolist (row rows)
-	    (let ((triplets (cdr row))
-		  (specs org-columns-current-fmt-compiled)
-		  (w widths))
-	      (while (and triplets specs w)
-		(unless (wholenump (org-columns--spec-width (car specs)))
-		  (setcar w (max (car w) (string-width (nth 2 (car triplets))))))
-		(setq triplets (cdr triplets))
-		(setq specs (cdr specs))
-		(setq w (cdr w)))))
+	    (let ((remaining-triplets (cdr row))
+		  (remaining-specs org-columns-current-fmt-compiled)
+		  (remaining-widths widths))
+	      (while (and remaining-triplets remaining-specs remaining-widths)
+		(org-columns--update-column-width (car remaining-specs)
+                                       (car remaining-triplets)
+                                       remaining-widths)
+		(pop remaining-triplets)
+		(pop remaining-specs)
+		(pop remaining-widths))))
 	  (apply #'vector widths))))
 
 ;;;; Overlay rendering
@@ -729,6 +740,16 @@ See info documentation about realizing a suitable checkbox."
      (assoc spec (get-text-property (line-beginning-position) 'org-summaries))
      (error "This value is computed from the entry's children"))))
 
+(defun org-columns--update-agenda-single-file (pom)
+  "Update `org-agenda-columns' for the file containing POM.
+Preserves the current format and updates only the single file."
+  (let* ((org-overriding-columns-format org-columns-current-fmt)
+	 (buffer (marker-buffer pom))
+	 (org-agenda-contributing-files
+	  (list (with-current-buffer buffer
+		  (buffer-file-name (buffer-base-buffer))))))
+    (org-agenda-columns)))
+
 (defun org-columns--execute-and-update (action pom key col)
   "Execute ACTION and update column view.
 POM is the point or marker for the heading.
@@ -737,14 +758,7 @@ COL is the column to move to after update."
   (cond
    ((eq major-mode 'org-agenda-mode)
     (org-columns--call action)
-    ;; The following let preserves the current format, and makes sure
-    ;; that in only a single file things need to be updated.
-    (let* ((org-overriding-columns-format org-columns-current-fmt)
-	   (buffer (marker-buffer pom))
-	   (org-agenda-contributing-files
-	    (list (with-current-buffer buffer
-		    (buffer-file-name (buffer-base-buffer))))))
-      (org-agenda-columns)))
+    (org-columns--update-agenda-single-file pom))
    (t
     (let ((inhibit-read-only t))
       (with-silent-modifications
@@ -1398,6 +1412,16 @@ Return nil if no collect function is associated to OPERATOR."
 
 ;;;;; Tree summary computation
 
+(defun org-columns--put-summary (pos spec summary)
+  "Set SUMMARY for SPEC in `org-summaries' at POS."
+  (let* ((summaries (get-text-property pos 'org-summaries))
+	 (old (assoc spec summaries)))
+    (if old (setcdr old summary)
+      (push (cons spec summary) summaries)
+      (with-silent-modifications
+	(add-text-properties
+	 pos (1+ pos) (list 'org-summaries summaries))))))
+
 (defun org-columns--compute-spec (spec &optional update)
   "Update tree according to SPEC.
 SPEC is a column format specification.  When optional argument
@@ -1446,13 +1470,7 @@ properties drawers."
 			  (and values (funcall summarize values format-string))))))
 	     ;; Leaf values are not summaries: do not mark them.
 	     (when summary
-	       (let* ((summaries-alist (get-text-property pos 'org-summaries))
-		      (old (assoc spec summaries-alist)))
-		 (if old (setcdr old summary)
-		   (push (cons spec summary) summaries-alist)
-		   (with-silent-modifications
-		     (add-text-properties
-		      pos (1+ pos) (list 'org-summaries summaries-alist)))))
+	       (org-columns--put-summary pos spec summary)
 	       ;; When PROPERTY exists in current node, even if empty,
 	       ;; but its value doesn't match the one computed, use
 	       ;; the latter instead.
