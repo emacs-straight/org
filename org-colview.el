@@ -402,27 +402,29 @@ non-nil, omit the trailing space after the separator, since no
 further column follows."
   (format (if lastp "%%-%d.%ds |" "%%-%d.%ds | ") width width))
 
+(defun org-columns--propertize-tags (tag-text)
+  "Apply Org tag faces to TAG-TEXT."
+  (if (not org-tags-special-faces-re)
+      (propertize tag-text 'face 'org-tag)
+    (replace-regexp-in-string
+     org-tags-special-faces-re
+     (lambda (tag) (propertize tag 'face (org-get-tag-face tag)))
+     tag-text nil nil 1)))
+
 (defun org-columns--overlay-text
     (displayed-value cell-format-string width property value)
   "Return decorated DISPLAYED-VALUE string for column overlay display.
 CELL-FORMAT-STRING is a `format' string.  WIDTH is the width of the
-column, as an integer.  PROPERTY is the property being displayed,
-as a string.  VALUE is the raw property value before it is modified
-by `org-columns--displayed-value'."
+column, as an integer.  PROPERTY identifies the column and is used
+to select faces for the displayed cell text.  VALUE is the raw
+property value before it is modified by `org-columns--displayed-value'."
   (format cell-format-string
-          (let ((v (org-columns-add-ellipses displayed-value width)))
+          (let ((cell-text (org-columns-add-ellipses displayed-value width)))
             (pcase property
-              ("PRIORITY"
-               (propertize v 'face (org-get-priority-face value)))
-              ("TAGS"
-               (if (not org-tags-special-faces-re)
-                   (propertize v 'face 'org-tag)
-                 (replace-regexp-in-string
-                  org-tags-special-faces-re
-                  (lambda (m) (propertize m 'face (org-get-tag-face m)))
-                  v nil nil 1)))
-              ("TODO" (propertize v 'face (org-get-todo-face value)))
-              (_ v)))))
+              ("PRIORITY" (propertize cell-text 'face (org-get-priority-face value)))
+              ("TAGS" (org-columns--propertize-tags cell-text))
+              ("TODO" (propertize cell-text 'face (org-get-todo-face value)))
+              (_ cell-text)))))
 
 (defvar org-columns--read-only-string nil)
 
@@ -784,47 +786,37 @@ Where possible, use the standard interface for changing this line."
 	 (key (or key (get-char-property (point) 'org-columns-key)))
 	 (org-columns--time (float-time))
 	 (action
-	  (pcase key
-	    ("CLOCKSUM"
-	     (user-error "This special column cannot be edited"))
-	    ("ITEM"
-	     (lambda () (org-with-point-at pom (org-edit-headline))))
-	    ("TODO"
-	     (lambda ()
-	       (org-with-point-at pom (call-interactively #'org-todo))))
-	    ("PRIORITY"
-	     (lambda ()
-	       (org-with-point-at pom
-		 (call-interactively #'org-priority))))
-	    ("TAGS"
-	     (lambda ()
-	       (org-with-point-at pom
-		 (let ((org-fast-tag-selection-single-key
-			(if (eq org-fast-tag-selection-single-key 'expert)
-			    t
-			  org-fast-tag-selection-single-key)))
-		   (call-interactively #'org-set-tags-command)))))
-	    ("DEADLINE"
-	     (lambda ()
-	       (org-with-point-at pom (call-interactively #'org-deadline))))
-	    ("SCHEDULED"
-	     (lambda ()
-	       (org-with-point-at pom (call-interactively #'org-schedule))))
-	    ("BEAMER_ENV"
-	     (lambda ()
-	       (org-with-point-at pom
-		 (call-interactively #'org-beamer-select-environment))))
-	    (_
-	     (let* ((allowed (org-property-get-allowed-values pom key 'table))
-		    (value (get-char-property (point) 'org-columns-value))
-		    (nval (org-trim
-			   (if (null allowed) (read-string "Edit: " value)
-			     (completing-read
-			      "Value: " allowed nil
-			      (not (get-text-property
-				    0 'org-unrestricted (caar allowed))))))))
-	       (and (not (equal nval value))
-		    (lambda () (org-entry-put pom key nval))))))))
+	  (cl-flet ((command-action (command)
+		      (lambda ()
+			(org-with-point-at pom
+			  (call-interactively command)))))
+	    (pcase key
+	      ("CLOCKSUM" (user-error "This special column cannot be edited"))
+	      ("ITEM" (command-action #'org-edit-headline))
+	      ("TODO" (command-action #'org-todo))
+	      ("PRIORITY" (command-action #'org-priority))
+	      ("TAGS"
+	       (lambda ()
+		 (org-with-point-at pom
+		   (let ((org-fast-tag-selection-single-key
+			  (if (eq org-fast-tag-selection-single-key 'expert)
+			      t
+			    org-fast-tag-selection-single-key)))
+		     (call-interactively #'org-set-tags-command)))))
+	      ("DEADLINE" (command-action #'org-deadline))
+	      ("SCHEDULED" (command-action #'org-schedule))
+	      ("BEAMER_ENV" (command-action #'org-beamer-select-environment))
+	      (_
+	       (let* ((allowed (org-property-get-allowed-values pom key 'table))
+		      (value (get-char-property (point) 'org-columns-value))
+		      (nval (org-trim
+			     (if (null allowed) (read-string "Edit: " value)
+			       (completing-read
+				"Value: " allowed nil
+				(not (get-text-property
+				      0 'org-unrestricted (caar allowed))))))))
+		 (and (not (equal nval value))
+		      (lambda () (org-entry-put pom key nval)))))))))
     (when action
       (org-columns--execute-and-update action pom key col))))
 
@@ -1030,26 +1022,24 @@ When COLUMNS-FORMAT is non-nil, use it as the column format."
 ;;;; Column definition editing
 
 (defun org-columns--summary-types-completion-function (string pred flag)
-  (let ((completion-table
-         (org-completion-table-with-metadata
-          (lambda (str pred comp)
-            (complete-with-action comp
-                                  (delete-dups
-                                   (cons '("" "")
-                                         (mapcar #'car
-                                                 (append org-columns-summary-types
-                                                         org-columns-summary-types-default))))
-                                  str pred))
-          `(metadata
-            . ((annotation-function
-                . ,(lambda (string)
-                     (let* ((doc (ignore-errors
-                                   (documentation
-                                    (cdr (assoc string
-                                                (append org-columns-summary-types
-                                                        org-columns-summary-types-default))))))
-                            (doc (and doc (substring doc 0 (string-search "\n" doc)))))
-                       (if doc (format " -- %s" doc) "")))))))))
+  "Complete column summary type operators.
+STRING, PRED, and FLAG are the usual arguments for completion
+table functions."
+  (let* ((summary-types (append org-columns-summary-types
+				org-columns-summary-types-default))
+	 (candidates (delete-dups
+		      (cons '("" "") (mapcar #'car summary-types))))
+	 (annotation-function
+	  (lambda (string)
+	    (let* ((doc (ignore-errors
+			  (documentation (cdr (assoc string summary-types)))))
+		   (doc (and doc (substring doc 0 (string-search "\n" doc)))))
+	      (if doc (format " -- %s" doc) ""))))
+	 (completion-table
+	  (org-completion-table-with-metadata
+	   (lambda (str predicate action)
+	     (complete-with-action action candidates str predicate))
+	   `(metadata . ((annotation-function . ,annotation-function))))))
     (complete-with-action flag completion-table string pred)))
 
 (defun org-columns-new (&optional spec &rest attributes)
@@ -1422,18 +1412,30 @@ Return nil if no collect function is associated to OPERATOR."
 	(add-text-properties
 	 pos (1+ pos) (list 'org-summaries summaries))))))
 
-(defun org-columns--compute-spec (spec &optional update)
+(defun org-columns--update-summary-property (property current-value computed-value)
+  "Update PROPERTY at point when it exists, even if empty.
+Do not create PROPERTY when it does not already exist.  An empty
+CURRENT-VALUE still counts as an existing property; replace it
+with COMPUTED-VALUE when they differ.
+
+Trim COMPUTED-VALUE before comparing and storing it, since
+user-provided formats or custom summary functions may introduce
+surrounding whitespace, which is not significant in property values."
+  (let ((new-value (org-trim computed-value)))
+    (when (and current-value (not (equal current-value new-value)))
+      (org-entry-put (point) property new-value))))
+
+(defun org-columns--compute-spec (spec &optional update-property-p)
   "Update tree according to SPEC.
 SPEC is a column format specification.  When optional argument
-UPDATE is non-nil, summarized values can replace existing ones in
-properties drawers."
-  (let* ((lmax (if (bound-and-true-p org-inlinetask-max-level)
-		   org-inlinetask-max-level
-		 29))			;Hard-code deepest level.
-	 (lvals (make-vector (1+ lmax) nil))
+UPDATE-PROPERTY-P is non-nil, summarized values can replace
+existing ones in properties drawers."
+  (let* ((deepest-level (if (bound-and-true-p org-inlinetask-max-level)
+		            org-inlinetask-max-level
+		          29))		;Hard-code deepest level.
+	 (values-by-level (make-vector (1+ deepest-level) nil))
 	 (level 0)
-	 (inminlevel lmax)
-	 (last-level lmax)
+	 (previous-level deepest-level)
 	 (property (org-columns--spec-property spec))
 	 (format-string (org-columns--spec-format-string spec))
          ;; Special properties cannot be collected nor summarized, as
@@ -1450,43 +1452,36 @@ properties drawers."
      ;; Walk the tree from the back and do the computations.
      (while (re-search-backward
 	     org-outline-regexp-bol org-columns-top-level-marker t)
-       (unless (or (= level 0) (eq level inminlevel))
-	 (setq last-level level))
+       (unless (or (= level 0) (eq level deepest-level))
+	 (setq previous-level level))
        (setq level (org-reduced-level (org-outline-level)))
        (let* ((pos (match-beginning 0))
               (value (if collect (funcall collect property)
 		       (org-entry-get (point) property)))
 	      (value-set (org-string-nw-p value)))
 	 (cond
-	  ((< level last-level)
+	  ((< level previous-level)
 	   ;; Collect values from lower levels and inline tasks here
 	   ;; and summarize them using SUMMARIZE.  Store them in text
 	   ;; property `org-summaries', in alist whose key is SPEC.
 	   (let* ((summary
 		   (and summarize
 			(let ((values
-                               (cl-loop for l from (1+ level) to lmax
-                                        append (aref lvals l))))
+                               (cl-loop for l from (1+ level) to deepest-level
+                                        append (aref values-by-level l))))
 			  (and values (funcall summarize values format-string))))))
 	     ;; Leaf values are not summaries: do not mark them.
 	     (when summary
 	       (org-columns--put-summary pos spec summary)
-	       ;; When PROPERTY exists in current node, even if empty,
-	       ;; but its value doesn't match the one computed, use
-	       ;; the latter instead.
-	       ;;
-	       ;; Ignore leading or trailing white spaces that might
-	       ;; have been introduced in summary, since those are not
-	       ;; significant in properties value.
-	       (let ((new-value (org-trim summary)))
-		 (when (and update value (not (equal value new-value)))
-		   (org-entry-put (point) property new-value))))
+	       (when update-property-p
+		 (org-columns--update-summary-property property value summary)))
 	     ;; Add current to current level accumulator.
 	     (when (or summary value-set)
-	       (push (or summary value) (aref lvals level)))
+	       (push (or summary value) (aref values-by-level level)))
 	     ;; Clear accumulators for deeper levels.
-	     (cl-loop for l from (1+ level) to lmax do (aset lvals l nil))))
-	  (value-set (push value (aref lvals level)))
+	     (cl-loop for l from (1+ level) to deepest-level
+		      do (aset values-by-level l nil))))
+	  (value-set (push value (aref values-by-level level)))
 	  (t nil)))))))
 
 ;;;###autoload
@@ -1494,14 +1489,14 @@ properties drawers."
   "Summarize the values of PROPERTY hierarchically.
 Also update existing values for PROPERTY according to the first
 column specification."
-  (let ((main-flag t)
+  (let ((update-property-p t)
 	(upcase-prop (upcase property)))
     (dolist (spec org-columns-current-fmt-compiled)
       (pcase spec
 	(`(,(pred (equal upcase-prop)) . ,_)
-	 (org-columns--compute-spec spec main-flag)
+	 (org-columns--compute-spec spec update-property-p)
 	 ;; Only the first summary can update the property value.
-	 (when main-flag (setq main-flag nil)))))))
+	 (when update-property-p (setq update-property-p nil)))))))
 
 (defun org-columns-compute-all ()
   "Compute all columns that have operators defined."
