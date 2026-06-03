@@ -56,7 +56,6 @@
 (defvar org-agenda-columns-compute-summary-properties)
 (defvar org-agenda-columns-show-summaries)
 (defvar org-agenda-view-columns-initially)
-(defvar org-inlinetask-min-level)
 (defvar org-columns-summary-types-default) ; defined below
 
 
@@ -1425,24 +1424,32 @@ surrounding whitespace, which is not significant in property values."
     (when (and current-value (not (equal current-value new-value)))
       (org-entry-put (point) property new-value))))
 
+(defun org-columns--summarizable-operator (spec)
+  "Return SPEC operator when its property can be summarized.
+Special properties cannot be collected nor summarized, because
+they have their own way to be computed."
+  (let ((property (org-columns--spec-property spec)))
+    (and (not (member property org-special-properties))
+	 (org-columns--spec-operator spec))))
+
+(defun org-columns--clear-values-below-level (values-by-level level deepest-level)
+  "Clear accumulated values below LEVEL in VALUES-BY-LEVEL.
+DEEPEST-LEVEL is the deepest index to clear."
+  (cl-loop for deeper-level from (1+ level) to deepest-level
+	   do (aset values-by-level deeper-level nil)))
+
 (defun org-columns--compute-spec (spec &optional update-property-p)
   "Update tree according to SPEC.
 SPEC is a column format specification.  When optional argument
 UPDATE-PROPERTY-P is non-nil, summarized values can replace
 existing ones in properties drawers."
-  (let* ((deepest-level (if (bound-and-true-p org-inlinetask-max-level)
-		            org-inlinetask-max-level
-		          29))		;Hard-code deepest level.
+  (let* ((deepest-level 29)	;Hard-code deepest level.
 	 (values-by-level (make-vector (1+ deepest-level) nil))
 	 (level 0)
 	 (previous-level deepest-level)
 	 (property (org-columns--spec-property spec))
 	 (format-string (org-columns--spec-format-string spec))
-         ;; Special properties cannot be collected nor summarized, as
-         ;; they have their own way to be computed.  Therefore, ignore
-         ;; any operator attached to them.
-	 (operator (and (not (member property org-special-properties))
-                        (org-columns--spec-operator spec)))
+	 (operator (org-columns--summarizable-operator spec))
 	 (collect (and operator (org-columns--collect operator)))
 	 (summarize (and operator (org-columns--summarize operator))))
     (org-with-wide-buffer
@@ -1456,32 +1463,28 @@ existing ones in properties drawers."
 	 (setq previous-level level))
        (setq level (org-reduced-level (org-outline-level)))
        (let* ((pos (match-beginning 0))
-              (value (if collect (funcall collect property)
-		       (org-entry-get (point) property)))
-	      (value-set (org-string-nw-p value)))
+              (current-value (if collect (funcall collect property)
+			       (org-entry-get (point) property)))
+	      (value-nonempty-p (org-string-nw-p current-value)))
 	 (cond
 	  ((< level previous-level)
 	   ;; Collect values from lower levels and inline tasks here
 	   ;; and summarize them using SUMMARIZE.  Store them in text
 	   ;; property `org-summaries', in alist whose key is SPEC.
-	   (let* ((summary
-		   (and summarize
-			(let ((values
-                               (cl-loop for l from (1+ level) to deepest-level
-                                        append (aref values-by-level l))))
-			  (and values (funcall summarize values format-string))))))
+	   (let* ((values (and summarize
+			       (cl-loop for l from (1+ level) to deepest-level
+					append (aref values-by-level l))))
+		   (summary (and values (funcall summarize values format-string))))
 	     ;; Leaf values are not summaries: do not mark them.
 	     (when summary
 	       (org-columns--put-summary pos spec summary)
 	       (when update-property-p
-		 (org-columns--update-summary-property property value summary)))
+		 (org-columns--update-summary-property property current-value summary)))
 	     ;; Add current to current level accumulator.
-	     (when (or summary value-set)
-	       (push (or summary value) (aref values-by-level level)))
-	     ;; Clear accumulators for deeper levels.
-	     (cl-loop for l from (1+ level) to deepest-level
-		      do (aset values-by-level l nil))))
-	  (value-set (push value (aref values-by-level level)))
+	     (when (or summary value-nonempty-p)
+	       (push (or summary current-value) (aref values-by-level level)))
+	     (org-columns--clear-values-below-level values-by-level level deepest-level)))
+	  (value-nonempty-p (push current-value (aref values-by-level level)))
 	  (t nil)))))))
 
 ;;;###autoload
