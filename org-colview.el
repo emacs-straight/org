@@ -399,7 +399,8 @@ The template pads and truncates its argument to WIDTH characters,
 followed by \" | \" separator.  When optional argument LASTP is
 non-nil, omit the trailing space after the separator, since no
 further column follows."
-  (format (if lastp "%%-%d.%ds |" "%%-%d.%ds | ") width width))
+  (concat (format "%%-%d.%ds |" width width)
+	  (unless lastp " ")))
 
 (defun org-columns--propertize-tags (tag-text)
   "Apply Org tag faces to TAG-TEXT."
@@ -610,6 +611,16 @@ Saved value is restored by `org-columns--resume-line-wrapping'."
   (when (local-variable-p 'org-colview-initial-truncate-line-value)
     (setq truncate-lines org-colview-initial-truncate-line-value)))
 
+(defun org-columns--suspend-display-environment ()
+  "Suspend display state that conflicts with column view."
+  (org-columns--suspend-conflicting-modes)
+  (org-columns--suspend-line-wrapping))
+
+(defun org-columns--resume-display-environment ()
+  "Resume display state suspended by column view."
+  (org-columns--resume-conflicting-modes)
+  (org-columns--resume-line-wrapping))
+
 ;;;; Header line
 
 (defvar org-columns-full-header-line-format nil
@@ -686,8 +697,7 @@ This is needed to later remove this relative remapping.")
       (setq org-columns-overlays nil)
       (let ((inhibit-read-only t))
 	(remove-text-properties (point-min) (point-max) '(read-only t))))
-    (org-columns--resume-conflicting-modes)
-    (org-columns--resume-line-wrapping)))
+    (org-columns--resume-display-environment)))
 
 (defun org-columns-quit ()
   "Remove the column overlays and in this way exit column editing."
@@ -790,10 +800,12 @@ Where possible, use the standard interface for changing this line."
 			(org-with-point-at pom
 			  (call-interactively command)))))
 	    (pcase key
+	      ("BEAMER_ENV" (command-action #'org-beamer-select-environment))
 	      ("CLOCKSUM" (user-error "This special column cannot be edited"))
+	      ("DEADLINE" (command-action #'org-deadline))
 	      ("ITEM" (command-action #'org-edit-headline))
-	      ("TODO" (command-action #'org-todo))
 	      ("PRIORITY" (command-action #'org-priority))
+	      ("SCHEDULED" (command-action #'org-schedule))
 	      ("TAGS"
 	       (lambda ()
 		 (org-with-point-at pom
@@ -802,9 +814,7 @@ Where possible, use the standard interface for changing this line."
 			      t
 			    org-fast-tag-selection-single-key)))
 		     (call-interactively #'org-set-tags-command)))))
-	      ("DEADLINE" (command-action #'org-deadline))
-	      ("SCHEDULED" (command-action #'org-schedule))
-	      ("BEAMER_ENV" (command-action #'org-beamer-select-environment))
+	      ("TODO" (command-action #'org-todo))
 	      (_
 	       (let* ((allowed (org-property-get-allowed-values pom key 'table))
 		      (value (get-char-property (point) 'org-columns-value))
@@ -929,9 +939,8 @@ dynamic scoping for `org-overriding-columns-format'.")
 
 ;;;###autoload
 (defun org-columns-get-format-and-top-level ()
-  (let ((columns-format (org-columns-get-format)))
-    (org-columns-goto-top-level)
-    columns-format))
+  (prog1 (org-columns-get-format)
+    (org-columns-goto-top-level)))
 
 (defun org-columns--get-columns-keyword ()
   "Return the first COLUMNS keyword value in the current buffer."
@@ -974,8 +983,7 @@ Also sets `org-columns-top-level-marker' to the new position."
 ROWS must be a non-empty list of collected column rows."
   (org-columns--set-widths rows)
   (org-columns--display-header-line)
-  (org-columns--suspend-conflicting-modes)
-  (org-columns--suspend-line-wrapping)
+  (org-columns--suspend-display-environment)
   (dolist (row rows)
     (goto-char (car row))
     (org-columns--display-line (cdr row))))
@@ -991,14 +999,13 @@ the buffer."
       (move-marker org-columns-begin-marker (point))
     (setq org-columns-begin-marker (point-marker)))
   (org-columns-goto-top-level)
-  (let ((org-columns--time (float-time)))
-    (org-columns-get-format columns-format)
-    (unless org-columns-inhibit-recalculation (org-columns-compute-all))
-    (save-restriction
-      (when (and (not global) (org-at-heading-p))
-	(narrow-to-region (point) (org-end-of-subtree t t)))
-      (org-columns--compute-clock-summaries)
-      (org-columns--collect-rows))))
+  (org-columns-get-format columns-format)
+  (unless org-columns-inhibit-recalculation (org-columns-compute-all))
+  (save-restriction
+    (when (and (not global) (org-at-heading-p))
+      (narrow-to-region (point) (org-end-of-subtree t t)))
+    (org-columns--compute-clock-summaries)
+    (org-columns--collect-rows)))
 
 ;;;###autoload
 (defun org-columns (&optional global columns-format)
@@ -1295,15 +1302,15 @@ COMPILED is an alist, as returned by `org-columns-compile-format'."
   (mapconcat
    (lambda (spec)
      (pcase spec
-       (`(,prop ,title ,width ,op ,format-string)
+       (`(,prop ,title ,width ,operator ,format-string)
 	(concat "%"
 		(and width (number-to-string width))
 		prop
 		(and title (not (equal prop title)) (format "(%s)" title))
-		(cond ((not op) nil)
-		      ((equal op "$") (format "{%s}" op))
-		      (format-string (format "{%s;%s}" op format-string))
-		      (t (format "{%s}" op)))))))
+		(cond ((not operator) nil)
+		      ((equal operator "$") (format "{%s}" operator))
+		      (format-string (format "{%s;%s}" operator format-string))
+		      (t (format "{%s}" operator)))))))
    compiled " "))
 
 (defun org-columns-compile-format (columns-format)
@@ -1380,23 +1387,26 @@ Return the result as a duration."
    (apply fun (mapcar #'org-duration-to-minutes times))
    (org-duration-h:mm-only-p times)))
 
-(defun org-columns--summarize (operator)
-  "Return summary function associated to string OPERATOR."
-  (pcase (or (assoc operator org-columns-summary-types)
-	     (assoc operator org-columns-summary-types-default))
-    (`nil (error "Unknown %S operator" operator))
-    (`(,_ . ,(and (pred functionp) summarize)) summarize)
-    (`(,_ ,summarize ,_) summarize)
+(defun org-columns--summary-type (operator)
+  "Return summary type definition for OPERATOR."
+  (or (assoc operator org-columns-summary-types)
+      (assoc operator org-columns-summary-types-default)
+      (error "Unknown %S operator" operator)))
+
+(defun org-columns--summarize-function (operator)
+  "Return summary function associated with OPERATOR.
+Return nil if OPERATOR is known but has no summerize function."
+  (pcase (org-columns--summary-type operator)
+    (`(,_ . ,(and (pred functionp) summarize-function)) summarize-function)
+    (`(,_ ,summarize-function ,_) summarize-function)
     (_ (error "Invalid definition for operator %S" operator))))
 
-(defun org-columns--collect (operator)
-  "Return collect function associated to string OPERATOR.
-Return nil if no collect function is associated to OPERATOR."
-  (pcase (or (assoc operator org-columns-summary-types)
-	     (assoc operator org-columns-summary-types-default))
-    (`nil (error "Unknown %S operator" operator))
-    (`(,_ . ,(pred functionp)) nil)	;default value
-    (`(,_ ,_ ,collect) collect)
+(defun org-columns--collect-function (operator)
+  "Return collect function associated with OPERATOR.
+Return nil if OPERATOR is known but has no collect function."
+  (pcase (org-columns--summary-type operator)
+    (`(,_ . ,(pred functionp)) nil)
+    (`(,_ ,_ ,collect-function) collect-function)
     (_ (error "Invalid definition for operator %S" operator))))
 
 ;;;;; Tree summary computation
@@ -1450,8 +1460,8 @@ existing ones in properties drawers."
 	 (property (org-columns--spec-property spec))
 	 (format-string (org-columns--spec-format-string spec))
 	 (operator (org-columns--summarizable-operator spec))
-	 (collect (and operator (org-columns--collect operator)))
-	 (summarize (and operator (org-columns--summarize operator))))
+	 (collect-function (and operator (org-columns--collect-function operator)))
+	 (summarize-function (and operator (org-columns--summarize-function operator))))
     (org-with-wide-buffer
      ;; Find the region to compute.
      (goto-char org-columns-top-level-marker)
@@ -1463,18 +1473,20 @@ existing ones in properties drawers."
 	 (setq previous-level level))
        (setq level (org-reduced-level (org-outline-level)))
        (let* ((pos (match-beginning 0))
-              (current-value (if collect (funcall collect property)
+              (current-value (if collect-function
+				 (funcall collect-function property)
 			       (org-entry-get (point) property)))
 	      (value-nonempty-p (org-string-nw-p current-value)))
 	 (cond
 	  ((< level previous-level)
 	   ;; Collect values from lower levels and inline tasks here
-	   ;; and summarize them using SUMMARIZE.  Store them in text
+	   ;; and summarize them using SUMMARIZE-FUNCTION.  Store them in text
 	   ;; property `org-summaries', in alist whose key is SPEC.
-	   (let* ((values (and summarize
+	   (let* ((values (and summarize-function
 			       (cl-loop for l from (1+ level) to deepest-level
 					append (aref values-by-level l))))
-		   (summary (and values (funcall summarize values format-string))))
+		   (summary (and values
+				 (funcall summarize-function values format-string))))
 	     ;; Leaf values are not summaries: do not mark them.
 	     (when summary
 	       (org-columns--put-summary pos spec summary)
@@ -1495,11 +1507,15 @@ column specification."
   (let ((update-property-p t)
 	(upcase-prop (upcase property)))
     (dolist (spec org-columns-current-fmt-compiled)
-      (pcase spec
-	(`(,(pred (equal upcase-prop)) . ,_)
-	 (org-columns--compute-spec spec update-property-p)
-	 ;; Only the first summary can update the property value.
-	 (when update-property-p (setq update-property-p nil)))))))
+      (when (equal (org-columns--spec-property spec) upcase-prop)
+	(org-columns--compute-spec spec update-property-p)
+	;; Only the first matching spec can update the property drawer,
+	;; because the drawer has a single value for each property.  For
+	;; example, with column format "%A{min} %A{max}", both summaries
+	;; are stored in the `org-summaries' text property, but only
+	;; %A{min} updates the :A: property; %A{max} is computed for
+	;; display only.
+	(setq update-property-p nil)))))
 
 (defun org-columns-compute-all ()
   "Compute all columns that have operators defined."
@@ -1508,13 +1524,9 @@ column specification."
   (let ((org-columns--time (float-time))
 	seen)
     (dolist (spec org-columns-current-fmt-compiled)
-      (let ((property (org-columns--spec-property spec)))
-	;; Compute every spec for display, but let only the first
-	;; spec for a property update the property drawer.  For
-	;; example, with column format "%A{min} %A{max}", both summaries
-	;; are stored in the `org-summaries' text property, but only
-	;; the %A{min} spec can update the :A: property in the drawer.
-	(org-columns--compute-spec spec (not (member property seen)))
+      (let* ((property (org-columns--spec-property spec))
+             (update-property-p (not (member property seen))))
+	(org-columns--compute-spec spec update-property-p)
 	(push property seen)))))
 
 ;;;;; Summary operators
@@ -2026,7 +2038,8 @@ This will add overlays to the date lines, to show the summary for each day."
 			 (list spec date date)))
 		      (`(,_ ,_ ,_ nil ,_) (list spec "" ""))
 		      (`(,_ ,_ ,_ ,operator ,format-string)
-		       (let* ((summarize (org-columns--summarize operator))
+		       (let* ((summarize-function
+			       (org-columns--summarize-function operator))
 			      (values
 			       ;; Use real values for summary, not
 			       ;; those prepared for display.
@@ -2036,7 +2049,8 @@ This will add overlays to the date lines, to show the summary for each day."
 					      (nth 1 (assoc spec e))))
 				      entries)))
 			      (final (if values
-					 (funcall summarize values format-string)
+					 (funcall summarize-function
+						  values format-string)
 				       "")))
 			 (unless (equal final "")
 			   (put-text-property 0 (length final)
