@@ -983,6 +983,12 @@ slowdown.
 Note that the saved statistics will only contain the function names
 and how long their execution takes.  No private data will be
 recorded.
+
+@item
+If you are using @samp{make repro} for performance testing@comma{} be aware
+that @samp{make repro} activates additional performance-hungry debugging
+by default.  You can use @samp{make repro REPRO_DEBUG=no} to disable it
+and get more clean profile
 @end enumerate
 
 @node Conventions
