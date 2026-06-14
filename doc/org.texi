@@ -18214,8 +18214,6 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @tab @code{org-export-expand-links}
 @item @code{:with-broken-links}
 @tab @code{org-export-with-broken-links}
-@item @code{:verbatim-file-links}
-@tab @code{org-export-file-links-verbatim}
 @item @code{:with-clocks}
 @tab @code{org-export-with-clocks}
 @item @code{:with-creator}
