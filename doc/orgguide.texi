@@ -1397,7 +1397,7 @@ recently clocked tasks.
 @item @kbd{C-c C-x C-o} (@code{org-clock-out})
 Stop the clock (clock-out).  This inserts another timestamp at the
 same location where the clock was last started.  It also directly
-computes the resulting time in inserts it after the time range as
+computes the resulting time and inserts it after the time range as
 @samp{=>HH:MM}.
 
 @item @kbd{C-c C-x C-e} (@code{org-clock-modify-effort-estimate})

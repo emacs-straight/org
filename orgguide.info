@@ -1308,7 +1308,7 @@ project.
 ‘C-c C-x C-o’ (‘org-clock-out’)
      Stop the clock (clock-out).  This inserts another timestamp at the
      same location where the clock was last started.  It also directly
-     computes the resulting time in inserts it after the time range as
+     computes the resulting time and inserts it after the time range as
      ‘=>HH:MM’.
 
 ‘C-c C-x C-e’ (‘org-clock-modify-effort-estimate’)
@@ -2588,57 +2588,57 @@ Node: Deadlines and Scheduling48534
 Ref: Deadlines and Scheduling-Footnote-150598
 Ref: Deadlines and Scheduling-Footnote-250759
 Node: Clocking Work Time50922
-Node: Capture Refile Archive52357
-Node: Capture53165
-Ref: Setting up capture53467
-Ref: Using capture53738
-Ref: Capture templates54434
-Ref: Capture-Footnote-155867
-Ref: Capture-Footnote-255978
-Node: Refile and Copy56069
-Node: Archiving57379
-Node: Agenda Views58755
-Node: Agenda Files60210
-Node: Agenda Dispatcher60958
-Node: Built-in Agenda Views61880
-Node: Global TODO List62993
-Node: Matching Tags and Properties63754
-Node: Search View65784
-Node: Agenda Commands66894
-Ref: Motion (1)67493
-Ref: View/Go to Org file67696
-Ref: Change display68134
-Ref: Remote editing69505
-Ref: Quit and exit71093
-Node: Custom Agenda Views71347
-Node: Markup72823
-Node: Paragraphs73649
-Node: Emphasis and Monospace74771
-Node: Embedded LaTeX75189
-Node: Literal examples76058
-Node: Images77148
-Node: Creating Footnotes77749
-Node: Exporting78723
-Node: The Export Dispatcher79599
-Node: Export Settings80155
-Node: Table of Contents80979
-Node: Include Files81712
-Node: Comment Lines82398
-Node: ASCII/UTF-8 Export83123
-Node: HTML Export83857
-Node: LaTeX Export84895
-Node: iCalendar Export86638
-Node: Publishing87415
-Node: Working with Source Code89146
-Ref: Using header arguments90413
-Ref: Evaluating code blocks91588
-Ref: Results of evaluation92477
-Ref: Exporting code blocks93697
-Ref: Extracting source code94161
-Node: Miscellaneous94696
-Ref: Completion94819
-Ref: Structure Templates95156
-Ref: Clean view95520
+Node: Capture Refile Archive52358
+Node: Capture53166
+Ref: Setting up capture53468
+Ref: Using capture53739
+Ref: Capture templates54435
+Ref: Capture-Footnote-155868
+Ref: Capture-Footnote-255979
+Node: Refile and Copy56070
+Node: Archiving57380
+Node: Agenda Views58756
+Node: Agenda Files60211
+Node: Agenda Dispatcher60959
+Node: Built-in Agenda Views61881
+Node: Global TODO List62994
+Node: Matching Tags and Properties63755
+Node: Search View65785
+Node: Agenda Commands66895
+Ref: Motion (1)67494
+Ref: View/Go to Org file67697
+Ref: Change display68135
+Ref: Remote editing69506
+Ref: Quit and exit71094
+Node: Custom Agenda Views71348
+Node: Markup72824
+Node: Paragraphs73650
+Node: Emphasis and Monospace74772
+Node: Embedded LaTeX75190
+Node: Literal examples76059
+Node: Images77149
+Node: Creating Footnotes77750
+Node: Exporting78724
+Node: The Export Dispatcher79600
+Node: Export Settings80156
+Node: Table of Contents80980
+Node: Include Files81713
+Node: Comment Lines82399
+Node: ASCII/UTF-8 Export83124
+Node: HTML Export83858
+Node: LaTeX Export84896
+Node: iCalendar Export86639
+Node: Publishing87416
+Node: Working with Source Code89147
+Ref: Using header arguments90414
+Ref: Evaluating code blocks91589
+Ref: Results of evaluation92478
+Ref: Exporting code blocks93698
+Ref: Extracting source code94162
+Node: Miscellaneous94697
+Ref: Completion94820
+Ref: Structure Templates95157
+Ref: Clean view95521
 
 End Tag Table
 
