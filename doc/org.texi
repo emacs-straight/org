@@ -13489,6 +13489,9 @@ macro
 @noindent
 turns @samp{@{@{@{gnustamp(linux)@}@}@}} into @samp{GNU/Linux} during export.
 
+The macro arguments cannot contain @samp{@}@}@}} inside.  In other words@comma{}
+macros cannot be nested.
+
 Org recognizes macro references in following Org markup areas:
 paragraphs@comma{} headlines@comma{} verse blocks@comma{} tables cells and lists.  Org also
 recognizes macro references in keywords@comma{} such as @samp{CAPTION}@comma{} @samp{TITLE}@comma{}
@@ -15246,11 +15249,13 @@ environments.  @samp{:spread} has no effect if @samp{:width} is not set.
 @vindex org-latex-tables-booktabs
 @vindex org-latex-tables-centered
 All three commands are toggles.  @samp{:booktabs} brings in modern
-typesetting enhancements to regular tables.  The booktabs package
-has to be loaded through @code{org-latex-packages-alist}.  @samp{:center} is
-for centering the table.  @samp{:rmlines} removes all but the very first
-horizontal line made of ASCII characters from ``table.el'' tables
-only.
+typesetting enhancements to regular tables.  The @samp{booktabs} package
+needs to be loaded through @code{org-latex-packages-alist}@comma{} unless it is
+already included by your document class@footnote{ For example@comma{}
+@uref{https://authors.acm.org/proceedings/production-information/preparing-your-article-with-latex, the
+ACM article template}.}.  @samp{:center} is for centering the table.
+@samp{:rmlines} removes all but the very first horizontal line made of
+ASCII characters from ``table.el'' tables only.
 
 @item @samp{:math-prefix}@comma{} @samp{:math-suffix}@comma{} @samp{:math-arguments}
 The @LaTeX{} export backend inserts @samp{:math-prefix} string value in
