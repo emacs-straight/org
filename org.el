@@ -2643,8 +2643,8 @@ will be preserved on export."
 (defun org-time-stamp-format (&optional with-time inactive custom)
   "Get timestamp format for a time string.
 
-The format is based on `org-timestamp-formats' (if CUSTOM is nil) or or
-`org-timestamp-custom-formats' (if CUSTOM if non-nil).
+The format is based on `org-timestamp-formats' (if CUSTOM is nil) or
+`org-timestamp-custom-formats' (if CUSTOM is non-nil).
 
 When optional argument WITH-TIME is non-nil, the timestamp will contain
 time.
@@ -16062,7 +16062,8 @@ prefix, restrict available buffers to agenda files."
   (interactive "P")
   (let ((blist (org-buffer-list
 		(cond ((equal arg '(4))  'files)
-		      ((equal arg '(16)) 'agenda)))))
+		      ((equal arg '(16)) 'agenda))
+                t)))
     (pop-to-buffer-same-window
      (completing-read "Org buffer: "
 		      (mapcar #'list (mapcar #'buffer-name blist))
@@ -20738,7 +20739,7 @@ FORMAT is a format specifier to be passed to
 When optional argument END is non-nil, use end of date-range or
 time-range, if possible.
 
-When optional argument UTC is non-nil, time is be expressed as
+When optional argument UTC is non-nil, time is expressed as
 Universal Time."
   (format-time-string format (org-timestamp-to-time timestamp end)
 		      (and utc t)))
