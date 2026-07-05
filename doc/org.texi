@@ -14972,6 +14972,14 @@ structure and order of the @LaTeX{} headers.
 @cindex @samp{LATEX_CLASS_PRE}, keyword
 Arbitrary lines to prepend before the @LaTeX{} preamble.
 
+@item @samp{LATEX_DOC_METADATA}
+@cindex @samp{LATEX_DOC_METADATA}, keyword
+@vindex org-latex-doc-metadata
+Arbitrary lines with document metadata. When you set
+@code{org-latex-doc-metadata} or you use @code{#+LATEX_DOC_METADATA}@comma{} the
+value will be inserted as @samp{\DocumentMetadata@{<value>@}}
+at the beginning of the @LaTeX{} preamble.
+
 @item @samp{KEYWORDS}
 @cindex @samp{KEYWORDS}, keyword
 @vindex org-latex-hyperref-template
@@ -18477,6 +18485,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @multitable {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @code{:latex-class}
 @tab @code{org-latex-default-class}
+@item @code{:latex-doc-metadata}
+@tab @code{org-latex-doc-metadata}
 @item @code{:latex-active-timestamp-format}
 @tab @code{org-latex-active-timestamp-format}
 @item @code{:latex-caption-above}
