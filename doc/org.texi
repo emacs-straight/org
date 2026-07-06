@@ -340,6 +340,7 @@ Beamer Export
 * Beamer specific syntax::       For using in Org documents.
 * Editing support::              Editing support.
 * A Beamer example::             A complete presentation.
+* An example of a presentation using @samp{ltx-talk}::
 
 HTML Export
 
@@ -13732,11 +13733,19 @@ It's just a jump to the left...
 Org uses Beamer export to convert an Org file tree structure into
 high-quality interactive slides for presentations.  Beamer is a @LaTeX{}
 document class for creating presentations in PDF@comma{} HTML@comma{} and other
-popular display formats.
+popular display formats. In addition to the @samp{beamer} class@comma{} the
+exporter can also handle documents using the @samp{ltx-talk} class to
+produce accessible presentations that can be handled@comma{} for example@comma{} by
+screen readers for people with visual impairments. @footnote{ The
+@samp{ltx-talk} needs a recent @strong{Lua@LaTeX{}} compiler.} Section @ref{An example of a presentation using @samp{ltx-talk}} discusses the main differences
+between both classes.
 
 We strongly recommend familiarizing yourself with Beamer terminology
 before reading the rest of this chapter.  See
 @uref{https://en.wikipedia.org/wiki/Beamer_(LaTeX)} and references therein.
+If you plan to use @samp{ltx-talk}@comma{} consult the
+@uref{https://mirrors.ctan.org//macros/latex/contrib/ltx-talk.tds.zip/ltx-talk.pdf, @samp{ltx-talk}
+documentation}.
 
 @menu
 * Beamer export commands::       For creating Beamer documents.
@@ -13745,6 +13754,7 @@ before reading the rest of this chapter.  See
 * Beamer specific syntax::       For using in Org documents.
 * Editing support::              Editing support.
 * A Beamer example::             A complete presentation.
+* An example of a presentation using @samp{ltx-talk}::
 @end menu
 
 @node Beamer export commands
@@ -13782,7 +13792,8 @@ PDF file.
 
 Beamer export backend has several additional keywords for customizing
 Beamer output.  These keywords work similar to the general options
-settings (see @ref{Export Settings}).
+settings (see @ref{Export Settings}). @strong{Note:} @samp{BEAMER_..._THEME}
+keywords do not apply to @samp{ltx-talk} and will be ignored.
 
 @table @asis
 @item @samp{BEAMER_THEME}
@@ -13835,6 +13846,15 @@ Document's subtitle.  For typesetting@comma{} use
 @code{org-latex-hyperref-template} to configure document metadata.  Use
 @code{org-latex-title-command} to configure typesetting of subtitle as
 part of front matter.
+
+@item @samp{LATEX_CLASS}
+@cindex @samp{LATEX_CLASS}, keyword
+The @LaTeX{} class to use. Implicitly set to @samp{beamer}. Set it
+explicitly to @samp{ltx-talk} to use this class:
+
+@example
+#+LATEX_CLASS: ltx-talk
+@end example
 @end table
 
 @node Frames and Blocks in Beamer
@@ -14037,6 +14057,88 @@ Here is an example of an Org document ready for Beamer export.
 *** Request
     Please test this stuff!
 @end example
+
+@node An example of a presentation using @samp{ltx-talk}
+@subsection An example of a presentation using @samp{ltx-talk}
+
+@samp{ltx-talk} is an alternative to the @samp{beamer} class. It depends on
+Lua@LaTeX{} and produces tagged PDF files with enhanced accessibility
+features for screen readers and similar applications. The Beamer
+exporter can produce presentations for this class@comma{} too. The following
+is the version of the Beamer example above adapted to @code{ltx-talk:}
+
+@example
+#+STARTUP: beamer
+#+OPTIONS: toc:nil H:2 title:t
+#+LATEX_COMPILER: lualatex
+#+LATEX_CLASS: ltx-talk
+#+LATEX_DOC_METADATA: tagging=on
+
+#+COLUMNS: %45ITEM %10BEAMER_ENV(Env) %10BEAMER_ACT(Act) %4BEAMER_COL(Col)
+* This is the first structural section
+
+** Frame 1
+*** Thanks to Eric Fraga                                           :B_block:
+    :PROPERTIES:
+    :BEAMER_COL: 0.48
+    :BEAMER_ENV: block
+    :END:
+    for the first viable Beamer setup in Org@comma{} which also works for =ltx-talk=
+*** Thanks to everyone else                                        :B_block:
+    :PROPERTIES:
+    :BEAMER_COL: 0.48
+    :BEAMER_ACT: <2->
+    :BEAMER_ENV: block
+    :END:
+    for contributing to the discussion.
+
+** Frame 2 (where we will not use columns)
+*** Request
+
+1. Please read the notes@comma{} because not all Beamer environments are supported.
+2. Please test this stuff!
+
+@end example
+
+@anchor{Differences between Beamer and @samp{ltx-talk}}
+@subsubheading Differences between Beamer and @samp{ltx-talk}
+
+@enumerate
+@item
+You need to add document metadata to your document. @code{tagging=on} is
+the minimum to produce a usable presentation.
+@item
+@code{#+BEAMER_..._THEME} keywords will be silently ignored.
+@item
+Beamer environments not supported in @samp{ltx-talk} are:
+
+@multitable {aaaaaaaaaaaaaaaaaa} {aaaaaaa} {aaaaaaaaaaaaaaa}
+@headitem Beamer environment
+@tab Support
+@tab Comment
+@item @samp{alertblock}
+@tab Partial
+@tab Only @samp{alertenv}
+@item @samp{theorem}
+@tab No
+@tab 
+@item @samp{definition}
+@tab No
+@tab 
+@item @samp{proof}
+@tab No
+@tab 
+@item @samp{beamercolorbox}
+@tab No
+@tab 
+@item @samp{exampleblock}
+@tab No
+@tab 
+@item @samp{note}
+@tab No
+@tab 
+@end multitable
+@end enumerate
 
 @node HTML Export
 @section HTML Export
