@@ -13792,8 +13792,11 @@ PDF file.
 
 Beamer export backend has several additional keywords for customizing
 Beamer output.  These keywords work similar to the general options
-settings (see @ref{Export Settings}). @strong{Note:} @samp{BEAMER_..._THEME}
-keywords do not apply to @samp{ltx-talk} and will be ignored.
+settings (see @ref{Export Settings}).
+
+@noindent
+@strong{Note:} Theme-related @samp{BEAMER_...} keywords do not apply to @samp{ltx-talk}
+and will be ignored.
 
 @table @asis
 @item @samp{BEAMER_THEME}
@@ -13817,6 +13820,15 @@ The Beamer inner theme.
 @item @samp{BEAMER_OUTER_THEME}
 @cindex @samp{BEAMER_OUTER_THEME}, keyword
 The Beamer outer theme.
+
+@item @samp{BEAMER_THEME_PRE}
+@cindex @samp{BEAMER_THEME_PRE}, keyword
+Arbitrary lines that must appear immediately before the Beamer theme
+declaration:
+
+@example
+#+BEAMER_THEME_PRE: \usepackage[total=@{16cm@comma{}9cm@}]@{geometry@}
+@end example
 
 @item @samp{BEAMER_HEADER}
 @cindex @samp{BEAMER_HEADER}, keyword
@@ -13850,7 +13862,7 @@ part of front matter.
 @item @samp{LATEX_CLASS}
 @cindex @samp{LATEX_CLASS}, keyword
 The @LaTeX{} class to use. Implicitly set to @samp{beamer}. Set it
-explicitly to @samp{ltx-talk} to use this class:
+explicitly to @samp{ltx-talk} to use this class instead:
 
 @example
 #+LATEX_CLASS: ltx-talk
