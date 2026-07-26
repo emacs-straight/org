@@ -13795,8 +13795,13 @@ Beamer output.  These keywords work similar to the general options
 settings (see @ref{Export Settings}).
 
 @noindent
-@strong{Note:} Theme-related @samp{BEAMER_...} keywords do not apply to @samp{ltx-talk}
+@strong{Note 1:} Theme-related @samp{BEAMER_...} keywords do not apply to @samp{ltx-talk}
 and will be ignored.
+
+@noindent
+@strong{Note 2:} Theme-related @samp{BEAMER_...} keywords will be ignored if
+you set the Beamer theme in the definition of the @samp{beamer} class
+in @code{org-latex-classes} or using @code{#+LATEX_HEADER}.
 
 @table @asis
 @item @samp{BEAMER_THEME}
@@ -15639,12 +15644,14 @@ variables.
 @cindex verbatim blocks, in @LaTeX{} export
 @cindex @samp{ATTR_LATEX}, keyword
 @vindex org-latex-default-example-environment
+@vindex org-latex-default-example-options
 
 The @LaTeX{} export backend wraps the contents of example blocks in a
 @samp{verbatim} environment. To control the environment used globally@comma{} you
-can change the value of custom variable
-@code{org-latex-default-example-environment}@comma{} or specify an appropriate
-export filter (see @ref{Advanced Export Configuration}).
+can change the value of custom variables
+@code{org-latex-default-example-environment} and
+@code{org-latex-default-example-options}@comma{} or specify an appropriate export
+filter (see @ref{Advanced Export Configuration}).
 
 To use a different environment for specific example blocks@comma{} use the
 @samp{:environment} parameter:
@@ -15656,7 +15663,8 @@ To use a different environment for specific example blocks@comma{} use the
 #+END_EXAMPLE
 @end example
 
-To pass options to the environment@comma{} use the @code{:options} parameter:
+To pass options to the environment@comma{} use the @code{:options}
+parameter@footnote{Square brackets around the options are optional.}:
 
 @example
 #+ATTR_LATEX: :environment Verbatim :options [fontsize=\footnotesize]
@@ -15665,8 +15673,16 @@ To pass options to the environment@comma{} use the @code{:options} parameter:
 #+END_EXAMPLE
 @end example
 
+To use these settings as your default settings@comma{} you can add the
+following to your Emacs configuration:
+
+@lisp
+(setq-default org-latex-default-example-environment "Verbatim"
+              org-latex-default-example-options "fontsize=\\footnotesize")
+@end lisp
+
 @vindex org-latex-packages-alist
-@strong{Note:} when you use @code{Verbatim} in one or more example blocks@comma{} add @code{fancyvrb} to
+@strong{Note:} if you use @code{Verbatim} in one or more example blocks@comma{} add @code{fancyvrb} to
 @code{org-latex-packages-alist}@comma{} or include:
 
 @example
