@@ -14239,6 +14239,12 @@ The URL for home link (@code{org-html-link-home}).
 @vindex org-html-link-up
 The URL for the up link of exported HTML pages (@code{org-html-link-up}).
 
+@item @samp{HTML_BASE_DIRECTORY}
+@cindex @samp{HTML_BASE_DIRECTORY}, keyword
+@vindex org-html-base-directory
+The directory of the project that you intend to
+export (@code{org-html-base-directory}).
+
 @item @samp{HTML_MATHJAX}
 @cindex @samp{HTML_MATHJAX}, keyword
 @vindex org-html-mathjax-options
@@ -14496,8 +14502,29 @@ location@comma{} then the converted links should work without any further
 manual intervention.  However@comma{} to disable this automatic path
 translation@comma{} set @code{org-html-link-org-files-as-html} to @code{nil}.  When
 disabled@comma{} the HTML export backend substitutes the ID-based links in
-the HTML output.  For more about linking files when publishing to
-a directory@comma{} see @ref{Publishing links}.
+the HTML output.
+
+@vindex org-html-base-directory
+@code{org-html-base-directory} can be used to set the directory of
+the project that you intend to export. When used in conjunction
+with @code{org-html-link-home} and @code{org-html-link-use-abs-url}@comma{} file
+links to files in @code{org-html-base-directory} will have the value
+of @code{org-html-link-home} prepended to them.  For example@comma{} when
+@code{org-html-base-directory} is set to @samp{~/my/project}@comma{} @code{org-html-link-home}
+is set to @samp{https://orgmode.org} and @code{org-html-link-use-abs-url} is set to @code{t}@comma{}
+@code{[[~/my/project/contribute][Contributing to Org]]} will be exported as
+
+@example
+<a href="https://orgmode.org/contribute">Contributing to Org</a>
+@end example
+
+When @code{:base-directory} and @code{org-html-base-directory} are both set@comma{}
+@code{:base-directory} takes precedence@comma{} i.e.@comma{} the value of
+@code{org-html-base-directory} will be ignored.
+
+@code{org-html-base-directory} is the equivalent of the @code{:base-directory}
+key of @code{org-publish-project-alist}. For more about linking files when
+publishing to a directory@comma{} see @ref{Publishing links}.
 
 Org files can also have special directives to the HTML export
 backend.  For example@comma{} by using @samp{#+ATTR_HTML} lines to specify new
@@ -18499,6 +18526,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @tab @code{org-html-link-home}
 @item @code{:html-link-up}
 @tab @code{org-html-link-up}
+@item @code{:html-base-directory}
+@tab @code{org-html-base-directory}
 @item @code{:html-equation-reference-format}
 @tab @code{org-html-equation-reference-format}
 @item @code{:html-postamble}

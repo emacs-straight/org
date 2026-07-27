@@ -11919,6 +11919,10 @@ settings described in *note Export Settings::.
      The URL for the up link of exported HTML pages
      (‘org-html-link-up’).
 
+‘HTML_BASE_DIRECTORY’
+     The directory of the project that you intend to export
+     (‘org-html-base-directory’).
+
 ‘HTML_MATHJAX’
      Options for MathJax (‘org-html-mathjax-options’).  MathJax is used
      to typeset LaTeX math in HTML documents.  See *note Math formatting
@@ -12118,8 +12122,27 @@ location, then the converted links should work without any further
 manual intervention.  However, to disable this automatic path
 translation, set ‘org-html-link-org-files-as-html’ to ‘nil’.  When
 disabled, the HTML export backend substitutes the ID-based links in the
-HTML output.  For more about linking files when publishing to a
-directory, see *note Publishing links::.
+HTML output.
+
+   ‘org-html-base-directory’ can be used to set the directory of the
+project that you intend to export.  When used in conjunction with
+‘org-html-link-home’ and ‘org-html-link-use-abs-url’, file links to
+files in ‘org-html-base-directory’ will have the value of
+‘org-html-link-home’ prepended to them.  For example, when
+‘org-html-base-directory’ is set to ‘~/my/project’, ‘org-html-link-home’
+is set to ‘https://orgmode.org’ and ‘org-html-link-use-abs-url’ is set
+to ‘t’, ‘[[~/my/project/contribute][Contributing to Org]]’ will be
+exported as
+
+     <a href="https://orgmode.org/contribute">Contributing to Org</a>
+
+   When ‘:base-directory’ and ‘org-html-base-directory’ are both set,
+‘:base-directory’ takes precedence, i.e., the value of
+‘org-html-base-directory’ will be ignored.
+
+   ‘org-html-base-directory’ is the equivalent of the ‘:base-directory’
+key of ‘org-publish-project-alist’.  For more about linking files when
+publishing to a directory, see *note Publishing links::.
 
    Org files can also have special directives to the HTML export
 backend.  For example, by using ‘#+ATTR_HTML’ lines to specify new
@@ -15414,6 +15437,7 @@ HTML specific properties
 ‘:html-link-use-abs-url’                         ‘org-html-link-use-abs-url’
 ‘:html-link-home’                                ‘org-html-link-home’
 ‘:html-link-up’                                  ‘org-html-link-up’
+‘:html-base-directory’                           ‘org-html-base-directory’
 ‘:html-equation-reference-format’                ‘org-html-equation-reference-format’
 ‘:html-postamble’                                ‘org-html-postamble’
 ‘:html-preamble’                                 ‘org-html-preamble’
@@ -21605,7 +21629,7 @@ D Main Index
 * ATTR_BEAMER, keyword:                  Beamer specific syntax.
                                                               (line  35)
 * ATTR_HTML, keyword:                    Links in HTML export.
-                                                              (line  27)
+                                                              (line  46)
 * ATTR_HTML, keyword <1>:                Tables in HTML export.
                                                               (line  11)
 * ATTR_HTML, keyword <2>:                Images in HTML export.
@@ -22131,16 +22155,18 @@ D Main Index
 * horizontal rules, markup rules:        Horizontal Rules.    (line   6)
 * HTML export:                           HTML Export.         (line   6)
 * HTML export, CSS:                      CSS support.         (line   6)
+* HTML_BASE_DIRECTORY, keyword:          HTML specific export settings.
+                                                              (line  33)
 * HTML_CONTAINER_CLASS, property:        CSS support.         (line  62)
 * HTML_CONTAINER, keyword:               HTML specific export settings.
                                                               (line  22)
 * HTML_DOCTYPE, keyword:                 HTML specific export settings.
                                                               (line  19)
 * HTML_HEAD_EXTRA, keyword:              HTML specific export settings.
-                                                              (line  42)
+                                                              (line  46)
 * HTML_HEAD_EXTRA, keyword <1>:          CSS support.         (line  49)
 * HTML_HEAD, keyword:                    HTML specific export settings.
-                                                              (line  38)
+                                                              (line  42)
 * HTML_HEAD, keyword <1>:                CSS support.         (line  49)
 * HTML_HEADLINE_CLASS, property:         CSS support.         (line  62)
 * HTML_INCLUDE_STYLE, keyword:           CSS support.         (line  44)
@@ -22149,7 +22175,7 @@ D Main Index
 * HTML_LINK_UP, keyword:                 HTML specific export settings.
                                                               (line  29)
 * HTML_MATHJAX, keyword:                 HTML specific export settings.
-                                                              (line  33)
+                                                              (line  37)
 * html-style, OPTIONS item:              CSS support.         (line  56)
 * HTML, and Orgtbl mode:                 Translator functions.
                                                               (line   6)
@@ -22234,7 +22260,7 @@ D Main Index
 * KEYWORDS, keyword:                     Beamer specific export settings.
                                                               (line  50)
 * KEYWORDS, keyword <1>:                 HTML specific export settings.
-                                                              (line  46)
+                                                              (line  50)
 * KEYWORDS, keyword <2>:                 LaTeX specific export settings.
                                                               (line  72)
 * KEYWORDS, keyword <3>:                 ODT specific export settings.
@@ -22293,7 +22319,7 @@ D Main Index
 * LATEX_HEADER_EXTRA, keyword <1>:       LaTeX header and sectioning.
                                                               (line  36)
 * LATEX_HEADER, keyword:                 HTML specific export settings.
-                                                              (line  51)
+                                                              (line  55)
 * LATEX_HEADER, keyword <1>:             LaTeX specific export settings.
                                                               (line  58)
 * LATEX_HEADER, keyword <2>:             LaTeX header and sectioning.
@@ -22718,7 +22744,7 @@ D Main Index
 * SUBTITLE, keyword <1>:                 Beamer specific export settings.
                                                               (line  57)
 * SUBTITLE, keyword <2>:                 HTML specific export settings.
-                                                              (line  56)
+                                                              (line  60)
 * SUBTITLE, keyword <3>:                 LaTeX specific export settings.
                                                               (line  81)
 * SUBTITLE, keyword <4>:                 ODT specific export settings.
@@ -24862,6 +24888,10 @@ org-customize’ and then click yourself through the tree.
 * org-hide-macro-markers:                Macro Replacement.   (line  91)
 * org-hide, face:                        Hard indentation.    (line  21)
 * org-hierarchical-todo-statistics:      Breaking Down Tasks. (line  25)
+* org-html-base-directory:               HTML specific export settings.
+                                                              (line  33)
+* org-html-base-directory <1>:           Links in HTML export.
+                                                              (line  21)
 * org-html-container-element:            HTML specific export settings.
                                                               (line  22)
 * org-html-doctype:                      HTML specific export settings.
@@ -24869,11 +24899,11 @@ org-customize’ and then click yourself through the tree.
 * org-html-doctype <1>:                  HTML doctypes.       (line   8)
 * org-html-doctype-alist:                HTML doctypes.       (line   8)
 * org-html-head:                         HTML specific export settings.
-                                                              (line  38)
+                                                              (line  42)
 * org-html-head <1>:                     Bare HTML.           (line   9)
 * org-html-head <2>:                     CSS support.         (line  44)
 * org-html-head-extra:                   HTML specific export settings.
-                                                              (line  42)
+                                                              (line  46)
 * org-html-head-extra <1>:               Bare HTML.           (line   9)
 * org-html-head-extra <2>:               CSS support.         (line  44)
 * org-html-head-include-default-style:   Bare HTML.           (line   9)
@@ -24892,7 +24922,7 @@ org-customize’ and then click yourself through the tree.
 * org-html-link-up:                      HTML specific export settings.
                                                               (line  29)
 * org-html-mathjax-options:              HTML specific export settings.
-                                                              (line  33)
+                                                              (line  37)
 * org-html-mathjax-options <1>:          Math formatting in HTML export.
                                                               (line   6)
 * org-html-mathjax-template:             Math formatting in HTML export.
@@ -25654,259 +25684,259 @@ Ref: Differences between Beamer and ltx-talk501626
 Node: HTML Export502330
 Node: HTML export commands503518
 Node: HTML specific export settings504060
-Node: HTML doctypes506270
-Node: HTML preamble and postamble508440
-Node: Bare HTML509493
-Node: Quoting HTML tags510081
-Node: Headlines in HTML export510762
-Node: Links in HTML export511565
-Node: Tables in HTML export513022
-Node: Images in HTML export514723
-Node: Math formatting in HTML export516277
-Ref: Math formatting in HTML export-Footnote-1517770
-Ref: Math formatting in HTML export-Footnote-2517962
-Node: Text areas in HTML export518245
-Node: CSS support519386
-Ref: CSS support-Footnote-1523016
-Node: JavaScript support523196
-Node: LaTeX Export526375
-Ref: LaTeX Export-Footnote-1528696
-Node: LaTeX/PDF export commands528844
-Ref: LaTeX/PDF export commands-Footnote-1530342
-Node: LaTeX specific export settings530540
-Node: LaTeX header and sectioning534607
-Node: Quoting LaTeX code539197
-Node: Tables in LaTeX export540081
-Ref: Tables in LaTeX export-Footnote-1545439
-Node: Images in LaTeX export545581
-Node: Plain lists in LaTeX export548230
-Node: Description lists in LaTeX export549253
-Node: Source blocks in LaTeX export550289
-Ref: Source blocks in LaTeX export-Footnote-1552421
-Node: Example blocks in LaTeX export552579
-Ref: Example blocks in LaTeX export-Footnote-1554112
-Node: Special blocks in LaTeX export554169
-Node: Horizontal rules in LaTeX export555428
-Node: Verse blocks in LaTeX export555864
-Node: Quote blocks in LaTeX export558587
-Node: Controlling the way the table of contents is generated559768
-Node: Markdown Export560841
-Ref: Markdown export commands561570
-Ref: Header and sectioning structure (1)562007
-Node: OpenDocument Text Export562551
-Ref: OpenDocument Text Export-Footnote-1563656
-Node: Pre-requisites for ODT export563806
-Node: ODT export commands564183
-Node: ODT specific export settings565363
-Node: Extending ODT export566408
-Ref: Automatically exporting to other formats567216
-Ref: Converting between document formats567641
-Node: Applying custom styles568181
-Ref: Applying custom styles the easy way568712
-Ref: Using third-party styles and templates569666
-Node: Links in ODT export569962
-Node: Tables in ODT export570624
-Node: Images in ODT export572630
-Ref: Embedding images572834
-Ref: Embedding clickable images573150
-Ref: Sizing and scaling of embedded images573484
-Ref: Anchoring of images575162
-Node: Math formatting in ODT export575483
-Node: LaTeX math snippets575912
-Ref: LaTeX math snippets-Footnote-1578161
-Ref: LaTeX math snippets-Footnote-2578220
-Node: MathML and OpenDocument formula files578266
-Node: Labels and captions in ODT export578774
-Node: Literal examples in ODT export580042
-Node: Advanced topics in ODT export580881
-Ref: Configuring a document converter581190
-Ref: Working with OpenDocument style files582128
-Ref: x-orgodtstyles-xml582594
-Ref: x-orgodtcontenttemplate-xml582936
-Ref: x-overriding-factory-styles583580
-Ref: Creating one-off styles584824
-Ref: Customizing tables in ODT export586825
-Ref: Validating OpenDocument XML591685
-Ref: Advanced topics in ODT export-Footnote-1592479
-Ref: Advanced topics in ODT export-Footnote-2592584
-Ref: Advanced topics in ODT export-Footnote-3592677
-Node: Org Export593025
-Ref: Org export commands593379
-Node: Texinfo Export593685
-Node: Texinfo export commands594725
-Node: Texinfo specific export settings595350
-Node: Texinfo file header597058
-Node: Texinfo title and copyright page598038
-Node: Info directory file599401
-Node: Headings and sectioning structure600115
-Node: Indices602136
-Node: Quoting Texinfo code603162
-Node: Plain lists in Texinfo export603660
-Node: Tables in Texinfo export608388
-Node: Images in Texinfo export608883
-Node: Quotations in Texinfo export609520
-Node: Key bindings in Texinfo export610472
-Node: Special blocks in Texinfo export611273
-Node: A Texinfo example612106
-Node: iCalendar Export614197
-Ref: iCalendar Export-Footnote-1619656
-Node: Other Built-in Backends619839
-Node: Advanced Export Configuration620465
-Ref: Export hooks620664
-Ref: Filters621884
-Ref: Defining filters for individual files624384
-Ref: Summary of the export process625189
-Ref: Extending an existing backend630590
-Ref: Advanced Export Configuration-Footnote-1632925
-Ref: Advanced Export Configuration-Footnote-2633281
-Ref: Advanced Export Configuration-Footnote-3633430
-Node: Export Region633516
-Node: Publishing634574
-Node: Configuration635448
-Node: Project alist636230
-Node: Sources and destinations637368
-Node: Selecting files638687
-Node: Publishing action639640
-Ref: Publishing action-Footnote-1641491
-Node: Publishing options641654
-Ref: Generic properties642406
-Ref: ASCII specific properties645094
-Ref: Beamer specific properties646694
-Ref: HTML specific properties647326
-Ref: LaTeX specific properties652562
-Ref: Markdown specific properties656299
-Ref: ODT specific properties656675
-Ref: Texinfo specific properties657747
-Node: Publishing links659175
-Node: Site map660625
-Node: Generating an index663451
-Node: Uploading Files664243
-Node: Sample Configuration666024
-Node: Simple example666522
-Node: Complex example667238
-Node: Triggering Publication669326
-Node: Citation handling670352
-Node: Citation export processors673314
-Node: Citations676760
-Ref: Citations-Footnote-1686655
-Ref: Citations-Footnote-2686932
-Node: Bibliography printing687399
-Node: Bibliography options in the biblatex and csl export processors688530
-Node: Working with Source Code690647
-Node: Features Overview692952
-Node: Structure of Code Blocks695697
-Node: Using Header Arguments698640
-Ref: System-wide header arguments699365
-Ref: Header arguments in Org mode properties701036
-Ref: Code block specific header arguments702860
-Ref: Header arguments in function calls704359
-Node: Environment of a Code Block705033
-Ref: Passing arguments705247
-Ref: Using sessions713786
-Ref: Choosing a working directory715185
-Ref: Inserting headers and footers717485
-Node: Evaluating Code Blocks717995
-Ref: How to evaluate source code718441
-Ref: Limit code block evaluation721387
-Ref: Cache results of evaluation722373
-Ref: Evaluating Code Blocks-Footnote-1724884
-Ref: Evaluating Code Blocks-Footnote-2725018
-Node: Results of Evaluation725176
-Ref: Collection725983
-Ref: Type727442
-Ref: Format731464
-Ref: Handling734103
-Ref: Post-processing735494
-Ref: Results of Evaluation-Footnote-1737244
-Node: Exporting Code Blocks737402
-Node: Extracting Source Code741424
-Ref: Header arguments742816
-Ref: Functions748786
-Ref: Tangle hooks749037
-Ref: Jumping between code and Org749813
-Node: Languages750322
-Node: Editing Source Code751323
-Node: Noweb Reference Syntax754299
-Ref: Noweb Reference Syntax-Footnote-1761026
-Ref: Noweb Reference Syntax-Footnote-2761117
-Ref: Noweb Reference Syntax-Footnote-3761730
-Node: Library of Babel761850
-Node: Key bindings and Useful Functions762564
-Node: Batch Execution764989
-Node: Miscellaneous765770
-Node: Completion767294
-Node: Structure Templates769217
-Ref: Structure Templates-Footnote-1770967
-Node: Speed Keys771059
-Node: Clean View772226
-Node: Org Indent Mode773436
-Ref: Org Indent Mode-Footnote-1774642
-Node: Hard indentation774866
-Ref: Hard indentation-Footnote-1776347
-Ref: Hard indentation-Footnote-2776453
-Node: Execute commands in the active region776597
-Node: Dynamic Headline Numbering777609
-Node: The Very Busy C-c C-c Key778775
-Node: In-buffer Settings780764
-Ref: In-buffer Settings-Footnote-1790701
-Node: Regular Expressions790899
-Node: Org Syntax791521
-Node: Documentation Access793138
-Node: Escape Character793555
-Node: Code Evaluation Security794415
-Node: Interaction797280
-Node: Cooperation797701
-Node: Conflicts800767
-Node: TTY Keys805350
-Node: Protocols806987
-Node: The store-link protocol808448
-Node: The capture protocol809607
-Node: The open-source protocol811261
-Node: Org Crypt814482
-Node: Org Mobile816355
-Node: Setting up the staging area817740
-Ref: Setting up the staging area-Footnote-1818980
-Ref: Setting up the staging area-Footnote-2819187
-Node: Pushing to the mobile application819359
-Ref: Pushing to the mobile application-Footnote-1820370
-Ref: Pushing to the mobile application-Footnote-2820461
-Ref: Pushing to the mobile application-Footnote-3820828
-Node: Pulling from the mobile application820904
-Ref: Pulling from the mobile application-Footnote-1823217
-Node: Drag and Drop & yank-media823270
-Ref: Drag and Drop & yank-media-Footnote-1825087
-Node: Repeating commands825233
-Node: Hacking827375
-Node: Hooks828398
-Node: Add-on Packages828673
-Node: Adding Hyperlink Types829129
-Node: Adding Hyperlink preview832943
-Node: Adding Export Backends835685
-Node: Tables in Arbitrary Syntax836930
-Node: Radio tables838194
-Node: A LaTeX example840324
-Ref: A LaTeX example-Footnote-1844175
-Ref: A LaTeX example-Footnote-2844218
-Ref: A LaTeX example-Footnote-3844379
-Node: Translator functions844831
-Node: Dynamic Blocks847013
-Node: Special Agenda Views849257
-Ref: Special Agenda Views-Footnote-1852968
-Ref: Special Agenda Views-Footnote-2853174
-Node: Speeding Up Your Agendas853306
-Node: Extracting Agenda Information854529
-Node: Using the Property API858336
-Node: Using the Mapping API861685
-Node: History and Acknowledgments865715
-Ref: From Carsten865913
-Ref: From Bastien869341
-Ref: List of Contributions871864
-Node: GNU Free Documentation License880527
-Ref: ADDENDUM How to use this License for your documents904288
-Node: Main Index905677
-Node: Key Index1008543
-Node: Command and Function Index1065973
-Node: Variable Index1115748
+Node: HTML doctypes506395
+Node: HTML preamble and postamble508565
+Node: Bare HTML509618
+Node: Quoting HTML tags510206
+Node: Headlines in HTML export510887
+Node: Links in HTML export511690
+Node: Tables in HTML export514116
+Node: Images in HTML export515817
+Node: Math formatting in HTML export517371
+Ref: Math formatting in HTML export-Footnote-1518864
+Ref: Math formatting in HTML export-Footnote-2519056
+Node: Text areas in HTML export519339
+Node: CSS support520480
+Ref: CSS support-Footnote-1524110
+Node: JavaScript support524290
+Node: LaTeX Export527469
+Ref: LaTeX Export-Footnote-1529790
+Node: LaTeX/PDF export commands529938
+Ref: LaTeX/PDF export commands-Footnote-1531436
+Node: LaTeX specific export settings531634
+Node: LaTeX header and sectioning535701
+Node: Quoting LaTeX code540291
+Node: Tables in LaTeX export541175
+Ref: Tables in LaTeX export-Footnote-1546533
+Node: Images in LaTeX export546675
+Node: Plain lists in LaTeX export549324
+Node: Description lists in LaTeX export550347
+Node: Source blocks in LaTeX export551383
+Ref: Source blocks in LaTeX export-Footnote-1553515
+Node: Example blocks in LaTeX export553673
+Ref: Example blocks in LaTeX export-Footnote-1555206
+Node: Special blocks in LaTeX export555263
+Node: Horizontal rules in LaTeX export556522
+Node: Verse blocks in LaTeX export556958
+Node: Quote blocks in LaTeX export559681
+Node: Controlling the way the table of contents is generated560862
+Node: Markdown Export561935
+Ref: Markdown export commands562664
+Ref: Header and sectioning structure (1)563101
+Node: OpenDocument Text Export563645
+Ref: OpenDocument Text Export-Footnote-1564750
+Node: Pre-requisites for ODT export564900
+Node: ODT export commands565277
+Node: ODT specific export settings566457
+Node: Extending ODT export567502
+Ref: Automatically exporting to other formats568310
+Ref: Converting between document formats568735
+Node: Applying custom styles569275
+Ref: Applying custom styles the easy way569806
+Ref: Using third-party styles and templates570760
+Node: Links in ODT export571056
+Node: Tables in ODT export571718
+Node: Images in ODT export573724
+Ref: Embedding images573928
+Ref: Embedding clickable images574244
+Ref: Sizing and scaling of embedded images574578
+Ref: Anchoring of images576256
+Node: Math formatting in ODT export576577
+Node: LaTeX math snippets577006
+Ref: LaTeX math snippets-Footnote-1579255
+Ref: LaTeX math snippets-Footnote-2579314
+Node: MathML and OpenDocument formula files579360
+Node: Labels and captions in ODT export579868
+Node: Literal examples in ODT export581136
+Node: Advanced topics in ODT export581975
+Ref: Configuring a document converter582284
+Ref: Working with OpenDocument style files583222
+Ref: x-orgodtstyles-xml583688
+Ref: x-orgodtcontenttemplate-xml584030
+Ref: x-overriding-factory-styles584674
+Ref: Creating one-off styles585918
+Ref: Customizing tables in ODT export587919
+Ref: Validating OpenDocument XML592779
+Ref: Advanced topics in ODT export-Footnote-1593573
+Ref: Advanced topics in ODT export-Footnote-2593678
+Ref: Advanced topics in ODT export-Footnote-3593771
+Node: Org Export594119
+Ref: Org export commands594473
+Node: Texinfo Export594779
+Node: Texinfo export commands595819
+Node: Texinfo specific export settings596444
+Node: Texinfo file header598152
+Node: Texinfo title and copyright page599132
+Node: Info directory file600495
+Node: Headings and sectioning structure601209
+Node: Indices603230
+Node: Quoting Texinfo code604256
+Node: Plain lists in Texinfo export604754
+Node: Tables in Texinfo export609482
+Node: Images in Texinfo export609977
+Node: Quotations in Texinfo export610614
+Node: Key bindings in Texinfo export611566
+Node: Special blocks in Texinfo export612367
+Node: A Texinfo example613200
+Node: iCalendar Export615291
+Ref: iCalendar Export-Footnote-1620750
+Node: Other Built-in Backends620933
+Node: Advanced Export Configuration621559
+Ref: Export hooks621758
+Ref: Filters622978
+Ref: Defining filters for individual files625478
+Ref: Summary of the export process626283
+Ref: Extending an existing backend631684
+Ref: Advanced Export Configuration-Footnote-1634019
+Ref: Advanced Export Configuration-Footnote-2634375
+Ref: Advanced Export Configuration-Footnote-3634524
+Node: Export Region634610
+Node: Publishing635668
+Node: Configuration636542
+Node: Project alist637324
+Node: Sources and destinations638462
+Node: Selecting files639781
+Node: Publishing action640734
+Ref: Publishing action-Footnote-1642585
+Node: Publishing options642748
+Ref: Generic properties643500
+Ref: ASCII specific properties646188
+Ref: Beamer specific properties647788
+Ref: HTML specific properties648420
+Ref: LaTeX specific properties653739
+Ref: Markdown specific properties657476
+Ref: ODT specific properties657852
+Ref: Texinfo specific properties658924
+Node: Publishing links660352
+Node: Site map661802
+Node: Generating an index664628
+Node: Uploading Files665420
+Node: Sample Configuration667201
+Node: Simple example667699
+Node: Complex example668415
+Node: Triggering Publication670503
+Node: Citation handling671529
+Node: Citation export processors674491
+Node: Citations677937
+Ref: Citations-Footnote-1687832
+Ref: Citations-Footnote-2688109
+Node: Bibliography printing688576
+Node: Bibliography options in the biblatex and csl export processors689707
+Node: Working with Source Code691824
+Node: Features Overview694129
+Node: Structure of Code Blocks696874
+Node: Using Header Arguments699817
+Ref: System-wide header arguments700542
+Ref: Header arguments in Org mode properties702213
+Ref: Code block specific header arguments704037
+Ref: Header arguments in function calls705536
+Node: Environment of a Code Block706210
+Ref: Passing arguments706424
+Ref: Using sessions714963
+Ref: Choosing a working directory716362
+Ref: Inserting headers and footers718662
+Node: Evaluating Code Blocks719172
+Ref: How to evaluate source code719618
+Ref: Limit code block evaluation722564
+Ref: Cache results of evaluation723550
+Ref: Evaluating Code Blocks-Footnote-1726061
+Ref: Evaluating Code Blocks-Footnote-2726195
+Node: Results of Evaluation726353
+Ref: Collection727160
+Ref: Type728619
+Ref: Format732641
+Ref: Handling735280
+Ref: Post-processing736671
+Ref: Results of Evaluation-Footnote-1738421
+Node: Exporting Code Blocks738579
+Node: Extracting Source Code742601
+Ref: Header arguments743993
+Ref: Functions749963
+Ref: Tangle hooks750214
+Ref: Jumping between code and Org750990
+Node: Languages751499
+Node: Editing Source Code752500
+Node: Noweb Reference Syntax755476
+Ref: Noweb Reference Syntax-Footnote-1762203
+Ref: Noweb Reference Syntax-Footnote-2762294
+Ref: Noweb Reference Syntax-Footnote-3762907
+Node: Library of Babel763027
+Node: Key bindings and Useful Functions763741
+Node: Batch Execution766166
+Node: Miscellaneous766947
+Node: Completion768471
+Node: Structure Templates770394
+Ref: Structure Templates-Footnote-1772144
+Node: Speed Keys772236
+Node: Clean View773403
+Node: Org Indent Mode774613
+Ref: Org Indent Mode-Footnote-1775819
+Node: Hard indentation776043
+Ref: Hard indentation-Footnote-1777524
+Ref: Hard indentation-Footnote-2777630
+Node: Execute commands in the active region777774
+Node: Dynamic Headline Numbering778786
+Node: The Very Busy C-c C-c Key779952
+Node: In-buffer Settings781941
+Ref: In-buffer Settings-Footnote-1791878
+Node: Regular Expressions792076
+Node: Org Syntax792698
+Node: Documentation Access794315
+Node: Escape Character794732
+Node: Code Evaluation Security795592
+Node: Interaction798457
+Node: Cooperation798878
+Node: Conflicts801944
+Node: TTY Keys806527
+Node: Protocols808164
+Node: The store-link protocol809625
+Node: The capture protocol810784
+Node: The open-source protocol812438
+Node: Org Crypt815659
+Node: Org Mobile817532
+Node: Setting up the staging area818917
+Ref: Setting up the staging area-Footnote-1820157
+Ref: Setting up the staging area-Footnote-2820364
+Node: Pushing to the mobile application820536
+Ref: Pushing to the mobile application-Footnote-1821547
+Ref: Pushing to the mobile application-Footnote-2821638
+Ref: Pushing to the mobile application-Footnote-3822005
+Node: Pulling from the mobile application822081
+Ref: Pulling from the mobile application-Footnote-1824394
+Node: Drag and Drop & yank-media824447
+Ref: Drag and Drop & yank-media-Footnote-1826264
+Node: Repeating commands826410
+Node: Hacking828552
+Node: Hooks829575
+Node: Add-on Packages829850
+Node: Adding Hyperlink Types830306
+Node: Adding Hyperlink preview834120
+Node: Adding Export Backends836862
+Node: Tables in Arbitrary Syntax838107
+Node: Radio tables839371
+Node: A LaTeX example841501
+Ref: A LaTeX example-Footnote-1845352
+Ref: A LaTeX example-Footnote-2845395
+Ref: A LaTeX example-Footnote-3845556
+Node: Translator functions846008
+Node: Dynamic Blocks848190
+Node: Special Agenda Views850434
+Ref: Special Agenda Views-Footnote-1854145
+Ref: Special Agenda Views-Footnote-2854351
+Node: Speeding Up Your Agendas854483
+Node: Extracting Agenda Information855706
+Node: Using the Property API859513
+Node: Using the Mapping API862862
+Node: History and Acknowledgments866892
+Ref: From Carsten867090
+Ref: From Bastien870518
+Ref: List of Contributions873041
+Node: GNU Free Documentation License881704
+Ref: ADDENDUM How to use this License for your documents905465
+Node: Main Index906854
+Node: Key Index1009865
+Node: Command and Function Index1067295
+Node: Variable Index1117070
 
 End Tag Table
 
