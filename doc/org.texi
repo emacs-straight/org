@@ -376,6 +376,12 @@ HTML Export
 * Verse blocks in @LaTeX{} export:: Attributes specific to special blocks.
 * Quote blocks in @LaTeX{} export:: Attributes specific to quote blocks.
 * Controlling the way the table of contents is generated::
+* Controlling font setup for Lua@LaTeX{} and Xe@LaTeX{}::
+
+Controlling font setup for Lua@LaTeX{} and Xe@LaTeX{}
+
+* Fallback fonts with Lua@LaTeX{}::
+* Creating CJK documents with @code{xelatex}::
 
 OpenDocument Text Export
 
@@ -14982,6 +14988,7 @@ from @uref{https://mirrors.ctan.org/info/latex-doc-ptr/latex-doc-ptr.pdf}}
 * Verse blocks in @LaTeX{} export:: Attributes specific to special blocks.
 * Quote blocks in @LaTeX{} export:: Attributes specific to quote blocks.
 * Controlling the way the table of contents is generated::
+* Controlling font setup for Lua@LaTeX{} and Xe@LaTeX{}::
 @end menu
 
 @node @LaTeX{}/PDF export commands
@@ -15921,6 +15928,182 @@ contents@comma{} unless you set the @samp{UNNUMBERED} property to @samp{notoc}:
 :UNNUMBERED: notoc
 :END:
 @end example
+
+@node Controlling font setup for Lua@LaTeX{} and Xe@LaTeX{}
+@subsection Controlling font setup for Lua@LaTeX{} and Xe@LaTeX{}
+
+@cindex fontspec in @LaTeX{} export
+@vindex org-latex-fontspec-config
+
+Modern@comma{} UTF8-capable @LaTeX{} compilers Lua@LaTeX{} and Xe@LaTeX{} configure
+fonts using the @uref{https://latex3.github.io/fontspec/, @code{fontspec}}
+package.  Org provides a custom variable to fine-tune font
+configuration when the @code{fontspec} package is used.  With the default
+configuration provided by Org@comma{} this package is included when Lua@LaTeX{}
+or Xe@LaTeX{} are declared as the @LaTeX{} target compiler.
+
+@LaTeX{} document classes include a set of default fonts@comma{} usually from
+the @uref{https://www.gust.org.pl/projects/e-foundry/latin-modern, Latin
+Modern (LM) Family of Fonts}.  If you need to use other fonts@comma{} you can
+do so by mapping your font preferences to the four main font families
+defined in @LaTeX{}:
+
+@multitable {aaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+@item ``main''
+@tab Roman or Serif font (default)
+@item ``sans''
+@tab Sans Serif font
+@item ``mono''
+@tab Monospaced (terminal) font
+@item ``math''
+@tab Font for mathematical expressions
+@end multitable
+
+This mapping takes place in @code{org-latex-fontspec-config}.  Although not
+mandatory@comma{} it is recommended that you define mapping for the four
+families.  An example mapping the fonts to use another popular font family@comma{}
+@uref{https://www.gust.org.pl/projects/e-foundry/tex-gyre, the @TeX{} Gyre
+(TG) Collection of Fonts} could be @footnote{We use this family@comma{} because
+it is also included in most @LaTeX{} distributions.}:
+
+@lisp
+(setq org-latex-fontspec-config
+      '(("main" :font "TeX Gyre Termes")
+        ("sans" :font "TeX Gyre Heros")
+        ("mono" :font "TeX Gyre Cursor")
+        ("math" :font "TeX Gyre Math"))
+@end lisp
+
+As you see@comma{} each element in the list maps one of the @LaTeX{} font
+families to a property @code{:font}@comma{} that indicates the font to use for the
+specific family.  This font must be installed in your system@comma{}
+
+Additionally@comma{} you can also define ``@code{:features}''@footnote{You may also use
+@code{:props} as a synonym for @code{:features}.} for each of the fonts.
+Features are additional
+@uref{https://latex3.github.io/fontspec/user.html, font options} that
+modify their appearance.  A common example is scaling the mono-typed
+font to approximately match the size of the @code{main} font and provide a
+more uniform appearance to your document:
+
+@lisp
+(setq org-latex-fontspec-config
+      '(("main" :font "TeX Gyre Termes")
+        ("sans" :font "TeX Gyre Heros")
+        ("mono" :font "TeX Gyre Cursor" :features "Scale=MatchLowercase")
+        ("math" :font "TeX Gyre Math")))
+@end lisp
+
+@menu
+* Fallback fonts with Lua@LaTeX{}::
+* Creating CJK documents with @code{xelatex}::
+@end menu
+
+@node Fallback fonts with Lua@LaTeX{}
+@unnumberedsubsubsec Fallback fonts with Lua@LaTeX{}
+
+You will be warned by Org that your document could not be correctly
+typeset@comma{} if your selection of fonts doesn't cover all scripts used
+in the document:
+@example
+Warning (ox-latex): PDF file produced with warnings: [Missing
+character(s): please load an appropriate font with the fontspec package]
+@end example
+
+In the event this message appears@comma{} Emacs also provides you with a list
+of fonts and @strong{Emacs} script families that caused problems:
+
+@example
+Warning (emacs): Missing scripts:
+For font TeXGyreHeros: emoji
+@end example
+
+Although modern Unicode-compatible fonts can represent a wide range of
+characters (or glyphs)@comma{} it is virtually impossible to cover all possible
+glyphs in one font.  In this case@comma{} @strong{and only if you are using
+Lua@LaTeX{}}@comma{} you will be able to use other fonts you have installed in
+your system to provide the missing glyphs. Lua@LaTeX{} can replace glyphs
+that are not provided by the document's fonts on the fly@comma{} using a
+feature called @emph{fallback fonts}.
+
+An example is a document using emojis.  In this case@comma{} and provided you
+have the @samp{Noto Color Emoji} font installed in your system@footnote{Another
+font providing emojis is @samp{Apple Color Emoji}}@comma{} you can use it to add
+the missing glyph set@comma{} by using the @samp{:fallback} property for the
+reported font. @footnote{The
+@uref{https://www.gust.org.pl/projects/e-foundry/latin-modern#download, Latin
+Modern fonts}@comma{} are reported abbreviated as @samp{lm...}. They are used by
+default in well-known @LaTeX{} classes as @samp{article}@comma{} @samp{report}@comma{} etc.}
+
+@lisp
+(setq org-latex-fontspec-config
+      '(("main" :font "Latin Modern Roman")
+        ("sans" :font "Latin Modern Sans"
+         :fallback (("emoji" . "Noto Color Emoji:mode=harf")))
+        ("mono" :font "Latin Modern Mono" :props "Scale=MatchLowercase")
+        ("math" :font "Latin Modern Math")))
+@end lisp
+
+Note the following in the code above:
+@enumerate
+@item
+The fallback font is followed by additional indications
+(@samp{:mode=harf}). You need them in this case to instruct Lua@LaTeX{} to
+use a special glyph renderer (harfbuzz).  This is not always
+needed.  These and other options are described in
+@uref{https://mirrors.mit.edu/CTAN/macros/luatex/generic/luaotfload/luaotfload-latex.pdf, the
+luaotfload package manual}.
+@item
+You can add fallback fonts for more Emacs scripts by adding
+elements to the @samp{:fallback} property@comma{} which is an associative list:
+@lisp
+("main" :font "Latin Modern Roman"
+  :fallback (("emoji" . "Noto Color Emoji:mode=harf")
+             ("han"   . "Noto Serif CJK JP")
+             ("kana"  . "Noto Serif CJK JP")))
+@end lisp
+Org will adjust the fallback font list depending on the document's
+contents. You can maintain this variable in a @emph{grow-as-you-go}
+fashion@comma{} adding new elements when you need them.  You can keep them@comma{}
+because they will not be added in documents that don't need them.
+@item
+The font names reported by Org are the font names used by
+@samp{lualatex}.  The spaces may not be included in the system font
+names.
+@end enumerate
+
+@node Creating CJK documents with @code{xelatex}
+@unnumberedsubsubsec Creating CJK documents with @code{xelatex}
+
+You can also create CJK documents with @code{xelatex} and @code{fontspec}
+without resorting to fallback fonts.  You will be able to control the
+fonts in the exported PDF by adding mappings for any of the @samp{CJKmain}@comma{}
+@samp{CJKsans} or @samp{CJKmono} fonts to the configuration.  For example@comma{} using
+the following settings in your Org document header:
+
+@example
+#+LANGUAGE: zh
+#+LATEX_COMPILER: xelatex
+#+LATEX_HEADER: \usepackage[AUTO]@{babel@}
+#+LATEX_HEADER: \urlstyle@{same@}
+@end example
+
+@noindent
+and adding the following to your file-local variables in the Org file:
+
+@example
+# org-latex-fontspec-config: (("main" :font "Noto Sans")
+#   ("CJKmain" :font "Noto Serif CJK SC")
+#   ("CJKsans" :font "Noto Sans CJK SC")
+#   ("CJKmono" :font "Noto Sans Mono CJK SC"))
+@end example
+
+@noindent
+you should be able to use @samp{xelatex} to generate a Chinese document
+with the Simplified Chinese fonts supplied by the @samp{Noto} font
+family@footnote{Select fonts that match your language! For example@comma{} the
+fonts in the @samp{Noto} family for Japanese are the @samp{...CJK JP}
+specimens.}.
 
 @node Markdown Export
 @section Markdown Export
@@ -18734,6 +18917,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @tab @code{org-latex-descriptive-environment}
 @item @code{:latex-use-sans}
 @tab @code{org-latex-use-sans}
+@item @code{:latex-fontspec-config}
+@tab @code{org-latex-fontspec-config}
 @end multitable
 
 @anchor{Markdown specific properties}
