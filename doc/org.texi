@@ -5256,11 +5256,12 @@ meaning of the statistics cookie becomes ambiguous.  Set the property
 @samp{COOKIE_DATA} to either @samp{checkbox} or @samp{todo} to resolve this issue.
 
 @vindex org-hierarchical-todo-statistics
+@vindex org-todo-children-only-statistics
 If you would like to have the statistics cookie count any TODO entries
-in the subtree (not just direct children)@comma{} configure the variable
-@code{org-hierarchical-todo-statistics}.  To do this for a single subtree@comma{}
-include the word @samp{recursive} into the value of the @samp{COOKIE_DATA}
-property.
+in the subtree (not just direct children)@comma{} set
+@code{org-todo-children-only-statistics} to nil.  To do this for a single
+subtree@comma{} include the word @samp{recursive} into the value of the
+@samp{COOKIE_DATA} property.
 
 @example
 * Parent capturing statistics [2/20]
@@ -5315,6 +5316,7 @@ Here is an example of a checkbox list.
 @cindex checkbox statistics
 @cindex @samp{COOKIE_DATA}, property
 @vindex org-checkbox-hierarchical-statistics
+@vindex org-checkbox-children-only-statistics
 The @samp{[2/4]} and @samp{[1/3]} in the first and second line are cookies
 indicating how many of the checkboxes present in this entry have been checked
 off@comma{} and the total number of checkboxes present.  This can give you an
@@ -5322,10 +5324,10 @@ idea of how many checkboxes remain@comma{} even without opening a folded
 entry.  The cookies can be placed into a headline or into (the first
 line of) a plain list item.  Each cookie covers checkboxes of direct
 children structurally below the headline/item on which the cookie
-appears@footnote{ Set the variable @code{org-checkbox-hierarchical-statistics}
-if you want such cookies to count all checkboxes below the cookie@comma{} not
-just those belonging to direct children.}.  You have to insert the
-cookie yourself by typing either @samp{[/]} or @samp{[%]}.  With @samp{[/]} you get
+appears@footnote{ Set the variable @code{org-checkbox-children-only-statistics}
+to nil if you want such cookies to count all checkboxes below the
+cookie@comma{} not just those belonging to direct children.}.  You have to
+insert the cookie yourself by typing either @samp{[/]} or @samp{[%]}.  With @samp{[/]} you get
 an @samp{n out of m} result@comma{} as in the examples above.  With @samp{[%]} you get
 information about the percentage of checkboxes checked (in the above
 example@comma{} this would be @samp{[50%]} and @samp{[33%]}@comma{} respectively).  In a
