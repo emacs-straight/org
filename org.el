@@ -5231,13 +5231,22 @@ The following commands are available:
   ;; source blocks).
   (setq-local parse-sexp-lookup-properties t)
   ;; Beginning/end of defun
-  (setq-local beginning-of-defun-function 'org-backward-element)
+  (setq-local beginning-of-defun-function
+              (lambda ()
+                (condition-case _
+                    (org-backward-element)
+                  ;; Already at the beginning.
+                  (user-error t))))
   (setq-local end-of-defun-function
 	      (lambda ()
-		(if (not (org-at-heading-p))
-		    (org-forward-element)
-		  (org-forward-element)
-		  (forward-char -1))))
+                (condition-case _
+		    (if (not (org-at-heading-p))
+		        (org-forward-element)
+		      (org-forward-element)
+		      (forward-char -1))
+                  ;; At the last element. Move to eob.
+                  (user-error
+                   (goto-char (point-max))))))
   ;; Next error for sparse trees
   (setq-local next-error-function 'org-occur-next-match)
   ;; Make commit log messages from Org documents easier.
@@ -6855,19 +6864,28 @@ This is a list with the following elements:
   "Edit the current headline.
 Set it to HEADING when provided."
   (interactive nil org-mode)
-  (org-with-wide-buffer
-   (org-back-to-heading t)
-   (let ((case-fold-search nil))
-     (when (looking-at org-complex-heading-regexp)
-       (let* ((old (match-string-no-properties 4))
-	      (new (save-match-data
-		     (org-trim (or heading (read-string "Edit: " old))))))
-	 (unless (equal old new)
-	   (if old (replace-match new t t nil 4)
-	     (goto-char (or (match-end 3) (match-end 2) (match-end 1)))
-	     (insert " " new))
-	   (when org-auto-align-tags (org-align-tags))
-	   (when (looking-at "[ \t]*$") (replace-match ""))))))))
+  (let ((beg (point-min))
+	(end (point-max)))
+    (org-with-wide-buffer
+     (org-back-to-heading t)
+     (let ((case-fold-search nil))
+       (when (looking-at org-complex-heading-regexp)
+	 (let* ((old (match-string-no-properties 4))
+		(new
+		 (save-match-data
+		   (org-trim
+		    (or heading
+			(save-restriction
+			  (when (and (<= beg (point))
+				     (<= (line-end-position) end))
+			    (narrow-to-region beg end))
+			  (read-string "Edit: " old)))))))
+	   (unless (equal old new)
+	     (if old (replace-match new t t nil 4)
+	       (goto-char (or (match-end 3) (match-end 2) (match-end 1)))
+	       (insert " " new))
+	     (when org-auto-align-tags (org-align-tags))
+	     (when (looking-at "[ \t]*$") (replace-match "")))))))))
 
 (defun org-insert-heading-after-current ()
   "Insert a new heading with same level as current, after current subtree."

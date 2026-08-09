@@ -17901,12 +17901,15 @@ for usage and configuration details.
 
 @vindex org-export-before-processing-hook
 @vindex org-export-before-processing-functions
+@vindex org-export-after-includes-functions
 @vindex org-export-before-parsing-hook
 @vindex org-export-before-parsing-functions
-The export process executes two hooks before the actual exporting
+The export process executes three hooks before the actual exporting
 begins.  The first hook@comma{} @code{org-export-before-processing-functions}@comma{}
 runs before any expansions of macros@comma{} Babel code@comma{} and include keywords
 in the buffer.  The second hook@comma{}
+@code{org-export-after-includes-functions}@comma{} runs after the include keywords
+but before the macros and Babel code.  The last hook@comma{}
 @code{org-export-before-parsing-functions}@comma{} runs before the buffer is
 parsed.
 
@@ -18085,6 +18088,9 @@ Expand @samp{#+include} keywords in the whole buffer (see
 
 @item
 Remove commented subtrees in the whole buffer (see @ref{Comment Lines});
+
+@item
+Execute @code{org-export-after-includes-functions} (see @ref{Export hooks});
 
 @item
 Replace macros in the whole buffer (see @ref{Macro Replacement})@comma{}
