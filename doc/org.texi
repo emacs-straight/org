@@ -14408,11 +14408,18 @@ to return a string upon execution.  The HTML exporter inserts this
 string in the preamble.  The HTML exporter does not insert a preamble
 if @code{org-html-preamble} is set @code{nil}.
 
+In an Org mode buffer@comma{} you can set the preamble value with the option
+@code{html-preamble}.  Use it preferably to set values like @code{t}@comma{} @code{nil}@comma{} or
+a function.  To set your preamble as a string@comma{} use the keyword
+@code{#+HTML_PREAMBLE}.  You can use it multiple times to set a multi-line
+string.
+
 The above also applies to @code{org-html-postamble} and
-@code{org-html-postamble-format}.  In addition@comma{} @code{org-html-postamble} can be
-set to @code{auto} (its default value)@comma{} which makes the HTML exporter build
-a postamble from looking up author's name@comma{} email address@comma{} creator's
-name@comma{} and date.
+@code{org-html-postamble-format}.  In addition@comma{} @code{org-html-postamble} can be set
+to @code{auto} (its default value)@comma{} which makes the HTML exporter build a
+postamble from looking up author's name@comma{} email address@comma{} creator's
+name@comma{} and date.  And@comma{} as for preamble@comma{} postamble value can be set in
+buffer with @code{html-postamble} option or with @code{#+HTML_POSTAMBLE} keyword.
 
 @node Bare HTML
 @subsection Exporting to minimal HTML
@@ -14534,6 +14541,12 @@ When @code{:base-directory} and @code{org-html-base-directory} are both set@comm
 key of @code{org-publish-project-alist}. For more about linking files when
 publishing to a directory@comma{} see @ref{Publishing links}.
 
+Alternatively@comma{} you can disable the automatic path translation in
+buffer level by using the option @code{html-link-org-files-as-html}:
+@example
+#+OPTIONS: html-link-org-files-as-html:nil
+@end example
+
 Org files can also have special directives to the HTML export
 backend.  For example@comma{} by using @samp{#+ATTR_HTML} lines to specify new
 format attributes to @code{<a>} or @code{<img>} tags.  This example shows
@@ -14577,11 +14590,18 @@ Additional options for customizing tables for HTML export.
 @item @code{org-html-table-align-individual-fields}
 @vindex org-html-table-align-individual-fields
 Non-@code{nil} attaches style attributes for alignment to each table
-field.
+field.  Can also be set as:
+@example
+#+OPTIONS: html-table-align-individual-fields:t
+@end example
 
 @item @code{org-html-table-caption-above}
 @vindex org-html-table-caption-above
-Non-@code{nil} places caption string at the beginning of the table.
+Non-@code{nil} places caption string at the beginning of the table.  Can
+also be set with buffer option @code{html-table-caption-above}.
+@example
+#+OPTIONS: html-table-caption-above:t
+@end example
 
 @item @code{org-html-table-data-tags}
 @vindex org-html-table-data-tags
@@ -14601,7 +14621,12 @@ Opening and ending tags for table rows.
 
 @item @code{org-html-table-use-header-tags-for-first-column}
 @vindex org-html-table-use-header-tags-for-first-column
-Non-@code{nil} formats column one in tables with header tags.
+Non-@code{nil} formats column one in tables with header tags.  Can also be
+set with buffer option
+@code{html-table-use-header-tags-for-first-column}.
+@example
+#+OPTIONS: html-table-use-header-tags-for-first-column:t
+@end example
 @end table
 
 @node Images in HTML export
@@ -14616,9 +14641,13 @@ HTML inline images and HTML clickable image links.
 @vindex org-html-inline-images
 When the link in the Org file has no description@comma{} the HTML export
 backend by default in-lines that image.  For example:
-@samp{[[file:myimg.jpg]]} is in-lined@comma{} while @samp{[[file:myimg.jpg][the image]]} links to the text@comma{}
-@samp{the image}.  For more details@comma{} see the variable
-@code{org-html-inline-images}.
+@samp{[[file:myimg.jpg]]} is in-lined@comma{} while @samp{[[file:myimg.jpg][the image]]}
+links to the text@comma{} @samp{the image}.  You can set the variable
+@code{org-html-inline-images} to @code{nil} to have no in-lined images and only
+links.  You can also use the buffer option @code{html-inline-images}.
+@example
+#+OPTIONS: html-inline-images:nil
+@end example
 
 @vindex org-html-inline-image-rules
 On the other hand@comma{} if the description part of the Org link is itself
@@ -14686,7 +14715,9 @@ To use a local copy of MathJax@comma{} use @samp{path} option:
 @vindex org-html-mathjax-template
 See the docstring of @code{org-html-mathjax-options} for all supported
 variables.  The MathJax template can be configured via
-@code{org-html-mathjax-template}.
+@code{org-html-mathjax-template} or via the buffer keyword
+@code{#+HTML_MATHJAX_TEMPLATE}.  This keyword can be set multiple times in
+the buffer@comma{} to set a multi-line template.
 
 If you prefer@comma{} you can also request that @LaTeX{} fragments are processed
 into small images that will be inserted into the browser page.  Before
@@ -14748,11 +14779,12 @@ line.
 @vindex org-export-html-tag-class-prefix
 You can modify the CSS style definitions for the exported file.  The
 HTML exporter assigns the following special CSS classes@footnote{ If the
-classes on TODO keywords and tags lead to conflicts@comma{} use the variables
-@code{org-html-todo-kwd-class-prefix} and @code{org-html-tag-class-prefix} to
-make them unique.} to appropriate parts of the document---your style
-specifications may change these@comma{} in addition to any of the standard
-classes like for headlines@comma{} tables@comma{} etc.
+classes on TODO keywords and tags lead to conflicts:  Use the variables
+@code{org-html-todo-kwd-class-prefix} and @code{org-html-tag-class-prefix}@comma{} or the
+buffer options @code{html-todo-kwd-class-prefix} and @code{html-tag-class-prefix}@comma{}
+to make them unique.} to appropriate parts of the document---your
+style specifications may change these@comma{} in addition to any of the
+standard classes like for headlines@comma{} tables@comma{} etc.
 
 @multitable {aaaaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @code{p.author}
