@@ -485,6 +485,7 @@ Miscellaneous
 * Org Syntax::                   Formal description of Org's syntax.
 * Documentation Access::         Read documentation about current syntax.
 * Escape Character::             Prevent Org from interpreting your writing.
+* Dealing with Hidden Text::     Using ~org-inside~ to help with editing text with hidden contents.
 * Code Evaluation Security::     Org files evaluate in-line code.
 * Interaction::                  With other Emacs packages.
 * TTY Keys::                     Using Org on a tty.
@@ -11982,6 +11983,8 @@ stops emphasis there./
 You can use zero width space to help Org sorting out the ambiguity.
 See @ref{Escape Character} for more details.
 
+For help editing text with hidden emphasis marks@comma{} see @ref{Dealing with Hidden Text}.
+
 @node Subscripts and Superscripts
 @section Subscripts and Superscripts
 
@@ -12030,6 +12033,9 @@ Set both @code{org-pretty-entities} and
 @code{org-pretty-entities-include-sub-superscripts} to @code{t} to start with
 super- and subscripts @emph{visually} interpreted as specified by the
 option @code{org-use-sub-superscripts}.
+
+For help editing text with hidden sub- and superscript markers@comma{} see
+@ref{Dealing with Hidden Text}.
 
 @node Special Symbols
 @section Special Symbols
@@ -22359,6 +22365,7 @@ emacs -Q --batch --eval "
 * Org Syntax::                   Formal description of Org's syntax.
 * Documentation Access::         Read documentation about current syntax.
 * Escape Character::             Prevent Org from interpreting your writing.
+* Dealing with Hidden Text::     Using ~org-inside~ to help with editing text with hidden contents.
 * Code Evaluation Security::     Org files evaluate in-line code.
 * Interaction::                  With other Emacs packages.
 * TTY Keys::                     Using Org on a tty.
@@ -22769,6 +22776,10 @@ updated.
 
 @item
 If point is at a timestamp@comma{} fix the day name in the timestamp.
+
+@item
+If @code{org-inside} is enabled (see @ref{Dealing with Hidden Text}) and
+point is inside text with hidden contents@comma{} toggle hiding.
 @end itemize
 
 @node In-buffer Settings
@@ -22945,11 +22956,12 @@ avoid delays when visiting a file.
 
 @vindex org-link-descriptive
 Bracket links in Org buffers are displayed hiding the link path and
-brackets.  For example@comma{} @samp{[[https://orgmode.org][Org Website]]} is@comma{}
-by default@comma{} displayed as ``Org Website''@comma{} hiding the link itself and
-just displaying its description.  Alternatively@comma{} the links can be
+brackets.  For example@comma{} @samp{[[https://orgmode.org][Org Website]]} is@comma{} by
+default@comma{} displayed as ``Org Website''@comma{} hiding the link itself and just
+displaying its description.  Alternatively@comma{} the links can be
 displayed in full.  The corresponding variable is
-@code{org-link-descriptive}.
+@code{org-link-descriptive}.  For help editing text with hidden links and
+brackets@comma{} see @ref{Dealing with Hidden Text}.
 
 @multitable {aaaaaaaaaaaaaaaaaa} {aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
 @item @samp{descriptivelinks}
@@ -23231,6 +23243,41 @@ may write instead
 @end example
 
 where @samp{X} denotes the zero width space character.
+
+@node Dealing with Hidden Text
+@section Dealing with Hidden Text
+
+@kindex C-c C-c
+@cindex org-inside, revealing hidden components, hidden text components
+
+In Org@comma{} entity types including @ref{Emphasis and Monospace, , emphasized
+text}@comma{} @ref{Link Format, , links}@comma{} and @ref{Subscripts and Superscripts, , super & subscript} can contain hidden components
+(markers@comma{} brackets@comma{} link URL@comma{} etc.).  When the cursor is adjacent to
+such hidden text@comma{} the position can be ambiguous: at the same apparent
+cursor position@comma{} point can be either @emph{inside} or @emph{outside} the hidden
+region.  This can make it difficult to know where edits will go.
+
+To alleviate this problem@comma{} activate the mode @code{org-inside}.  When this
+minor mode is active in an Org buffer@comma{} the appearance is changed when
+point is ``inside'' such an entity@comma{} to make it clear where you are.
+Appearance changes can include entity face (e.g. a subtle background
+color)@comma{} cursor type (e.g. bar instead of box)@comma{} and even (automatic)
+un-hiding of the hidden contents.
+
+@vindex org-inside-appearance
+The appearance changes to apply when inside entities with hidden
+contents can be configured using the custom variable
+@code{org-inside-appearance}.
+
+@vindex org-inside-unhide-delay
+The visibility of hidden text can be toggled using the @kbd{C-c C-c} key (see [BROKEN LINK: *The Very Busy @{@{@{kbd(C-c C-c)@}@}@} Key]) when
+inside an entity with hidden contents.  Hidden text can also be made
+visible automatically upon entry@comma{} with an optional delay (see
+@code{org-inside-unhide-delay}).  Text is always re-hidden on exit.
+@code{org-inside} supports nested entities@comma{} applying the @emph{face} appearance
+changes (if configured) only to the @emph{innermost} element.
+
+Note that certain @code{org-inside} features require Emacs v31 or later.
 
 @node Code Evaluation Security
 @section Code Evaluation and Security Issues

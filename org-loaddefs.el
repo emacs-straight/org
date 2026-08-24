@@ -2088,6 +2088,42 @@ disabled.
 (register-definition-prefixes "org-inlinetask" '("org-inlinetask-"))
 
 
+;;; Generated autoloads from org-inside.el
+
+(autoload 'org-inside-mode "org-inside" "\
+Change appearance when point is inside an entity wrapped by hidden text.
+
+The cursor type and/or text face can be altered when point is inside the
+hidden region.  \"Inside\" means any characters entered at that point
+will appear with the visible text.  For example, entering a character
+when \"inside\" underlined text would make the new character underlined
+as well.  I.e., for position `[x]':
+
+  [x]_underline_   ; outside
+  _[x]underline_   ; inside
+
+Hidden text can be unhidden, either automatically, or by using the
+command `org-inside-toggle-hidden'.  See `org-inside-appearance' to
+configure what appearance changes occur.
+
+This is a minor mode.  If called interactively, toggle the `Org-Inside
+mode' mode.  If the prefix argument is positive, enable the mode, and if
+it is zero or negative, disable the mode.
+
+If called from Lisp, toggle the mode if ARG is `toggle'.  Enable the
+mode if ARG is nil, omitted, or is a positive number.  Disable the mode
+if ARG is a negative number.
+
+To check whether the minor mode is enabled in the current buffer,
+evaluate the variable `org-inside-mode'.
+
+The mode's hook is called both when the mode is enabled and when it is
+disabled.
+
+(fn &optional ARG)" t)
+(register-definition-prefixes "org-inside" '("org-inside-"))
+
+
 ;;; Generated autoloads from org-keys.el
 
 (autoload 'org-babel-describe-bindings "org-keys" "\
