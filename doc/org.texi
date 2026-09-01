@@ -794,6 +794,20 @@ Communications Guidelines} when sending messages on this mailing
 list.  Please allow up to one month for a response and follow up if
 no response is received to the bug report.
 
+@findex org-submit-feature-request
+For feature requests and suggestions@comma{} you can either directly send
+a message to the mailing list@comma{} or use
+@example
+M-x org-submit-feature-request <RET>
+@end example
+
+@findex org-submit-patch
+The patch submissions can also be prepared from inside Emacs@comma{} using
+@example
+M-x org-submit-patch
+@end example
+You can find more contribution instructions on @uref{https://orgmode.org/worg/org-contribute.html, our wiki}.
+
 @findex org-version
 @findex org-submit-bug-report
 For bug reports@comma{} please first try to reproduce the bug with the latest
@@ -8763,6 +8777,9 @@ Text will be placed at the beginning or end of that file.
 @item @samp{(id "id of existing org entry")}
 Filing as child of this entry@comma{} or in the body of the entry.
 
+@item @samp{(file+headline <file-spec>)}
+
+
 @item @samp{(file+headline <file-spec> "node headline")}
 
 
@@ -8771,6 +8788,9 @@ Filing as child of this entry@comma{} or in the body of the entry.
 
 @item @samp{(file+headline <file-spec> symbol-containing-string)}
 Fast configuration if the target heading is unique in the file.
+
+@item @samp{(file+olp <file-spec>)}
+
 
 @item @samp{(file+olp <file-spec> "Level 1 heading" "Level 2" ...)}
 
@@ -8783,6 +8803,9 @@ For non-unique headings@comma{} the full path is safer.
 
 @item @samp{(file+regexp <file-spec> "regexp to find location")}
 Use a regular expression to position point.
+
+@item @samp{(file+olp+datetree <file-spec>)}
+
 
 @item @samp{(file+olp+datetree <file-spec> [ "Level 1 heading" ...])}
 
@@ -12497,12 +12520,15 @@ in the current entry.  With a double prefix argument@comma{} preview all
 links in the buffer.  With triple prefix argument@comma{} hide previews for
 all links in the buffer.
 
+@vindex org-link-preview-include-descriptive
 By default@comma{} only links without descriptions are previewed.  You
 can force displaying previews for all supported links (including
 links with descriptions) using a numeric argument of @code{1}.  This
 will toggle all previews in the active region@comma{} the link at point
 or the current section.  A numeric prefix argument of @code{11} will
-toggle previews in the whole buffer instead.
+toggle previews in the whole buffer instead.  You can also enable
+previewing links with description globally by customizing
+@code{org-link-preview-include-descriptive}.
 
 @vindex org-startup-with-link-previews
 Org mode can display link previews automatically when opening

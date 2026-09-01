@@ -188,6 +188,24 @@ and some environments listed in the manual are not supported.
 # Changes dealing with changing default values of customizations,
 # adding new customizations, or changing the interpretation of the
 # existing customizations.
+
+*** The ~file+headline~ capture target specification now accepts omitted or nil headline
+
+~file+headline~ is a target specification in ~org-capture-templates~.
+Previously, ~file+headline~ required a headline.  Now, the headline
+may be omitted or set to ~nil~, in which case the entry is inserted at
+the top level of the target file, respecting ~:prepend~.
+
+
+*** The ~file+olp~ and ~file+olp+datetree~ capture target specifications now accept an omitted or nil outline path
+
+The ~file+olp~ and ~file+olp+datetree~ are ~org-capture-templates~
+target specifications.  Previously, the ~file+olp~ and
+~file+olp+datetree~ required an outline path.  Now, the specified
+outline path may be omitted or set to ~nil~, in which case the entry
+is inserted at the top level of the target file, respecting
+~:prepend~.
+
 *** New hook ~org-hidden-text-functions~
 
 Abnormal hook called when certain text is hidden during fontification
@@ -406,10 +424,21 @@ The option can be customized either by
 1. setting the global variable ~org-html-base-directory~
 2. setting the file local keyword =HTML_BASE_DIRECTORY=
 
+*** New custom variable ~org-link-preview-include-descriptive~
+
+This option, ~nil~ by default, allow you to control whether links with
+description are always previewed by ~org-link-preview~. When set to
+non-nil, previewing links with description will not require =[C-u 1]=
+toggle.
 
 ** New functions and changes in function arguments
 
 # This also includes changes in function behavior from Elisp perspective.
+
+*** New commands: ~org-submit-feature-request~ and ~org-submit-patch~
+
+These are small helper commands that assist submitting patches and
+feature requests, just as ~org-submit-bug-report~ does.
 
 *** New function ~org-format-percent-cookie~
 

@@ -123,14 +123,34 @@ sure that we are at the beginning of the line.")
   "Matches a headline, putting stars and text into groups.
 Stars are put in group 1 and the trimmed body in group 2.")
 
+(defconst org-priority-prefix "[#"
+  "Marker preceding value in the priority indicator e.g [# in [#A].")
+
+(defconst org-priority-suffix "]"
+  "Marker following value in the priority indicator e.g ] in [#A].")
+
 (defvar org-priority-value-regexp "[A-Z]\\|[0-9]\\|[1-5][0-9]\\|6[0-4]"
   "Regular expression matching valid priority values.
 The priority value must be a capital Latin
 alphabetic character, A through Z, or can be an integer value in the range 0
 through 64.")
 
+(defun org-make-priority-regexp (&optional inner-only)
+  "Generate a correct `org-priority-regexp' using `org-priority'
+variables. Useful after setting custom priority markers or value
+regexp.
+
+If INNER-ONLY is non-nil, return only the inner regular expression,
+e.g to store in `org-mouse-priority-regexp' instead."
+  (let ((inner (concat (regexp-quote org-priority-prefix)
+                       "\\(" org-priority-value-regexp "\\)"
+                       (regexp-quote org-priority-suffix))))
+    (if inner-only
+      inner
+      (concat ".*?\\(" inner " ?\\)"))))
+
 (defvar org-priority-regexp
-  (format ".*?\\(\\[#\\(%s\\)\\] ?\\)" org-priority-value-regexp)
+  (org-make-priority-regexp)
   "Regular expression matching the priority indicator.
 A priority indicator can be e.g. [#A] or [#1].
 The value of the priority cookie must be a capital Latin
@@ -4662,13 +4682,19 @@ related expressions."
 	      org-complex-heading-regexp
 	      (concat "^\\(\\*+\\)"
 		      "\\(?: +" org-todo-regexp "\\)?"
-		      (format "\\(?: +\\(\\[#\\(?:%s\\)\\]\\)\\)?" org-priority-value-regexp)
+		      (format "\\(?: +\\(%s\\(?:%s\\)%s\\)\\)?"
+                              (regexp-quote org-priority-prefix)
+                              org-priority-value-regexp
+                              (regexp-quote org-priority-suffix))
 		      "\\(?: +\\(.*?\\)\\)??"
                       org-tag--group-optional-re)
 	      org-complex-heading-regexp-format
 	      (concat "^\\(\\*+\\)"
 		      "\\(?: +" org-todo-regexp "\\)?"
-		      (format "\\(?: +\\(\\[#\\(?:%s\\)\\]\\)\\)?" org-priority-value-regexp)
+		      (format "\\(?: +\\(%s\\(?:%s\\)%s\\)\\)?"
+                              (regexp-quote org-priority-prefix)
+                              org-priority-value-regexp
+                              (regexp-quote org-priority-suffix))
 		      "\\(?: +"
                       ;; Headline might be commented
                       "\\(?:" org-comment-string " +\\)?"
@@ -6252,9 +6278,11 @@ needs to be inserted at a specific position in the font-lock sequence.")
           ;; Apply this last, after all the markup is highlighted, so
           ;; that even "bright" markup will become dim.
 	  (list (format
-		 "^\\*+\\(?: +%s\\)?\\(?: +\\[#\\(?:%s\\)\\]\\)? +\\(?9:%s\\)\\(?: \\|$\\)"
+		 "^\\*+\\(?: +%s\\)?\\(?: +%s\\(?:%s\\)%s\\)? +\\(?9:%s\\)\\(?: \\|$\\)"
 		 org-todo-regexp
+                 (regexp-quote org-priority-prefix)
                  org-priority-value-regexp
+                 (regexp-quote org-priority-suffix)
 		 org-comment-string)
 		'(9 'org-special-keyword prepend))
           '(org-activate-folds))))
@@ -10919,10 +10947,11 @@ WHAT entry will also be removed."
         (save-excursion
 	  (org-back-to-heading t)
 	  (let ((end (save-excursion (outline-next-heading) (point))) ts)
-	    (when (re-search-forward (if (eq what 'scheduled)
-				         org-scheduled-time-regexp
-				       org-deadline-time-regexp)
-				     end t)
+	    (when (and (re-search-forward (if (eq what 'scheduled)
+				              org-scheduled-time-regexp
+				            org-deadline-time-regexp)
+				          end t)
+                       (org-element-type-p (org-element-at-point) 'planning))
 	      (setq ts (match-string 1)
 		    default-time (org-time-string-to-time ts)
 		    default-input (and ts (org-get-compact-tod ts)))))))
@@ -11651,9 +11680,9 @@ interactive prompt, it will automatically be converted to uppercase."
 	    (if (match-end 2)
 		(progn
 		  (goto-char (match-end 2))
-		  (insert " [#" new-value-string "]"))
+		  (insert " " org-priority-prefix new-value-string org-priority-suffix))
 	      (goto-char (match-beginning 3))
-	      (insert "[#" new-value-string "] "))))
+	      (insert org-priority-prefix new-value-string org-priority-suffix " "))))
 	(when org-auto-align-tags (org-align-tags)))
       (if remove
 	  (message "Priority removed")
@@ -14134,7 +14163,6 @@ completion."
 	(while (>= n org-priority-highest)
 	  (push (org-priority-to-string n) vals)
 	  (setq n (1- n)))))
-     ((equal property "CATEGORY"))
      ((member property org-special-properties))
      ((setq vals (run-hook-with-args-until-success
 		  'org-property-allowed-value-functions property)))
@@ -19206,6 +19234,57 @@ Your bug report will be posted to the Org mailing list.
       (when (re-search-backward "^\\(Subject: \\)Org mode version \\(.*?\\);[ \t]*\\(.*\\)" nil t)
 	(replace-match "\\1[BUG] \\3 [\\2]")))))
 
+;;;###autoload
+(defun org-submit-feature-request ()
+  "Submit a feature request to Org mode.
+
+If you don't have setup sending mail from (X)Emacs, please copy the
+output buffer into your mail program, as it gives us important
+information about your Org version and configuration."
+  (interactive)
+  (require 'reporter)
+  (defvar reporter-prompt-for-summary-p)
+  (let ((reporter-prompt-for-summary-p "Feature request subject: "))
+    (reporter-submit-bug-report
+     "emacs-orgmode@gnu.org"
+     nil nil)
+    (save-excursion
+      (when (re-search-backward "^\\(Subject: \\)[ \t]*\\(.*\\)" nil t)
+	(replace-match "\\1[FR] \\2")))))
+
+;;;###autoload
+(defun org-submit-patch ()
+  "Submit a patch for Org via mail.
+
+Don't hesitate to submit unfinished patches and do not try too hard
+to follow every possible rule listed in
+https://orgmode.org/worg/org-contribute.html.  Just send what you have
+and we will help you along the way.
+
+If you don't have setup sending mail from (X)Emacs, please copy the
+output buffer into your mail program, as it gives us important
+information about your Org version and configuration."
+  (interactive)
+  (require 'reporter)
+  (defvar reporter-prompt-for-summary-p)
+  (let ((reporter-prompt-for-summary-p "Patch subject: "))
+    (reporter-submit-bug-report
+     "emacs-orgmode@gnu.org"
+     nil nil nil nil
+     "Please put your patch as email attachment and briefly describe its overall purpose.
+You may take a look at
+
+https://orgmode.org/worg/org-contribute.html
+
+but you do not need to stress too much over following all the rules.
+We will guide you along.
+
+Your patch will be posted to the Org mailing list.
+------------------------------------------------------------------------")
+    (save-excursion
+      (when (re-search-backward "^\\(Subject: \\)[ \t]*\\(.*\\)" nil t)
+	(replace-match "\\1[PATCH] \\2")))))
+
 (defun org-install-agenda-files-menu ()
   "Install agenda file menu."
   (let ((bl (buffer-list)))
@@ -19429,7 +19508,7 @@ and :keyword."
 	(push (org-point-in-group p 4 :tags) clist))
       (goto-char p)
       (skip-chars-backward "^[\n\r \t") (or (bobp) (backward-char 1))
-      (when (looking-at "\\[#[A-Z0-9]\\]")
+      (when (looking-at (org-make-priority-regexp t))
 	(push (org-point-in-group p 0 :priority) clist)))
 
      ((org-at-item-p)

@@ -856,6 +856,23 @@ Don't hesitate to report any problems or inaccurate documentation.
 If you don't have setup sending mail from (X)Emacs, please copy the
 output buffer into your mail program, as it gives us important
 information about your Org version and configuration." t)
+(autoload 'org-submit-feature-request "org" "\
+Submit a feature request to Org mode.
+
+If you don't have setup sending mail from (X)Emacs, please copy the
+output buffer into your mail program, as it gives us important
+information about your Org version and configuration." t)
+(autoload 'org-submit-patch "org" "\
+Submit a patch for Org via mail.
+
+Don't hesitate to submit unfinished patches and do not try too hard
+to follow every possible rule listed in
+https://orgmode.org/worg/org-contribute.html.  Just send what you have
+and we will help you along the way.
+
+If you don't have setup sending mail from (X)Emacs, please copy the
+output buffer into your mail program, as it gives us important
+information about your Org version and configuration." t)
 (autoload 'org-reload "org" "\
 Reload all Org Lisp files.
 With prefix arg UNCOMPILED, load the uncompiled versions.
