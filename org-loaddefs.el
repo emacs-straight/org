@@ -3624,6 +3624,12 @@ file-local settings.
 Return PDF file's name.
 
 (fn &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST)" '(org-mode))
+(autoload 'org-beamer-export-to-pdf-and-open "ox-beamer" "\
+Export current buffer as a Beamer presentation (PDF) and open it.
+
+Cf. `org-beamer-export-to-pdf' for argument list.
+
+(fn &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST)")
 (autoload 'org-beamer-select-environment "ox-beamer" "\
 Select the environment to be used by beamer for this entry.
 While this uses (for convenience) a tag selection interface, the
@@ -4020,6 +4026,12 @@ publishing directory.
 Return output file name.
 
 (fn PLIST FILENAME PUB-DIR)")
+(autoload 'org-latex-export-to-pdf-and-open "ox-latex" "\
+Export current buffer to LaTeX, process, and open the resulting PDF.
+
+Cf. `org-latex-export-to-pdf' for arguments
+
+(fn &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXP-PLIST)")
 (register-definition-prefixes "ox-latex" '("org-"))
 
 

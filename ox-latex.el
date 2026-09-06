@@ -109,10 +109,7 @@
        ((?L "As LaTeX buffer" org-latex-export-as-latex)
 	(?l "As LaTeX file" org-latex-export-to-latex)
 	(?p "As PDF file" org-latex-export-to-pdf)
-	(?o "As PDF file and open"
-	    #'(lambda (a s v b)
-	        (if a (org-latex-export-to-pdf t s v b)
-		  (org-open-file (org-latex-export-to-pdf nil s v b)))))))
+	(?o "As PDF file and open" org-latex-export-to-pdf-and-open)))
   :filters-alist '((:filter-options . org-latex-math-block-options-filter)
                    (:filter-body . org-latex-get-font-list)
 		   (:filter-paragraph . org-latex-clean-invalid-line-breaks)
@@ -1635,16 +1632,14 @@ Refer to \"Controlling font setup for LuaLaTeX and XeLaTeX\" in the
   :group 'org-export-latex
   :package-version '(Org . "10.0")
   :type '(alist
-          :key-type (choice (const "main") (const "sans")
-                            (const "mono") (const "math")
-                            (string :tag "CJKmain/CJKsans/CJKmono/etc"))
+          :key-type string :tag "LaTeX font family"
           :value-type (plist :options
-                             ((:font (string :tag "Font name"))
+                             ((:font (string :tag "System font"))
                               (:features (choice string (repeat string)))
                               (:fallback
                                (alist
-                                :key-type (string :tag "Emacs script name")
-                                :value-type (string "Font name"))))))
+                                :key-type (string :tag "Emacs script")
+                                :value-type (string "System font"))))))
   :safe #'listp)
 
 
@@ -1912,7 +1907,7 @@ Return the new header."
         (setq result (or result (string-prefix-p "CJK" (car fontdef))))))
     (when result
       (unless (equal "xelatex" compiler)
-        (warn "`org-latex-fontspec-config' require xelatex, but %s is selected" compiler)))
+        (warn "`org-latex-fontspec-config' defines CJK fonts: compile with xelatex instead of %s." compiler)))
     result))
 ;;;;
 (defun org-latex--fontspec-preamble (info)
@@ -4842,6 +4837,7 @@ log files (as specified by `org-latex-logfiles-extensions') are deleted."
                 (warnings (concat " with warnings: " warnings))
                 (t ".")))))))
 
+
 (defun org-latex--collect-warnings (buffer)
   "Collect some warnings from \"pdflatex\" command output.
 BUFFER is the buffer containing output.  Return collected
@@ -4896,6 +4892,14 @@ Return output file name."
        'latex filename ".tex" plist (file-name-directory filename))))
    pub-dir))
 
+;;;###autoload
+(defun org-latex-export-to-pdf-and-open
+    (&optional async subtreep visible-only body-only exp-plist)
+  "Export current buffer to LaTeX, process, and open the resulting PDF.
+
+Cf. `org-latex-export-to-pdf' for arguments"
+  (if async (org-latex-export-to-pdf t subtreep visible-only body-only exp-plist)
+    (org-open-file (org-latex-export-to-pdf nil subtreep visible-only body-only exp-plist))))
 
 (provide 'ox-latex)
 
