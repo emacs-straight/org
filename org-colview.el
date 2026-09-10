@@ -1670,7 +1670,7 @@ When FORMAT-STRING is non-nil, use it to format the result."
   (format "[%d/%d]"
 	  (cl-count-if (lambda (b) (or (equal b "[X]")
 				       (string-match-p
-					(rx "[" (group (any "1-9")) "/"
+					(rx "[" (group (any "1-9") (* digit)) "/"
 					    (backref 1) "]")
 					b)))
 		       check-boxes)
