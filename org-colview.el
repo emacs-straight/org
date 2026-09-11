@@ -1657,30 +1657,30 @@ When FORMAT-STRING is non-nil, use it to format the result."
   "Compute the sum of VALUES, with two decimals."
   (format "%.2f" (apply #'+ (mapcar #'string-to-number values))))
 
-(defun org-columns--summary-checkbox (check-boxes _)
-  "Summarize CHECK-BOXES with a check-box."
-  (let ((done (cl-count "[X]" check-boxes :test #'equal))
-	(all (length check-boxes)))
+(defun org-columns--summary-checkbox (checkboxes _)
+  "Summarize CHECKBOXES with a checkbox."
+  (let ((done (cl-count "[X]" checkboxes :test #'equal))
+	(all (length checkboxes)))
     (cond ((= done all) "[X]")
 	  ((> done 0) "[-]")
 	  (t "[ ]"))))
 
-(defun org-columns--summary-checkbox-count (check-boxes _)
-  "Summarize CHECK-BOXES with a check-box cookie."
+(defun org-columns--summary-checkbox-count (checkboxes _)
+  "Summarize CHECKBOXES with a checkbox cookie."
   (format "[%d/%d]"
 	  (cl-count-if (lambda (b) (or (equal b "[X]")
 				       (string-match-p
 					(rx "[" (group (any "1-9") (* digit)) "/"
 					    (backref 1) "]")
 					b)))
-		       check-boxes)
-	  (length check-boxes)))
+		       checkboxes)
+	  (length checkboxes)))
 
-(defun org-columns--summary-checkbox-percent (check-boxes _)
-  "Summarize CHECK-BOXES with a check-box percent."
+(defun org-columns--summary-checkbox-percent (checkboxes _)
+  "Summarize CHECKBOXES with a checkbox percent."
   (org-format-percent-cookie (cl-count-if (lambda (b) (member b '("[X]" "[100%]")))
-                                          check-boxes)
-                             (length check-boxes)))
+                                          checkboxes)
+                             (length checkboxes)))
 
 (defun org-columns--summary-min (values format-string)
   "Compute the minimum of VALUES.
