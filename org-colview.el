@@ -879,7 +879,7 @@ COL is the column to move to after update."
     ;; possible shuffle overlays.  Make sure they are still all at
     ;; the right place on the current line.
     (when (member key '("ITEM" "TODO" "PRIORITY" "TAGS"))
-      (let ((org-columns-inhibit-recalculation)) (org-columns-redo)))
+      (let ((org-columns-inhibit-recalculation t)) (org-columns-redo)))
     (org-columns-update key)
     (org-move-to-column col))))
 
