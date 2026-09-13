@@ -933,6 +933,8 @@ holding export options."
   (let ((title (org-export-data (plist-get info :title) info))
 	(subtitle (org-export-data (plist-get info :subtitle) info))
         (beamer-class (plist-get info :latex-class)))
+    (unless (member beamer-class '("beamer" "ltx-talk"))
+      (error "Beamer exporter: unsupported class `%s'" beamer-class))
     (when (equal beamer-class "ltx-talk")
       (unless (equal "lualatex" (plist-get info :latex-compiler))
         (error "ox-beamer: `ltx-talk' needs LuaLaTeX!")))
