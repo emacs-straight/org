@@ -84,12 +84,12 @@
 (require 'format-spec)
 (require 'thingatpt)
 
-(condition-case nil
+(condition-case err
     (load (concat (file-name-directory load-file-name)
 		  "org-loaddefs")
 	  nil t nil t)
   (error
-   (message "WARNING: No org-loaddefs.el file could be found from where org.el is loaded.")
+   (message "WARNING: org-loaddefs.el file could not be loaded from where org.el is loaded - %S" err)
    (sit-for 3)
    (message "You need to run \"make\" or \"make autoloads\" from Org lisp directory")
    (sit-for 3)))
@@ -11041,7 +11041,9 @@ WHAT entry will also be removed."
 (defvar org-log-note-state nil)
 (defvar org-log-note-previous-state nil)
 (defvar org-log-note-extra nil)
+(defvar org-log-note-frame nil)
 (defvar org-log-note-window-configuration nil)
+(defvar org-log-note-popup-window-configuration nil)
 (defvar org-log-note-return-to (make-marker))
 (defvar org-log-note-effective-time nil
   "Remembered current time.
@@ -11207,10 +11209,12 @@ items are State notes."
   (when (and (equal org-log-note-this-command this-command)
              (= org-log-note-recursion-depth (recursion-depth)))
     (remove-hook 'post-command-hook 'org-add-log-note)
+    (setq org-log-note-frame (selected-frame))
     (setq org-log-setup nil)
     (setq org-log-note-window-configuration (current-window-configuration))
     (move-marker org-log-note-return-to (point))
     (pop-to-buffer (marker-buffer org-log-note-marker) '(org-display-buffer-full-frame))
+    (setq org-log-note-popup-window-configuration (current-window-configuration))
     (goto-char org-log-note-marker)
     (pop-to-buffer "*Org Note*" '(org-display-buffer-split))
     (erase-buffer)
@@ -11320,7 +11324,12 @@ items are State notes."
 	   (message "Note stored")
 	   (org-back-to-heading t))))))
   ;; Don't add undo information when called from `org-agenda-todo'.
-  (set-window-configuration org-log-note-window-configuration)
+  (if (eq org-log-note-frame (selected-frame))
+      (set-window-configuration org-log-note-window-configuration)
+    (set-window-configuration org-log-note-popup-window-configuration)
+    (when (frame-live-p org-log-note-frame)
+      (select-frame-set-input-focus org-log-note-frame)
+      (set-window-configuration org-log-note-window-configuration)))
   (with-current-buffer (marker-buffer org-log-note-return-to)
     (goto-char org-log-note-return-to))
   (move-marker org-log-note-return-to nil)
@@ -16915,11 +16924,13 @@ inspection."
               (insert-file-contents tmp-out-file)
 	      (goto-char (point-min))
 	      (when (re-search-forward
-		     (format "<math[^>]*?%s[^>]*?>\\(.\\|\n\\)*</math>"
-			     (regexp-quote
-			      "xmlns=\"http://www.w3.org/1998/Math/MathML\""))
-		     nil t)
-		(match-string 0)))))
+                     (format "<math[^>]*?%s[^>]*?>"
+	                     (regexp-quote
+	                      "xmlns=\"http://www.w3.org/1998/Math/MathML\""))
+                     nil t)
+                (let ((from (match-beginning 0)))
+                  (when (re-search-forward "</math>" nil t)
+                    (buffer-substring from (match-end 0))))))))
     (cond
      (mathml
       (setq mathml

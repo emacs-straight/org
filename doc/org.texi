@@ -5058,11 +5058,12 @@ The property @samp{STYLE} is set to the value @samp{habit} (see @ref{Properties 
 
 @item
 The TODO has a scheduled date@comma{} usually with a @samp{.+} style repeat
-interval.  A @samp{++} style may be appropriate for habits with time
+interval@footnote{all the repeater intervals except hours (@samp{h}) are
+supported.}.  A @samp{++} style may be appropriate for habits with time
 constraints@comma{} e.g.@comma{} must be done on specific days of week (@samp{++1w})@comma{}
 or a @samp{+} style for an unusual habit that can have a backlog@comma{} e.g.@comma{}
-weekly reports.  See @ref{Repeated tasks} for more details about repeat
-intervals.
+weekly reports.  See @ref{Repeated tasks} for more details about
+repeat intervals.
 
 @item
 The TODO may also have minimum and maximum ranges specified by
