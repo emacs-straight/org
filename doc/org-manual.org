@@ -12399,6 +12399,12 @@ global variables, include:
   example, Org translates =Table of contents= to the French =Table des
   matières=[fn:42].
 
+- =OTHER_LANGUAGES= ::
+
+  #+cindex: @samp{OTHER_LANGUAGES}, keyword
+  #+vindex: org-export-other-languages
+  List of secondary languages present in the document.
+
 - =SELECT_TAGS= ::
 
   #+cindex: @samp{SELECT_TAGS}, keyword
@@ -14421,6 +14427,36 @@ general options (see [[*Export Settings]]).
                '("AUTO" "polyglossia" t ("xelatex" "lualatex")))
   #+end_src
 
+- =OTHER_LANGUAGES= ::
+
+  #+cindex: @samp{OTHER_LANGUAGES}, keyword
+  #+vindex: org-export-other-languages
+  #+vindex: org-latex-doc-metadata
+
+  This is the list of secondary languages you want to declare in the
+  document metadata.  When the document metadata include the shorthand
+  ~DOC_LANGS~, it will be replaced by the main language declared with
+  the ~LANGUAGE~ keyword and this list.
+
+  For example:
+  #+begin_src org
+,#+LANGUAGE: en
+,#+OTHER_LANGUAGES: es fr
+,#+LATEX_DOC_METADATA: tagging = on, DOC_LANGS
+  #+end_src
+
+  will result in
+  #+BEGIN_SRC latex
+\DocumentMetadata{tagging=on, language=en, other-languages={es, fr}}
+  #+END_SRC
+  as the first line of the LaTeX preamble *before* the document class
+  declaration.
+
+  *NOTE:* In the absence of a declaration for ~OTHER_LANGUAGES~, the
+  language declared with the ~LANGUAGE~ keyword will be the only one
+  added to the metadata, when ~DOC_LANGS~ is found in
+  ~LATEX_DOC_METADATA~.
+
 - =LATEX_CLASS= ::
 
   #+cindex: @samp{LATEX_CLASS}, keyword
@@ -14884,6 +14920,24 @@ set ~org-latex-images-centered~ to =nil=.
 
 Set the =:comment-include= attribute to non-~nil~ value for the LaTeX
 export backend to comment out the =\includegraphics= macro.
+
+Finally, if you need to supply an alternative text, for example for a
+textual image description when you generate an accessible PDF, you can
+use the =alt= attribute to include it.  You can make your descriptive
+text span over more that one line.  For example:
+
+#+begin_example
+,#+ATTR_LATEX: :float wrap :width 0.38\textwidth :placement {r}{0.4\textwidth}
+,#+ATTR_LATEX: :alt An end host, showing the IP protocol stack it implements.
+,#+ATTR_LATEX: The application process and the socket that is used to
+,#+ATTR_LATEX: connect to other application processes are shown.
+[[./img/hst.png]]
+#+end_example
+
+#+texinfo: @noindent
+would add a the text after =:alt= as a textual description for screen
+reader applications.
+
 
 *** Plain lists in LaTeX export
 :PROPERTIES:
