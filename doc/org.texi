@@ -16120,6 +16120,13 @@ more uniform appearance to your document:
 @node Fallback fonts with Lua@LaTeX{}
 @unnumberedsubsubsec Fallback fonts with Lua@LaTeX{}
 
+When Emacs scripts (cf. @ref{Character Properties,,,emacs,}) are
+detected in the contents of your document@comma{} Org will print a message:
+
+@example
+INFO: Emacs scripts found: (symbol emoji)
+@end example
+
 You will be warned by Org that your document could not be correctly
 typeset@comma{} if your selection of fonts doesn't cover all scripts used
 in the document:
@@ -16137,7 +16144,8 @@ For font TeXGyreHeros: emoji
 @end example
 
 Although modern Unicode-compatible fonts can represent a wide range of
-characters (or glyphs)@comma{} it is virtually impossible to cover all possible
+characters (or glyphs)@footnote{For example@comma{} the @samp{symbol} script in the
+example above.}@comma{} it is virtually impossible to cover all possible
 glyphs in one font.  In this case@comma{} @strong{and only if you are using
 Lua@LaTeX{}}@comma{} you will be able to use other fonts you have installed in
 your system to provide the missing glyphs. Lua@LaTeX{} can replace glyphs
