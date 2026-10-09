@@ -14201,6 +14201,13 @@ Beamer environments not supported in @samp{ltx-talk} are:
 @tab No
 @tab 
 @end multitable
+@item
+The easiest way to get source code listings in your @code{ltx-talk}
+slides is to use the @code{fancyvrb} package as described in the
+package's documentation.  To use @code{fancyvrb} in Org you will need to
+customize some variables@comma{} cf.  @ref{Source blocks in @LaTeX{} export}.
+Another possibility is to use the @code{minted} exporter if you need
+source code decoration.
 @end enumerate
 
 @node HTML Export
@@ -15493,7 +15500,8 @@ tables@comma{} the @LaTeX{} export backend ignores @samp{:placement} attributes.
 
 @item @samp{:align}@comma{} @samp{:font}@comma{} @samp{:width}
 The @LaTeX{} export backend uses these attributes for regular tables
-to set their alignments@comma{} fonts@comma{} and widths.
+to set their alignments@comma{} fonts@comma{} and widths. ``table.el'' tables accept
+the @samp{:align} attribute.
 
 @item @samp{:options}
 The @samp{:options} attribute allows adding an optional argument with
@@ -15806,6 +15814,29 @@ To apply similar configuration options for all source blocks in a
 file@comma{} use the @code{org-latex-listings-options}@comma{}
 @code{org-latex-engraved-options}@comma{} and @code{org-latex-minted-options}
 variables.
+
+@vindex org-latex-src-block-backend
+@vindex org-latex-listings-env
+@vindex org-latex-listings-src-omit-language
+The @samp{listings} export backend generates @LaTeX{} code for the @code{listings}
+package by default@comma{} but is also compatible with the @code{fancyvrb}
+package.  To generate code for the latter@comma{} you need to adjust the
+following variables:
+
+@lisp
+(setq org-latex-listings-env "Verbatim"
+      org-latex-src-block-backend 'listings
+      org-latex-listings-src-omit-language t)
+@end lisp
+
+@strong{Note:} if you use @code{Verbatim} to export your source code blocks@comma{} add
+@code{fancyvrb} to @code{org-latex-packages-alist}@comma{} or include:
+
+@example
+#+LATEX_HEADER: \usepackage@{fancyvrb@}
+@end example
+
+in your document header.
 
 @node Example blocks in @LaTeX{} export
 @subsection Example blocks in @LaTeX{} export
@@ -19037,6 +19068,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @tab @code{org-latex-src-block-backend}
 @item @code{:latex-listings-langs}
 @tab @code{org-latex-listings-langs}
+@item @code{:latex-listings-env}
+@tab @code{org-latex-listings-env}
 @item @code{:latex-listings-options}
 @tab @code{org-latex-listings-options}
 @item @code{:latex-listings-src-omit-language}
@@ -25855,6 +25888,15 @@ blocks and contributed various ideas and code snippets.
 
 @item
 Marco Wahl wrote @samp{ol-eww.el}.
+
+@item
+Pedro A@. Aranda Gutiérrez wrote the @code{fontspec} support for
+@samp{ox-latex.el}.
+
+@item
+Roger Schürch requested and helped testing the support for the
+@code{ltx-talk} package to generate accessible presentations with
+@samp{ox-beamer.el} written by Pedro A@. Aranda Gutiérrez.
 @end itemize
 
 @node GNU Free Documentation License

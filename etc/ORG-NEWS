@@ -470,6 +470,17 @@ It is up to the exporters to use this variable or not. Currently, it
 is used to add language information in the PDF metadata when exporting
 through ox-latex or ox-beamer.
 
+*** ox-latex.el: New custom variable ~org-latex-listings-env~
+
+This new custom variable lets you change the default environment for
+listings when using the listings source block backend in LaTeX (or
+Beamer) export.
+
+*** ox-latex.el: "table.el" tables now obey the :align attribute.
+
+"table.el" tables can now be aligned using the :align attribute as in the
+'normal' tables.
+
 ** New functions and changes in function arguments
 
 # This also includes changes in function behavior from Elisp perspective.
