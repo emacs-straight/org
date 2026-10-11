@@ -15566,11 +15566,14 @@ Set the caption with the @LaTeX{} command
 @vindex org-latex-packages-alist
 If your table has numbers in scientific notation@comma{} you can control how
 they are shown with the variable
-@code{org-latex-table-scientific-notation}. For example:
+@code{org-latex-table-scientific-notation}. This variable can be set in the
+document header with the keyword @code{#+LATEX_TABLE_SCI_NOTATION:}.
 
-@lisp
-(setq org-latex-table-scientific-notation "\\num@{%se%s@}")
-@end lisp
+For example:
+
+@example
+#+LATEX_TABLE_SCI_NOTATION: \num@{%se%s@}
+@end example
 
 @noindent
 will print your numbers as @math{m x 10^{exp}} instead of using the
@@ -15578,7 +15581,11 @@ engineering format @samp{m.mmmEnn}. The first string placeholder(@samp{%s}) in
 @code{org-latex-table-scientific-notation} will be replaced by the mantissa
 and the second by the exponent. @strong{Note} that to use the example above@comma{} you
 will need to add the @code{siunitx} package to your
-@code{org-latex-packages-alist}.
+@code{org-latex-packages-alist} or with:
+
+@example
+#+LATEX_HEADER: \usepackage@{siunitx@}
+@end example
 
 @node Images in @LaTeX{} export
 @subsection Images in @LaTeX{} export
