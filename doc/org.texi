@@ -13823,12 +13823,11 @@ Export to a temporary buffer.  Does not create a file.
 @item @kbd{C-c C-e l P} (@code{org-beamer-export-to-pdf})
 @kindex C-c C-e l P
 @findex org-beamer-export-to-pdf
-
 Export as @LaTeX{} file and then convert it to PDF format.
 
-@item @kbd{C-c C-e l O}
+@item @kbd{C-c C-e l O} (@code{org-beamer-export-to-pdf-and-open})
 @kindex C-c C-e l O
-
+@findex org-beamer-export-to-pdf-and-open
 Export as @LaTeX{} file@comma{} convert it to PDF format@comma{} and then open the
 PDF file.
 @end table
@@ -15090,8 +15089,9 @@ Export to a temporary buffer.  Do not create a file.
 @findex org-latex-export-to-pdf
 Export as @LaTeX{} file and convert it to PDF file.
 
-@item @kbd{C-c C-e l o}
+@item @kbd{C-c C-e l o} (@code{org-latex-export-to-pdf-and-open})
 @kindex C-c C-e l o
+@findex org-latex-export-to-pdf-and-open
 Export as @LaTeX{} file and convert it to PDF@comma{} then open the PDF using
 the default viewer.
 
