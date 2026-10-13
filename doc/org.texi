@@ -676,9 +676,9 @@ You can clone Org's repository and install Org like this:
 
 @example
 $ cd ~/src/
-$ git clone https://https.git.savannah.nongnu.org/git/org-mode.git
+$ git clone --recurse-submodules --shallow-submodules https://https.git.savannah.nongnu.org/git/org-mode.git
 $ # alternatively@comma{} you can use mirror
-$ # git clone https://git.sr.ht/~bzg/org-mode
+$ # git clone --recurse-submodules --shallow-submodules https://git.sr.ht/~bzg/org-mode
 $ cd org-mode/
 $ make autoloads
 @end example
@@ -692,6 +692,10 @@ Make sure you set the load path correctly in your Emacs init file:
 @lisp
 (add-to-list 'load-path "~/src/org-mode/lisp")
 @end lisp
+
+You must also manually install @samp{compat} library required by Org mode.
+Using built-in @samp{package.el}@comma{} you can run @samp{M-x package-install <RET>
+compat <RET>}.
 
 You can also compile with @samp{make}@comma{} generate the documentation with
 @samp{make doc}@comma{} create a local configuration with @samp{make config}@comma{} and

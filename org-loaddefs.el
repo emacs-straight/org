@@ -1515,12 +1515,6 @@ Turn on or update column view in the agenda." '(org-agenda-mode))
 
 ;;; Generated autoloads from org-compat.el
 
-(autoload 'org-list-of-strings-p "org-compat" "\
-Return t if OBJECT is nil or a list of strings.
-
-(fn OBJECT)")
-(function-put 'org-list-of-strings-p 'pure 't)
-(function-put 'org-list-of-strings-p 'side-effect-free 'error-free)
 (autoload 'org-check-version "org-compat" "\
 Try very hard to provide sensible version strings." nil t)
 (register-definition-prefixes "org-compat" '("org-" "outline-"))
@@ -2295,7 +2289,7 @@ Tag in this list prevent numbering the whole sub-tree,
 irrespective to `org-use-tag-inheritance', or other means to
 control tag inheritance.")
 (custom-autoload 'org-num-skip-tags "org-num" t)
-(put 'org-num-skip-tags 'safe-local-variable #'org-list-of-strings-p)
+(put 'org-num-skip-tags 'safe-local-variable #'list-of-strings-p)
 (defvar org-num-skip-unnumbered nil "\
 Non-nil means numbering obeys to UNNUMBERED property.")
 (custom-autoload 'org-num-skip-unnumbered "org-num" t)

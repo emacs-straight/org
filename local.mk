@@ -10,6 +10,7 @@ oldorg:	# do what the old Makefile did by default.
 
 # Name of your emacs binary
 EMACS	= emacs
+EMACS_VERSION := $(shell $(EMACS) -Q --batch --eval '(message "%s" emacs-version)' 2>&1)
 
 # Where local software is found
 prefix	= /usr/share
@@ -34,6 +35,11 @@ GIT_BRANCH =
 # respect TMPDIR if it is already defined in the environment
 TMPDIR ?= /tmp
 testdir = $(TMPDIR)/tmp-orgtest
+
+# Where to store Org dependencies
+top_builddir := $(shell pwd)
+pkgdir_top := $(top_builddir)/deps/compiled
+pkgdir := $(pkgdir_top)/$(EMACS_VERSION)
 
 # Configuration for testing
 # Verbose ERT summary by default for Emacs-28 and above.
