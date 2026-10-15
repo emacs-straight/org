@@ -13786,8 +13786,8 @@ document class for creating presentations in PDF@comma{} HTML@comma{} and other
 popular display formats. In addition to the @samp{beamer} class@comma{} the
 exporter can also handle documents using the @samp{ltx-talk} class to
 produce accessible presentations that can be handled@comma{} for example@comma{} by
-screen readers for people with visual impairments. @footnote{ The
-@samp{ltx-talk} needs a recent @strong{Lua@LaTeX{}} compiler.} Section @ref{An example of a presentation using @samp{ltx-talk}} discusses the main differences
+screen readers for people with visual impairments@footnote{ The
+@samp{ltx-talk} needs a recent Lua@LaTeX{} compiler.}. Section @ref{An example of a presentation using @samp{ltx-talk}} discusses the main differences
 between both classes.
 
 We strongly recommend familiarizing yourself with Beamer terminology
@@ -13843,16 +13843,16 @@ Beamer export backend has several additional keywords for customizing
 Beamer output.  These keywords work similar to the general options
 settings (see @ref{Export Settings}).
 
-@noindent
-@strong{Note 1:} Theme-related @samp{BEAMER_...} keywords do not apply to @samp{ltx-talk}
-and will be ignored.
-
-@noindent
-@strong{Note 2:} Theme-related @samp{BEAMER_...} keywords will be ignored if
-you set the Beamer theme in the definition of the @samp{beamer} class
-in @code{org-latex-classes} or using @code{#+LATEX_HEADER}.
-
 @table @asis
+@item @samp{LATEX_CLASS}
+@cindex @samp{LATEX_CLASS}, keyword
+The @LaTeX{} class to use. Implicitly set to @samp{beamer}. Set it
+explicitly to use the @samp{ltx-talk} class instead:
+
+@example
+#+LATEX_CLASS: ltx-talk
+@end example
+
 @item @samp{BEAMER_THEME}
 @cindex @samp{BEAMER_THEME}, keyword
 @vindex org-beamer-theme
@@ -13863,17 +13863,33 @@ for options.  For example:
 #+BEAMER_THEME: Rochester [height=20pt]
 @end example
 
+Note: This keyword will be ignored when you use @LaTeX{} class
+@samp{ltx-talk} or if you set it in @code{org-latex-classes} or using
+@code{#+LATEX_HEADER}.
+
 @item @samp{BEAMER_FONT_THEME}
 @cindex @samp{BEAMER_FONT_THEME}, keyword
 The Beamer font theme.
+
+Note: This keyword will be ignored when you use @LaTeX{} class
+@samp{ltx-talk} or if you set it in @code{org-latex-classes} or using
+@code{#+LATEX_HEADER}.
 
 @item @samp{BEAMER_INNER_THEME}
 @cindex @samp{BEAMER_INNER_THEME}, keyword
 The Beamer inner theme.
 
+Note: This keyword will be ignored when you use @LaTeX{} class
+@samp{ltx-talk} or if you set it in @code{org-latex-classes} or using
+@code{#+LATEX_HEADER}.
+
 @item @samp{BEAMER_OUTER_THEME}
 @cindex @samp{BEAMER_OUTER_THEME}, keyword
 The Beamer outer theme.
+
+Note: This keyword will be ignored when you use @LaTeX{} class
+@samp{ltx-talk} or if you set it in @code{org-latex-classes} or using
+@code{#+LATEX_HEADER}.
 
 @item @samp{BEAMER_THEME_PRE}
 @cindex @samp{BEAMER_THEME_PRE}, keyword
@@ -13912,15 +13928,6 @@ Document's subtitle.  For typesetting@comma{} use
 @code{org-latex-hyperref-template} to configure document metadata.  Use
 @code{org-latex-title-command} to configure typesetting of subtitle as
 part of front matter.
-
-@item @samp{LATEX_CLASS}
-@cindex @samp{LATEX_CLASS}, keyword
-The @LaTeX{} class to use. Implicitly set to @samp{beamer}. Set it
-explicitly to @samp{ltx-talk} to use this class instead:
-
-@example
-#+LATEX_CLASS: ltx-talk
-@end example
 @end table
 
 @node Frames and Blocks in Beamer
