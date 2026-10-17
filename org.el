@@ -9988,6 +9988,8 @@ When called through Elisp, arg is also interpreted in the following way:
 		(save-match-data
 		  (setq org-agenda-headline-snapshot-before-repeat
 			(org-get-heading))))
+              (when force-log
+                (setq org-log-repeat dolog))
 	      (org-auto-repeat-maybe org-state))
 	    ;; Fixup cursor location if close to the keyword.
 	    (when (and (outline-on-heading-p)
@@ -10347,7 +10349,7 @@ This hook runs even if there is no statistics cookie present, in which case
   (dolist (w (split-string value))
     (let (a)
       (cond
-       ((setq a (assoc w org-startup-options))
+       ((setq a (assoc-string w org-startup-options t))
         (and (member (nth 1 a) '(org-log-done org-log-repeat))
              (set (nth 1 a) (nth 2 a))))
        ((setq a (org-extract-log-state-settings w))
@@ -12209,9 +12211,9 @@ This replaces every group tag in MATCH with a regexp tag search.
 For example, a group tag \"Work\" defined as { Work : Lab Conf }
 will be replaced like this:
 
-   Work =>  {\\<\\(?:Work\\|Lab\\|Conf\\)\\>}
-  +Work => +{\\<\\(?:Work\\|Lab\\|Conf\\)\\>}
-  -Work => -{\\<\\(?:Work\\|Lab\\|Conf\\)\\>}
+   Work =>  {\\=\\<\\(?:Work\\|Lab\\|Conf\\)\\>}
+  +Work => +{\\=\\<\\(?:Work\\|Lab\\|Conf\\)\\>}
+  -Work => -{\\=\\<\\(?:Work\\|Lab\\|Conf\\)\\>}
 
 Replacing by a regexp preserves the structure of the match.
 E.g., this expansion
@@ -12225,7 +12227,7 @@ A group tag in MATCH can contain regular expressions of its own.
 For example, a group tag \"Proj\" defined as { Proj : {P@.+} }
 will be replaced like this:
 
-   Proj => {\\<\\(?:Proj\\)\\>\\|P@.+}
+   Proj => {\\=\\<\\(?:Proj\\)\\>\\|P@.+}
 
 When the optional argument SINGLE-AS-LIST is non-nil, MATCH is
 assumed to be a single group tag, and the function will return
