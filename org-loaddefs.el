@@ -1515,6 +1515,9 @@ Turn on or update column view in the agenda." '(org-agenda-mode))
 
 ;;; Generated autoloads from org-compat.el
 
+ (autoload 'org-latex-preview--format-color "org-latex-preview")
+ (autoload 'org-latex-preview--attr-color "org-latex-preview")
+ (autoload 'org-latex-preview-compiler-command-map "org-latex-preview")
 (autoload 'org-check-version "org-compat" "\
 Try very hard to provide sensible version strings." nil t)
 (register-definition-prefixes "org-compat" '("org-" "outline-"))
@@ -2140,6 +2143,160 @@ disabled.
 (autoload 'org-babel-describe-bindings "org-keys" "\
 Describe all keybindings behind `org-babel-key-prefix'." t)
 (register-definition-prefixes "org-keys" '("org-"))
+
+
+;;; Generated autoloads from org-latex-preview.el
+
+(defvar org-latex-preview--dvisvgm3-minor-version (or (and (executable-find "dvisvgm") (with-temp-buffer (call-process "dvisvgm" nil t nil "--version") (let ((ver (version-to-list (string-trim (buffer-string) "dvisvgm ")))) (and (= (car ver) 3) (cadr ver))))) -1) "\
+The minor version of dvisvgm, if dvisvgm 3 is installed.  Otherwise -1.")
+(defvar org-latex-preview-appearance-options '(:foreground auto :background "Transparent" :scale 1.0 :zoom 1.0 :page-width 0.6) "\
+Options for creating images from LaTeX fragments.
+This is a property list with the following properties:
+:foreground  The foreground color for images embedded in Emacs, e.g. \"Black\".
+             `default' means use the foreground of the default face.
+             `auto' means use the foreground from the text face.
+:background  The background color, or \"Transparent\".
+             `default' means use the background of the default face.
+             `auto' means use the background from the text face.
+:scale       A scaling factor for the size of the images, to get more pixels
+:zoom        when the image has associated font-relative height information,
+             the display size is scaled by this factor.
+:page-width  The width of the LaTeX document fragments are compiled in.
+             Either:
+             - A string giving a LaTeX dimension (e.g. \"12cm\").
+             - A floating point value between 0.0 and 1.0,
+               this sets the text width to this ratio of the page width.
+             - nil, in which case the default text width is unmodified.")
+(custom-autoload 'org-latex-preview-appearance-options "org-latex-preview" t)
+(defvar org-latex-preview-process-alist `((dvipng :programs ("latex" "dvipng") :description "dvi > png" :message "you need to install the programs: latex and dvipng." :image-input-type "dvi" :image-output-type "png" :latex-compiler ("%l -interaction nonstopmode -output-directory %o %f") :image-converter ("dvipng --follow -D %D -T tight --depth --height -o %B-%%09d.png %f") :transparent-image-converter ("dvipng --follow -D %D -T tight -bg Transparent --depth --height -o %B-%%09d.png %f")) (dvisvgm :programs ("latex" "dvisvgm") :description "dvi > svg" :message "you need to install the programs: latex and dvisvgm." :image-input-type "dvi" :image-output-type "svg" :latex-compiler ("%l -interaction nonstopmode -output-directory %o %f") :image-converter ,(list (concat "dvisvgm --page=1- --optimize --clipjoin --relative --no-fonts" (if (>= org-latex-preview--dvisvgm3-minor-version 2) " -v3 --message='processing page {?pageno}: output written to {?svgpath}'" "") " --bbox=preview -o %B-%%9p.svg %f"))) (imagemagick :programs ("pdflatex" "convert") :description "pdf > png" :message "you need to install the programs: latex and imagemagick." :image-input-type "pdf" :image-output-type "png" :latex-compiler ("pdflatex -interaction nonstopmode -output-directory %o %f") :image-converter ("convert -density %D -trim -antialias %f -quality 100 %B-%%09d.png"))) "\
+Definitions of external processes for LaTeX previewing.
+Org mode can use some external commands to generate TeX snippet's images for
+previewing or inserting into HTML files, e.g., \"dvipng\".  This variable tells
+`org-latex-preview-create-image' how to call them.
+
+The value is an alist with the pattern (NAME . PROPERTIES).  NAME is a symbol.
+PROPERTIES accepts the following attributes:
+
+  :programs           list of strings, required programs.
+  :description        string, describe the process.
+  :message            string, message it when required programs cannot be found.
+  :image-input-type   string, input file type of image converter (e.g., \"dvi\").
+  :image-output-type  string, output file type of image converter (e.g., \"png\").
+  :post-clean         list of strings, files matched are to be cleaned up once
+                      the image is generated.  When nil, the files with \".dvi\",
+                      \".xdv\", \".pdf\", \".tex\", \".aux\", \".log\", \".svg\",
+                      \".png\", \".jpg\", \".jpeg\" or \".out\" extension will
+                      be cleaned up.
+  :latex-header       list of strings, the LaTeX header of the snippet file.
+                      When nil, the fallback value is used instead, which is
+                      controlled by option `org-latex-preview-preamble',
+                      `org-latex-default-packages-alist' and
+                      `org-latex-packages-alist', which see.
+  :latex-compiler list of LaTeX commands, as strings or a function.
+                      Each of them is given to the shell.
+                      Place-holders \"%t\", \"%b\" and \"%o\" are
+                      replaced with values defined below.
+                      When a function, that function should accept the
+                      file name as its single argument.
+  :image-converter list of image converter commands strings or a
+                      function.  Each of them is given to the shell
+                      and supports any of the following place-holders
+                      defined below.
+                      When a function, that function should accept the
+                      file name as its single argument.
+
+If set, :transparent-image-converter is used instead of :image-converter to
+convert an image when the background color is nil or \"Transparent\".
+
+Place-holders used by `:image-converter' and `:latex-compiler':
+
+  %f    input file name
+  %b    base name of input file
+  %o    base directory of input file
+  %O    absolute output file name
+
+Place-holders used only by `:latex-compiler':
+
+  %l   LaTeX compiler command string
+  %L   LaTeX compiler command name
+
+Place-holders used only by `:image-converter':
+
+  %B    absolute base name of input file
+  %D    dpi, used to adjust image size by some processing commands.")
+(custom-autoload 'org-latex-preview-process-alist "org-latex-preview" t)
+(autoload 'org-latex-preview-mode "org-latex-preview" "\
+Minor mode to automatically preview LaTeX fragments.
+
+When LaTeX preview mode is on, LaTeX fragments in Org
+buffers are automatically previewed after being inserted, and
+hidden when the cursor moves into them.  This allows one to
+seamlessly edit and preview LaTeX in Org buffers.
+
+To enable auto-toggling of the preview images without
+auto-generating them or vice-versa, customize the variable
+`org-latex-preview-mode-track-inserts'.
+
+To enable previews of LaTeX fragments while writing them,
+customize the variable `org-latex-preview-mode-display-live'.
+
+This is a minor mode.  If called interactively, toggle the
+`Org-Latex-Preview mode' mode.  If the prefix argument is positive,
+enable the mode, and if it is zero or negative, disable the mode.
+
+If called from Lisp, toggle the mode if ARG is `toggle'.  Enable the
+mode if ARG is nil, omitted, or is a positive number.  Disable the mode
+if ARG is a negative number.
+
+To check whether the minor mode is enabled in the current buffer,
+evaluate the variable `org-latex-preview-mode'.
+
+The mode's hook is called both when the mode is enabled and when it is
+disabled.
+
+(fn &optional ARG)" t)
+(autoload 'org-latex-preview "org-latex-preview" "\
+Generate or hide LaTeX fragment previews.
+
+The particular behaviour depends on MODE (which recognises a
+number of symbols and prefix arguments), or when MODE is nil the
+context of the current buffer when called.
+
+- point: Toggle preview of the LaTeX fragment at point
+- region: Display previews of all fragments in the selected region
+- section: Display previews of all fragments in the current section
+- buffer: Display previews of all fragments in the buffer
+- clear-region: Clear all previews in the current region
+- clear-section: Clear all previews in the current section
+- clear-buffer: Clear all previews in the buffer
+
+When MODE is nil and the cursor is on a LaTeX fragment, toggle
+previewing of the LaTeX fragment at point.  If the there is no
+preview, generate a preview and overlay it on the text.  Remove
+the preview image otherwise.  If there is no fragment at point,
+display previews for all fragments in the current section, or
+active region should it exist.
+
+Prefix arguments are handled as follows:
+- `\\[universal-argument]' is equivalent to setting MODE to clear-region (if a region
+   is currently active) or clear-section
+- `\\[universal-argument] \\[universal-argument]' is equivalent to setting MODE to buffer
+- `\\[universal-argument] \\[universal-argument] \\[universal-argument]' is equivalent to setting MODE to clear-buffer
+
+MODE can also be a org-element LaTeX environment or fragment, which
+will be treated as \"point\".
+
+(fn &optional MODE)" '(org-mode))
+(autoload 'org-latex-preview-place "org-latex-preview" "\
+Preview LaTeX math fragments ENTRIES using PROCESSING-TYPE.
+Each entry of ENTRIES should be a list of 2-3 items, either
+  (BEG END), or
+  (BEG END VALUE)
+Where BEG and END are the positions in the buffer, and the LaTeX previewed
+is either the substring between BEG and END or (when provided) VALUE.
+
+(fn PROCESSING-TYPE ENTRIES &optional NUMBERING-OFFSETS LATEX-PREAMBLE)")
+(register-definition-prefixes "org-latex-preview" '("org-latex-preview-"))
 
 
 ;;; Generated autoloads from org-lint.el
@@ -4034,6 +4191,11 @@ Cf. `org-latex-export-to-pdf' for arguments
 (register-definition-prefixes "ox-man" '("org-man-"))
 
 
+;;; Generated autoloads from ox-mathml.el
+
+(register-definition-prefixes "ox-mathml" '("org-mathml-"))
+
+
 ;;; Generated autoloads from ox-md.el
 
 (autoload 'org-md-export-as-markdown "ox-md" "\
@@ -4105,7 +4267,7 @@ Return output file name.
 (put 'org-odt-preferred-output-format 'safe-local-variable 'stringp)
 (autoload 'org-odt-export-as-odf "ox-odt" "\
 Export LATEX-FRAG as OpenDocument formula file ODF-FILE.
-Use `org-create-math-formula' to convert LATEX-FRAG first to
+Use `org-mathml-convert-latex' to convert LATEX-FRAG first to
 MathML.  When invoked as an interactive command, use
 `org-latex-regexps' to infer LATEX-FRAG from currently active
 region.  If no LaTeX fragments are found, prompt for it.  Push

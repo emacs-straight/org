@@ -307,6 +307,13 @@ Embedded @LaTeX{}
 * Previewing @LaTeX{} fragments:: What will this snippet look like?
 * CD@LaTeX{} mode::              Speed up entering of formulas.
 
+Previewing @LaTeX{} fragments
+
+* Customizing live @LaTeX{} previews::
+* Customizing the @LaTeX{} preview process::
+* Customizing the @LaTeX{} preview preamble::
+* Customizing the @LaTeX{} preview appearance::
+
 Images and link previews
 
 * Images::                       Display an image.
@@ -12149,7 +12156,7 @@ pretty output for a number of export backends.
 
 @cindex @LaTeX{} fragments
 
-@vindex org-format-latex-header
+@vindex org-latex-preview-header
 Org mode can contain @LaTeX{} math fragments@comma{} and it supports ways to
 process these for several export backends.  When exporting to @LaTeX{}@comma{}
 the code is left as it is.  When exporting to HTML@comma{} Org can use either
@@ -12217,22 +12224,20 @@ lines:
 @cindex @LaTeX{} fragments, preview
 
 @vindex org-preview-latex-default-process
+@vindex org-latex-preview-process-default
 If you have a working @LaTeX{} installation and @samp{dvipng}@comma{} @samp{dvisvgm} or
 @samp{convert} installed@footnote{These are respectively available at
 @uref{https://sourceforge.net/projects/dvipng/}@comma{} @uref{http://dvisvgm.bplaced.net/}
 and from the ImageMagick suite.  Choose the converter by setting the
-variable @code{org-preview-latex-default-process} accordingly.}@comma{} @LaTeX{} fragments can be processed to
+variable @code{org-latex-preview-process-default} accordingly.}@comma{} @LaTeX{} fragments can be processed to
 produce images of the typeset expressions to be used for inclusion
 while exporting to HTML (see @ref{@LaTeX{} fragments})@comma{} or for inline
 previewing within Org mode.
 
-@vindex org-format-latex-options
-@vindex org-format-latex-header
-You can customize the variables @code{org-format-latex-options} and
-@code{org-format-latex-header} to influence some aspects of the preview.
-In particular@comma{} the @code{:scale} (and for HTML export@comma{} @code{:html-scale})
-property of the former can be used to adjust the size of the preview
-images.
+Previewing or exporting images of @LaTeX{} fragments also requires the
+preview.sty package or style file@footnote{See @uref{https://ctan.org/tex-archive/macros/latex/contrib/preview}
+for details on preview.sty.  This package is included by default when
+installing all commonly used @TeX{} distributions.} to be available.
 
 @table @asis
 @item @kbd{C-c C-x C-l} (@code{org-latex-preview})
@@ -12261,6 +12266,282 @@ To disable it@comma{} simply use
 @example
 #+STARTUP: nolatexpreview
 @end example
+
+You can set this globally by customizing
+@code{org-startup-with-latex-preview}.
+
+Org mode caches @LaTeX{} fragment preview images so that repeated calls
+to @code{org-latex-preview} for the same fragment can reuse them.  The
+cache can also be manually cleared if required (see @ref{Customizing the @LaTeX{} preview process}).
+
+Errors encountered when compiling preview fragments are captured and
+indicated in the display of the preview image.  Depending on the type
+of processing@comma{} this indication can take the form of a red foreground
+or a fringe marker.  Mousing over the image will show the error(s) in
+a tooltip@comma{} and they can be displayed in the echo area by calling
+@code{display-local-help} when the cursor is on the image or @LaTeX{} fragment.
+
+Normally@comma{} @LaTeX{} preview images cover the underlying @LaTeX{} text.
+Editing and updating @LaTeX{} fragments thus requires clearing the
+previews first.  To speed up the edit/preview cycle@comma{} Org also provides
+optional @emph{automatic} preview features with more immediate feedback:
+
+@itemize
+@item
+Automatic previews: Hide and reveal preview images when the cursor
+moves into or out of them@comma{} and automatically preview @LaTeX{} fragments
+after the cursor exits the fragment.
+
+@item
+Live previews: Continuously preview @LaTeX{} fragments as you type@comma{}
+giving you near immediate feedback (especially when using
+@samp{pdflatex}).  The preview image will continue to be displayed
+adjacent to the fragment even when editing it.
+@end itemize
+
+@cindex @LaTeX{} fragments, live preview
+To enable automatic previews@comma{} turn on the minor mode
+@code{org-latex-preview-mode}.
+
+@table @asis
+@item (@code{org-latex-preview-mode})
+@findex org-latex-preview-mode
+
+When this mode is turned on@comma{} moving the cursor into a previewed
+@LaTeX{} fragment will reveal the Org markup and hide the image.
+Moving the cursor out of the fragment will cause the (possibly
+updated) preview image to be displayed again.
+
+If @code{org-latex-preview-mode-track-inserts} is non-nil@comma{} previews for
+@LaTeX{} fragments will be auto-generated as they are typed or
+otherwise inserted into the buffer.
+
+Note that insertion tracking does not work across indirect buffers.
+@LaTeX{} preview images are generated only for the current buffer@comma{} and
+not any indirect clones@comma{} or for the base buffer if the current
+buffer is a clone.  This is currently a limitation of the @LaTeX{}
+preview system.
+
+@vindex org-latex-preview-mode-display-live
+Additionally@comma{} if the option @code{org-latex-preview-mode-display-live} is
+non-nil@comma{} previews for modified or new @LaTeX{} fragments will be
+displayed adjacent to the fragment@comma{} and updated in real-time as you
+type.
+
+@code{org-latex-preview-mode-display-live} can be configured to apply
+separately to @LaTeX{} fragments and @LaTeX{} environments.  Additionally@comma{}
+it can also be configured to preview @LaTeX{} when using
+@code{org-edit-special}.
+@end table
+
+@menu
+* Customizing live @LaTeX{} previews::
+* Customizing the @LaTeX{} preview process::
+* Customizing the @LaTeX{} preview preamble::
+* Customizing the @LaTeX{} preview appearance::
+@end menu
+
+@node Customizing live @LaTeX{} previews
+@subsubsection Customizing live @LaTeX{} previews
+
+@vindex org-latex-preview-mode-track-inserts
+@code{org-latex-preview-mode} will always hide and show preview images
+already present in the buffer as the cursor moves into and out of
+@LaTeX{} fragments.  However@comma{} you can customize whether it should also
+generate new previews as the buffer contents are changed.  This is
+controlled by the option @code{org-latex-preview-mode-track-inserts}.
+
+@vindex org-latex-preview-mode-ignored-environments
+You can specify a list of @LaTeX{} environments that should not be
+automatically previewed by @code{org-latex-preview-mode} when they are
+inserted into the buffer.  This is controlled by
+@code{org-latex-preview-mode-ignored-environments}.  By default@comma{} ``figure''
+environments are ignored by @code{org-latex-preview}.@footnote{
+@code{org-latex-preview} cannot consistently preview figure environments.}
+
+@vindex org-latex-preview-mode-ignored-commands
+You can also specify Emacs commands that should explicitly avoid
+toggling the preview image with
+@code{org-latex-preview-mode-ignored-commands}.  For instance@comma{} adding the
+@code{next-line} and @code{previous-line} commands to this list will ensure that
+regular Emacs navigation does not cause the preview image for a
+fragment to be toggled@comma{} which can be distracting.
+
+@vindex org-latex-preview-update-delay
+By default@comma{} there is a delay (debounce) of 1 second between editing a
+fragment and generating a live preview.  This can be changed by
+setting @code{org-latex-preview-mode-update-delay}.  Note that values of
+0.1 or lower can cause high CPU utilization.
+
+@vindex org-latex-preview-overlay-open-functions
+@vindex org-latex-preview-overlay-close-functions
+When @code{org-latex-preview-mode} is active@comma{} the hooks
+@code{org-latex-preview-overlay-open-functions} and
+@code{org-latex-preview-overlay-close-functions} run when the cursor moves
+into or out of a preview overlay@comma{} respectively.  Hook functions are
+called with one argument@comma{} the overlay being ``opened'' or ``closed''.
+These hooks can be used to modify the overlay or image properties.
+
+@vindex org-latex-preview-mode-display-type
+Finally@comma{} when editing a fragment live previews can be displayed in a
+few different locations.  The default setting displays them next to
+the @LaTeX{} element when editing inline fragments@comma{} and under the @LaTeX{}
+element when editing @LaTeX{} environments.  Alternatively@comma{} the preview
+can be displayed via Eldoc in a location determined by
+@code{eldoc-display-functions}.  To set this customize
+@code{org-latex-preview-mode-display-type} and turn on @code{eldoc-mode}.
+
+@node Customizing the @LaTeX{} preview process
+@subsubsection Customizing the @LaTeX{} preview process
+
+The @LaTeX{} preview process pipeline works as follows:
+
+@cindex @LaTeX{} fragments, precompilation
+@enumerate
+@item
+@LaTeX{} fragments in the region being previewed are collected.
+@item
+The @LaTeX{} preamble for the buffer is constructed.  If the @LaTeX{}
+compiler in use (see next) supports precompilation@comma{} an object dump
+is created to drastically speed up subsequent previews in the
+buffer.
+@item
+They are compiled to dvi format using @code{org-latex-compiler}@comma{} which
+can be @samp{pdflatex}@comma{} @samp{xelatex} or @samp{lualatex} (see @ref{@LaTeX{}/PDF export commands}).
+@item
+The dvi file is converted to an image placed over the text of the
+@LaTeX{} fragments in Org buffers.  These images can be PNGs (when
+using the @samp{dvipng} or @samp{convert} programs) or SVGs (when using
+@samp{dvisvgm}).  This image is then cached for the future.
+@item
+When previewing an unmodified @LaTeX{} fragment for a second time@comma{} the
+image is placed directly from the cache.
+@end enumerate
+
+Accordingly@comma{} each step of this pipeline can be independently customized.
+
+@vindex org-latex-preview-process-precompile
+Precompilation is enabled by default@comma{} and you can disable it by
+setting @code{org-latex-preview-process-precompile}.  Currently only
+@samp{pdflatex} supports precompilation consistently@comma{} and it is
+automatically disabled when using @samp{xelatex} or @samp{lualatex}.  It is also
+disabled buffer-locally if the precompilation attempt fails for some
+reason.  In this case you can re-enable it by reverting the buffer or
+running @code{org-mode-restart}.
+
+You can customize the @LaTeX{} engine used to process the fragments by
+setting @code{org-latex-compiler}@comma{} (see @ref{@LaTeX{}/PDF export commands}).
+@samp{pdflatex} with precompilation can produce previews that update the
+fastest@comma{} close to real-time.  @samp{lualatex} has the best font and unicode
+support but previewing will be much slower.
+
+@vindex org-latex-preview-process-default
+To choose the program used for generating preview images@comma{} you can set
+the option @code{org-latex-preview-process-default} to one of the symbols
+@samp{dvipng}@comma{} @samp{dvisvgm} or @samp{imagemagick}.  @samp{dvisvgm}@comma{} the default@comma{} offers
+the best quality images that display well on HiDPI screens@comma{} as well as
+features like Emacs theme awareness.  @samp{dvipng} previews are more basic
+but are generated the fastest.  The @samp{imagemagick} route is supported
+but slow@comma{} and should be avoided if possible.
+
+@vindex org-latex-preview-process-alist
+Details of the process chain@comma{} such as the command line arguments used
+to call @samp{pdflatex} and @samp{dvisvgm}@comma{} can be changed by modifying
+@code{org-latex-preview-process-alist}.  It is not recommended to do
+this unless you have very specific needs.
+
+@vindex org-latex-preview-cache
+@vindex org-latex-preview-persist-expiry
+You can control where @LaTeX{} previews are cached by customizing
+@code{org-latex-preview-cache}.  By default@comma{} Org stores them in
+@code{org-persist-directory} with an expiry determined by
+@code{org-latex-preview-persist-expiry}.  It can also be set to a string
+naming an absolute or relative path@comma{} or to the symbol @samp{temp} to not
+cache images beyond the current Emacs session.
+
+@findex org-latex-preview-clear-cache
+The @LaTeX{} preview cache can be manually cleared (globally or
+buffer-locally) by calling @code{org-latex-preview-clear-cache}.
+
+@vindex org-latex-preview-process-active-indicator
+When a preview process is running@comma{} a visual processing indicator is
+placed on the corresponding @LaTeX{} fragments.  This defaults to a
+triangle in the fringe to the left@comma{} but can be customized by setting
+@code{org-latex-preview-process-active-indicator}.
+
+@vindex org-latex-preview-process-finish-functions
+@vindex org-latex-preview-overlay-update-functions
+Two hooks may be used to perform additional processing when generating
+or updating previews for fragments.  The hook
+@code{org-latex-preview-process-finish-functions} may be used to perform
+additional processing at the end of a preview creation process chain.
+Each hook function is called with three process-related arguments: the
+process exit code@comma{} the process buffer and a plist of process data.
+@code{org-latex-preview-overlay-update-functions} runs when the preview
+image for an overlay changes.  It can be used to modify the overlay
+appropriately@comma{} for example to center the image in the buffer.  Hook
+functions are called with one argument@comma{} the overlay being updated.
+
+@node Customizing the @LaTeX{} preview preamble
+@subsubsection Customizing the @LaTeX{} preview preamble
+
+@cindex @LaTeX{} preview preamble
+@vindex org-format-latex-header
+@vindex org-latex-preview-preamble
+You can customize @code{org-latex-preview-preamble} to specify the default
+@LaTeX{} preamble used for processing @LaTeX{} fragments.  This can include
+the placeholder strings @samp{[DEFAULT-PACKAGES]} and @samp{[PACKAGES]} to
+include packages specified in @code{org-latex-default-packages-alist} and
+@code{org-latex-packages-alist} respectively.  See @code{org-latex-classes} for
+a detailed description of the placeholders.  When previewing@comma{} this
+preamble will be combined with keywords specified in the document via
+
+@noindent
+@example
+#+LATEX_HEADER:
+@end example
+
+A small preamble is recommended if you are using real-time (live)
+@LaTeX{} previews.  To help with this you can specify header content to
+be used for @LaTeX{} exports but not previews via the
+@samp{#+LATEX_HEADER_EXTRA} keyword@comma{} (see @ref{@LaTeX{} specific export settings}).
+
+@node Customizing the @LaTeX{} preview appearance
+@subsubsection Customizing the @LaTeX{} preview appearance
+
+By default@comma{} @LaTeX{} previews are colored@comma{} sized and aligned to fit in
+correctly with the surrounding text.  If you are using SVG previews
+(the default)@comma{} they will also change colors automatically when you
+change faces or Emacs themes.
+
+@vindex org-format-latex-options
+@vindex org-latex-preview-appearance-options
+If the results are not to your liking@comma{} you can customize the
+appearance of @LaTeX{} previews by modifying
+@code{org-latex-preview-appearance-options}. This plist can be used to
+specify the following aspects of the appearance of @LaTeX{} previews:
+
+@itemize
+@item
+Foreground and background: by default the foreground matches the
+color of the surrounding text and the background is transparent.
+The @code{:foreground} and @code{:background} properties can be used to change
+this.
+@item
+Zoom and scale: The @code{:zoom} property controls the relative size of
+the preview as displayed in the buffer@comma{} and @code{:scale} controls the
+size of the generated image.  @code{:scale} has no meaning for SVG
+images.
+@item
+Page width: The @code{:page-width} property determines the width of the
+preview image (including whitespace padding) of @LaTeX{} environments.
+@end itemize
+
+@vindex org-latex-preview-numbered
+When generating previews@comma{} Org mode can track equation numbers and keep
+them consistent by regenerating previews when necessary.  This
+behavior is controlled by the user option
+@code{org-latex-preview-numbered}.
 
 @node CD@LaTeX{} mode
 @subsection Using CD@LaTeX{} to enter math
@@ -12729,7 +13010,7 @@ text.  Markers always start with @samp{fn:}.  For example:
 @example
 The Org website[fn:1] now looks a lot better than it used to.
 ...
-[fn:50] The link is: https://orgmode.org
+[fn:51] The link is: https://orgmode.org
 @end example
 
 Org mode extends the number-based syntax to @emph{named} footnotes and
@@ -14774,12 +15055,11 @@ variables.  The MathJax template can be configured via
 @code{#+HTML_MATHJAX_TEMPLATE}.  This keyword can be set multiple times in
 the buffer@comma{} to set a multi-line template.
 
-If you prefer@comma{} you can also request that @LaTeX{} fragments are processed
-into small images that will be inserted into the browser page.  Before
-the availability of MathJax@comma{} this was the default method for Org
-files.  This method requires that the dvipng program@comma{} dvisvgm or
-ImageMagick suite is available on your system.  You can still get this
-processing with
+Alternatively@comma{} @LaTeX{} fragments can be processed into images that will
+be inserted into the browser page.  This method requires that the
+dvipng program@comma{} dvisvgm or ImageMagick suite be available on your
+system.  Before the availability of MathJax@comma{} this was the default
+method for Org files. You can get this processing with
 
 @example
 #+OPTIONS: tex:dvipng
@@ -14795,6 +15075,16 @@ or
 @example
 #+OPTIONS: tex:imagemagick
 @end example
+
+The images are scaled and aligned to fit in with surrounding text@comma{}
+respecting baselines and ascent.  The @LaTeX{} source for an image is
+available as its alt-text in the HTML document.
+
+@vindex org-html-latex-image-options
+The apperance and inclusion method of @LaTeX{} preview images in HTML
+exports is governed by the option @code{org-html-latex-image-options}.  In
+particular@comma{} the @samp{:image-dir} key controls the absolute or relative
+path where @LaTeX{} preview images are stored.
 
 @node Text areas in HTML export
 @subsection Text areas in HTML export
@@ -16755,9 +17045,11 @@ Formula in the exported document.
 
 @vindex org-latex-to-mathml-convert-command
 @vindex org-latex-to-mathml-jar-file
+@vindex org-mathml-convert-command
+@vindex org-mathml-converter-jar-file
 You can specify the @LaTeX{}-to-MathML converter by customizing the
-variables @code{org-latex-to-mathml-convert-command} and
-@code{org-latex-to-mathml-jar-file}.
+variables @code{org-mathml-convert-command} and
+@code{org-mathml-converter-jar-file}.
 
 If you prefer to use MathToWeb@footnote{ See
 @uref{https://mathtoweb.sourceforge.io/, MathToWeb}.}
@@ -16765,9 +17057,9 @@ as your converter@comma{} you can configure the above variables as shown
 below.
 
 @lisp
-(setq org-latex-to-mathml-convert-command
+(setq org-mathml-convert-command
       "java -jar %j -unicode -force -df %o %I"
-      org-latex-to-mathml-jar-file
+      org-mathml-converter-jar-file
       "/path/to/mathtoweb.jar")
 @end lisp
 
@@ -16776,7 +17068,7 @@ or@comma{} to use @LaTeX{}​ML@footnote{ See @uref{https://dlmf.nist.gov/LaTeXM
 instead@comma{}
 
 @lisp
-(setq org-latex-to-mathml-convert-command
+(setq org-mathml-convert-command
       "latexmlmath %i --presentationmathml=%o")
 @end lisp
 
@@ -18958,6 +19250,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @tab @code{org-html-inline-image-rules}
 @item @code{:html-link-org-files-as-html}
 @tab @code{org-html-link-org-files-as-html}
+@item @code{:html-latex-image-options}
+@tab @code{org-html-latex-image-options}
 @item @code{:html-mathjax-options}
 @tab @code{org-html-mathjax-options}
 @item @code{:html-mathjax-template}
@@ -19170,6 +19464,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @tab @code{org-odt-table-styles}
 @item @code{:odt-use-date-fields}
 @tab @code{org-odt-use-date-fields}
+@item @code{:odt-latex-image-options}
+@tab @code{org-odt-latex-image-options}
 @item @code{:with-latex}
 @tab @code{org-odt-with-latex}
 @end multitable

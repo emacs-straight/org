@@ -25,6 +25,51 @@ Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
 # require user action for most Org mode users.
 # Sorted from most important to least important.
 
+*** The LaTeX preview system has been overhauled
+
+Org mode's LaTeX preview system has been rewritten with several improvements and new features.
+
+- LaTeX Previews are generated in bulk, and hundreds of LaTeX
+  fragments can be processed per second.
+- Images are placed in the buffer continuously as they are generated.
+- Preview generation is asynchronous and will not block Emacs.
+- Inline previews are aligned and scaled to match the font baseline
+  and size.
+- Previews scale along with text when the text scale is changed.
+- Previews are coloured to match surrounding text and the active
+  theme.
+- SVG previews automatically change colors when the active theme
+  changes.
+- Error encountered when compiling LaTeX fragments can be accessed by
+  mousing over preview images.
+- All of the above applies also to images generated for LaTeX
+  fragments in HTML and ODT exports using the dvisvgm and dvipng
+  methods.
+
+Additionally,
+- Preview overlays can hide and show themselves dynamically based on
+  cursor position.
+- Org mode can auto-generate LaTeX previews as you type or edit the
+  text of existing ones.
+- Org mode can keep equation numbering consistent by regenerating
+  previews as needed.
+
+Relevant options and commands can be found via =M-x customize-group=
+=org-latex-preview=, and in the Org manual.
+
+*** LaTeX previews now require the preview.sty LaTeX package or style file
+
+The new LaTeX preview system requires the preview.sty LaTeX package or
+style file to be available.  preview.sty is included by default with
+all commonly used TeX distributions.
+
+For information on preview.sty see
+https://ctan.org/tex-archive/macros/latex/contrib/preview?lang=en.
+*** New library =ox-mathml= implements support for MathML exports
+
+This library is composed of code from and provides functionality that
+was previously spread across =org=, =ox-html= and =ox-odt=.
+
 *** Beamer export puts theme information right after =\documentclass{beamer}=
 
 The Beamer exporter now places the theme configuration immediately
@@ -58,61 +103,5 @@ into a "Tags" section and a "Priorities" section.
 *** ~org-babel-tangle-single-block~ may return multiple target files
 
 When called with non-nil ONLY-THIS-BLOCK,
-~org-babel-tangle-single-block~ can now return multiple target file
-entries if a source block tangles to more than one file.
-
-Previously, the returned list always contained exactly one element.
-The return value structure is unchanged, but callers should no longer
-assume that the outer list has length one, which means ~(car
-(org-babel-tangle-single-block ...))~ is not guaranteed to return
-the correct ~(FILE . ...)~ cons.
-
-** New features
-
-# We list the most important features, and the features that may
-# require user action to be used.
-
-*** Column view now has quick help
-
-Column view has a quick-help popup, available with =?= when point is
-in the column view display.  It lists commonly used column view
-bindings.
-
-*** Link targets can be used as search option in =id:= links
-
-When storing an =id:= link to target, the target will now be used as a
-search option. This mirrors what happens with =file:= links.
-You need to set ~org-id-link-to-org-use-id~ to make Org store =id:=
-link by default.
-
-See also ~org-id-link-use-context~ and ~org-link-context-for-files~.
-
-For example, link to =<<target>>=
-
-: * Heading
-: :PROPERTIES:
-: :ID: foo
-: :END:
-: Some text with <<target>>.
-
-will be stored as
-: [[id:foo::target][target]]
-
-*** New actions in the ~org-mouse~ priority menus
-
-Priorities can now be increased, decreased, set to the default, and
-set interactively from the priority context menus.
-
-*** ob-tangle.el now supports tangling to multiple targets
-
-Source blocks can now be tangled to multiple target files using
-the ~:tangle~ header argument.  The following forms are now supported:
-
-- =:tangle "file1.el"= (existing behavior)
-- =:tangle '("file1.el" "file2.el")= (new: list of files)
-- =:tangle (get-tangle-targets)= (new: function returning paths)
-- =:tangle 'tangle-targets= (new: variable returning paths)
-
-Additionally, the new ~:tangle-directory~ header argument specifies
 ...
 ...
