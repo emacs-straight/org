@@ -227,7 +227,7 @@ When matching, reference is stored in match group 1."
    ;; (4) header arguments
    "\\([^\n]*\\)\n"
    ;; (5) body
-   "\\(\\(?:.\\|\n\\)*?\n\\)??[ \t]*#\\+end_src")
+   "\\([^z-a]*?\n\\)??[ \t]*#\\+end_src")
   "Regexp used to identify code blocks.")
 
 (defun org-babel--get-vars (params)
@@ -2632,7 +2632,9 @@ result:
 				       (<= visible-end existing-result))))
 	       beg end indent)
 	  ;; Ensure non-inline results end in a newline.
-	  (when (and (org-string-nw-p result)
+          (when (and (stringp result) (string-empty-p result))
+            (setq result "\n"))
+	  (when (and (stringp result)
 		     (not inline)
 		     (not (string-equal (substring result -1) "\n")))
 	    (setq result (concat result "\n")))
@@ -3010,7 +3012,7 @@ used as a string to be appended to #+begin_example line."
 		   (org-escape-code-in-region p (point)))
 		 (unless (bolp) (insert "\n"))
 		 (insert (funcall maybe-cap "#+end_example"))
-		 (unless (eolp) (insert "\n")))))))))
+                 (insert "\n"))))))))
 
 (defun org-babel-update-block-body (new-body)
   "Update the body of the current code block to NEW-BODY."

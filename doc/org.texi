@@ -15517,7 +15517,9 @@ Arbitrary lines to prepend before the @LaTeX{} preamble.
 Arbitrary lines with document metadata. When you set
 @code{org-latex-doc-metadata} or you use @code{#+LATEX_DOC_METADATA}@comma{} the
 value will be inserted as @samp{\DocumentMetadata@{<value>@}}
-at the beginning of the @LaTeX{} preamble.
+at the beginning of the @LaTeX{} preamble. The @LaTeX{} exporter will
+replace @samp{%l} with the default language defined with the @code{#+LANGUAGE}
+keyword or in @code{org-export-default-language}.
 
 @item @samp{KEYWORDS}
 @cindex @samp{KEYWORDS}, keyword

@@ -659,7 +659,9 @@ precedence over this variable."
 These metadata add accesibility information to the PDF
 to make it usable by screen readers and similar applications.
 They will be inserted as \"\\DocumentMetadata{<metadata>}\"
-at the beginning of the generated LaTeX preamble."
+at the beginning of the generated LaTeX preamble.
+
+Replaces %l with `org-export-default-language' automatically."
 
   :package-version '(Org . "10")
   :type '(choice (const :tag "No metadata" nil)
@@ -2292,7 +2294,9 @@ specified in `org-latex-default-packages-alist' or
 		                (list
                                  (and (not snippet?)
                                       doc-metadata
-                                      (format "\\DocumentMetadata{%s}" doc-metadata))
+                                      (format "\\DocumentMetadata{%s}"
+                                              (string-replace "%l" (plist-get info :language)
+                                                              doc-metadata)))
                                  (and (not snippet?)
                                       (plist-get info :latex-class-pre))
 		                 (if (or (not class-options)
@@ -2769,13 +2773,13 @@ INFO is the communication plist."
   (org-export-create-backend
    :parent 'latex
    :transcoders
-   '((underline . #'(lambda (o c i) (format "\\underline{%s}" c)))
+   '((underline . (lambda (o c i) (format "\\underline{%s}" c)))
      ;; LaTeX isn't happy when you try to use \verb inside the argument of other
      ;; commands (like \section, etc.), and this causes compilation to fail.
      ;; So, within headings it's a good idea to replace any instances of \verb
      ;; with \texttt.
-     (code . #'(lambda (o _ _) (org-latex--protect-texttt (org-element-property :value o))))
-     (verbatim . #'(lambda (o _ _) (org-latex--protect-texttt (org-element-property :value o))))))
+     (code . (lambda (o _ _) (org-latex--protect-texttt (org-element-property :value o))))
+     (verbatim . (lambda (o _ _) (org-latex--protect-texttt (org-element-property :value o))))))
   "Export backend that hard-codes \\underline within \\section and alike.")
 
 (defconst org-latex--section-no-footnote-backend
