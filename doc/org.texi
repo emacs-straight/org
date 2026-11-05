@@ -15521,6 +15521,22 @@ at the beginning of the @LaTeX{} preamble. The @LaTeX{} exporter will
 replace @samp{%l} with the default language defined with the @code{#+LANGUAGE}
 keyword or in @code{org-export-default-language}.
 
+@item @samp{LATEX_FONTSPEC_FEATURES}
+@cindex @samp{LATEX_FONTSPEC_FEATURES}, keyword
+@vindex org-latex-fontspec-default-features
+The default features the @code{fontspec} package will apply to the
+document's fonts. This keyword or
+@code{org-latex-fontspec-default-features} should hold a string with a
+comma-separated list of default settings for @code{fontspec}-related
+features. Refer to the
+@uref{https://texdoc.org/serve/fontspec/0, package's manual} Part III@comma{}
+Section 1 for more details.
+
+For example:
+@example
+#+LATEX_FONTSPEC_FEATURES: Ligatures=TeX@comma{}Scale=MatchLowercase
+@end example
+
 @item @samp{KEYWORDS}
 @cindex @samp{KEYWORDS}, keyword
 @vindex org-latex-hyperref-template
@@ -16447,6 +16463,24 @@ more uniform appearance to your document:
         ("mono" :font "TeX Gyre Cursor" :features "Scale=MatchLowercase")
         ("math" :font "TeX Gyre Math")))
 @end lisp
+
+@vindex org-latex-fontspec-default-features
+You can use the keyword @samp{#+LATEX_LATEX_FONTSPEC_FEATURES} or the
+variable @code{org-latex-fontspec-default-features} to set common features
+for all fontspec-managed fonts. For example:
+
+@lisp
+(setq org-latex-fontspec-config
+      '(("main" :font "TeX Gyre Termes")
+        ("sans" :font "TeX Gyre Heros")
+        ("mono" :font "TeX Gyre Cursor")
+        ("math" :font "TeX Gyre Math"))
+      org-latex-fontspec-default-features
+      "Scale=MatchLowercase"))
+@end lisp
+
+will apply scaling to all fonts@comma{} providing a more uniform look to the
+document.
 
 @menu
 * Fallback fonts with Lua@LaTeX{}::
@@ -19395,6 +19429,8 @@ any@comma{} during publishing.  Options set within a file (see @ref{Export Setti
 @tab @code{org-latex-use-sans}
 @item @code{:latex-fontspec-config}
 @tab @code{org-latex-fontspec-config}
+@item @code{:latex-fontspec-defaults}
+@tab @code{org-latex-fontspec-default-features}
 @end multitable
 
 @anchor{Markdown specific properties}
