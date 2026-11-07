@@ -48,6 +48,7 @@
 
 (declare-function org-time-string-to-time "org" (s))
 (declare-function orgtbl-to-generic "org-table" (table params))
+(declare-function org-element-interpret-data "org-element" (data))
 (declare-function gnuplot-mode "ext:gnuplot-mode" ())
 (declare-function gnuplot-send-string-to-gnuplot "ext:gnuplot-mode" (str txt))
 (declare-function gnuplot-send-buffer-to-gnuplot "ext:gnuplot-mode" ())
@@ -97,7 +98,7 @@ code."
 	      (org-babel-gnuplot-table-to-data
 	       (let* ((first  (car val))
 		      (tablep (or (listp first) (symbolp first))))
-		 (if tablep val (mapcar 'list val)))
+		 (if tablep val (mapcar #'list val)))
                ;; Make temporary file name stable with respect to data.
                ;; If we do not do it, :cache argument becomes useless.
                (org-babel-temp-stable-file (cons val params) "gnuplot-")
@@ -283,7 +284,7 @@ then create one.  Return the initialized session.  The current
       (if (zerop (length s))
 	  (or *org-babel-gnuplot-missing* s)
 	(if (string-match "[ \"]" s)
-	    (concat "\"" (mapconcat 'identity (split-string s "\"") "\"\"")
+	    (concat "\"" (mapconcat #'identity (split-string s "\"") "\"\"")
 		    "\"")
 	  s)))))
 
@@ -304,13 +305,13 @@ Pass PARAMS through to `orgtbl-to-generic' when exporting TABLE."
                     :parent 'ascii
                     :transcoders
                     `(;; Do not try to resolve links.  Export them verbatim.
-                      (link . (lambda (link _ _) (org-element-interpret-data link)))
+                      (link . ,(lambda (link _ _) (org-element-interpret-data link)))
                       ;; Drop emphasis markers from verbatim and code.
                       ;; This way, data can use verbatim when escaping
                       ;; is necessary and yet be readable by Gnuplot,
                       ;; which is not aware about Org's markup.
-                      (verbatim . (lambda (verbatim _ _) (org-element-property :value verbatim)))
-                      (code . (lambda (code _ _) (org-element-property :value code)))))))
+                      (verbatim . ,(lambda (verbatim _ _) (org-element-property :value verbatim)))
+                      (code . ,(lambda (code _ _) (org-element-property :value code)))))))
 	      (orgtbl-to-generic
 	       table
 	       (org-combine-plists

@@ -141,7 +141,7 @@ This function should only be called by `org-babel-execute:C' or
 	 (cmdline (cdr (assq :cmdline params)))
 	 (cmdline (if cmdline (concat " " cmdline) ""))
 	 (flags (cdr (assq :flags params)))
-	 (flags (mapconcat 'identity
+	 (flags (mapconcat #'identity
 			   (if (listp flags) flags (list flags)) " "))
 	 (libs (org-babel-read
 		(or (cdr (assq :libs params))
@@ -233,7 +233,7 @@ This function should only be called by `org-babel-execute:C' or
            (and prologue (concat prologue "\n"))
            body
            (and epilogue (concat "\n" epilogue "\n"))))
-    (mapconcat 'identity
+    (mapconcat #'identity
 	       (list
 		;; includes
 		(mapconcat
@@ -255,9 +255,9 @@ This function should only be called by `org-babel-execute:C' or
 		 namespaces
 		 "\n")
 		;; variables
-		(mapconcat 'org-babel-C-var-to-C vars "\n")
+		(mapconcat #'org-babel-C-var-to-C vars "\n")
 		;; table sizes
-		(mapconcat 'org-babel-C-table-sizes-to-C vars "\n")
+		(mapconcat #'org-babel-C-table-sizes-to-C vars "\n")
 		;; tables headers utility
 		(when colnames
 		  (org-babel-C-utility-header-to-C))
@@ -285,7 +285,7 @@ This function should only be called by `org-babel-execute:C' or
     (when (stringp imports)
       (setq imports (split-string imports)))
     (setq imports (append imports '("std.stdio" "std.conv")))
-    (mapconcat 'identity
+    (mapconcat #'identity
 	       (list
 		"module mmm;"
 		;; imports
@@ -293,9 +293,9 @@ This function should only be called by `org-babel-execute:C' or
 		 (lambda (inc) (format "import %s;" inc))
 		 imports "\n")
 		;; variables
-		(mapconcat 'org-babel-C-var-to-C vars "\n")
+		(mapconcat #'org-babel-C-var-to-C vars "\n")
 		;; table sizes
-		(mapconcat 'org-babel-C-table-sizes-to-C vars "\n")
+		(mapconcat #'org-babel-C-table-sizes-to-C vars "\n")
 		;; tables headers utility
 		(when colnames
 		  (org-babel-C-utility-header-to-C))
@@ -358,7 +358,8 @@ FORMAT can be either a format string or a function which is called with VAL."
      ((integerp val) type) ;; an integer declared in the #+begin_src line
      ((floatp val) type) ;; a numeric declared in the #+begin_src line
      ((and (listp val) (listp (car val))) ;; a table
-      `(,(car type)
+      (list
+        (car type)
 	(lambda (val)
 	  (cons
            (pcase org-babel-c-variant
@@ -370,19 +371,20 @@ FORMAT can be either a format string or a function which is called with VAL."
 	     (lambda (v)
 	       (concat
 		(if (eq org-babel-c-variant 'd) " [" " {")
-		(mapconcat (lambda (w) (format ,(cadr type) w)) v ",")
+		(mapconcat (lambda (w) (format (cadr type) w)) v ",")
 		(if (eq org-babel-c-variant 'd) "]" "}")))
 	     val
 	     ",\n")
 	    (if (eq org-babel-c-variant 'd) "\n]" "\n}"))))))
      ((or (listp val) (vectorp val)) ;; a list declared in the #+begin_src line
-      `(,(car type)
+      (list
+       (car type)
 	(lambda (val)
 	  (cons
 	   (format "[%d]" (length val))
 	   (concat
 	    (if (eq org-babel-c-variant 'd) "[" "{")
-	    (mapconcat (lambda (v) (format ,(cadr type) v)) val ",")
+	    (mapconcat (lambda (v) (format (cadr type) v)) val ",")
 	    (if (eq org-babel-c-variant 'd) "]" "}"))))))
      (t ;; treat unknown types as string
       type))))

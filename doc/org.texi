@@ -2908,7 +2908,7 @@ inserted as space-separated fields@comma{} so they can be embedded in list or
 vector syntax.  For example:
 
 @example
-'(apply '+ '($1..$4));N
+'(apply #'+ '($1..$4));N
 @end example
 
 @noindent
@@ -15521,8 +15521,8 @@ at the beginning of the @LaTeX{} preamble. The @LaTeX{} exporter will
 replace @samp{%l} with the default language defined with the @code{#+LANGUAGE}
 keyword or in @code{org-export-default-language}.
 
-@item @samp{LATEX_FONTSPEC_FEATURES}
-@cindex @samp{LATEX_FONTSPEC_FEATURES}, keyword
+@item @samp{LATEX_FONTSPEC_DEFAULTS}
+@cindex @samp{LATEX_FONTSPEC_DEFAULTS}, keyword
 @vindex org-latex-fontspec-default-features
 The default features the @code{fontspec} package will apply to the
 document's fonts. This keyword or
@@ -15534,7 +15534,7 @@ Section 1 for more details.
 
 For example:
 @example
-#+LATEX_FONTSPEC_FEATURES: Ligatures=TeX@comma{}Scale=MatchLowercase
+#+LATEX_FONTSPEC_DEFAULTS: Ligatures=TeX@comma{}Scale=MatchLowercase
 @end example
 
 @item @samp{KEYWORDS}
@@ -16465,7 +16465,7 @@ more uniform appearance to your document:
 @end lisp
 
 @vindex org-latex-fontspec-default-features
-You can use the keyword @samp{#+LATEX_LATEX_FONTSPEC_FEATURES} or the
+You can use the keyword @samp{#+LATEX_LATEX_FONTSPEC_DEFAULTS} or the
 variable @code{org-latex-fontspec-default-features} to set common features
 for all fontspec-managed fonts. For example:
 

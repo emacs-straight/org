@@ -99,7 +99,7 @@
   "Expand BODY according to the values of PARAMS."
   (let ((prologue (cdr (assq :prologue params)))
 	(epilogue (cdr (assq :epilogue params))))
-    (mapconcat 'identity
+    (mapconcat #'identity
                (delq nil (list prologue
                                (org-babel-sql-expand-vars
                                 body (org-babel--get-vars params))
@@ -414,12 +414,11 @@ argument mechanism."
                   (let ((data-file (org-babel-temp-file "sql-data-")))
                     (with-temp-file data-file
                       (insert (orgtbl-to-csv
-                               val (if sqlite
-                                       nil
-                                     '( :fmt (lambda (el)
-                                               (if (stringp el)
-                                                   el
-                                                 (format "%S" el)))
+                               val (unless sqlite
+                                     `( :fmt ,(lambda (el)
+                                                (if (stringp el)
+                                                    el
+                                                  (format "%S" el)))
                                         :with-special-rows nil)))))
                     data-file)
                 (if (stringp val) val (format "%S" val))))

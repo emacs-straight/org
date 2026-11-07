@@ -509,11 +509,11 @@ Note that individual languages may define their own language
 specific header arguments as well.")
 
 (defconst org-babel-safe-header-args
-  '(:cache :colnames :comments :exports :epilogue :hlines :noeval
+  `(:cache :colnames :comments :exports :epilogue :hlines :noeval
 	   :noweb :noweb-ref :noweb-sep :noweb-prefix :padline
            :prologue :rownames :sep :session :tangle :wrap
 	   (:eval . ("never" "query"))
-	   (:results . (lambda (str) (not (string-match "file" str)))))
+	   (:results . ,(lambda (str) (not (string-match "file" str)))))
   "A list of safe header arguments for babel source blocks.
 
 The list can have entries of the following forms:
@@ -1624,7 +1624,7 @@ portions of results lines."
 
 (defun org-babel-show-result-all ()
   "Unfold all results in the current buffer."
-  (mapc 'delete-overlay org-babel-hide-result-overlays)
+  (mapc #'delete-overlay org-babel-hide-result-overlays)
   (setq org-babel-hide-result-overlays nil))
 
 ;;;###autoload
@@ -1909,7 +1909,7 @@ Note: this function removes any hlines in TABLE."
 
 (defun org-babel-put-colnames (table colnames)
   "Add COLNAMES to TABLE if they exist."
-  (if colnames (apply 'list colnames 'hline table) table))
+  (if colnames (apply #'list colnames 'hline table) table))
 
 (defun org-babel-put-rownames (table rownames)
   "Add ROWNAMES to TABLE if they exist."

@@ -108,13 +108,13 @@
                                        org-html-prepare-latex-images)
 		   (:filter-final-output . org-html-final-function))
   :menu-entry
-  '(?h "Export to HTML"
+  `(?h "Export to HTML"
        ((?H "As HTML buffer" org-html-export-as-html)
 	(?h "As HTML file" org-html-export-to-html)
 	(?o "As HTML file and open"
-	    (lambda (a s v b)
-	      (if a (org-html-export-to-html t s v b)
-		(org-open-file (org-html-export-to-html nil s v b)))))))
+	    ,(lambda (a s v b)
+	       (if a (org-html-export-to-html t s v b)
+		 (org-open-file (org-html-export-to-html nil s v b)))))))
   :options-alist
   '((:html-doctype "HTML_DOCTYPE" nil org-html-doctype)
     (:html-container "HTML_CONTAINER" nil org-html-container-element)
@@ -1825,7 +1825,7 @@ alist."
 ATTRIBUTES is a plist where values are either strings or nil.  An
 attribute with a nil value will be omitted from the result."
   (let (output)
-    (dolist (item attributes (mapconcat 'identity (nreverse output) " "))
+    (dolist (item attributes (mapconcat #'identity (nreverse output) " "))
       (cond ((null item) (pop output))
             ((symbolp item) (push (substring (symbol-name item) 1) output))
             (t (let ((key (car output))
