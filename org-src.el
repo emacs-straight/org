@@ -49,10 +49,12 @@
 (declare-function org-element-context "org-element" (&optional element))
 (declare-function org-element-lineage "org-element-ast"
 		  (blob &optional types with-self))
+(declare-function org-src-preserve-indentation-p "org-element" (&optional node))
 (declare-function org-element--parse-paired-brackets "org-element" (char))
 (declare-function org-element-property "org-element-ast" (property node))
 (declare-function org-element-begin "org-element" (node))
 (declare-function org-element-end "org-element" (node))
+(declare-function org-unescape-code-in-string "org-element" (s))
 (declare-function org-element-contents-begin "org-element" (node))
 (declare-function org-element-contents-end "org-element" (node))
 (declare-function org-element-post-affiliated "org-element" (node))
@@ -116,37 +118,7 @@ These are the regions where each line starts with a colon."
 	  (const fundamental-mode)
 	  (function :tag "Other (specify)")))
 
-(defcustom org-src-preserve-indentation nil
-  "If non-nil preserve leading whitespace characters on export.
-
-If non-nil leading whitespace characters in source code blocks are
-preserved on export, or adjusted while indenting or when switching
-between the org buffer and the language mode edit buffer.
-
-When this variable is nil, while indenting with `\\[org-indent-block]'
-or after editing with `\\[org-edit-src-code]', the minimum (across-lines)
-number of leading whitespace characters are removed from all lines,
-and the code block is uniformly indented according to the value of
-`org-src-content-indentation'."
-  :group 'org-edit-structure
-  :type 'boolean)
-
-(defcustom org-src-content-indentation 2
-  "Indentation for the content of a source code block.
-
-This should be the number of spaces added to the indentation of the #+begin
-line in order to compute the indentation of the block content after
-editing it with `\\[org-edit-src-code]'.
-
-This customization also affects how the source code and example blocks
-are printed - when interpreting Org AST (during export), during
-detangling, and indentation.
-
-It has no effect if `org-src-preserve-indentation' is non-nil."
-  :group 'org-edit-structure
-  :package-version '(Org . "9.8")
-  :type 'integer
-  :safe #'wholenump)
+(defvar org-src-content-indentation)
 
 (defcustom org-edit-src-persistent-message t
   "Non-nil means show persistent exit help message while editing src examples.
@@ -470,14 +442,6 @@ spaces after it as being outside."
 	   (if (eq (org-element-class datum) 'element)
 	       (line-end-position)
 	     (point))))))
-
-(defun org-src-preserve-indentation-p (&optional node)
-  "Non-nil when indentation should be preserved within NODE.
-When NODE is not passed, assume element at point."
-  (let ((node (or node (org-element-at-point))))
-    (and (org-element-type-p node '(example-block src-block))
-         (or (org-element-property :preserve-indent node)
-	     org-src-preserve-indentation))))
 
 (defun org-src--contents-for-write-back-1
     ( write-back-buf contents
@@ -833,6 +797,9 @@ as `org-src-fontify-natively' is non-nil."
 
 ;;; Escape contents
 
+(defvar org-element--context-free-escaped-re)
+(defvar org-element--context-free-re)
+
 (defun org-escape-code-in-region (beg end)
   "Escape lines between BEG and END.
 Escaping happens when a line starts with \"*\", \"#+\", \",*\" or
@@ -840,15 +807,8 @@ Escaping happens when a line starts with \"*\", \"#+\", \",*\" or
   (interactive "r")
   (save-excursion
     (goto-char end)
-    (while (re-search-backward "^[ \t]*\\(,*\\(?:\\*\\|#\\+\\)\\)" beg t)
+    (while (re-search-backward org-element--context-free-re beg t)
       (save-excursion (replace-match ",\\1" nil nil nil 1)))))
-
-(defun org-escape-code-in-string (s)
-  "Escape lines in string S.
-Escaping happens when a line starts with \"*\", \"#+\", \",*\" or
-\",#+\" by appending a comma to it."
-  (replace-regexp-in-string "^[ \t]*\\(,*\\(?:\\*\\|#\\+\\)\\)" ",\\1"
-			    s nil nil 1))
 
 (defun org-unescape-code-in-region (beg end)
   "Un-escape lines between BEG and END.
@@ -857,16 +817,8 @@ with \",*\", \",#+\", \",,*\" and \",,#+\"."
   (interactive "r")
   (save-excursion
     (goto-char end)
-    (while (re-search-backward "^[ \t]*,*\\(,\\)\\(?:\\*\\|#\\+\\)" beg t)
+    (while (re-search-backward org-element--context-free-escaped-re beg t)
       (save-excursion (replace-match "" nil nil nil 1)))))
-
-(defun org-unescape-code-in-string (s)
-  "Un-escape lines in string S.
-Un-escaping happens by removing the first comma on lines starting
-with \",*\", \",#+\", \",,*\" and \",,#+\"."
-  (replace-regexp-in-string
-   "^[ \t]*,*\\(,\\)\\(?:\\*\\|#\\+\\)" "" s nil nil 1))
-
 
 
 ;;; Org src minor mode

@@ -66,35 +66,120 @@
 (require 'ring)
 (require 'cl-lib)
 (require 'ol)
-(require 'org)
 (require 'org-persist)
 (require 'org-compat)
 (require 'org-entities)
 (require 'org-footnote)
+;; FIXME: List parsing is currently implemented outside, in
+;; org-list.el.  Should ideally put everything parser-related into
+;; org-element.el.
 (require 'org-list)
 (require 'org-macs)
-(require 'org-table)
-(require 'org-fold-core)
+;; For `org-fold-core-cycle-over-indirect-buffers'
+(eval-when-compile (require 'org-fold-core))
 
-(declare-function org-escape-code-in-string "org-src" (s))
-(declare-function org-src-preserve-indentation-p "org-src" (&optional node))
-(declare-function org-macro-escape-arguments "org-macro" (&rest args))
-(declare-function org-macro-extract-arguments "org-macro" (s))
-(declare-function org-unescape-code-in-string "org-src" (s))
-(declare-function org-inlinetask-outline-regexp "org-inlinetask" ())
-(declare-function outline-next-heading "outline" ())
-
-(defvar org-complex-heading-regexp)
 (defvar org-done-keywords)
-(defvar org-src-content-indentation)
-(defvar org-match-substring-regexp)
-(defvar org-odd-levels-only)
-(defvar org-property-drawer-re)
-(defvar org-property-format)
-(defvar org-property-re)
-(defvar org-tags-column)
 (defvar org-todo-regexp)
-(defvar org-ts-regexp-both)
+
+
+;;; Customization
+
+;; FIXME: Despite being intended purely for visuals, this
+;; customization affects how parser assigns :level property.
+(defcustom org-odd-levels-only nil
+  "Non-nil means skip even levels and only use odd levels for the outline.
+This has the effect that two stars are being added/taken away in
+promotion/demotion commands.  It also influences how levels are
+handled by the exporters.
+Changing it requires restart of `font-lock-mode' to become effective
+for fontification also in regions already fontified.
+You may also set this on a per-file basis by adding one of the following
+lines to the buffer:
+
+   #+STARTUP: odd
+   #+STARTUP: oddeven"
+  :group 'org-edit-structure
+  :group 'org-appearance
+  :type 'boolean)
+
+(defun org-reduced-level (stars)
+  "Compute the effective level of a heading with number of STARS.
+This takes into account the setting of `org-odd-levels-only'."
+  (cond
+   ((zerop stars) 0)
+   (org-odd-levels-only (1+ (floor (/ stars 2))))
+   (t stars)))
+
+(defcustom org-inlinetask-min-level 15
+  "Minimum level a headline must have before it is treated as an inline task.
+Don't set it to something higher than `29' or clocking will break since this
+is the hardcoded maximum number of stars `org-clock-sum' will work with.
+
+It is strongly recommended that you set `org-cycle-max-level' not at all,
+or to a number smaller than this one.  See `org-cycle-max-level'
+docstring for more details."
+  :group 'org-inlinetask
+  :type '(choice
+	  (const :tag "Off" nil)
+	  (integer)))
+
+(defcustom org-tags-column -77
+  "The column to which tags should be indented in a headline.
+If this number is positive, it specifies the column.  If it is negative,
+it means that the tags should be flushright to that column.  For example,
+-80 works well for a normal 80 character screen.
+When 0, place tags directly after headline text, with only one space in
+between."
+  :group 'org-tags
+  :type 'integer)
+
+(defcustom org-property-format "%-10s %s"
+  "How property key/value pairs should be formatted by `indent-line'.
+When `indent-line' hits a property definition, it will format the line
+according to this format, mainly to make sure that the values are
+lined-up with respect to each other."
+  :group 'org-properties
+  :type 'string)
+
+(defcustom org-src-content-indentation 2
+  "Indentation for the content of a source code block.
+
+This should be the number of spaces added to the indentation of the #+begin
+line in order to compute the indentation of the block content after
+editing it with `\\[org-edit-src-code]'.
+
+This customization also affects how the source code and example blocks
+are printed - when interpreting Org AST (during export), during
+detangling, and indentation.
+
+It has no effect if `org-src-preserve-indentation' is non-nil."
+  :group 'org-edit-structure
+  :package-version '(Org . "9.8")
+  :type 'integer
+  :safe #'wholenump)
+
+(defcustom org-src-preserve-indentation nil
+  "If non-nil preserve leading whitespace characters on export.
+
+If non-nil leading whitespace characters in source code blocks are
+preserved on export, or adjusted while indenting or when switching
+between the org buffer and the language mode edit buffer.
+
+When this variable is nil, while indenting with `\\[org-indent-block]'
+or after editing with `\\[org-edit-src-code]', the minimum (across-lines)
+number of leading whitespace characters are removed from all lines,
+and the code block is uniformly indented according to the value of
+`org-src-content-indentation'."
+  :group 'org-edit-structure
+  :type 'boolean)
+
+(defun org-src-preserve-indentation-p (&optional node)
+  "Non-nil when indentation should be preserved within NODE.
+When NODE is not passed, assume element at point."
+  (let ((node (or node (org-element-at-point))))
+    (and (org-element-type-p node '(example-block src-block))
+         (or (org-element-property :preserve-indent node)
+	     org-src-preserve-indentation))))
 
 
 ;;; Definitions And Rules
@@ -105,6 +190,14 @@
 ;;
 ;; `org-element-update-syntax' builds proper syntax regexps according
 ;; to current setup.
+
+(defun org-inlinetask-outline-regexp ()
+  "Return string matching an inline task heading.
+The number of levels is controlled by `org-inlinetask-min-level'."
+  (let ((nstars (if org-odd-levels-only
+		    (1- (* org-inlinetask-min-level 2))
+		  org-inlinetask-min-level)))
+    (format "^\\(\\*\\{%d,\\}\\)[ \t]+" nstars)))
 
 (defconst org-element-archive-tag "ARCHIVE"
   "Tag marking a subtree as archived.")
@@ -121,6 +214,39 @@ Key is located in match group 1.")
       (zero-or-more (any "\t\n ")))
   "Regexp matching a citation prefix.
 Style, if any, is located in match group 1.")
+
+(defconst org-ts--internal-regexp
+  (rx (seq
+       (= 4 digit) "-" (= 2 digit) "-" (= 2 digit)
+       (optional " " (*? nonl))))
+  "Regular expression matching the innards of a time stamp.")
+
+(defconst org-ts-regexp (format "<\\(%s\\)>" org-ts--internal-regexp)
+  "Regular expression for fast time stamp matching.")
+
+(defconst org-ts-regexp-inactive
+  (format "\\[\\(%s\\)\\]" org-ts--internal-regexp)
+  "Regular expression for fast inactive time stamp matching.")
+
+(defconst org-ts-regexp-both (format "[[<]\\(%s\\)[]>]" org-ts--internal-regexp)
+  "Regular expression for fast time stamp matching.")
+
+(defconst org-tr-regexp (concat org-ts-regexp "--?-?" org-ts-regexp)
+  "Regular expression matching a time stamp range.")
+
+(defconst org-tr-regexp-both
+  (concat org-ts-regexp-both "--?-?" org-ts-regexp-both)
+  "Regular expression matching a time stamp range.")
+
+(defconst org-tsr-regexp (concat org-ts-regexp "\\(--?-?"
+				 org-ts-regexp "\\)?")
+  "Regular expression matching a time stamp or time stamp range.")
+
+(defconst org-tsr-regexp-both
+  (concat org-ts-regexp-both "\\(--?-?"
+	  org-ts-regexp-both "\\)?")
+  "Regular expression matching a time stamp or time stamp range.
+The time stamps may be either active or inactive.")
 
 (rx-let
     ((duration
@@ -154,6 +280,68 @@ Style, if any, is located in match group 1.")
 The first timestamp is in match group 1.
 The second timestamp is in match group 2.
 The duration is in match group 3."))
+
+(defconst org-element-clock-line-re
+  (let ((duration ; "=> 212:12"
+         '(seq
+           (1+ (or ?\t ?\s)) "=>" (1+ (or ?\t ?\s))
+           (1+ digit) ":" digit digit)))
+    (rx-to-string
+     `(seq
+       line-start (0+ (or ?\t ?\s))
+       "CLOCK:"
+       (or
+        (seq
+         (1+ (or ?\t ?\s))
+         (regexp ,org-ts-regexp-inactive)
+         (opt "--"
+              (regexp ,org-ts-regexp-inactive)
+              ,duration))
+        ,duration)
+       (0+ (or ?\t ?\s))
+       line-end)))
+  "Regexp matching a clock line.")
+
+(defconst org-property-drawer-re
+  (concat "^[ \t]*:PROPERTIES:[ \t]*\n"
+	  "\\(?:[ \t]*:\\S-+:\\(?:[ \t].*\\)?[ \t]*\n\\)*?"
+	  "[ \t]*:END:[ \t]*$")
+  "Matches an entire property drawer.")
+
+(defsubst org-re-property (property &optional literal allow-null value)
+  "Return a regexp matching a PROPERTY line.
+
+When optional argument LITERAL is non-nil, do not quote PROPERTY.
+This is useful when PROPERTY is a regexp.  When ALLOW-NULL is
+non-nil, match properties even without a value.
+
+Match group 3 is set to the value when it exists.  If there is no
+value and ALLOW-NULL is non-nil, it is set to the empty string.
+
+With optional argument VALUE, match only property lines with
+that value; in this case, ALLOW-NULL is ignored.  VALUE is quoted
+unless LITERAL is non-nil."
+  (concat
+   "^\\(?4:[ \t]*\\)"
+   (format "\\(?1::\\(?2:%s\\):\\)"
+	   (if literal property (regexp-quote property)))
+   (cond (value
+	  (format "[ \t]+\\(?3:%s\\)\\(?5:[ \t]*\\)$"
+		  (if literal value (regexp-quote value))))
+	 (allow-null
+	  "\\(?:\\(?3:$\\)\\|[ \t]+\\(?3:.*?\\)\\)\\(?5:[ \t]*\\)$")
+	 (t
+	  "[ \t]+\\(?3:[^ \r\t\n]+.*?\\)\\(?5:[ \t]*\\)$"))))
+
+(defconst org-property-re
+  (org-re-property "\\S-+" 'literal t)
+  "Regular expression matching a property line.
+There are four matching groups:
+1: :PROPKEY: including the leading and trailing colon,
+2: PROPKEY without the leading and trailing colon,
+3: PROPVAL without leading or trailing spaces,
+4: the indentation of the current line,
+5: trailing whitespace.")
 
 (defconst org-element-comment-string "COMMENT"
   "String marker for commented headlines.")
@@ -211,6 +399,34 @@ Parameters are in match group 2.")
 (defconst org-element-headline-re
   (rx line-start (1+ "*") " ")
   "Regexp matching a headline.")
+
+(defconst org-element--context-free-re
+  (rx bol (0+ (any " \t"))
+      (group (0+ ",") (or "*" "#+")))
+  "Regexp matching context-free and escaped lines in Org syntax.
+These lines must be comma-escaped to avoid interpreting them and Org
+markup.  Group 1 of the match will contain the sensitive part of the
+line after indentation.")
+
+(defconst org-element--context-free-escaped-re
+  (rx bol (0+ (any " \t"))
+      (0+ ",") (group ",") (or "*" "#+"))
+  "Regexp matching comma-escaped lines in Org syntax.
+Group 1 of the match will contain the last comma in escaped line.")
+
+(defun org-escape-code-in-string (s)
+  "Escape lines in string S.
+Escaping happens when a line starts with \"*\", \"#+\", \",*\" or
+\",#+\" by appending a comma to it."
+  (replace-regexp-in-string org-element--context-free-re ",\\1"
+			    s nil nil 1))
+
+(defun org-unescape-code-in-string (s)
+  "Un-escape lines in string S.
+Un-escaping happens by removing the first comma on lines starting
+with \",*\", \",#+\", \",,*\" and \",,#+\"."
+  (replace-regexp-in-string
+   org-element--context-free-escaped-re "" s nil nil 1))
 
 (defvar org-element-paragraph-separate nil
   "Regexp to separate paragraphs in an Org buffer.
@@ -1562,7 +1778,7 @@ Assume point is at beginning of the headline."
 (defun org-element-headline-interpreter (headline contents)
   "Interpret HEADLINE element as Org syntax.
 CONTENTS is the contents of the element."
-  (let* ((level (org-element-property :level headline))
+  (let* ((true-level (org-element-property :true-level headline))
 	 (todo (org-element-property :todo-keyword headline))
 	 (priority (org-element-property :priority headline))
 	 (title (org-element-interpret-data
@@ -1573,8 +1789,7 @@ CONTENTS is the contents of the element."
 	 (commentedp (org-element-property :commentedp headline))
 	 (pre-blank (or (org-element-property :pre-blank headline) 0))
 	 (heading
-	  (concat (make-string (if org-odd-levels-only (1- (* level 2)) level)
-			       ?*)
+	  (concat (make-string true-level ?*)
 		  (and todo (concat " " todo))
 		  (and priority (format " [#%s]" (org-priority-to-string priority)))
 		  (and commentedp (concat " " org-element-comment-string))
@@ -3282,11 +3497,13 @@ Assume point is at the beginning of the table."
 	      :post-affiliated table-begin)
 	(cdr affiliated))))))
 
+(declare-function org-table-align "org-table" ())
 (defun org-element-table-interpreter (table contents)
   "Interpret TABLE element as Org syntax.
 CONTENTS is a string, if table's type is `org', or nil."
   (if (eq (org-element-property :type table) 'table.el)
       (org-remove-indentation (org-element-property :value table))
+    (require 'org-table)
     (concat (with-temp-buffer (insert contents)
 			      (org-table-align)
 			      (buffer-string))
@@ -4137,6 +4354,47 @@ CONTENTS is the contents of the object, or nil."
 
 ;;;; Macro
 
+(defun org-macro-escape-arguments (&rest args)
+  "Build macro's arguments string from ARGS.
+ARGS are strings.  Return value is a string with arguments
+properly escaped and separated with commas.  This is the opposite
+of `org-macro-extract-arguments'."
+  (let ((s ""))
+    (dolist (arg (reverse args) (substring s 1))
+      (setq s
+	    (concat
+	     ","
+	     (replace-regexp-in-string
+	      "\\(\\\\*\\),"
+	      (lambda (m)
+		(concat (make-string (1+ (* 2 (length (match-string 1 m)))) ?\\)
+			","))
+	      ;; If a non-terminal argument ends on backslashes, make
+	      ;; sure to also escape them as they will be followed by
+	      ;; a comma.
+	      (concat arg (and (not (equal s ""))
+			       (string-match "\\\\+\\'" arg)
+			       (match-string 0 arg)))
+	      nil t)
+	     s)))))
+
+(defun org-macro-extract-arguments (s)
+  "Extract macro arguments from string S.
+S is a string containing comma separated values properly escaped.
+Return a list of arguments, as strings.  This is the opposite of
+`org-macro-escape-arguments'."
+  ;; Do not use `org-split-string' since empty strings are
+  ;; meaningful here.
+  (split-string
+   (replace-regexp-in-string
+    "\\(\\\\*\\),"
+    (lambda (str)
+      (let ((len (length (match-string 1 str))))
+	(concat (make-string (/ len 2) ?\\)
+		(if (cl-evenp len) "\000" ","))))
+    s nil t)
+   "\000"))
+
 (defun org-element-macro-parser ()
   "Parse macro at point, if any.
 
@@ -4261,6 +4519,16 @@ CONTENTS is the contents of the object."
 
 
 ;;;; Subscript
+
+(defconst org-match-substring-regexp
+  (concat
+   "\\(\\S-\\)\\([_^]\\)\\("
+   "\\(?:" (org-create-multibrace-regexp "{" "}" org-match-sexp-depth) "\\)"
+   "\\|"
+   "\\(?:" (org-create-multibrace-regexp "(" ")" org-match-sexp-depth) "\\)"
+   "\\|"
+   "\\(?:\\*\\|[+-]?[[:alnum:].,\\]*[[:alnum:]]\\)\\)")
+  "The regular expression matching a sub- or superscript.")
 
 (defun org-element-subscript-parser ()
   "Parse subscript at point, if any.
@@ -5322,8 +5590,10 @@ Elements are accumulated into ACC."
   (save-excursion
     (goto-char beg)
     ;; When parsing only headlines, skip any text before first one.
-    (when (and (eq granularity 'headline) (not (org-at-heading-p)))
-      (org-with-limited-levels (outline-next-heading)))
+    (while (and (eq granularity 'headline)
+                (not (looking-at-p org-element-headline-re))
+                (re-search-forward org-element-headline-re end 'move))
+      (goto-char (match-beginning 0)))
     (let (elements)
       (while (< (point) end)
 	;; Visible only: skip invisible parts due to folding.
@@ -8699,14 +8969,34 @@ This function may modify match data."
 	((memq type '(headline inlinetask))
 	 (let ((case-fold-search nil))
 	   (goto-char (org-element-begin element))
-	   (looking-at org-complex-heading-regexp)
-	   (let ((end (match-end 4)))
-	     (if (or (not end) (> pos end)) (throw 'objects-forbidden element)
-	       (goto-char (match-beginning 4))
-	       (when (looking-at org-element-comment-string)
-		 (goto-char (match-end 0)))
-	       (if (>= (point) end) (throw 'objects-forbidden element)
-		 (narrow-to-region (point) end))))))
+           ;; Skip stars, todo keyword, priority cookies, and comment.
+           (skip-chars-forward "*")
+           (skip-chars-forward " \t")
+           (let (case-fold-search)
+             (when (and org-todo-regexp
+	                (looking-at (concat org-todo-regexp "\\(?: \\|$\\)")))
+	       (goto-char (match-end 0))
+	       (skip-chars-forward " \t"))
+             (when (looking-at "\\[#.\\][ \t]*")
+	       (goto-char (match-end 0)))
+             (when (looking-at org-element--headline-comment-re)
+               (goto-char (match-end 0))
+               (skip-chars-forward " \t")))
+           (let ((title-begin (point))
+                 (title-end (line-end-position)))
+             (when (re-search-forward
+		    "\\(:[[:alnum:]_@#%:]+:\\)[ \t]*$"
+		    (line-end-position)
+		    'move)
+	       (goto-char (match-beginning 0))
+               (setq title-end (point)))
+             (when (> pos title-end)
+               ;; No objects at or past tags.
+               (throw 'objects-forbidden element))
+	     (if (> title-end title-begin)
+	         (narrow-to-region title-begin title-end)
+               ;; Empty title
+               (throw 'objects-forbidden element)))))
 	;; At a paragraph, a table-row or a verse block, objects are
 	;; located within their contents.
 	((memq type '(paragraph table-row verse-block))
@@ -8758,7 +9048,7 @@ This function may modify match data."
 			      (and (= pos cend)
 				   (or (= (point-max) pos)
 				       (not (memq (char-before pos)
-					          '(?\s ?\t)))))))
+					        '(?\s ?\t)))))))
 		     (goto-char cbeg)
 		     (narrow-to-region (point) cend)
 		     (setq parent next)

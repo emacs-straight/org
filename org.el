@@ -109,6 +109,8 @@
 (defalias 'org-reveal #'org-fold-reveal)
 (defalias 'org-force-cycle-archived #'org-cycle-force-archived)
 
+(defvar org-property-re)
+
 ;; `org-outline-regexp' ought to be a defconst but is let-bound in
 ;; some places -- e.g. see the macro `org-with-limited-levels'.
 (defvar org-outline-regexp "\\*+ "
@@ -203,6 +205,9 @@ This regular expression matches these groups:
 (declare-function org-columns-insert-dblock "org-colview" ())
 (declare-function org-duration-from-minutes "org-duration" (minutes &optional fmt canonical))
 (declare-function org-duration-to-minutes "org-duration" (duration &optional canonical))
+(declare-function org-src-preserve-indentation-p "org-element" (&optional node))
+(declare-function org-reduced-level "org-element" (stars))
+(declare-function org-re-property "org-element" (property &optional literal allow-null value))
 (declare-function org-element-at-point "org-element" (&optional pom cached-only))
 (declare-function org-element-at-point-no-context "org-element" (&optional pom))
 (declare-function org-element-cache-reset "org-element" (&optional all no-persistence))
@@ -269,6 +274,7 @@ This regular expression matches these groups:
 (defvar org-target-link-regexp)
 (defvar org-target-regexp)
 (defvar org-id-overriding-file-name)
+(defvar org-edit-src-content-indentation)
 
 ;; load languages based on value of `org-babel-load-languages'
 (defvar org-babel-load-languages)
@@ -460,21 +466,13 @@ FULL is given."
 
 ;;;; Timestamp
 
-(defconst org-ts--internal-regexp
-  (rx (seq
-       (= 4 digit) "-" (= 2 digit) "-" (= 2 digit)
-       (optional " " (*? nonl))))
-  "Regular expression matching the innards of a time stamp.")
-
-(defconst org-ts-regexp (format "<\\(%s\\)>" org-ts--internal-regexp)
-  "Regular expression for fast time stamp matching.")
-
-(defconst org-ts-regexp-inactive
-  (format "\\[\\(%s\\)\\]" org-ts--internal-regexp)
-  "Regular expression for fast inactive time stamp matching.")
-
-(defconst org-ts-regexp-both (format "[[<]\\(%s\\)[]>]" org-ts--internal-regexp)
-  "Regular expression for fast time stamp matching.")
+(defvar org-ts-regexp)
+(defvar org-ts-regexp-both)
+(defvar org-tsr-regexp-both)
+(defvar org-tr-regexp)
+(defvar org-tr-regexp-both)
+(defvar org-tsr-regexp-both)
+(defvar org-ts-regexp-inactive)
 
 (defconst org-ts-regexp0
   "\\(\\([0-9]\\{4\\}\\)-\\([0-9]\\{2\\}\\)-\\([0-9]\\{2\\}\\)\\( +[^]+0-9>\r\n -]+\\)?\\( +\\([0-9]\\{1,2\\}\\):\\([0-9]\\{2\\}\\)\\)?\\)"
@@ -499,23 +497,6 @@ This regular expression provides the following groups:
 
 (defconst org-ts-regexp3 (concat "[[<]" org-ts-regexp1 "[^]>\n]\\{0,16\\}[]>]")
   "Regular expression matching time stamps (also [..]), with groups.")
-
-(defconst org-tr-regexp (concat org-ts-regexp "--?-?" org-ts-regexp)
-  "Regular expression matching a time stamp range.")
-
-(defconst org-tr-regexp-both
-  (concat org-ts-regexp-both "--?-?" org-ts-regexp-both)
-  "Regular expression matching a time stamp range.")
-
-(defconst org-tsr-regexp (concat org-ts-regexp "\\(--?-?"
-				 org-ts-regexp "\\)?")
-  "Regular expression matching a time stamp or time stamp range.")
-
-(defconst org-tsr-regexp-both
-  (concat org-ts-regexp-both "\\(--?-?"
-	  org-ts-regexp-both "\\)?")
-  "Regular expression matching a time stamp or time stamp range.
-The time stamps may be either active or inactive.")
 
 (defconst org-repeat-re
   "<[0-9]\\{4\\}-[0-9][0-9]-[0-9][0-9] [^>\n]*?\
@@ -667,12 +648,6 @@ Group 1 contains drawer's name or \"END\".")
 	   (*? (0+ nonl) "\n")
 	   (0+ (any "\t ")) ":END:" (0+ (any "\t ")) eol))
   "Matches an entire LOGBOOK drawer.")
-
-(defconst org-property-drawer-re
-  (concat "^[ \t]*:PROPERTIES:[ \t]*\n"
-	  "\\(?:[ \t]*:\\S-+:\\(?:[ \t].*\\)?[ \t]*\n\\)*?"
-	  "[ \t]*:END:[ \t]*$")
-  "Matches an entire property drawer.")
 
 (defconst org-clock-drawer-re
   (concat "\\(" org-clock-drawer-start-re "\\)[^z-a]*?\\("
@@ -1655,21 +1630,7 @@ is not set."
   :tag "Org Edit Structure"
   :group 'org-structure)
 
-(defcustom org-odd-levels-only nil
-  "Non-nil means skip even levels and only use odd levels for the outline.
-This has the effect that two stars are being added/taken away in
-promotion/demotion commands.  It also influences how levels are
-handled by the exporters.
-Changing it requires restart of `font-lock-mode' to become effective
-for fontification also in regions already fontified.
-You may also set this on a per-file basis by adding one of the following
-lines to the buffer:
-
-   #+STARTUP: odd
-   #+STARTUP: oddeven"
-  :group 'org-edit-structure
-  :group 'org-appearance
-  :type 'boolean)
+(defvar org-odd-levels-only)
 
 (defcustom org-adapt-indentation nil
   "Non-nil means adapt indentation to outline node level.
@@ -3013,15 +2974,7 @@ limit."
   "Non-nil means fast tags selection interface will also offer TODO states.
 This is an undocumented feature, you should not rely on it.")
 
-(defcustom org-tags-column -77
-  "The column to which tags should be indented in a headline.
-If this number is positive, it specifies the column.  If it is negative,
-it means that the tags should be flushright to that column.  For example,
--80 works well for a normal 80 character screen.
-When 0, place tags directly after headline text, with only one space in
-between."
-  :group 'org-tags
-  :type 'integer)
+(defvar org-tags-column)
 
 (defcustom org-auto-align-tags t
   "Non-nil keeps tags aligned when modifying headlines.
@@ -3134,13 +3087,7 @@ For an example of a function that uses this advanced sorting system, see
   :tag "Org Properties"
   :group 'org)
 
-(defcustom org-property-format "%-10s %s"
-  "How property key/value pairs should be formatted by `indent-line'.
-When `indent-line' hits a property definition, it will format the line
-according to this format, mainly to make sure that the values are
-lined-up with respect to each other."
-  :group 'org-properties
-  :type 'string)
+(defvar org-property-format)
 
 (defcustom org-properties-postprocess-alist nil
   "Alist of properties and functions to adjust inserted values.
@@ -5229,16 +5176,6 @@ stacked delimiters is N.  Escaping delimiters is not possible."
 	    next (concat "\\(?:" nothing left next right "\\)+" nothing)))
     (concat left "\\(" re "\\)" right)))
 
-(defconst org-match-substring-regexp
-  (concat
-   "\\(\\S-\\)\\([_^]\\)\\("
-   "\\(?:" (org-create-multibrace-regexp "{" "}" org-match-sexp-depth) "\\)"
-   "\\|"
-   "\\(?:" (org-create-multibrace-regexp "(" ")" org-match-sexp-depth) "\\)"
-   "\\|"
-   "\\(?:\\*\\|[+-]?[[:alnum:].,\\]*[[:alnum:]]\\)\\)")
-  "The regular expression matching a sub- or superscript.")
-
 (defconst org-match-substring-with-braces-regexp
   (concat
    "\\(\\S-\\)\\([_^]\\)"
@@ -5741,6 +5678,7 @@ by a #."
 (defvar org-latex-and-related-regexp nil
   "Regular expression for highlighting LaTeX, entities and sub/superscript.")
 
+(defvar org-match-substring-regexp)
 (defun org-compute-latex-and-related-regexp ()
   "Compute regular expression for LaTeX, entities and sub/superscript.
 Result depends on variable `org-highlight-latex-and-related'."
@@ -5878,41 +5816,6 @@ takes into consideration inlinetasks."
      0)))
 
 (defvar org-font-lock-keywords nil)
-
-(defsubst org-re-property (property &optional literal allow-null value)
-  "Return a regexp matching a PROPERTY line.
-
-When optional argument LITERAL is non-nil, do not quote PROPERTY.
-This is useful when PROPERTY is a regexp.  When ALLOW-NULL is
-non-nil, match properties even without a value.
-
-Match group 3 is set to the value when it exists.  If there is no
-value and ALLOW-NULL is non-nil, it is set to the empty string.
-
-With optional argument VALUE, match only property lines with
-that value; in this case, ALLOW-NULL is ignored.  VALUE is quoted
-unless LITERAL is non-nil."
-  (concat
-   "^\\(?4:[ \t]*\\)"
-   (format "\\(?1::\\(?2:%s\\):\\)"
-	   (if literal property (regexp-quote property)))
-   (cond (value
-	  (format "[ \t]+\\(?3:%s\\)\\(?5:[ \t]*\\)$"
-		  (if literal value (regexp-quote value))))
-	 (allow-null
-	  "\\(?:\\(?3:$\\)\\|[ \t]+\\(?3:.*?\\)\\)\\(?5:[ \t]*\\)$")
-	 (t
-	  "[ \t]+\\(?3:[^ \r\t\n]+.*?\\)\\(?5:[ \t]*\\)$"))))
-
-(defconst org-property-re
-  (org-re-property "\\S-+" 'literal t)
-  "Regular expression matching a property line.
-There are four matching groups:
-1: :PROPKEY: including the leading and trailing colon,
-2: PROPKEY without the leading and trailing colon,
-3: PROPVAL without leading or trailing spaces,
-4: the indentation of the current line,
-5: trailing whitespace.")
 
 (defvar org-font-lock-hook nil
   "Functions to be called for special font lock stuff.")
@@ -6894,14 +6797,6 @@ first headline."
 		(save-excursion (forward-line -1) (org-current-level)))
 	   0)))
 
-(defun org-reduced-level (l)
-  "Compute the effective level of a heading.
-This takes into account the setting of `org-odd-levels-only'."
-  (cond
-   ((zerop l) 0)
-   (org-odd-levels-only (1+ (floor (/ l 2))))
-   (t l)))
-
 (defun org-level-increment ()
   "Return the number of stars that will be added or removed at a
 time to headlines when structure editing, based on the value of
@@ -7022,6 +6917,8 @@ The point is placed at the beginning of each heading
 		    (< (point) end))
 		  (not (eobp)))
 	(funcall fun)))))
+
+(defvar org-property-drawer-re)
 
 (defun org-fixup-indentation (diff)
   "Change the indentation in the current entry by DIFF.
@@ -9272,34 +9169,6 @@ block can be inserted by pressing TAB after the string \"<KEY\"."
 		(string :tag "Template")))
   :package-version '(Org . "9.6"))
 
-(defun org--check-org-structure-template-alist (&optional checklist)
-  "Check whether `org-structure-template-alist' is set up correctly.
-In particular, check if the Org 9.2 format is used as opposed to
-previous format."
-  (let ((elm (cl-remove-if-not (lambda (x) (listp (cdr x)))
-			       (or (symbol-value checklist)
-				   org-structure-template-alist))))
-    (when elm
-      (org-display-warning
-       (format "
-Please update the entries of `%s'.
-
-In Org 9.2 the format was changed from something like
-
-    (\"s\" \"#+BEGIN_SRC ?\\n#+END_SRC\")
-
-to something like
-
-    (\"s\" . \"src\")
-
-Please refer to the documentation of `org-structure-template-alist'.
-
-The following entries must be updated:
-
-%s"
-	       (or checklist 'org-structure-template-alist)
-	       (pp-to-string elm))))))
-
 (defun org--insert-structure-template-mks ()
   "Present `org-structure-template-alist' with `org-mks'.
 
@@ -9307,7 +9176,7 @@ Menus are added if keys require more than one keystroke.  Tabs
 are added to single key entries when more than one stroke is
 needed.  Keys longer than two characters are reduced to two
 characters."
-  (org--check-org-structure-template-alist)
+  (org--check-org-structure-template-alist 'org-structure-template-alist)
   (let* (case-fold-search
 	 (templates (append org-structure-template-alist
 			    '(("\t" . "Press TAB, RET or SPC to write block name"))))
@@ -19232,6 +19101,7 @@ Alignment is done according to `org-property-format', which see."
         (delete-region (match-beginning 0) (match-end 0))
         (insert-and-inherit newtext)))))
 
+(defvar org-src-content-indentation) ; org-element.el
 (defun org-indent-line ()
   "Indent line depending on context.
 

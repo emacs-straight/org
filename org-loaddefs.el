@@ -1856,7 +1856,7 @@ Providing it allows for quicker computation.
 This function may modify match data.
 
 (fn &optional ELEMENT)")
-(register-definition-prefixes "org-element" '("org-element-"))
+(register-definition-prefixes "org-element" '("org-"))
 
 
 ;;; Generated autoloads from org-element-ast.el

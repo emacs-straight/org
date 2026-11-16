@@ -68,6 +68,7 @@
 (require 'org-macs)
 (require 'org) ;Otherwise `org-num--comment-re' burps on `org-comment-string'
 
+(declare-function org-reduced-level "org-element" (stars))
 (defvar org-comment-string)
 (defvar org-complex-heading-regexp)
 (defvar org-cycle-level-faces)
@@ -75,6 +76,7 @@
 (defvar org-level-faces)
 (defvar org-n-level-faces)
 (defvar org-odd-levels-only)
+(defvar org-reduced-level)
 
 
 ;;; Customization
