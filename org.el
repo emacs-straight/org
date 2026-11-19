@@ -69,6 +69,9 @@
 (defvar org-inhibit-highlight-removal nil) ; dynamically scoped param
 (defvar org-inlinetask-min-level)
 (defvar org-footnote-definition-re)
+(defvar org-comment-regexp)
+(declare-function org-collect-keywords "org-element" (keywords &optional unique directory))
+(declare-function org-element-org-data "org-element" ())
 
 ;;;; Require other packages
 
@@ -444,9 +447,6 @@ FULL is given."
 
 ;;; Syntax Constants
 ;;;; Comments
-(defconst org-comment-regexp
-  (rx (seq bol (zero-or-more (any "\t ")) "#" (or " " eol)))
-  "Regular expression for comment lines.")
 
 ;;;; Keyword
 (defconst org-keyword-regexp "^[ \t]*#\\+\\(\\S-+?\\):[ \t]*\\(.*\\)$"
@@ -1561,36 +1561,6 @@ For more examples, see the system specific constants
 			(string :tag "Command")
 			(function :tag "Function")))))
 
-(defcustom org-resource-download-policy 'prompt
-  "The policy applied to requests to obtain remote resources.
-
-This affects keywords like #+setupfile and #+include on export,
-`org-persist-write:url',and `org-attach-url' in non-interactive
-Emacs sessions.
-
-This recognizes four possible values:
-- t (dangerous), remote resources should always be downloaded.
-- prompt, you will be prompted to download resources not considered safe.
-- safe, only resources considered safe will be downloaded.
-- nil, never download remote resources.
-
-A resource is considered safe if it matches one of the patterns
-in `org-safe-remote-resources'."
-  :group 'org
-  :package-version '(Org . "9.6")
-  :type '(choice (const :tag "Always download remote resources (dangerous)" t)
-                 (const :tag "Prompt before downloading an unsafe resource" prompt)
-                 (const :tag "Only download resources considered safe" safe)
-                 (const :tag "Never download any resources" nil)))
-
-(defcustom org-safe-remote-resources nil
-  "A list of regexp patterns matching safe URIs.
-URI regexps are applied to both URLs and Org files requesting
-remote resources."
-  :group 'org
-  :package-version '(Org . "9.6")
-  :type '(repeat regexp))
-
 (defcustom org-open-non-existing-files nil
   "Non-nil means `org-open-file' opens non-existing files.
 
@@ -2009,17 +1979,6 @@ This variable takes into consideration `org-tag-alist',
 (defvar-local org-todo-kwd-alist nil)
 (defvar-local org-todo-key-alist nil)
 (defvar-local org-todo-key-trigger nil)
-
-(defcustom org-todo-interpretation 'sequence
-  "Controls how TODO keywords are interpreted.
-This variable is in principle obsolete and is only used for
-backward compatibility, if the interpretation of todo keywords is
-not given already in `org-todo-keywords'.  See that variable for
-more information."
-  :group 'org-todo
-  :group 'org-keywords
-  :type '(choice (const sequence)
-		 (const type)))
 
 (defcustom org-use-fast-todo-selection 'auto
   "\\<org-mode-map>\
@@ -2919,11 +2878,16 @@ completions in capture buffers.
   :version "24.1"
   :type 'boolean)
 
+;; FIXME: This should probably be deprecated in favor of
+;; (org-element-property :tags (org-element-org-data))
 (defvar org-file-tags nil
   "List of tags that can be inherited by all entries in the file.
 The tags will be inherited if the variable `org-use-tag-inheritance'
 says they should be.
 This variable is populated from #+FILETAGS lines.")
+(make-obsolete-variable
+ 'org-file-tags
+ "Use (org-element-property :tags (org-element-org-data)) instead." "10.0")
 
 (defcustom org-use-fast-tag-selection 'auto
   "Non-nil means use fast tag selection scheme.
@@ -4214,18 +4178,14 @@ This function is intended to be a value of `org-tags-sort-function'."
   "Precompute regular expressions used in the current buffer.
 When optional argument TAGS-ONLY is non-nil, only compute tags
 related expressions."
+  ;; FIXME: The buffer-local values here should eventually become
+  ;; unused in the rest of the code, making use of org-data object
+  ;; instead.
   (when (derived-mode-p 'org-mode)
-    (let ((alist (org-collect-keywords
-		  (append '("FILETAGS" "TAGS")
-			  (and (not tags-only)
-			       '("ARCHIVE" "CATEGORY" "COLUMNS" "CONSTANTS"
-				 "LINK" "OPTIONS" "PRIORITIES" "PROPERTY"
-				 "SEQ_TODO" "STARTUP" "TODO" "TYP_TODO")))
-		  '("ARCHIVE" "CATEGORY" "COLUMNS" "PRIORITIES"))))
+    (let ((org-data (org-element-org-data)))
       ;; Startup options.  Get this early since it does change
       ;; behavior for other options (e.g., tags).
-      (let ((startup (cl-mapcan #'split-string
-				(cdr (assoc "STARTUP" alist)))))
+      (let ((startup (cl-mapcan #'split-string (org-element-property :STARTUP org-data))))
 	(dolist (option startup)
 	  (pcase (assoc-string option org-startup-options t)
 	    (`(,_ ,variable ,value t)
@@ -4235,27 +4195,29 @@ related expressions."
 	    (`(,_ ,variable ,value . ,_)
 	     (set (make-local-variable variable) value))
 	    (_ nil))))
+      ;; FIXME: This variable is assigned for backwards-compatibility
+      ;; and should probably be removed in future.
       (setq-local org-file-tags
 		  (mapcar #'org-add-prop-inherited
-			  (cl-mapcan (lambda (value)
-				       (cl-mapcan
-					(lambda (k) (org-split-string k ":"))
-					(split-string value)))
-				     (cdr (assoc "FILETAGS" alist)))))
+                          (org-element-property :tags org-data)))
+      ;; Used for tag completion.
       (setq org-current-tag-alist
 	    (org--tag-add-to-alist
 	     org-tag-persistent-alist
-	     (let ((tags (cdr (assoc "TAGS" alist))))
+	     (let ((tags (org-element-property :TAGS org-data)))
 	       (if tags
 		   (org-tag-string-to-alist
 		    (mapconcat #'identity tags "\n"))
 		 org-tag-alist))))
+      ;; Used for tag completion.
       (setq org-tag-groups-alist
 	    (org-tag-alist-to-groups org-current-tag-alist))
       (unless tags-only
-	;; Properties.
+        ;; FIXME: `org-keyword-properties' is set for backwards
+        ;; compatibility.  org-data element properties should be used
+        ;; instead.
 	(let ((properties nil))
-	  (dolist (value (cdr (assoc "PROPERTY" alist)))
+	  (dolist (value (org-element-property :PROPERTY org-data))
 	    (when (string-match "\\(\\S-+\\)[ \t]+\\(.*\\)" value)
 	      (setq properties (org--update-property-plist
 				(match-string-no-properties 1 value)
@@ -4263,22 +4225,25 @@ related expressions."
 				properties))))
 	  (setq-local org-keyword-properties properties))
 	;; Archive location.
-	(let ((archive (cdr (assoc "ARCHIVE" alist))))
+        ;; FIXME: The users should prefer `org-get-archive-location'
+        ;; instead of relying on `org-set-regexps-and-options' to
+        ;; parse top-level keyword.
+	(let ((archive (org-element-property :ARCHIVE org-data)))
 	  (when archive (setq-local org-archive-location archive)))
 	;; Category.
-	(let ((category (cdr (assoc "CATEGORY" alist))))
+	(let ((category (org-element-property :CATEGORY org-data)))
 	  (when category
 	    (setq-local org-category (intern category))
 	    (setq-local org-keyword-properties
 			(org--update-property-plist
 			 "CATEGORY" category org-keyword-properties))))
 	;; Columns.
-	(let ((column (cdr (assoc "COLUMNS" alist))))
+	(let ((column (org-element-property :COLUMNS org-data)))
 	  (when column (setq-local org-columns-default-format column)))
 	;; Constants.
 	(let ((store nil))
 	  (dolist (pair (cl-mapcan #'split-string
-				   (cdr (assoc "CONSTANTS" alist))))
+				   (org-element-property :CONSTANTS org-data)))
 	    (when (string-match "^\\([a-zA-Z0][_a-zA-Z0-9]*\\)=\\(.*\\)" pair)
 	      (let* ((name (match-string 1 pair))
 		     (value (match-string 2 pair))
@@ -4287,28 +4252,18 @@ related expressions."
 		  (push (cons name value) store)))))
 	  (setq org-table-formula-constants-local store))
 	;; Link abbreviations.
-	(let ((links
-	       (delq nil
-		     (mapcar
-		      (lambda (value)
-			(and (or
-                              ;; "abbrev with spaces" spec
-                              (string-match "\\`\"\\(.+[^\\]\\)\"[ \t]+\\(.+\\)" value)
-                              ;; abbrev spec
-                              (string-match "\\`\\(\\S-+\\)[ \t]+\\(.+\\)" value))
-			     (cons (match-string-no-properties 1 value)
-				   (match-string-no-properties 2 value))))
-		      (cdr (assoc "LINK" alist))))))
-	  (when links (setq org-link-abbrev-alist-local (nreverse links))))
+        (with-suppressed-warnings ((obsolete org-link-abbrev-alist-local))
+          (setq org-link-abbrev-alist-local
+                (org-element-property :link-abbrevs org-data)))
 	;; Priorities.
-	(let ((value (cdr (assoc "PRIORITIES" alist))))
+	(let ((value (org-element-property :PRIORITIES org-data)))
 	  (pcase (and value (split-string value))
 	    (`(,high ,low ,default . ,_)
 	     (setq-local org-priority-highest (org-priority-to-value high))
 	     (setq-local org-priority-lowest (org-priority-to-value low))
 	     (setq-local org-priority-default (org-priority-to-value default)))))
 	;; Scripts.
-	(let ((value (cdr (assoc "OPTIONS" alist))))
+	(let ((value (org-element-property :OPTIONS org-data)))
 	  (dolist (option value)
 	    (when (string-match "\\^:\\(t\\|nil\\|{}\\)" option)
 	      (setq-local org-use-sub-superscripts
@@ -4322,66 +4277,63 @@ related expressions."
 	(setq-local org-todo-heads nil)
 	(setq-local org-todo-sets nil)
 	(setq-local org-todo-log-states nil)
-	(let ((todo-sequences
-	       (or (append (mapcar (lambda (value)
-				     (cons 'type (split-string value)))
-				   (cdr (assoc "TYP_TODO" alist)))
-			   (mapcar (lambda (value)
-				     (cons 'sequence (split-string value)))
-				   (append (cdr (assoc "TODO" alist))
-					   (cdr (assoc "SEQ_TODO" alist)))))
-		   (let ((d (default-value 'org-todo-keywords)))
-		     (if (not (stringp (car d))) d
-		       ;; XXX: Backward compatibility code.
-		       (list (cons org-todo-interpretation d)))))))
-	  (dolist (sequence todo-sequences)
-	    (let* ((sequence (or (run-hook-with-args-until-success
-				  'org-todo-setup-filter-hook sequence)
-				 sequence))
-		   (sequence-type (car sequence))
-		   (keywords (cdr sequence))
-		   (sep (member "|" keywords))
-		   names alist)
-	      (dolist (k (remove "|" keywords))
-		(unless (string-match "^\\(.*?\\)\\(?:(\\([^!@/]\\)?.*?)\\)?$"
-				      k)
-		  (error "Invalid TODO keyword %s" k))
-		(let ((name (match-string 1 k))
-		      (key (match-string 2 k))
-		      (log (org-extract-log-state-settings k)))
-		  (push name names)
-		  (push (cons name (and key (string-to-char key))) alist)
-		  (when log (push log org-todo-log-states))))
-	      (let* ((names (nreverse names))
-		     (done (if sep (org-remove-keyword-keys (cdr sep))
-			     (last names)))
-		     (head (car names))
-		     (tail (list sequence-type head (car done) (org-last done))))
-		(add-to-list 'org-todo-heads head 'append)
-		(push names org-todo-sets)
-		(setq org-done-keywords (append org-done-keywords done nil))
-		(setq org-todo-keywords-1 (append org-todo-keywords-1 names nil))
-		(setq org-todo-key-alist
-		      (append org-todo-key-alist
-			      (and alist
-				   (append '((:startgroup))
-					   (nreverse alist)
-					   '((:endgroup))))))
-		(dolist (k names) (push (cons k tail) org-todo-kwd-alist))))))
-	(setq org-todo-sets (nreverse org-todo-sets)
-	      org-todo-kwd-alist (nreverse org-todo-kwd-alist)
-	      org-todo-key-trigger (delq nil (mapcar #'cdr org-todo-key-alist))
-	      org-todo-key-alist (org-assign-fast-keys org-todo-key-alist))
+	(let ((sequences (org-element-property :todo-keyword-settings org-data)))
+          ;; org-todo-keywords-1
+          (setq org-todo-keywords-1 (org-element-property :todo-keywords org-data))
+          ;; org-done-keywords
+          (setq org-done-keywords (org-element-property :done-keywords org-data))
+          ;; org-todo-heads
+          ;; org-todo-sets
+          ;; org-todo-log-states
+          ;; org-todo-key-alist
+          ;; org-todo-kwd-alist
+          (dolist (sequence sequences)
+            ;; SEQUENCE = (TYPE ((KWD1 . OPT1) (KWD2 . OPT2) ...) ((DONE-KWD1 . OPT1) ...))
+            (push (caar (nth 1 sequence)) org-todo-heads)
+            (push (mapcar #'car (nth 1 sequence)) org-todo-sets)
+            (let (keys
+                  (kwd-tail (list (car sequence) ;; TYPE
+                                  (car org-todo-heads) ;; First keyword
+                                  (car (car (nth 2 sequence))) ;; First done keyword
+                                  (car (org-last (nth 2 sequence))) ;; Last done keyword
+                                  )))
+              (dolist (pair (nth 1 sequence))
+                (pcase pair
+                  (`(,(and (pred stringp) name) .
+                     ,setting)
+                   (when (stringp setting)
+                     (when-let* ((state-setting (org-extract-log-state-settings (concat name "(" setting ")"))))
+                       (push state-setting org-todo-log-states))
+                     (push (cons name
+                                 (if (string-match "^[^!@/]" setting)
+                                     (string-to-char (match-string 0 setting))
+                                   nil))
+                           keys))
+                   (push (cons name kwd-tail) org-todo-kwd-alist))))
+              (when keys
+                (setq keys (nconc (list (list :startgroup))
+                                  (nreverse keys)
+                                  (list (list :endgroup))))
+                (setq org-todo-key-alist (nconc org-todo-key-alist keys)))))
+          (setq org-todo-heads (nreverse org-todo-heads)
+                org-todo-sets (nreverse org-todo-sets)
+                org-todo-kwd-alist (nreverse org-todo-kwd-alist)
+                ;; org-todo-key-trigger
+                org-todo-key-trigger (delq nil (mapcar #'cdr org-todo-key-alist))
+                org-todo-key-alist (org-assign-fast-keys org-todo-key-alist)))
+        
 	;; Compute the regular expressions and other local variables.
 	;; Using `org-outline-regexp-bol' would complicate them much,
 	;; because of the fixed white space at the end of that string.
+
+        ;; FIXME: When is `org-done-keywords' nil?
 	(unless org-done-keywords
 	  (setq org-done-keywords
 		(and org-todo-keywords-1 (last org-todo-keywords-1))))
 	(setq org-not-done-keywords
 	      (org-delete-all org-done-keywords
 			      (copy-sequence org-todo-keywords-1))
-	      org-todo-regexp (regexp-opt org-todo-keywords-1 t)
+	      org-todo-regexp (org-element-property :todo-regexp org-data)
 	      org-not-done-regexp (regexp-opt org-not-done-keywords t)
 	      org-not-done-heading-regexp
 	      (format org-heading-keyword-regexp-format org-not-done-regexp)
@@ -4419,94 +4371,6 @@ related expressions."
 		      "\\(?: +\\(.*?\\)\\)??"
                       org-tag--group-optional-re))
 	(org-compute-latex-and-related-regexp)))))
-
-(defun org-collect-keywords (keywords &optional unique directory)
-  "Return values for KEYWORDS in current buffer, as an alist.
-
-KEYWORDS is a list of strings.  Return value is a list of
-elements with the pattern:
-
-  (NAME . LIST-OF-VALUES)
-
-where NAME is the upcase name of the keyword, and LIST-OF-VALUES
-is a list of non-empty values, as strings, in order of appearance
-in the buffer.
-
-When KEYWORD appears in UNIQUE list, LIST-OF-VALUE is its first
-value, empty or not, appearing in the buffer, as a string.
-
-When KEYWORD appears in DIRECTORIES, each value is a cons cell:
-
-  (VALUE . DIRECTORY)
-
-where VALUE is the regular value, and DIRECTORY is the variable
-`default-directory' for the buffer containing the keyword.  This
-is important for values containing relative file names, since the
-function follows SETUPFILE keywords, and may change its working
-directory."
-  (let* ((keywords (cons "SETUPFILE" (mapcar #'upcase keywords)))
-	 (unique (mapcar #'upcase unique))
-	 (alist (org--collect-keywords-1
-		 keywords unique directory
-		 (and buffer-file-name (list buffer-file-name))
-		 nil)))
-    ;; Re-order results.
-    (dolist (entry alist)
-      (pcase entry
-	(`(,_ . ,(and value (pred consp)))
-	 (setcdr entry (nreverse value)))))
-    (nreverse alist)))
-
-(defun org--collect-keywords-1 (keywords unique directory files alist)
-  (org-with-point-at 1
-    (let ((case-fold-search t)
-	  (regexp (org-make-options-regexp keywords)))
-      (while (and keywords (re-search-forward regexp nil t))
-        (let ((element (org-element-at-point)))
-          (when (org-element-type-p element 'keyword)
-            (let ((value (org-element-property :value element)))
-              (pcase (org-element-property :key element)
-		("SETUPFILE"
-		 (when (org-string-nw-p value)
-		   (let* ((uri (org-strip-quotes value))
-			  (uri-is-url (org-url-p uri))
-			  (uri (if uri-is-url
-				   uri
-                                 ;; In case of error, be safe.
-                                 ;; See bug#68976.
-                                 (ignore-errors ; return nil when expansion fails.
-				   (expand-file-name uri)))))
-		     (unless (or (not uri) (member uri files))
-		       (with-temp-buffer
-			 (unless uri-is-url
-			   (setq default-directory (file-name-directory uri)))
-			 (let ((contents (org-file-contents uri :noerror)))
-			   (when contents
-			     (insert contents)
-			     ;; Fake Org mode: `org-element-at-point'
-			     ;; doesn't need full set-up.
-			     (let ((major-mode 'org-mode))
-                               (setq-local tab-width 8)
-			       (setq alist
-				     (org--collect-keywords-1
-				      keywords unique directory
-				      (cons uri files)
-				      alist))))))))))
-		(keyword
-		 (let ((entry (assoc keyword alist))
-		       (final
-			(cond ((not (member keyword directory)) value)
-			      (buffer-file-name
-			       (cons value
-				     (file-name-directory buffer-file-name)))
-			      (t (cons value default-directory)))))
-		   (cond ((member keyword unique)
-			  (push (cons keyword final) alist)
-			  (setq keywords (remove keyword keywords))
-			  (setq regexp (org-make-options-regexp keywords)))
-			 ((null entry) (push (list keyword final) alist))
-			 (t (push final (cdr entry)))))))))))
-      alist)))
 
 (defun org-tag-string-to-alist (s)
   "Return tag alist associated to string S.
@@ -4595,165 +4459,8 @@ a string, summarizing TAGS, as a list of strings."
 	   (setq current-group (list tag))))
 	(_ nil)))))
 
-(defvar org--file-cache (make-hash-table :test #'equal)
-  "Hash table to store contents of files referenced via a URL.
-This is the cache of file URLs read using `org-file-contents'.")
-
-(defun org-reset-file-cache ()
-  "Reset the cache of files downloaded by `org-file-contents'."
-  (clrhash org--file-cache))
-
-(defun org-file-contents (file &optional noerror nocache)
-  "Return the contents of FILE, as a string.
-
-FILE can be a file name or URL.
-
-If FILE is a URL, download the contents.  If the URL contents are
-already cached in the `org--file-cache' hash table, the download step
-is skipped.
-
-If NOERROR is non-nil, ignore the error when unable to read the FILE
-from file or URL, and return nil.
-
-If NOCACHE is non-nil, do a fresh fetch of FILE even if cached version
-is available.  This option applies only if FILE is a URL."
-  (let* ((is-url (org-url-p file))
-         (is-remote (condition-case nil
-                        (file-remote-p file)
-                      ;; In case of error, be safe.
-                      ;; See bug#68976.
-                      (t t)))
-         (cache (and is-url
-                     (not nocache)
-                     (gethash file org--file-cache))))
-    (cond
-     (cache)
-     ((or is-url is-remote)
-      (if (org--should-fetch-remote-resource-p file)
-          (condition-case error
-              (with-current-buffer (url-retrieve-synchronously file)
-                (goto-char (point-min))
-                ;; Move point to after the url-retrieve header.
-                (search-forward "\n\n" nil :move)
-                ;; Search for the success code only in the url-retrieve header.
-                (if (save-excursion
-                      (re-search-backward "HTTP.*\\s-+200\\s-OK" nil :noerror))
-                    ;; Update the cache `org--file-cache' and return contents.
-                    (puthash file
-                             (buffer-substring-no-properties (point) (point-max))
-                             org--file-cache)
-                  (funcall (if noerror #'message #'user-error)
-                           "Unable to fetch file from %S"
-                           file)
-                  nil))
-            (error (if noerror
-                       (message "Org couldn't download \"%s\": %s %S" file (car error) (cdr error))
-                     (signal (car error) (cdr error)))))
-        (funcall (if noerror #'message #'user-error)
-                 "The remote resource %S is considered unsafe, and will not be downloaded."
-                 file)))
-     (t
-      (with-temp-buffer
-        (condition-case nil
-	    (progn
-	      (insert-file-contents file)
-	      (buffer-string))
-	  (file-error
-           (funcall (if noerror #'message #'user-error)
-		    "Unable to read file %S"
-		    file)
-	   nil)))))))
-
-(defun org--should-fetch-remote-resource-p (uri)
-  "Return non-nil if the URI should be fetched."
-  (or (eq org-resource-download-policy t)
-      (org--safe-remote-resource-p uri)
-      (and (eq org-resource-download-policy 'prompt)
-           (org--confirm-resource-safe uri))))
-
-(defun org--safe-remote-resource-p (uri)
-  "Return non-nil if URI is considered safe.
-This checks every pattern in `org-safe-remote-resources', and
-returns non-nil if any of them match."
-  (let ((uri-patterns org-safe-remote-resources)
-        (file-uri (and (buffer-file-name (buffer-base-buffer))
-                       (concat "file://" (file-truename (buffer-file-name (buffer-base-buffer))))))
-        match-p)
-    (while (and (not match-p) uri-patterns)
-      (setq match-p (or (string-match-p (car uri-patterns) uri)
-                        (and file-uri (string-match-p (car uri-patterns) file-uri)))
-            uri-patterns (cdr uri-patterns)))
-    match-p))
-
-(defun org--confirm-resource-safe (uri)
-  "Ask the user if URI should be considered safe, returning non-nil if so."
-  (if noninteractive
-      (error "Cannot prompt about %S interactively in batch mode.  Aborting" uri)
-    (let ((current-file (and (buffer-file-name (buffer-base-buffer))
-                             (file-truename (buffer-file-name (buffer-base-buffer)))))
-          (domain (and (string-match
-                        (rx (seq "http" (? "s") "://")
-                            (optional (+ (not (any "@/\n"))) "@")
-                            (optional "www.")
-                            (one-or-more (not (any ":/?\n"))))
-                        uri)
-                       (match-string 0 uri)))
-          (buf (get-buffer-create "*Org Remote Resource*")))
-      ;; Set up the contents of the *Org Remote Resource* buffer.
-      (with-current-buffer buf
-        (erase-buffer)
-        (insert "An org-mode document would like to download "
-                (propertize uri 'face '(:inherit org-link :weight normal))
-                ", which is not considered safe.\n\n"
-                "Do you want to download this?  You can type\n "
-                (propertize "!" 'face 'success)
-                " to download this resource, and permanently mark it as safe.\n "
-                (if domain
-                    (concat
-                     (propertize "d" 'face 'success)
-                     " to download this resource, and mark the domain ("
-                     (propertize domain 'face '(:inherit org-link :weight normal))
-                     ") as safe.\n ")
-                  "")
-                (if current-file
-                    (concat
-                     (propertize "f" 'face 'success)
-                     " to download this resource, and permanently mark all resources in "
-                     (propertize current-file 'face 'underline)
-                     " as safe.\n ")
-                  "")
-                (propertize "y" 'face 'warning)
-                " to download this resource, just this once.\n "
-                (propertize "n" 'face 'error)
-                " to skip this resource.\n")
-        (setq-local cursor-type nil)
-        (set-buffer-modified-p nil)
-        (goto-char (point-min)))
-      ;; Display the buffer and read a choice.
-      (save-window-excursion
-        (pop-to-buffer buf)
-        (let* ((exit-chars (append '(?y ?n ?! ?d ?\s) (and current-file '(?f))))
-               (prompt (format "Please type y, n%s, d, or !%s: "
-                               (if current-file ", f" "")
-                               (if (< (line-number-at-pos (point-max))
-                                      (window-body-height))
-                                   ""
-                                 ", or C-v/M-v to scroll")))
-               char)
-          (setq char (read-char-choice prompt exit-chars))
-          (when (memq char '(?! ?f ?d))
-            (customize-push-and-save
-             'org-safe-remote-resources
-             (list (if (eq char ?d)
-                       (concat "\\`" (regexp-quote domain) "\\(?:/\\|\\'\\)")
-                     (concat "\\`"
-                             (regexp-quote
-                              (if (and (= char ?f) current-file)
-                                  (concat "file://" current-file) uri))
-                             "\\'")))))
-          (prog1 (memq char '(?y ?! ?d ?\s ?f))
-            (quit-window t)))))))
-
+;; FIXME: This is very specialized.  Should it be made internal? Or
+;; removed?
 (defun org-extract-log-state-settings (x)
   "Extract the log state setting from a TODO keyword string.
 This will extract info from a string like \"WAIT(w@/!)\"."
@@ -4868,10 +4575,6 @@ This is for getting out of special buffers like capture.")
     (modify-syntax-entry ?_ "w" st)
     st)
   "Syntax table including \"@\" and \"_\" as word constituents.")
-
-(defun org--set-tab-width (&rest _)
-  "Set `tab-width' to be 8."
-  (setq-local tab-width 8))
 
 ;;;###autoload
 (define-derived-mode org-mode outline-mode "Org"
@@ -8121,15 +7824,31 @@ call CMD."
     (cl-progv vars vals
       (call-interactively cmd))))
 
+(defun org-get-archive-location (&optional epom)
+  "Get archive location applying to EPOM or point.
+EPOM is an element, marker, or buffer position."
+  (or (org-entry-get epom "ARCHIVE" 'inherit)
+      org-archive-location))
+
 (defun org-get-category (&optional pos _)
   "Get the category applying to position POS.
 Return \"???\" when no category is set.
 
 This function may modify the match data."
   ;; Sync cache.
-  (or (org-entry-get-with-inheritance
-       "CATEGORY" nil (or pos (point)))
-      "???"))
+  (cond
+   ((org-entry-get-with-inheritance
+     "CATEGORY" nil (or pos (point))))
+   ((null org-category)
+    (when (org-with-base-buffer nil
+            buffer-file-name)
+      (file-name-sans-extension
+       (file-name-nondirectory
+        (org-with-base-buffer nil
+          buffer-file-name)))))
+   ((symbolp org-category) (symbol-name org-category))
+   ((stringp org-category) org-category)
+   (t "???")))
 
 ;;; Refresh properties
 
@@ -8265,6 +7984,8 @@ See the docstring of `org-open-file' for details."
   (interactive "e" org-mode)
   (mouse-set-point ev)
   (when (eq major-mode 'org-agenda-mode)
+    ;; FIXME: `org-link-abbrev-alist-local' is obsolete
+    ;; but we cannot replace it with the Org parser.
     (org-agenda-copy-local-variable 'org-link-abbrev-alist-local))
   ;; FIXME: This feature is actually unreliable - if we are in non-Org
   ;; buffer and the link happens to be inside what Org parser
@@ -12610,7 +12331,7 @@ element.
 
 According to `org-use-tag-inheritance', tags may be inherited
 from parent headlines, and from the whole document, through
-`org-file-tags'.  In this case, the returned list of tags
+#+FILETAGS keyword.  In this case, the returned list of tags
 contains tags in this order: file tags, tags inherited from
 parent headlines, local tags.  If a tag appears multiple times,
 only the most local tag is returned.
@@ -12637,7 +12358,6 @@ This function may modify the match data."
          (mapcar
           #'org-add-prop-inherited
           (org-element-property-inherited :tags epom nil 'acc)))
-        (setq itags (append org-file-tags itags))
         (nreverse
 	 (delete-dups
 	  (nreverse (nconc (org-remove-uninherited-tags itags) ltags))))))))
@@ -12651,7 +12371,8 @@ This function may modify the match data."
          ;; Do not carry over the text properties.  They may look
          ;; ugly in the completion.
          (puthash (list (substring-no-properties tag)) t hashed))))
-    (dolist (tag org-file-tags) (puthash (list tag) t hashed))
+    (dolist (tag (org-element-property :tags (org-element-org-data)))
+      (puthash (list tag) t hashed))
     (hash-table-keys hashed)))
 
 ;;;; The mapping API
@@ -13176,9 +12897,22 @@ Return value is a string.  Return nil if property is not set
 globally or by keyword.  Also return nil when PROPERTY is set to
 \"nil\", unless LITERAL-NIL is non-nil."
   (let ((global
-	 (cdr (or (assoc-string property org-keyword-properties t)
-		  (assoc-string property org-global-properties t)
-		  (assoc-string property org-global-properties-fixed t)))))
+         (or
+          (let ((main-value
+                 (org-element-property
+                  (intern (format ":%s" property))
+                  (org-element-org-data)))
+                (extra-value
+                 (org-element-property
+                  (intern (format ":%s+" property))
+                  (org-element-org-data))))
+            (when (or main-value extra-value)
+              (mapconcat
+               #'identity
+               (delq nil (cons main-value extra-value))
+               (org--property-get-separator property))))
+	  (cdr (or (assoc-string property org-global-properties t)
+	           (assoc-string property org-global-properties-fixed t))))))
     (if literal-nil global (org-not-nil global))))
 
 (defun org-entry-get (epom property &optional inherit literal-nil)
@@ -13327,12 +13061,14 @@ However, if LITERAL-NIL is set, return the string value \"nil\" instead."
         (lambda (el)
           (pcase-let ((`(,val . ,val+)
                        ;; Force LITERAL-NIL t.
+                       ;; Note that the return value may be taken from
+                       ;; cache and should not be modified by side effect.
                        (org--property-local-values property t el)))
             (if (not val)
                 ;; PROPERTY+
                 (prog1 nil ; keep looking for PROPERTY
-                  (when val+ (setq values (nconc (delq nil val+) values))))
-              (setq values (cons val (nconc (delq nil val+) values)))
+                  (when val+ (setq values (append (delete nil val+) values))))
+              (setq values (cons val (append (delete nil val+) values)))
               (move-marker
                org-entry-property-inherited-from
                (org-element-begin el)
@@ -13456,7 +13192,7 @@ COLUMN formats in the current buffer."
 		;; Get property names from #+PROPERTY keywords as well
 		(mapcar (lambda (s)
 			  (nth 0 (split-string s)))
-			(cdar (org-collect-keywords '("PROPERTY")))))))
+                        (org-element-property :PROPERTY (org-element-org-data))))))
     (org-with-wide-buffer
      (goto-char (point-min))
      (while (re-search-forward org-property-start-re nil t)
@@ -21758,15 +21494,6 @@ modified."
 		       (org-element-end element))
 		      (org-do-remove-indentation))))))))
     (funcall unindent-tree (org-element-contents parse-tree))))
-
-(defun org-make-options-regexp (kwds &optional extra)
-  "Make a regular expression for keyword lines.
-KWDS is a list of keywords, as strings.  Optional argument EXTRA,
-when non-nil, is a regexp matching keywords names."
-  (concat "^[ \t]*#\\+\\("
-	  (regexp-opt kwds)
-	  (and extra (concat (and kwds "\\|") extra))
-	  "\\):[ \t]*\\(.*\\)"))
 
 
 ;;; Conveniently switch to Info nodes

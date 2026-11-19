@@ -821,11 +821,9 @@ used to still link to the current location."
 	   (desc (save-excursion
                    (goto-char id-location)
                    (cond ((org-before-first-heading-p)
-                          (let ((keywords (org-collect-keywords '("TITLE"))))
-                            (if keywords
-                                (cadr (assoc "TITLE" keywords))
+                          (or (org-element-property :TITLE (org-element-org-data))
                               (file-name-nondirectory
-			       (buffer-file-name (buffer-base-buffer))))))
+			       (buffer-file-name (buffer-base-buffer)))))
 		         ((looking-at org-complex-heading-regexp)
 			  (if (match-end 4)
 			      (match-string 4)

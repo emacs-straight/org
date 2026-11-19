@@ -1320,6 +1320,21 @@ See `org-link-parameters' for documentation on the other parameters."
  "use `org-bookmark-names-plist' instead."
  "9.7")
 
+(defcustom org-todo-interpretation 'sequence
+  "Controls how TODO keywords are interpreted.
+This variable is in principle obsolete and is only used for
+backward compatibility, if the interpretation of todo keywords is
+not given already in `org-todo-keywords'.  See that variable for
+more information."
+  :group 'org-todo
+  :group 'org-keywords
+  :type '(choice (const sequence)
+		 (const type)))
+(make-obsolete-variable
+ 'org-todo-interpretation
+ "set interpretation in `org-todo-keywords' instead."
+ "9.7")
+
 (defcustom org-publish-sitemap-file-entry-format "%t"
   "Format string for site-map file entry.
 You could use brackets to delimit on what part the link will be.
@@ -1501,6 +1516,7 @@ use of this function is for the stuck project list."
 (declare-function org-display-inline-image--width "ol" (link))
 (declare-function org-image--align "ol" (link))
 (declare-function org--create-inline-image "ol" (file width))
+(declare-function org-element-org-data "org-element" ())
 
 (define-obsolete-function-alias 'org-display-inline-remove-overlay
   'org-link-preview--remove-overlay "9.8")
@@ -1513,7 +1529,6 @@ use of this function is for the stuck project list."
 (define-obsolete-variable-alias 'org-inline-image-overlays
   'org-link-preview-overlays "9.8")
 (defvar org-link-preview-overlays)
-(defvar org-link-abbrev-alist-local)
 (defvar org-link-abbrev-alist)
 (defvar org-link-angle-re)
 (defvar org-link-plain-re)
@@ -1558,7 +1573,7 @@ buffer boundaries with possible narrowing."
 	(let* ((case-fold-search t)
 	       (file-extension-re (image-file-name-regexp))
 	       (link-abbrevs (mapcar #'car
-				     (append org-link-abbrev-alist-local
+				     (append (org-element-property :link-abbrevs (org-element-org-data))
 					     org-link-abbrev-alist)))
 	       ;; Check absolute, relative file names and explicit
 	       ;; "file:" links.  Also check link abbreviations since

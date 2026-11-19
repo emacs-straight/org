@@ -62,23 +62,22 @@
 (require 'org-macs)
 (org-assert-version)
 
-(require 'avl-tree)
-(require 'ring)
+;; Generic libraries
+(require 'org-macs)
 (require 'cl-lib)
-(require 'ol)
-(require 'org-persist)
 (require 'org-compat)
-(require 'org-entities)
+(require 'org-fold-core)
+
+(require 'avl-tree) ; Used by org-element-cache
+(require 'ring) ; User for logging org-element-cache
+(require 'org-persist) ; Used to store cache between Emacs sessions
+
+(require 'ol) ; Defines link types and abbreviations
+(require 'org-entities) ; Defines what constitutes an entity object
 ;; FIXME: List parsing is currently implemented outside, in
 ;; org-list.el.  Should ideally put everything parser-related into
 ;; org-element.el.
 (require 'org-list)
-(require 'org-macs)
-;; For `org-fold-core-cycle-over-indirect-buffers'
-(eval-when-compile (require 'org-fold-core))
-
-(defvar org-done-keywords)
-(defvar org-todo-regexp)
 
 
 ;;; Customization
@@ -210,6 +209,44 @@ When NODE is not passed, assume element at point."
          (or (org-element-property :preserve-indent node)
 	     org-src-preserve-indentation))))
 
+(defcustom org-link-abbrev-alist nil
+  "Alist of link abbreviations.
+The car of each element is a string, to be replaced at the start of a link.
+The cdrs are replacement values, like (\"linkkey\" . REPLACE).  Abbreviated
+links in Org buffers can have an optional tag after a double colon, e.g.,
+
+     [[linkkey:tag][description]]
+
+The `linkkey' must be a single word, starting with a letter, followed
+by letters, numbers, `-' or `_'.
+
+If REPLACE is a string, the tag will simply be appended to create the link.
+If the string contains \"%s\", the tag will be inserted there.  If the string
+contains \"%h\", it will cause a url-encoded version of the tag to be inserted
+at that point (see the function `url-hexify-string').  If the string contains
+the specifier \"%(my-function)\", then the custom function `my-function' will
+be invoked: this function takes the tag as its only argument and must return
+a string.
+
+REPLACE may also be a function that will be called with the tag as the
+only argument to create the link, which should be returned as a string.
+
+See the manual for examples."
+  :group 'org-link
+  :type '(repeat
+	  (cons (string :tag "Protocol")
+		(choice
+		 (string :tag "Format")
+		 (function))))
+  :safe (lambda (alist)
+          (when (listp alist)
+            (catch :unsafe
+              (dolist (val alist)
+	        (pcase val
+	          (`(,(pred stringp) . ,(pred stringp)) t)
+	          (_ (throw :unsafe nil))))
+              t))))
+
 
 ;;; Definitions And Rules
 ;;
@@ -219,6 +256,10 @@ When NODE is not passed, assume element at point."
 ;;
 ;; `org-element-update-syntax' builds proper syntax regexps according
 ;; to current setup.
+
+(defconst org-comment-regexp
+  (rx (seq bol (zero-or-more (any "\t ")) "#" (or " " eol)))
+  "Regular expression for comment lines.")
 
 (defun org-inlinetask-outline-regexp ()
   "Return string matching an inline task heading.
@@ -243,6 +284,11 @@ Key is located in match group 1.")
       (zero-or-more (any "\t\n ")))
   "Regexp matching a citation prefix.
 Style, if any, is located in match group 1.")
+
+(defconst org-element-timestamp-format "%Y-%m-%d %a"
+  "Time stamp format for timestamps without time.")
+(defconst org-element-timestamp-format-with-time "%Y-%m-%d %a %H:%M"
+  "Time stamp format for timestamps with time.")
 
 (defconst org-ts--internal-regexp
   (rx (seq
@@ -558,6 +604,8 @@ specially in `org-element--object-lex'.")
   (org-element--set-regexps)
   (org-element-cache-reset 'all))
 
+;; FIXME: Add variable watchers, refreshing global or local cache.
+
 (defconst org-element-all-elements
   '(babel-call center-block clock comment comment-block diary-sexp drawer
 	       dynamic-block example-block export-block fixed-width
@@ -595,6 +643,14 @@ specially in `org-element--object-lex'.")
              section table-row)
   "List of paragraph-level node types that cannot have affiliated keywords.")
 
+(defconst org-element-buffer-keywords
+  '("FILETAGS" "TAGS" "ARCHIVE" "CATEGORY" "COLUMNS" "CONSTANTS"
+    "LINK" "OPTIONS" "PRIORITIES" "PROPERTY" "SEQ_TODO" "STARTUP"
+    "TODO" "TYP_TODO" "SETUPFILE" "AUTHOR" "EMAIL" "TITLE" "MACRO"
+    "DATE")
+  "List of in-buffer keywords affecting Org parser.
+These keywords are parsed by `org-element-org-data-parser'.")
+
 (defconst org-element-affiliated-keywords
   '("CAPTION" "DATA" "HEADER" "HEADERS" "LABEL" "NAME" "PLOT" "RESNAME" "RESULT"
     "RESULTS" "SOURCE" "SRCNAME" "TBLNAME")
@@ -610,8 +666,11 @@ are affiliated keywords and need not to be in this list.")
 The key is the old name and the value the new one.  The property
 holding their value will be named after the translated name.")
 
-(defconst org-element-multiple-keywords '("CAPTION" "HEADER")
-  "List of affiliated keywords that can occur more than once in an element.
+(defconst org-element-multiple-keywords
+  '("CAPTION" "HEADER" "FILETAGS" "TAGS" "CONSTANTS" "LINK" "OPTIONS"
+    "PROPERTY" "SEQ_TODO" "STARTUP" "TODO" "TYP_TODO" "SETUPFILE"
+    "AUTHOR" "TITLE" "MACRO")
+  "List of keywords that can occur more than once.
 
 Their value will be consed into a list of strings, which will be
 returned as the value of the property.
@@ -773,6 +832,7 @@ past the brackets."
 (defconst org-element--cache-variables
   '( org-element--cache org-element--cache-size
      org-element--headline-cache org-element--headline-cache-size
+     org-element--cache-sensitive-keyword-re
      org-element--cache-hash-left org-element--cache-hash-right
      org-element--cache-sync-requests org-element--cache-sync-timer
      org-element--cache-sync-keys-value org-element--cache-change-tic
@@ -1662,13 +1722,23 @@ Throw `:org-element-deferred-retry' signal at the end."
              (true-level (prog1 (skip-chars-forward "*")
                            (skip-chars-forward " \t")))
 	     (level (org-reduced-level true-level))
-	     (todo (and org-todo-regexp
-		        (let (case-fold-search) (looking-at (concat org-todo-regexp "\\(?: \\|$\\)")))
+	     (todo (and (let (case-fold-search)
+                          (looking-at (concat
+                                       (org-element-property
+                                        :todo-regexp
+                                        (org-element-lineage headline '(org-data)))
+                                       "\\(?: \\|$\\)")))
 		        (progn (goto-char (match-end 0))
 			       (skip-chars-forward " \t")
                                (org-element--get-cached-string (match-string-no-properties 1)))))
 	     (todo-type
-	      (and todo (if (member todo org-done-keywords) 'done 'todo)))
+	      (and todo (if (member
+                             todo
+                             (org-element-property
+                              :done-keywords
+                              (org-element-lineage headline '(org-data))))
+                            'done
+                          'todo)))
 	     (priority (and (looking-at org-priority-regexp)
                             (progn (goto-char (match-end 0))
                                    (org-priority-to-value (match-string 2)))))
@@ -1859,28 +1929,270 @@ CONTENTS is the contents of the element."
 
 ;;;; org-data
 
-(defun org-element--get-category ()
-  "Return category in current buffer."
-  (let ((default-category
-         (cond ((null org-category)
-	        (when (org-with-base-buffer nil
-                        buffer-file-name)
-	          (file-name-sans-extension
-	           (file-name-nondirectory
-                    (org-with-base-buffer nil
-                      buffer-file-name)))))
-	       ((symbolp org-category) (symbol-name org-category))
-	       (t org-category)))
-        category)
-    ;; Search for #+CATEGORY keywords.
-    (org-with-point-at (point-max)
-      (while (and (not category)
-                  (re-search-backward "^[ \t]*#\\+CATEGORY:" (point-min) t))
-	(let ((element (org-element-at-point-no-context)))
-	  (when (org-element-type-p element 'keyword)
-            (setq category (org-element-property :value element))))))
-    ;; Return.
-    (or category default-category)))
+(defun org-make-options-regexp (kwds &optional extra)
+  "Make a regular expression for keyword lines.
+KWDS is a list of keywords, as strings.  Optional argument EXTRA,
+when non-nil, is a regexp matching keywords names."
+  (concat "^[ \t]*#\\+\\("
+	  (regexp-opt kwds)
+	  (and extra (concat (and kwds "\\|") extra))
+	  "\\):[ \t]*\\(.*\\)"))
+
+(defun org-collect-keywords (keywords &optional unique directory)
+  "Return values for KEYWORDS in current buffer, as an alist.
+
+KEYWORDS is a list of strings.  Return value is a list of
+elements with the pattern:
+
+  (NAME . LIST-OF-VALUES)
+
+where NAME is the upcase name of the keyword, and LIST-OF-VALUES
+is a list of non-empty values, as strings, in order of appearance
+in the buffer.
+
+When KEYWORD appears in UNIQUE list, LIST-OF-VALUE is its first
+value, empty or not, appearing in the buffer, as a string.
+
+When KEYWORD appears in DIRECTORIES, each value is a cons cell:
+
+  (VALUE . DIRECTORY)
+
+where VALUE is the regular value, and DIRECTORY is the variable
+`default-directory' for the buffer containing the keyword.  This
+is important for values containing relative file names, since the
+function follows SETUPFILE keywords, and may change its working
+directory."
+  (let* ((keywords (cons "SETUPFILE" (mapcar #'upcase keywords)))
+	 (unique (mapcar #'upcase unique))
+	 (alist (org--collect-keywords-1
+		 keywords unique directory
+		 (and buffer-file-name (list buffer-file-name))
+		 nil)))
+    ;; Re-order results.
+    (dolist (entry alist)
+      (pcase entry
+	(`(,_ . ,(and value (pred consp)))
+	 (setcdr entry (nreverse value)))))
+    (nreverse alist)))
+
+(defun org--collect-keywords-1 (keywords unique directory files alist)
+  "Collect KEYWORDS in current buffer into ALIST.
+See the docstring of `org-collect-keywords' for description of
+KEYWORDS, UNIQUE, and DIRECTORY arguments.
+When KEYWORDS contains \"SETUPFILE\", ignore #+SETUPFILE directives
+for files with their full path listed in FILES."
+  (org-with-point-at 1
+    (let ((case-fold-search t)
+	  (regexp (org-make-options-regexp keywords)))
+      (while (and keywords (re-search-forward regexp nil t))
+        (let ((element
+               ;; We might be called from inside incremental parser.
+               ;; Must not modify cache.
+               (org-element-at-point-no-context)))
+          (when (org-element-type-p element 'keyword)
+            (let ((value (org-element-property :value element)))
+              (pcase (org-element-property :key element)
+		("SETUPFILE"
+		 (when (org-string-nw-p value)
+		   (let* ((uri (org-strip-quotes value))
+			  (uri-is-url (org-url-p uri))
+			  (uri (if uri-is-url
+				   uri
+	                         ;; In case of error, be safe.
+                                 ;; See bug#68976.
+                                 (ignore-errors ; return nil when expansion fails.
+				   (expand-file-name uri)))))
+		     (unless (or (not uri) (member uri files))
+		       (with-temp-buffer
+			 (unless uri-is-url
+			   (setq default-directory (file-name-directory uri)))
+			 (let ((contents (org-file-contents uri :noerror)))
+			   (when contents
+			     (insert contents)
+			     ;; Fake Org mode: `org-element-at-point'
+			     ;; doesn't need full set-up.
+			     (let ((major-mode 'org-mode))
+                               (setq-local tab-width 8)
+			       (setq alist
+				     (org--collect-keywords-1
+				      keywords unique directory
+				      (cons uri files)
+				      alist))))))))))
+		(keyword
+		 (let ((entry (assoc keyword alist))
+		       (final
+			(cond ((not (member keyword directory)) value)
+			      (buffer-file-name
+			       (cons value
+				     (file-name-directory buffer-file-name)))
+			      (t (cons value default-directory)))))
+		   (cond ((member keyword unique)
+			  (push (cons keyword final) alist)
+			  (setq keywords (remove keyword keywords))
+			  (setq regexp (org-make-options-regexp keywords)))
+			 ((null entry) (push (list keyword final) alist))
+			 (t (push final (cdr entry)))))))))))
+      alist)))
+
+(defun org-element--compute-link-abbrevs (data)
+  "Compute link abbreviations from #+LINK keywords in DATA.
+Return alist of (ABBREV . REPLACEMENT) elements."
+  (with-current-buffer (org-element-property :buffer data)
+    (let ((links
+	   (delq nil
+	         (mapcar
+		  (lambda (value)
+		    (and (or
+                          ;; "abbrev with spaces" spec
+                          (string-match "\\`\"\\(.+[^\\]\\)\"[ \t]+\\(.+\\)" value)
+                          ;; abbrev spec
+                          (string-match "\\`\\(\\S-+\\)[ \t]+\\(.+\\)" value))
+		         (cons (match-string-no-properties 1 value)
+			       (match-string-no-properties 2 value))))
+		  (org-element-property :LINK data)))))
+      (nreverse links))))
+
+(defconst org-element--compute-link-abbrevs
+  (org-element-deferred-create nil #'org-element--compute-link-abbrevs)
+  "Default value for `:link-abbrevs' property.")
+
+(defconst org-element--unique-keywords
+  (seq-difference org-element-buffer-keywords
+                  org-element-multiple-keywords)
+  "In-buffer keywords where the first occurrence sets the value.")
+
+(defconst org-element--todo-keyword-setting-re
+  ;; TODO(t@/!)
+  (rx bol
+      ;; TODO
+      (group (minimal-match (zero-or-more nonl)))
+      (opt "("
+           ;; t@/!
+           (group (0+ (not ")")))
+           ")")
+      eol)
+  "Regular expression matching TODO keyword spec.
+This applies to keywords defined in `org-todo-keywords' and in
+#+TODO/#+SEQ_TODO/#+TYP_TODO.
+Match group 1 will match the todo keyword and match group 2 will match
+the keyword options in brackets.  For example, for TODO(t@/!), match
+group 1 will be \"TODO\" and match group 2 will be \"t@/!\".")
+
+(defun org-element--compute-todo-keywords (data)
+  "Compute todo keyword information and set it in DATA.
+Assign `:todo-keywords', `:todo-keyword-options', `:done-keywords',
+and `:todo-regexp' properties to DATA.
+
+`:todo-keywords' is a list of all the todo keywords, as strings.
+
+`:done-keywords' is a list of all the keywords that are interpreted as
+\"done\".
+
+`:todo-regexp' is regular expression matching any valid todo keyword.
+
+`:todo-keyword-settings', is a list of todo sequences.  Each sequence
+is (TYPE TODO-ALIST DONE-ALIST).
+TYPE is a symbol representing sequence type.
+
+TODO-ALIST associates todo keyword (both todo and done) strings with
+the corresponding settings (key binding and logging status).  For
+example, WAIT(w!)  keyword definition will be represented as
+`(\"WAIT\" . \"w!\")' alist element.
+
+DONE-ALIST is like TODO-ALIST, but only for done keywords."
+  (with-current-buffer (org-element-property :buffer data)
+    (org-element-put-property data :todo-keywords nil)
+    (org-element-put-property data :todo-keyword-settings nil)
+    (org-element-put-property data :done-keywords nil)
+    (org-element-put-property data :todo-regexp nil)
+    (let ((todo-sequences
+	   (or (append (mapcar (lambda (value)
+				 (cons 'type (split-string value)))
+                               ;; #+TYP_TODO: keyword represent `type'
+                               ;; sequence.
+			       (org-element-property :TYP_TODO data))
+		       (mapcar (lambda (value)
+				 (cons 'sequence (split-string value)))
+                               ;; #+TODO: and #+SEQ_TODO keywords
+                               ;; represent `sequence' sequence.
+			       (append (org-element-property :TODO data)
+				       (org-element-property :SEQ_TODO data))))
+               ;; FIXME: Why default value and not buffer-local?
+	       (let ((d (default-value 'org-todo-keywords)))
+		 (if (not (stringp (car d))) d
+		   ;; FIXME: Backward compatibility code.
+                   ;; `org-todo-interpretation' is obsolete.
+		   (list (cons (with-no-warnings org-todo-interpretation) d)))))))
+      (dolist (sequence todo-sequences)
+	(let* ((sequence
+                (or (run-hook-with-args-until-success
+                     ;; NOTE: This hook is, for example, used by
+                     ;; org-choose contrib package to introduce a new
+                     ;; todo keyword sequence type `choose'.
+		     'org-todo-setup-filter-hook sequence)
+		    sequence))
+	       (keywords-raw (cdr sequence))
+	       todo-keywords done-keywords setting-alist
+	       done-setting-alist
+               (done? nil) k)
+          (while keywords-raw
+            (setq k (pop keywords-raw))
+            (if (equal k "|") (setq done? t)
+	      (if (not (string-match org-element--todo-keyword-setting-re k))
+	          (display-warning
+                   '(org-element org-element-cache)
+                   (format "Ignoring invalid TODO keyword %s" k))
+	        (let ((name (match-string 1 k))
+		      (setting (match-string 2 k)))
+	          (push name todo-keywords)
+                  (setq setting-alist (nconc setting-alist (list (cons name setting))))
+                  (when (or done?
+                            ;; The last keyword and we did not encounter "|".
+                            ;; Consider the last keyword "done".
+                            (not keywords-raw))
+                    (push name done-keywords)
+                    ;; Point to the cons cell in SETTING-ALIST that
+                    ;; corresponds to the first DONE keyword.
+                    ;; Further additions to SETTING-ALIST will
+                    ;; automatically update this reference.
+                    (unless done-setting-alist
+                      (setq done-setting-alist (last setting-alist))))))))
+          (org-element-put-property
+           data :todo-keywords
+           (append (org-element-property :todo-keywords data)
+                   (nreverse todo-keywords)))
+          (org-element-put-property
+           data :todo-keyword-settings
+           (append (org-element-property :todo-keyword-settings data)
+                   (list
+                    (list (car sequence) ; sequence type
+                          setting-alist
+                          done-setting-alist))))
+          (org-element-put-property
+           data :done-keywords
+           (append (org-element-property :done-keywords data)
+                   (nreverse done-keywords)))))
+      (org-element-put-property
+       data :todo-regexp
+       (regexp-opt (org-element-property :todo-keywords data) t))))
+  (throw :org-element-deferred-retry nil))
+
+(defconst org-element--compute-todo-keywords
+  (org-element-deferred-create nil #'org-element--compute-todo-keywords)
+  "Default value for todo keyword-related properties.")
+
+(defun org-element--compute-tags (data)
+  "Compute tags and set them in DATA.
+Assign `:tags' property to DATA."
+  (cl-mapcan (lambda (value)
+	       (cl-mapcan
+		(lambda (k) (org-split-string k ":"))
+		(split-string value)))
+	     (org-element-property :FILETAGS data)))
+
+(defconst org-element--compute-tags
+  (org-element-deferred-create t #'org-element--compute-tags)
+  "Default value for `org-data' `:tags' property.")
 
 (defun org-element--get-global-node-properties (data)
   "Set node properties associated with the whole Org buffer.
@@ -1891,19 +2203,40 @@ parser (e.g. `:end' and :END:).
 Alter DATA by side effect."
   (with-current-buffer (org-element-property :buffer data)
     (org-with-wide-buffer
+     ;; Collect global keywords.
+     (dolist (kwd-pair
+              (org-collect-keywords
+               org-element-buffer-keywords
+	       org-element--unique-keywords))
+       (org-element-put-property
+        data
+        (intern (format ":%s" (car kwd-pair)))
+        (cdr kwd-pair)))
+     ;; Handle #+PROPERTY: keywords.
+     (dolist (property-spec (org-element-property-raw :PROPERTY data))
+       (cond
+        ((string-match "\\(\\S-+\\)[ \t]+\\(.*\\)" property-spec)
+         (if (string-suffix-p "+" (match-string 1 property-spec))
+             ;; #+PROPERTY: name+ val
+             (let* ((name (intern (format ":%s" (upcase (match-string 1 property-spec)))))
+                    (prev-value (org-element-property-raw name data)))
+               (org-element-put-property
+                data name
+                (nconc prev-value (list (match-string 2 property-spec)))))
+           (let ((name (intern (format ":%s" (upcase (match-string 1 property-spec))))))
+             (org-element-put-property
+              data name (match-string 2 property-spec)))))
+        ;; Ignore malformed value.
+        (t nil)))
+     ;; Collect properties from top-level PROPERTIES drawer.
      (goto-char (point-min))
      (org-skip-whitespace)
      (forward-line 0)
-     (while (and (org-at-comment-p) (bolp)) (forward-line))
-     (let ((props (org-element--get-node-properties t data))
-           (has-category? nil))
+     (while (and (looking-at-p org-comment-regexp) (bolp)) (forward-line))
+     (let ((props (org-element--get-node-properties t data)))
        (while props
          (org-element-put-property data (car props) (cadr props))
-         (when (eq (car props) :CATEGORY) (setq has-category? t))
-         (setq props (cddr props)))
-       ;; CATEGORY not set in top-level property drawer.  Go the long way.
-       (unless has-category?
-         (org-element-put-property data :CATEGORY (org-element--get-category)))))
+         (setq props (cddr props)))))
     ;; Return nil.
     nil))
 
@@ -1912,13 +2245,19 @@ Alter DATA by side effect."
    t #'org-element--get-global-node-properties)
   "Constant holding `:deferred' property for org-data.")
 
+(defconst org-element-parser-variables
+  '(org-todo-keywords org-link-abbrev-alist org-odd-levels-only)
+  "List of variables that can alter the Org parser.")
+
 (defvar org-element-org-data-parser--recurse nil)
 (defun org-element-org-data-parser (&optional _)
   "Parse org-data.
 
 Return a new syntax node of `org-data' type containing `:begin',
 `:pre-blank', `:contents-begin', `:contents-end', `:end',
-`:post-blank', `:post-affiliated', and `:path' properties."
+`:post-blank', `:post-affiliated', `:todo-keywords', `:done-keywords',
+`:todo-keyword-settings', `:todo-regexp', `:link-abbrevs',
+`:parser-settings', and `:path' properties."
   (org-with-wide-buffer
    (let* ((begin 1)
           (contents-begin (progn
@@ -1936,7 +2275,7 @@ Return a new syntax node of `org-data' type containing `:begin',
                             (goto-char (point-min))
                             (org-skip-whitespace)
                             (forward-line 0)
-                            (while (and (org-at-comment-p) (bolp)) (forward-line))
+                            (while (and (looking-at-p org-comment-regexp) (bolp)) (forward-line))
                             (when (looking-at org-property-drawer-re)
                               (goto-char (match-end 0))
                               (min robust-end (point))))
@@ -1954,7 +2293,15 @@ Return a new syntax node of `org-data' type containing `:begin',
             ;; sections belong to the containing elements.
             :post-blank 0
             :post-affiliated begin
+            :todo-keywords org-element--compute-todo-keywords
+            :done-keywords org-element--compute-todo-keywords
+            :todo-keyword-settings org-element--compute-todo-keywords
+            :todo-regexp org-element--compute-todo-keywords
+            :link-abbrevs org-element--compute-link-abbrevs
+            :tags org-element--compute-tags
             :path (buffer-file-name)
+            :parser-settings (mapcar (lambda (var) (cons var (symbol-value  var)))
+                                     org-element-parser-variables)
             :mode 'org-data
             :buffer (current-buffer)
             :deferred org-element--get-global-node-properties)))))
@@ -4212,6 +4559,71 @@ Assume point is at the beginning of the line break."
 
 ;;;; Link
 
+(defun org-link-expand-abbrev (link)
+  "Replace link abbreviations in LINK string.
+Abbreviations are defined in :link-abbrevs property of
+`org-element-org-data'."
+  (if (not (string-match "^\\([^:]*\\)\\(::?\\(.*\\)\\)?$" link)) link
+    (let* ((key (match-string 1 link))
+	   (tag (and (match-end 2) (match-string 3 link)))
+           (org-data (org-element-org-data))
+           (as (or (assoc key (org-element-property :link-abbrevs org-data))
+		   (assoc key org-link-abbrev-alist)))
+	   rpl)
+      (if (not as)
+	  link
+	(setq rpl (cdr as))
+        (cl-macrolet
+            ((eval-or-disable (&rest body)
+               "Run BODY and disable AS abbrev if it errs."
+               `(condition-case err
+	            (progn ,@body)
+                  (error
+                   (org-display-warning
+                    (format "Disabling link abbrev %s <- %s after expansion failure: %S"
+                            rpl link (error-message-string err)))
+                   (org-element-put-property
+                    org-data :link-abbrevs
+                    (delete as (org-element-property :link-abbrevs org-data)))
+                   (setq org-link-abbrev-alist (delete as org-link-abbrev-alist))
+                   link))))
+          ;; Drop any potentially dangerous text properties like
+          ;; `modification-hooks' that may be used as an attack vector.
+          (substring-no-properties
+           (cond
+            ((symbolp rpl)
+             (eval-or-disable
+              (let ((expanded (funcall rpl tag)))
+                (unless (stringp expanded)
+                  (error "%s did not return a string: %S" rpl expanded))
+                expanded)))
+            ((string-match "%(\\([^)]+\\))" rpl)
+             (let ((rpl-fun-symbol (intern-soft (match-string 1 rpl))))
+               ;; Using `unsafep-function' is not quite enough because
+               ;; Emacs considers functions like `getenv' safe, while
+               ;; they can potentially be used to expose private system
+               ;; data to attacker if abbreviated link is clicked.
+               (if (or (eq t (get rpl-fun-symbol 'org-link-abbrev-safe))
+                       (eq t (get rpl-fun-symbol 'pure)))
+                   (eval-or-disable
+                    (replace-match
+                     (save-match-data
+                       (funcall rpl-fun-symbol tag))
+                     t t rpl))
+                 (org-display-warning
+                  (format "Disabling unsafe link abbrev: %s
+You may mark function safe via (put '%s 'org-link-abbrev-safe t)"
+                          rpl (match-string 1 rpl)))
+                 (org-element-put-property
+                  org-data :link-abbrevs
+                  (delete as (org-element-property :link-abbrevs org-data)))
+                 (setq org-link-abbrev-alist (delete as org-link-abbrev-alist))
+                 link)))
+            ((string-match "%s" rpl) (replace-match (or tag "") t t rpl))
+            ((string-match "%h" rpl)
+             (replace-match (url-hexify-string (or tag "")) t t rpl))
+            (t (concat rpl tag)))))))))
+
 (defun org-element-link-parser ()
   "Parse link at point, if any.
 
@@ -4925,11 +5337,9 @@ Assume point is at the beginning of the timestamp."
                   (format " %02d:%02d" hour-start minute-start)))
              (format-time-string
               ;; `org-time-stamp-formats'.
-	      (org-time-stamp-format
-               ;; Ignore time unless both HH:MM are available.
-               ;; Ignore means (car org-timestamp-formats).
-               (and minute-start hour-start)
-               'no-brackets)
+	      (if (and minute-start hour-start)
+                  org-element-timestamp-format-with-time
+                org-element-timestamp-format)
 	      (org-encode-time
 	       0 (or minute-start 0) (or hour-start 0)
 	       day-start month-start year-start)))
@@ -4977,11 +5387,9 @@ Assume point is at the beginning of the timestamp."
                     "--" (car brackets)
                     (format-time-string
                      ;; `org-time-stamp-formats'.
-	             (org-time-stamp-format
-                      ;; Ignore time unless both HH:MM are available.
-                      ;; Ignore means (car org-timestamp-formats).
-                      (and minute-end hour-end)
-                      'no-brackets)
+		     (if (and minute-end hour-end)
+			 org-element-timestamp-format-with-time
+                       org-element-timestamp-format)
 	             (org-encode-time
                       ;; Closing HH:MM missing is a valid scenario.
 	              0 (or minute-end 0) (or hour-end 0)
@@ -6176,7 +6584,7 @@ indentation removed from its contents."
 (defvar org-element-cache-persistent t
   "Non-nil when cache should persist between Emacs sessions.")
 
-(defconst org-element-cache-version "2.3"
+(defconst org-element-cache-version "2.7"
   "Version number for Org AST structure.
 Used to avoid loading obsolete AST representation when using
 `org-element-cache-persistent'.")
@@ -7544,6 +7952,13 @@ If you observe Emacs hangs frequently, please report this to Org mode mailing li
 
 ;;;; Staging Buffer Changes
 
+(defconst org-element--cache-sensitive-keyword-re
+  (rx-to-string
+   `(seq bol (0+ (any " \t")) "#+"
+         ,(regexp-opt org-element-buffer-keywords)
+         ":"))
+  "Regexp matching in-buffer keywords that affect `org-element-org-data-parser'.")
+
 (defconst org-element--cache-sensitive-re
   (concat
    "^\\*+ " "\\|"
@@ -7552,7 +7967,8 @@ If you observe Emacs hangs frequently, please report this to Org mode mailing li
    "#\\+END\\(?:_\\|:?[ \t]*$\\)" "\\|"
    org-list-full-item-re "\\|"
    ":\\(?: \\|$\\)" "\\|"
-   ":\\(?:\\w\\|[-_]\\)+:[ \t]*$"
+   ":\\(?:\\w\\|[-_]\\)+:[ \t]*$" "\\|"
+   "\\(?:" org-element--cache-sensitive-keyword-re "\\)"
    "\\)")
   "Regexp matching a sensitive line, structure wise.
 A sensitive line is a headline, inlinetask, block, drawer, or
@@ -7609,7 +8025,7 @@ The function returns the new value of `org-element--cache-change-warning'."
                              (goto-char beg)
                              (forward-line 0)
                              (or (and min-level (org-reduced-level min-level))
-                                 (when (looking-at-p "^[ \t]*#\\+CATEGORY:")
+                                 (when (looking-at-p org-element--cache-sensitive-keyword-re)
                                    'org-data)
                                  t))))))
                (setq org-element--cache-change-warning
@@ -7772,7 +8188,7 @@ known element in cache (it may start after END)."
                                            ;; then.
                                            (org-with-wide-buffer
                                             (goto-char (point-min))
-                                            (while (and (org-at-comment-p) (bolp)) (forward-line))
+                                            (while (and (looking-at-p org-comment-regexp) (bolp)) (forward-line))
                                             ;; Should not see property
                                             ;; drawer within changed
                                             ;; region.
@@ -7821,9 +8237,11 @@ known element in cache (it may start after END)."
                      ;; headline case.  We just need to re-parse the
                      ;; org-data itself, unless the change is made
                      ;; within blank lines at BOB (that could
-                     ;; potentially alter first-section).
+                     ;; potentially alter first-section) or affects
+                     ;; global in-buffer keywords.
                      (when (and (org-element-type-p up 'org-data)
-                                (>= beg (org-element-contents-begin up)))
+                                (>= beg (org-element-contents-begin up))
+                                (not (eq 'org-data org-element--cache-change-warning)))
                        (org-element-set up (org-with-point-at 1 (org-element-org-data-parser)) org-element--cache-element-properties)
                        (org-element--cache-log-message
                         "Found non-robust change invalidating org-data. Re-parsing: %S"
@@ -8039,22 +8457,23 @@ Return non-nil when verification failed."
                ;; Avoid too much slowdown
                (< (random 1000) (* 1000 org-element--cache-self-verify-frequency)))
       (org-with-point-at (org-element-begin element)
-        (org-element-with-disabled-cache (org-up-heading-or-point-min))
-        (unless (or (= (point)
-                       (org-element-begin
-                        (org-element-property :parent element)))
-                    (eq (point) (point-min)))
-          (org-element--cache-warn
-           "Cached element has wrong parent in %s. Resetting.
+        (when (> (org-element-property :true-level element) 1)
+          (re-search-backward
+           (org-headline-re (1- (org-element-property :true-level element))) nil 'move)
+          (unless (or (= (point)
+                         (org-element-begin (org-element-parent element)))
+                      (eq (point) (point-min)))
+            (org-element--cache-warn
+             "Cached element has wrong parent in %s. Resetting.
 If this warning appears regularly, please report the warning text to Org mode mailing list (M-x org-submit-bug-report).
 The element is: %S\n The parent is: %S\n The real parent is: %S"
-           (buffer-name (current-buffer))
-           (org-element--format-element element)
-           (org-element--format-element (org-element-property :parent element))
-           (org-element--format-element
-            (org-element--current-element
-             (org-element-end (org-element-property :parent element)))))
-          (org-element-cache-reset))
+             (buffer-name (current-buffer))
+             (org-element--format-element element)
+             (org-element--format-element (org-element-property :parent element))
+             (org-element--format-element
+              (org-element--current-element
+               (org-element-end (org-element-property :parent element)))))
+            (org-element-cache-reset)))
         (org-element--cache-verify-element
          (org-element-property :parent element))))
     ;; Verify the element itself.
@@ -8180,6 +8599,27 @@ Please report it to Org mode mailing list (M-x org-submit-bug-report).\n%S" el)
                  (org-element-cache-reset)
                  (throw 'abort t)))
              org-element--cache)
+            ;; Make sure that the values of
+            ;; `org-element-parser-variables' are consistent.
+            (unless (equal
+                     (org-element-property
+                      :parser-settings
+                      (org-element-lineage
+                       (avl-tree-first org-element--cache)
+                       '(org-data) t))
+                     (mapcar (lambda (var) (cons var (symbol-value var)))
+                             org-element-parser-variables))
+              (org-element-cache-reset)
+              (org-element--cache-log-message
+               "Global parser settings not consistent:\nCached: %S\nCurrent: %S"
+               (org-element-property
+                :parser-settings
+                (org-element-lineage
+                 (avl-tree-first org-element--cache)
+                 '(org-data) t))
+               (mapcar (lambda (var) (cons var (symbol-value var)))
+                       org-element-parser-variables))
+              (throw 'abort t))
             (setq-local org-element--cache-size (avl-tree-size org-element--cache)))
           (when (and (equal container '(elisp org-element--headline-cache)) org-element--headline-cache)
             (setq-local org-element--headline-cache-size (avl-tree-size org-element--headline-cache))))))))
@@ -8841,6 +9281,17 @@ the cache."
 ;; `org-element-nested-p' and `org-element-swap-A-B' may be used
 ;; internally by navigation and manipulation tools.
 
+;;;###autoload
+(defun org-element-org-data ()
+  "Return the root node of the current Org buffer."
+  (if-let* ((node (or (and (org-element--cache-active-p)
+                           org-element--cache
+                           (org-element--cache-root)
+                           (avl-tree--node-data (org-element--cache-root)))
+                      (and (derived-mode-p 'org-mode)
+                           (org-element-at-point (point-max))))))
+      (org-element-lineage node '(org-data) t)
+    (org-with-point-at 1 (org-element-org-data-parser))))
 
 ;;;###autoload
 (defun org-element-at-point (&optional epom cached-only)
@@ -9013,8 +9464,12 @@ This function may modify match data."
            (skip-chars-forward "*")
            (skip-chars-forward " \t")
            (let (case-fold-search)
-             (when (and org-todo-regexp
-	                (looking-at (concat org-todo-regexp "\\(?: \\|$\\)")))
+             (when (looking-at
+                    (concat
+                     (org-element-property
+                      :todo-regexp
+                      (org-element-lineage element '(org-data)))
+                     "\\(?: \\|$\\)"))
 	       (goto-char (match-end 0))
 	       (skip-chars-forward " \t"))
              (when (looking-at "\\[#.\\][ \t]*")

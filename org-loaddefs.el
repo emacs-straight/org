@@ -1797,6 +1797,8 @@ argument of FUNC.  Changes to elements made in FUNC will also alter
 the cache.
 
 (fn FUNC &key (GRANULARITY \\='headline+inlinetask) RESTRICT-ELEMENTS NEXT-RE FAIL-RE FROM-POS (TO-POS (point-max-marker)) AFTER-ELEMENT LIMIT-COUNT NARROW)")
+(autoload 'org-element-org-data "org-element" "\
+Return the root node of the current Org buffer.")
 (autoload 'org-element-at-point "org-element" "\
 Determine closest element around point or EPOM.
 

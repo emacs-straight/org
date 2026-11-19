@@ -1,3 +1,3 @@
 @c automatically generated, do not edit
-@set VERSION 10.0-pre (10.0-pre-c0ed32)
-@set DATE 2026-11-16
+@set VERSION 10.0-pre (10.0-pre-077dbc)
+@set DATE 2026-11-18

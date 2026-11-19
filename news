@@ -25,6 +25,13 @@ Please send Org bug reports to mailto:emacs-orgmode@gnu.org.
 # require user action for most Org mode users.
 # Sorted from most important to least important.
 
+*** Org mode automatically refreshes in-buffer settings
+
+Previously, changes in keywords like =FILETAGS=, =TAGS=, =ARCHIVE=,
+=CATEGORY= (and others) were not automatically updated and users
+had to refresh the buffer setup manually with =C-c C-c=.
+Now, Org mode detects and applies the changes automatically.
+
 *** The LaTeX preview system has been overhauled
 
 Org mode's LaTeX preview system has been rewritten with several improvements and new features.
@@ -91,11 +98,5 @@ header for =beamer= that includes theme configuration. For example:
 #+END_SRC
 
 will make the Beamer exporter ignore the ~#+BEAMER_...~ keywords
-in the document that are related to theme configuration.
-
-*** Org mode now uses =compat.el= third-party package to support older Emacs versions
-
-This change is mostly technical and should not affect most users.
-However, people who install Org from git source might be affected.
 ...
 ...
