@@ -79,6 +79,8 @@
 ;; org-element.el.
 (require 'org-list)
 
+(defvar org-inhibit-startup) ; defined in org.el
+
 
 ;;; Customization
 
@@ -168,6 +170,52 @@ according to this format, mainly to make sure that the values are
 lined-up with respect to each other."
   :group 'org-properties
   :type 'string)
+
+(defvaralias 'org-highest-priority 'org-priority-highest)
+(defcustom org-priority-highest ?A
+  "The highest priority of TODO items.
+
+A character like ?A, ?B, etc., or a numeric value like 1, 2, etc.
+
+The default is the character ?A, which is 65 as a numeric value.
+
+If you set `org-priority-highest' to a numeric value inferior to
+65, Org assumes you want to use digits for the priority cookie.
+If you set it to >=65, Org assumes you want to use alphabetical
+characters.
+
+In both cases, the value of `org-priority-highest' must be
+smaller than `org-priority-lowest': for example, if \"A\" is the
+highest priority, it is smaller than the lowest \"C\" priority:
+65 < 67."
+  :group 'org-priorities
+  :package-version '(Org . "9.8")
+  :type '( restricted-sexp :tag "Number 0-64 or uppercase character A-Z"
+           :match-alternatives ((lambda (val) (org-priority-valid-value-p val t))))
+  :safe #'integerp)
+
+(defvaralias 'org-lowest-priority 'org-priority-lowest)
+(defcustom org-priority-lowest ?C
+  "The lowest priority of TODO items.
+
+A character like ?C, ?B, etc., or a numeric value like 9, 8, etc.
+
+The default is the character ?C, which is 67 as a numeric value.
+
+If you set `org-priority-lowest' to a numeric value inferior to
+65, Org assumes you want to use digits for the priority cookie.
+If you set it to >=65, Org assumes you want to use alphabetical
+characters.
+
+In both cases, the value of `org-priority-lowest' must be greater
+than `org-priority-highest': for example, if \"C\" is the lowest
+priority, it is greater than the highest \"A\" priority: 67 >
+65."
+  :group 'org-priorities
+  :package-version '(Org . "9.8")
+  :type '( restricted-sexp :tag "Number 0-64 or uppercase character A-Z"
+           :match-alternatives ((lambda (val) (org-priority-valid-value-p val t))))
+  :safe #'integerp)
 
 (defcustom org-src-content-indentation 2
   "Indentation for the content of a source code block.
@@ -269,9 +317,6 @@ The number of levels is controlled by `org-inlinetask-min-level'."
 		  org-inlinetask-min-level)))
     (format "^\\(\\*\\{%d,\\}\\)[ \t]+" nstars)))
 
-(defconst org-element-archive-tag "ARCHIVE"
-  "Tag marking a subtree as archived.")
-
 (defconst org-element-citation-key-re
   (rx "@" (group (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
   "Regexp matching a citation key.
@@ -356,6 +401,13 @@ The first timestamp is in match group 1.
 The second timestamp is in match group 2.
 The duration is in match group 3."))
 
+(defconst org-clock-string "CLOCK:"
+  "String used as prefix for timestamps clocking work hours on an item.")
+
+(defconst org-clock-line-re
+  (concat "^[ \t]*" org-clock-string)
+  "Matches a line with clock info.")
+
 (defconst org-element-clock-line-re
   (let ((duration ; "=> 212:12"
          '(seq
@@ -364,7 +416,7 @@ The duration is in match group 3."))
     (rx-to-string
      `(seq
        line-start (0+ (or ?\t ?\s))
-       "CLOCK:"
+       ,org-clock-string
        (or
         (seq
          (1+ (or ?\t ?\s))
@@ -470,6 +522,112 @@ Parameters are in match group 2.")
   (rx line-start (0+ (any ?\s ?\t))
       "#+BEGIN:" (0+ (any ?\s ?\t)) (not space))
   "Regexp matching the opening line of a dynamic block.")
+
+(defconst org-element-archive-tag "ARCHIVE"
+  "Tag marking a subtree as archived.")
+
+(defconst org-tag--valid-char-set "[:alnum:]_@#%"
+  "Regex pattern representing the set of characters valid within a tag.
+This is the base pattern for tag matching regex.")
+
+(defconst org-tag--group-enclosed-re
+  (format "\\(:\\([%s:]+\\):\\)" org-tag--valid-char-set)
+  "Regex pattern for a colon-enclosed group of tags.
+The regexp does not match encosing spaces and tabs, e.g.,
+\":TAG1:TAG2:\".  Match group 1 stores the tags with the enclosing
+colons, and match group 2 stores the tags without the enclosing
+colons.  Built using `org-tag--valid-char-set' with the addition of the
+colon.")
+
+(defconst org-tag-group-re
+  (format "[ \t]+%s[ \t]*$" org-tag--group-enclosed-re)
+  "Regexp matching the tag group at the end of a line, with leading spaces.
+Tags are stored in match group 1.  Match group 2 stores the tags
+without the enclosing colons.")
+
+(defconst org-priority-prefix "[#"
+  "Marker preceding value in the priority indicator e.g [# in [#A].")
+
+(defconst org-priority-suffix "]"
+  "Marker following value in the priority indicator e.g ] in [#A].")
+
+(defvar org-priority-value-regexp "[A-Z]\\|[0-9]\\|[1-5][0-9]\\|6[0-4]"
+  "Regular expression matching valid priority values.
+The priority value must be a capital Latin
+alphabetic character, A through Z, or can be an integer value in the range 0
+through 64.")
+
+(defun org-make-priority-regexp (&optional inner-only)
+  "Generate a correct `org-priority-regexp' using `org-priority'
+variables. Useful after setting custom priority markers or value
+regexp.
+
+If INNER-ONLY is non-nil, return only the inner regular expression,
+e.g to store in `org-mouse-priority-regexp' instead."
+  (let ((inner (concat (regexp-quote org-priority-prefix)
+                       "\\(" org-priority-value-regexp "\\)"
+                       (regexp-quote org-priority-suffix))))
+    (if inner-only
+        inner
+      (concat ".*?\\(" inner " ?\\)"))))
+
+(defvar org-priority-regexp
+  (org-make-priority-regexp)
+  "Regular expression matching the priority indicator.
+A priority indicator can be e.g. [#A] or [#1].
+The value of the priority cookie must be a capital Latin
+alphabetic character, A through Z, or can be an integer value in
+the range 0 through 64.
+This regular expression matches these groups:
+0 : the whole match, e.g. \"TODO [#A] Hack\"
+1 : the priority cookie, e.g. \"[#A]\"
+2 : the value of the priority cookie, e.g. \"A\".")
+
+(defun org-priority-valid-cookie-string-p (priority)
+  "Return t if the PRIORITY is a valid priority cookie, nil otherwise."
+  (cond
+   ((stringp priority)
+    (let ((case-fold-search nil)) ;; Force case-sensitive match
+      ;; (and ... t) to force explicit t/nil
+      (and (string-match-p org-priority-regexp priority) t)))))
+
+(defun org-priority-valid-value-p (priority &optional ignore-user-bounds)
+  "Return t if the PRIORITY is a valid priority value (0-64, A-Z), nil otherwise.
+Also validate that the priority value is within the current bounds of
+ `org-priority-lowest' and `org-priority-highest' unless IGNORE-USER-BOUNDS is
+non-nil."
+  ;; Although we can have either numeric or alphabetic priorities,
+  ;; we simplify here by treating everything as integers because the ASCII
+  ;; alphabetic range also fits in an integer range.
+  (and (integerp priority)
+       ;; validate that the value is within valid ranges
+       (or (<= 0 priority 64)
+           (<= ?A priority ?Z))
+       ;; more specifically, validate within the current high/low ranges
+       ;; unless the caller is ignoring the range
+       (or ignore-user-bounds
+           (>= org-priority-lowest priority org-priority-highest))))
+
+(defun org-priority-number-p (priority)
+  "Return t if the PRIORITY is an integer 0 through 64, inclusive, nil otherwise."
+  (and (integerp priority)
+       (<= 0 priority 64)))
+
+(defun org-priority-to-string (priority)
+  "Return a string form of PRIORITY based on whether it's numeric or alphabetic."
+  ;; we check whether this is even a valid value, ignoring the current high/low bounds
+  (if (org-priority-valid-value-p priority t)
+      (if (org-priority-number-p priority)
+          (number-to-string priority)
+        (format "%c" priority))
+    (error "Invalid priority value `%s'" priority)))
+
+(defun org-priority-to-value (s)
+  "Convert priority string S to its numeric value."
+  (or (save-match-data
+	(and (string-match "\\([0-9]+\\)" s)
+	     (string-to-number (match-string 1 s))))
+      (string-to-char s)))
 
 (defconst org-element-headline-re
   (rx line-start (1+ "*") " ")
@@ -828,6 +986,27 @@ past the brackets."
 	    (when end
 	      (goto-char end)
 	      (buffer-substring-no-properties (1+ pos) (1- end)))))))))
+
+(defconst org-match-sexp-depth 3
+  "Number of stacked braces for sub/superscript matching.")
+
+(defun org-create-multibrace-regexp (left right n)
+  "Create a regular expression which will match a balanced sexp.
+Opening delimiter is LEFT, and closing delimiter is RIGHT, both given
+as single character strings.
+The regexp returned will match the entire expression including the
+delimiters.  It will also define a single group which contains the
+match except for the outermost delimiters.  The maximum depth of
+stacked delimiters is N.  Escaping delimiters is not possible."
+  (let* ((nothing (concat "[^" left right "]*?"))
+	 (or "\\|")
+	 (re nothing)
+	 (next (concat "\\(?:" nothing left nothing right "\\)+" nothing)))
+    (while (> n 1)
+      (setq n (1- n)
+	    re (concat re or next)
+	    next (concat "\\(?:" nothing left next right "\\)+" nothing)))
+    (concat left "\\(" re "\\)" right)))
 
 (defconst org-element--cache-variables
   '( org-element--cache org-element--cache-size
@@ -1189,6 +1368,8 @@ of `org-element--cache-self-verify-frequency'.
 When set to symbol `backtrace', record and display backtrace log if
 any inconsistency is detected.")
 
+(defvar org--warnings nil
+  "List of warnings to be added to the bug reports.")
 (defmacro org-element--cache-warn (format-string &rest args)
   "Raise warning for org-element-cache.
 FORMAT-STRING and ARGS are the same arguments as in `format'."
@@ -3015,7 +3196,7 @@ Return a new syntax node of `clock' type containing `:status',
 `:post-affiliated' as properties."
   (save-excursion
     (let* ((begin (point))
-	   (value (progn (search-forward "CLOCK:" (line-end-position))
+	   (value (progn (search-forward org-clock-string (line-end-position) t)
 			 (skip-chars-forward " \t")
 			 (org-element-timestamp-parser)))
 	   (duration (and (search-forward "=> " (line-end-position) t)
@@ -3041,7 +3222,7 @@ Return a new syntax node of `clock' type containing `:status',
 
 (defun org-element-clock-interpreter (clock _)
   "Interpret CLOCK element as Org syntax."
-  (concat "CLOCK: "
+  (concat org-clock-string " "
 	  (org-element-timestamp-interpreter
 	   (org-element-property :value clock) nil)
 	  (let ((duration (org-element-property :duration clock)))

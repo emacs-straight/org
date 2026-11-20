@@ -105,6 +105,7 @@
 (require 'oc)
 (require 'org-table)
 (require 'org-fold)
+(require 'org-element)
 
 (require 'org-cycle)
 (defalias 'org-global-cycle #'org-cycle-global)
@@ -128,44 +129,6 @@ sure that we are at the beginning of the line.")
 (defvar org-heading-regexp "^\\(\\*+\\)\\(?: +\\(.*?\\)\\)?[ \t]*$"
   "Matches a headline, putting stars and text into groups.
 Stars are put in group 1 and the trimmed body in group 2.")
-
-(defconst org-priority-prefix "[#"
-  "Marker preceding value in the priority indicator e.g [# in [#A].")
-
-(defconst org-priority-suffix "]"
-  "Marker following value in the priority indicator e.g ] in [#A].")
-
-(defvar org-priority-value-regexp "[A-Z]\\|[0-9]\\|[1-5][0-9]\\|6[0-4]"
-  "Regular expression matching valid priority values.
-The priority value must be a capital Latin
-alphabetic character, A through Z, or can be an integer value in the range 0
-through 64.")
-
-(defun org-make-priority-regexp (&optional inner-only)
-  "Generate a correct `org-priority-regexp' using `org-priority'
-variables. Useful after setting custom priority markers or value
-regexp.
-
-If INNER-ONLY is non-nil, return only the inner regular expression,
-e.g to store in `org-mouse-priority-regexp' instead."
-  (let ((inner (concat (regexp-quote org-priority-prefix)
-                       "\\(" org-priority-value-regexp "\\)"
-                       (regexp-quote org-priority-suffix))))
-    (if inner-only
-      inner
-      (concat ".*?\\(" inner " ?\\)"))))
-
-(defvar org-priority-regexp
-  (org-make-priority-regexp)
-  "Regular expression matching the priority indicator.
-A priority indicator can be e.g. [#A] or [#1].
-The value of the priority cookie must be a capital Latin
-alphabetic character, A through Z, or can be an integer value in
-the range 0 through 64.
-This regular expression matches these groups:
-0 : the whole match, e.g. \"TODO [#A] Hack\"
-1 : the priority cookie, e.g. \"[#A]\"
-2 : the value of the priority cookie, e.g. \"A\".")
 
 (declare-function calendar-check-holidays "holidays" (date))
 (declare-function cdlatex-environment "ext:cdlatex" (environment item))
@@ -527,9 +490,6 @@ Also, see `org-time-stamp-format'.")
 
 ;;;; Clock and Planning
 
-(defconst org-clock-string "CLOCK:"
-  "String used as prefix for timestamps clocking work hours on an item.")
-
 (defvar org-closed-string "CLOSED:"
   "String used as the prefix for timestamps logging closing a TODO entry.")
 
@@ -562,10 +522,6 @@ and a timestamp with `\\[org-schedule]'.")
 	   t))
   "Matches a line with planning info.
 Matched keyword is in group 1.")
-
-(defconst org-clock-line-re
-  (concat "^[ \t]*" org-clock-string)
-  "Matches a line with clock info.")
 
 (defconst org-deadline-regexp (concat "\\<" org-deadline-string)
   "Matches the DEADLINE keyword.")
@@ -676,10 +632,6 @@ but the stars and the body are.")
 An archived subtree does not open during visibility cycling, and does
 not contribute to the agenda listings.")
 
-(defconst org-tag--valid-char-set "[:alnum:]_@#%"
-  "Regex pattern representing the set of characters valid within a tag.
-This is the base pattern for tag matching regex.")
-
 (defconst org-tag--invalid-char-re
   (format "[^%s]" org-tag--valid-char-set)
   "Regexp matching a single character that's NOT a valid tag char.")
@@ -690,27 +642,12 @@ This is the base pattern for tag matching regex.")
 (defconst org-tag-crm-separator "[ \t]*[:,][ \t]*"
   "Regexp used to determine `crm-separator' when reading multiple tags.")
 
-(defconst org-tag--group-enclosed-re
-  (format "\\(:\\([%s:]+\\):\\)" org-tag--valid-char-set)
-  "Regex pattern for a colon-enclosed group of tags.
-The regexp does not match encosing spaces and tabs, e.g.,
-\":TAG1:TAG2:\".  Match group 1 stores the tags with the enclosing
-colons, and match group 2 stores the tags without the enclosing
-colons.  Built using `org-tag--valid-char-set' with the addition of the
-colon.")
-
 (defconst org-tag--group-optional-re
   (concat "\\(?:[ \t]+" org-tag--group-enclosed-re "\\)?[ \t]*$")
   "Regexp matching an optional tag group at the end of a line.
 Regexp includes leading and optional trailing spaces.  If a tag group
 is present, group 1 is the full tag group (with colons), group 2 is
 the tag content (without colons).")
-
-(defconst org-tag-group-re
-  (format "[ \t]+%s[ \t]*$" org-tag--group-enclosed-re)
-  "Regexp matching the tag group at the end of a line, with leading spaces.
-Tags are stored in match group 1.  Match group 2 stores the tags
-without the enclosing colons.")
 
 (defconst org-tag-line-re
   (format "^\\*+ \\(?:.*[ \t]\\)?%s[ \t]*$" org-tag--group-enclosed-re)
@@ -792,10 +729,6 @@ defined in org-duration.el.")
   (set-default-toplevel-value var value)
   (when (featurep 'org)
     (org-load-modules-maybe 'force)
-    ;; FIXME: We can't have all the requires at top-level due to
-    ;; circular dependencies.  Yet, this function might sometimes be
-    ;; called when 'org-element is not loaded.
-    (require 'org-element)
     (org-element-cache-reset 'all)))
 
 (defcustom org-modules '(ol-doi ol-w3m ol-bbdb ol-bibtex ol-docview ol-gnus ol-info ol-irc ol-mhe ol-rmail ol-eww)
@@ -2435,52 +2368,6 @@ When nil, these commands will be disabled, so that you never accidentally
 set a priority."
   :group 'org-priorities
   :type 'boolean)
-
-(defvaralias 'org-highest-priority 'org-priority-highest)
-(defcustom org-priority-highest ?A
-  "The highest priority of TODO items.
-
-A character like ?A, ?B, etc., or a numeric value like 1, 2, etc.
-
-The default is the character ?A, which is 65 as a numeric value.
-
-If you set `org-priority-highest' to a numeric value inferior to
-65, Org assumes you want to use digits for the priority cookie.
-If you set it to >=65, Org assumes you want to use alphabetical
-characters.
-
-In both cases, the value of `org-priority-highest' must be
-smaller than `org-priority-lowest': for example, if \"A\" is the
-highest priority, it is smaller than the lowest \"C\" priority:
-65 < 67."
-  :group 'org-priorities
-  :package-version '(Org . "9.8")
-  :type '( restricted-sexp :tag "Number 0-64 or uppercase character A-Z"
-           :match-alternatives ((lambda (val) (org-priority-valid-value-p val t))))
-  :safe #'integerp)
-
-(defvaralias 'org-lowest-priority 'org-priority-lowest)
-(defcustom org-priority-lowest ?C
-  "The lowest priority of TODO items.
-
-A character like ?C, ?B, etc., or a numeric value like 9, 8, etc.
-
-The default is the character ?C, which is 67 as a numeric value.
-
-If you set `org-priority-lowest' to a numeric value inferior to
-65, Org assumes you want to use digits for the priority cookie.
-If you set it to >=65, Org assumes you want to use alphabetical
-characters.
-
-In both cases, the value of `org-priority-lowest' must be greater
-than `org-priority-highest': for example, if \"C\" is the lowest
-priority, it is greater than the highest \"A\" priority: 67 >
-65."
-  :group 'org-priorities
-  :package-version '(Org . "9.8")
-  :type '( restricted-sexp :tag "Number 0-64 or uppercase character A-Z"
-           :match-alternatives ((lambda (val) (org-priority-valid-value-p val t))))
-  :safe #'integerp)
 
 (defvaralias 'org-default-priority 'org-priority-default)
 (defcustom org-priority-default ?B
@@ -4167,13 +4054,6 @@ This function is intended to be a value of `org-tags-sort-function'."
               (throw :result (org-tags-sort (nth n tag1-path) (nth n tag2-path)))))
           (< (length tag1-path) (length tag2-path)))))))
 
-(defun org-priority-to-value (s)
-  "Convert priority string S to its numeric value."
-  (or (save-match-data
-	(and (string-match "\\([0-9]+\\)" s)
-	     (string-to-number (match-string 1 s))))
-      (string-to-char s)))
-
 (defun org-set-regexps-and-options (&optional tags-only)
   "Precompute regular expressions used in the current buffer.
 When optional argument TAGS-ONLY is non-nil, only compute tags
@@ -4858,27 +4738,6 @@ the rounding returns a past time."
    (time-since (* 3600 org-extend-today-until))))
 
 ;;;; Font-Lock stuff, including the activators
-
-(defconst org-match-sexp-depth 3
-  "Number of stacked braces for sub/superscript matching.")
-
-(defun org-create-multibrace-regexp (left right n)
-  "Create a regular expression which will match a balanced sexp.
-Opening delimiter is LEFT, and closing delimiter is RIGHT, both given
-as single character strings.
-The regexp returned will match the entire expression including the
-delimiters.  It will also define a single group which contains the
-match except for the outermost delimiters.  The maximum depth of
-stacked delimiters is N.  Escaping delimiters is not possible."
-  (let* ((nothing (concat "[^" left right "]*?"))
-	 (or "\\|")
-	 (re nothing)
-	 (next (concat "\\(?:" nothing left nothing right "\\)+" nothing)))
-    (while (> n 1)
-      (setq n (1- n)
-	    re (concat re or next)
-	    next (concat "\\(?:" nothing left next right "\\)+" nothing)))
-    (concat left "\\(" re "\\)" right)))
 
 (defconst org-match-substring-with-braces-regexp
   (concat
@@ -5807,8 +5666,6 @@ If TAG is a number, get the corresponding match group."
     (or (org-face-from-face-or-color
 	 'tag 'org-tag (cdr (assoc tag org-tag-faces)))
 	'org-tag)))
-
-(defvar org-priority-regexp) ; defined later in the file
 
 (defun org-font-lock-add-priority-faces (limit)
   "Add the special priority faces."
@@ -10891,45 +10748,6 @@ from the `before-change-functions' in the current buffer."
 		   'org-remove-occur-highlights 'local))))
 
 ;;;; Priorities
-
-(defun org-priority-valid-cookie-string-p (priority)
-  "Return t if the PRIORITY is a valid priority cookie, nil otherwise."
-  (cond
-   ((stringp priority)
-    (let ((case-fold-search nil)) ;; Force case-sensitive match
-      ;; (and ... t) to force explicit t/nil
-      (and (string-match-p org-priority-regexp priority) t)))))
-
-(defun org-priority-valid-value-p (priority &optional ignore-user-bounds)
-  "Return t if the PRIORITY is a valid priority value (0-64, A-Z), nil otherwise.
-Also validate that the priority value is within the current bounds of
- `org-priority-lowest' and `org-priority-highest' unless IGNORE-USER-BOUNDS is
-non-nil."
-  ;; Although we can have either numeric or alphabetic priorities,
-  ;; we simplify here by treating everything as integers because the ASCII
-  ;; alphabetic range also fits in an integer range.
-  (and (integerp priority)
-       ;; validate that the value is within valid ranges
-       (or (<= 0 priority 64)
-           (<= ?A priority ?Z))
-       ;; more specifically, validate within the current high/low ranges
-       ;; unless the caller is ignoring the range
-       (or ignore-user-bounds
-           (>= org-priority-lowest priority org-priority-highest))))
-
-(defun org-priority-number-p (priority)
-  "Return t if the PRIORITY is an integer 0 through 64, inclusive, nil otherwise."
-  (and (integerp priority)
-       (<= 0 priority 64)))
-
-(defun org-priority-to-string (priority)
-  "Return a string form of PRIORITY based on whether it's numeric or alphabetic."
-  ;; we check whether this is even a valid value, ignoring the current high/low bounds
-  (if (org-priority-valid-value-p priority t)
-      (if (org-priority-number-p priority)
-          (number-to-string priority)
-        (format "%c" priority))
-    (error "Invalid priority value `%s'" priority)))
 
 (defun org-priority-up ()
   "Increase the priority of the current item."
@@ -18068,8 +17886,6 @@ With optional NODE, go directly to that node."
   (interactive)
   (browse-url "https://orgmode.org/Changes.html"))
 
-(defvar org--warnings nil
-  "List of warnings to be added to the bug reports.")
 ;;;###autoload
 (defun org-submit-bug-report ()
   "Submit a bug report on Org via mail.
@@ -19115,7 +18931,6 @@ Signal an error when not at a block."
 (defvar org--single-lines-list-is-paragraph) ; defined later
 
 (defun org-setup-filling ()
-  (require 'org-element)
   ;; Prevent auto-fill from inserting unwanted new items.
   (setq-local fill-nobreak-predicate
               (org-uniquify
