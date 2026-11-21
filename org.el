@@ -116,16 +116,6 @@
 
 (defvar org-property-re)
 
-;; `org-outline-regexp' ought to be a defconst but is let-bound in
-;; some places -- e.g. see the macro `org-with-limited-levels'.
-(defvar org-outline-regexp "\\*+ "
-  "Regexp to match Org headlines.")
-
-(defvar org-outline-regexp-bol "^\\*+ "
-  "Regexp to match Org headlines.
-This is similar to `org-outline-regexp' but additionally makes
-sure that we are at the beginning of the line.")
-
 (defvar org-heading-regexp "^\\(\\*+\\)\\(?: +\\(.*?\\)\\)?[ \t]*$"
   "Matches a headline, putting stars and text into groups.
 Stars are put in group 1 and the trimmed body in group 2.")
@@ -172,44 +162,6 @@ Stars are put in group 1 and the trimmed body in group 2.")
 (declare-function org-columns-insert-dblock "org-colview" ())
 (declare-function org-duration-from-minutes "org-duration" (minutes &optional fmt canonical))
 (declare-function org-duration-to-minutes "org-duration" (duration &optional canonical))
-(declare-function org-src-preserve-indentation-p "org-element" (&optional node))
-(declare-function org-reduced-level "org-element" (stars))
-(declare-function org-re-property "org-element" (property &optional literal allow-null value))
-(declare-function org-element-at-point "org-element" (&optional pom cached-only))
-(declare-function org-element-at-point-no-context "org-element" (&optional pom))
-(declare-function org-element-cache-reset "org-element" (&optional all no-persistence))
-(declare-function org-element-cache-map "org-element" (func &rest keys))
-(declare-function org-element-contents "org-element-ast" (node))
-(declare-function org-element-context "org-element" (&optional element))
-(declare-function org-element-copy "org-element-ast" (datum &optional keep-contents))
-(declare-function org-element-create "org-element-ast" (type &optional props &rest children))
-(declare-function org-element-extract "org-element-ast" (node))
-(declare-function org-element-insert-before "org-element-ast" (node location))
-(declare-function org-element-interpret-data "org-element" (data))
-(declare-function org-element-lineage "org-element-ast" (blob &optional types with-self))
-(declare-function org-element-property-inherited "org-element-ast"
-                  (property node &optional with-self accumulate literal-nil include-nil))
-(declare-function org-element-lineage-map "org-element-ast"
-                  (datum fun &optional types with-self first-match))
-(declare-function org-element-link-parser "org-element" ())
-(declare-function org-element-map "org-element" (data types fun &optional info first-match no-recursion with-affiliated no-undefer))
-(declare-function org-element-nested-p "org-element" (elem-a elem-b))
-(declare-function org-element-parse-buffer "org-element" (&optional granularity visible-only keep-deferred))
-(declare-function org-element-parse-secondary-string "org-element" (string restriction &optional parent))
-(declare-function org-element-property "org-element-ast" (property node))
-(declare-function org-element-begin "org-element" (node))
-(declare-function org-element-end "org-element" (node))
-(declare-function org-element-contents-begin "org-element" (node))
-(declare-function org-element-contents-end "org-element" (node))
-(declare-function org-element-post-affiliated "org-element" (node))
-(declare-function org-element-post-blank "org-element" (node))
-(declare-function org-element-parent "org-element-ast" (node))
-(declare-function org-element-put-property "org-element-ast" (node property value))
-(declare-function org-element-restriction "org-element" (element))
-(declare-function org-element-swap-A-B "org-element" (elem-a elem-b))
-(declare-function org-element-timestamp-parser "org-element" ())
-(declare-function org-element-type "org-element-ast" (node &optional anonymous))
-(declare-function org-element-type-p "org-element-ast" (node types))
 (declare-function org-export-dispatch "ox" (&optional arg))
 (declare-function org-export-get-backend "ox" (name))
 (declare-function org-export-get-environment "ox" (&optional backend subtreep ext-plist))
@@ -654,14 +606,6 @@ the tag content (without colons).")
   "Regexp matching tags in a headline.
 Tags are stored in match group 1.  Match group 2 stores the tags
 without the enclosing colons.")
-
-(eval-and-compile
-  (defconst org-comment-string "COMMENT"
-    "Entries starting with this keyword will never be exported.
-\\<org-mode-map>
-An entry can be toggled between COMMENT and normal with
-`\\[org-toggle-comment]'."))
-
 
 ;;;; LaTeX Environments and Fragments
 

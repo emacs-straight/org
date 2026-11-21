@@ -1502,9 +1502,11 @@ for export.  Return options as a plist."
 	 (cache (list
 		 (cons "TITLE"
 		       (or (org-entry-get (point) "EXPORT_TITLE" 'selective)
-			   (let ((case-fold-search nil))
-			     (looking-at org-complex-heading-regexp)
-			     (match-string-no-properties 4))))))
+                           (org-element-property
+                            :raw-value
+                            (org-element-lineage
+                             (org-element-at-point)
+                             '(headline) t))))))
 	 ;; Look for both general keywords and backend specific
 	 ;; options, with priority given to the latter.
 	 (options (append (org-export-get-all-options backend)
@@ -3614,7 +3616,7 @@ Return a string of lines to be included in the format expected by
 		 (org-element-type-p element '(headline inlinetask)))
 	;; Skip planning line and property-drawer.
 	(goto-char (point-min))
-	(when (looking-at-p org-planning-line-re) (forward-line))
+	(when (looking-at-p org-element-planning-line-re) (forward-line))
 	(when (looking-at org-property-drawer-re) (goto-char (match-end 0)))
 	(unless (bolp) (forward-line))
 	(narrow-to-region (point) (point-max))))
