@@ -232,6 +232,8 @@ This function is only useful when called from Agenda buffer."
        (widen)
        ,@body)))
 
+(defvar org-called-with-limited-levels nil
+  "Non-nil when `org-with-limited-levels' is currently active.")
 (defmacro org-with-limited-levels (&rest body)
   "Execute BODY with limited number of outline levels."
   (declare (debug (body)))
@@ -1500,6 +1502,21 @@ When NEXT is non-nil, check the next line instead."
     ;; works also in narrowed buffer, because we start at 1, not point-min
     (+ (if (bolp) 1 0) (count-lines 1 (point)))))
 
+(declare-function org-fold-show-context "org-fold" (&optional key))
+(defun org-goto-marker-or-bmk (marker &optional bookmark)
+  "Go to MARKER, widen if necessary.  When marker is not live, try BOOKMARK."
+  (if (and marker (marker-buffer marker)
+	   (buffer-live-p (marker-buffer marker)))
+      (progn
+	(pop-to-buffer-same-window (marker-buffer marker))
+	(when (or (> marker (point-max)) (< marker (point-min)))
+	  (widen))
+	(goto-char marker)
+        (when (derived-mode-p 'org-mode)
+	  (org-fold-show-context 'org-goto)))
+    (if bookmark
+	(bookmark-jump bookmark)
+      (error "Cannot find location"))))
 
 
 ;;; Overlays and text properties
@@ -2081,6 +2098,7 @@ in `org-rm-props'."
   (if restricted (remove-text-properties 0 (length s) org-rm-props s)
     (set-text-properties 0 (length s) nil s))
   s)
+
 (defun org-add-props (string plist &rest props)
   "Add text properties to entire string, from beginning to end.
 PLIST may be a list of properties, PROPS are individual properties and values
@@ -2089,6 +2107,9 @@ that will be added to PLIST.  Returns the string that was modified."
   (add-text-properties
    0 (length string) (if props (append plist props) plist) string)
   string)
+
+(defun org-add-prop-inherited (s)
+  (propertize s 'inherited t))
 
 (defun org-make-parameter-alist (plist)
   "Return alist based on PLIST.

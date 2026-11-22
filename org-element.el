@@ -315,12 +315,15 @@ See the manual for examples."
 ;; `org-outline-regexp' ought to be a defconst but is let-bound in
 ;; some places -- e.g. see the macro `org-with-limited-levels'.
 (defvar org-outline-regexp (org-headline-re nil t)
-  "Regexp to match Org headlines.")
+  "Regexp to match Org headlines.
+This variable may be re-defined inside `org-with-limited-levels'.")
 
 (defvar org-outline-regexp-bol org-element-headline-re
   "Regexp to match Org headlines.
 This is similar to `org-outline-regexp' but additionally makes
-sure that we are at the beginning of the line.")
+sure that we are at the beginning of the line.
+Unlike `org-element-headline-re', this variable may be re-defined
+inside `org-with-limited-levels'.")
 
 (defun org-inlinetask-outline-regexp ()
   "Return string matching an inline task heading.
@@ -328,7 +331,7 @@ The number of levels is controlled by `org-inlinetask-min-level'."
   (let ((nstars (if org-odd-levels-only
 		    (1- (* org-inlinetask-min-level 2))
 		  org-inlinetask-min-level)))
-    (format "^\\(\\*\\{%d,\\}\\)[ \t]+" nstars)))
+    (rx-to-string `(seq bol (>= ,nstars ?*) (1+ (any " \t"))))))
 
 (defconst org-element-citation-key-re
   (rx "@" (group (one-or-more (any word "-.:?!`'/*@+|(){}<>&_^$#%~"))))
@@ -380,6 +383,36 @@ Style, if any, is located in match group 1.")
 	  org-ts-regexp-both "\\)?")
   "Regular expression matching a time stamp or time stamp range.
 The time stamps may be either active or inactive.")
+
+(defconst org-ts-regexp0
+  "\\(\\([0-9]\\{4\\}\\)-\\([0-9]\\{2\\}\\)-\\([0-9]\\{2\\}\\)\\( +[^]+0-9>\r\n -]+\\)?\\( +\\([0-9]\\{1,2\\}\\):\\([0-9]\\{2\\}\\)\\)?\\)"
+  "Regular expression matching time strings for analysis.
+This one does not require the space after the date, so it can be used
+on a string that terminates immediately after the date.")
+
+(defconst org-ts-regexp1 "\\(\\([0-9]\\{4\\}\\)-\\([0-9]\\{2\\}\\)-\\([0-9]\\{2\\}\\)\\(?: *\\([^]+0-9>\r\n -]+\\)\\)?\\( \\([0-9]\\{1,2\\}\\):\\([0-9]\\{2\\}\\)\\)?\\)"
+  "Regular expression matching time strings for analysis.
+This regular expression provides the following groups:
+  1:   everything (required for embedding)
+   2:  year
+   3:  month
+   4:  day
+   5:  weekday name (optional)
+   6:  time part (optional)
+    7: hour
+    8: minute")
+
+(defconst org-ts-regexp2 (concat "<" org-ts-regexp1 "[^>\n]\\{0,16\\}>")
+  "Regular expression matching time stamps, with groups.")
+
+(defconst org-ts-regexp3 (concat "[[<]" org-ts-regexp1 "[^]>\n]\\{0,16\\}[]>]")
+  "Regular expression matching time stamps (also [..]), with groups.")
+
+(defconst org-repeat-re
+  "<[0-9]\\{4\\}-[0-9][0-9]-[0-9][0-9] [^>\n]*?\
+\\([.+]?\\+[0-9]+[hdwmy]\\(/[0-9]+[hdwmy]\\)?\\)"
+  "Regular expression for specifying repeated events.
+After a match, group 1 contains the repeat expression.")
 
 (rx-let
     ((duration
@@ -508,6 +541,94 @@ There are four matching groups:
          (group (regexp ,org-element-planning-keywords-re))))
   "Regexp matching a planning line.")
 
+(defvar org-closed-string "CLOSED:"
+  "String used as the prefix for timestamps logging closing a TODO entry.")
+
+(defvar org-deadline-string "DEADLINE:"
+  "String to mark deadline entries.
+\\<org-mode-map>
+A deadline is this string, followed by a time stamp.  It must be
+a word, terminated by a colon.  You can insert a schedule keyword
+and a timestamp with `\\[org-deadline]'.")
+
+(defvar org-scheduled-string "SCHEDULED:"
+  "String to mark scheduled TODO entries.
+\\<org-mode-map>
+A schedule is this string, followed by a time stamp.  It must be
+a word, terminated by a colon.  You can insert a schedule keyword
+and a timestamp with `\\[org-schedule]'.")
+
+(defconst org-ds-keyword-length
+  (+ 2
+     (apply #'max
+	    (mapcar #'length
+		    (list org-deadline-string org-scheduled-string
+			  org-clock-string org-closed-string))))
+  "Maximum length of the DEADLINE and SCHEDULED keywords.")
+
+(defconst org-planning-line-re
+  (concat "^[ \t]*"
+	  (regexp-opt
+	   (list org-closed-string org-deadline-string org-scheduled-string)
+	   t))
+  "Matches a line with planning info.
+Matched keyword is in group 1.")
+
+(defconst org-deadline-regexp (concat "\\<" org-deadline-string)
+  "Matches the DEADLINE keyword.")
+
+(defconst org-deadline-time-regexp
+  (concat "\\<" org-deadline-string " *<\\([^>]+\\)>")
+  "Matches the DEADLINE keyword together with a time stamp.")
+
+(defconst org-deadline-time-hour-regexp
+  (concat "\\<" org-deadline-string
+	  " *<\\([^>]+[0-9]\\{1,2\\}:[0-9]\\{2\\}[0-9+:hdwmy/ \t.-]*\\)>")
+  "Matches the DEADLINE keyword together with a time-and-hour stamp.")
+
+(defconst org-deadline-line-regexp
+  (concat "\\<\\(" org-deadline-string "\\).*")
+  "Matches the DEADLINE keyword and the rest of the line.")
+
+(defconst org-scheduled-regexp (concat "\\<" org-scheduled-string)
+  "Matches the SCHEDULED keyword.")
+
+(defconst org-scheduled-time-regexp
+  (concat "\\<" org-scheduled-string " *<\\([^>]+\\)>")
+  "Matches the SCHEDULED keyword together with a time stamp.")
+
+(defconst org-scheduled-time-hour-regexp
+  (concat "\\<" org-scheduled-string
+	  " *<\\([^>]+[0-9]\\{1,2\\}:[0-9]\\{2\\}[0-9+:hdwmy/ \t.-]*\\)>")
+  "Matches the SCHEDULED keyword together with a time-and-hour stamp.")
+
+(defconst org-closed-time-regexp
+  (concat "\\<" org-closed-string " *\\[\\([^]]+\\)\\]")
+  "Matches the CLOSED keyword together with a time stamp.")
+
+(defconst org-keyword-time-regexp
+  (concat "\\<"
+	  (regexp-opt
+	   (list org-scheduled-string org-deadline-string org-closed-string
+		 org-clock-string)
+	   t)
+	  " *[[<]\\([^]>]+\\)[]>]")
+  "Matches any of the 4 keywords, together with the time stamp.")
+
+(defconst org-keyword-time-not-clock-regexp
+  (concat
+   "\\<"
+   (regexp-opt
+    (list org-scheduled-string org-deadline-string org-closed-string) t)
+   " *[[<]\\([^]>]+\\)[]>]")
+  "Matches any of the 3 keywords, together with the time stamp.")
+
+(defconst org-all-time-keywords
+  (mapcar (lambda (w) (substring w 0 -1))
+	  (list org-scheduled-string org-deadline-string
+		org-clock-string org-closed-string))
+  "List of time keywords.")
+
 (defconst org-element-drawer-re
   (rx line-start (0+ (any ?\s ?\t))
       ":" (group (1+ (any ?- ?_ word))) ":"
@@ -537,6 +658,17 @@ Parameters are in match group 2.")
       "#+BEGIN:" (0+ (any ?\s ?\t)) (not space))
   "Regexp matching the opening line of a dynamic block.")
 
+(defconst org-block-regexp
+  "^[ \t]*#\\+begin_?\\([^ \n]+\\)\\(\\([^\n]+\\)\\)?\n\\([^z-a]+?\\)#\\+end_?\\1[ \t]*$"
+  "Regular expression for hiding blocks.")
+
+(defconst org-dblock-start-re
+  "^[ \t]*#\\+\\(?:BEGIN\\|begin\\):[ \t]+\\(\\S-+\\)\\([ \t]+\\(.*\\)\\)?"
+  "Matches the start line of a dynamic block, with parameters.")
+
+(defconst org-dblock-end-re "^[ \t]*#\\+\\(?:END\\|end\\)\\([: \t\r\n]\\|$\\)"
+  "Matches the end of a dynamic block.")
+
 (defconst org-element-archive-tag "ARCHIVE"
   "Tag marking a subtree as archived.")
 
@@ -553,11 +685,31 @@ colons, and match group 2 stores the tags without the enclosing
 colons.  Built using `org-tag--valid-char-set' with the addition of the
 colon.")
 
+(defconst org-tag--invalid-char-re
+  (format "[^%s]" org-tag--valid-char-set)
+  "Regexp matching a single character that's NOT a valid tag char.")
+
+(defconst org-tag-re (format "[%s]+" org-tag--valid-char-set)
+  "Regexp matching a single tag.")
+
+(defconst org-tag-line-re
+  (format "^\\*+ \\(?:.*[ \t]\\)?%s[ \t]*$" org-tag--group-enclosed-re)
+  "Regexp matching tags in a headline.
+Tags are stored in match group 1.  Match group 2 stores the tags
+without the enclosing colons.")
+
 (defconst org-tag-group-re
   (format "[ \t]+%s[ \t]*$" org-tag--group-enclosed-re)
   "Regexp matching the tag group at the end of a line, with leading spaces.
 Tags are stored in match group 1.  Match group 2 stores the tags
 without the enclosing colons.")
+
+(defconst org-tag--group-optional-re
+  (concat "\\(?:[ \t]+" org-tag--group-enclosed-re "\\)?[ \t]*$")
+  "Regexp matching an optional tag group at the end of a line.
+Regexp includes leading and optional trailing spaces.  If a tag group
+is present, group 1 is the full tag group (with colons), group 2 is
+the tag content (without colons).")
 
 (defconst org-priority-prefix "[#"
   "Marker preceding value in the priority indicator e.g [# in [#A].")
@@ -2926,6 +3078,12 @@ CONTENTS is the contents of the element."
 
 ;;;; Property Drawer
 
+(defconst org-property-start-re "^[ \t]*:PROPERTIES:[ \t]*$"
+  "Regular expression matching the first line of a property drawer.")
+
+(defconst org-property-end-re "^[ \t]*:END:[ \t]*$"
+  "Regular expression matching the last line of a property drawer.")
+
 (defun org-element-property-drawer-parser (limit)
   "Parse a property drawer.
 
@@ -4674,6 +4832,10 @@ CONTENTS is the contents of the object."
 
 ;;;; LaTeX Fragment
 
+(defconst org-element--latex-macro-re "\\\\[a-zA-Z]+\\*?\\(\\(\\[[^][\n{}]*\\]\\)\
+\\|\\({[^{}\n]*}\\)\\)*"
+  "Regular expression matching LaTeX macro.")
+
 (defun org-element-latex-fragment-parser ()
   "Parse LaTeX fragment at point, if any.
 
@@ -4693,18 +4855,17 @@ Assume point is at the beginning of the LaTeX fragment."
 		  (?\[ (search-forward "\\]" nil t))
 		  (_
 		   ;; Macro.
-		   (and (looking-at "\\\\[a-zA-Z]+\\*?\\(\\(\\[[^][\n{}]*\\]\\)\
-\\|\\({[^{}\n]*}\\)\\)*")
+		   (and (looking-at org-element--latex-macro-re)
 			(match-end 0)))))
 	       ((eq ?$ (char-after (1+ (point))))
 		(search-forward "$$" nil t 2))
 	       (t
 		(and (not (eq ?$ (char-before)))
 		     (not (memq (char-after (1+ (point)))
-				'(?\s ?\t ?\n ?, ?. ?\;)))
+			      '(?\s ?\t ?\n ?, ?. ?\;)))
 		     (search-forward "$" nil t 2)
 		     (not (memq (char-before (match-beginning 0))
-				'(?\s ?\t ?\n ?, ?.)))
+			      '(?\s ?\t ?\n ?, ?.)))
 		     (looking-at-p
 		      "\\(\\s.\\|\\s-\\|\\s(\\|\\s)\\|\\s\"\\|'\\|$\\)")
 		     (point)))))
@@ -8725,16 +8886,16 @@ properties, and verify cache consistency."
                ;; Emacs session.  Cleanup known non-printable objects.
                (avl-tree-mapc
                 (lambda (el)
+                  (let ((org-element--cache-self-verify-frequency 1.0))
+                    (when (and org-element--cache-self-verify-before-persisting
+                               (org-element--cache-verify-element el))
+                      (error "Cache verification failed: aborting")))
                   (org-element-put-property el :org-element--cache-sync-key nil)
                   (org-element-map el t
                     (lambda (el2)
                       (unless (org-element-type-p el2 'plain-text)
                         (org-element-put-property el2 :buffer nil)))
-                    nil nil nil 'with-affiliated 'no-undefer)
-                  (let ((org-element--cache-self-verify-frequency 1.0))
-                    (when (and org-element--cache-self-verify-before-persisting
-                               (org-element--cache-verify-element el))
-                      (error "Cache verification failed: aborting"))))
+                    nil nil nil 'with-affiliated 'no-undefer))
                 org-element--cache)
                nil)
             'forbid))
@@ -9743,6 +9904,281 @@ This function may modify match data."
 		    ;; Otherwise, return NEXT.
 		    (t (throw 'exit next)))))))))))))
 
+(defun org-before-first-heading-p ()
+  "Return non-nil when point is before first heading.
+Respect narrowing."
+  (let ((headline (org-element-lineage (org-element-at-point) 'headline t)))
+    (or (not headline)
+        (< (org-element-begin headline) (point-min)))))
+
+(defun org-at-heading-p (&optional invisible-not-ok)
+  "Return t if point is on a (possibly invisible) heading line.
+If INVISIBLE-NOT-OK is non-nil, an invisible heading line is not ok."
+  (save-excursion
+    (forward-line 0)
+    (and (or (not invisible-not-ok) (not (org-invisible-p)))
+         (org-element-type-p
+          (org-element-at-point)
+          (if org-called-with-limited-levels
+              '(headline) '(headline inlinetask)))
+         ;; Some Org code relies upon match data being modified here.
+	 (looking-at org-element-headline-re))))
+
+(defun org-in-commented-heading-p (&optional no-inheritance element)
+  "Non-nil if point is under a commented heading.
+This function also checks ancestors of the current headline,
+unless optional argument NO-INHERITANCE is non-nil.
+
+Optional argument ELEMENT contains element at point."
+  (unless element
+    (setq
+     element
+     (org-element-lineage
+      (org-element-at-point)
+      '(headline inlinetask) 'with-self)))
+  (if no-inheritance
+      (org-element-property :commentedp element)
+    (org-element-property-inherited :commentedp element 'with-self)))
+
+(defun org-in-archived-heading-p (&optional no-inheritance element)
+  "Non-nil if point is under an archived heading.
+This function also checks ancestors of the current headline,
+unless optional argument NO-INHERITANCE is non-nil.
+
+Optional argument ELEMENT contains element at point."
+  (unless element
+    (setq
+     element
+     (org-element-lineage
+      (org-element-at-point)
+      '(headline inlinetask) 'with-self)))
+  (if no-inheritance
+      (org-element-property :archivedp element)
+    (org-element-property-inherited :archivedp element 'with-self)))
+
+(defsubst org-at-planning-p ()
+  "Non-nil when point is on a planning info line."
+  (org-element-type-p (org-element-at-point) 'planning))
+
+(defalias 'org-at-latex-p #'org-inside-LaTeX-fragment-p)
+(defsubst org-inside-LaTeX-fragment-p (&optional element)
+  "Test if point is inside a LaTeX fragment or environment.
+
+When optional argument ELEMENT is non-nil, it should be element/object
+at point."
+  (org-element-type-p
+   (or element (org-element-context))
+   '(latex-fragment latex-environment)))
+
+(defun org-inside-latex-macro-p ()
+  "Is point inside a LaTeX macro or its arguments?"
+  (save-match-data (org-in-regexp org-element--latex-macro-re)))
+
+(defsubst org-at-comment-p ()
+  "Return t if cursor is in a commented line."
+  (save-match-data (org-element-type-p (org-element-at-point) 'comment)))
+
+(defun org-at-keyword-p ()
+  "Return t if cursor is at a keyword-line."
+  (when-let* ((element (org-element-at-point)))
+    (or (org-element-type-p element 'keyword)
+        (< (point) (org-element-post-affiliated element)))))
+
+(defun org-at-drawer-p ()
+  "Return t if cursor is at a drawer keyword."
+  (save-excursion
+    (forward-line 0)
+    (looking-at org-element-drawer-re-nogroup)))
+
+(defalias 'org-in-block-p #'org-at-block-p)
+(defun org-at-block-p (&optional names)
+  "Return block name, as a string, if cursor is at a block.
+When optional argument NAMES is non-nil, it should be a list of block
+names as strings."
+  (when names
+    (setq names
+          (mapcar
+           (lambda (name) (intern (format "%s-block" name)))
+           names)))
+  (let ((element (org-element-at-point)))
+    (when
+        (org-element-type-p
+         element
+         (or names
+             '( center-block comment-block dynamic-block
+                example-block export-block quote-block
+                special-block src-block verse-block)))
+      (string-match "\\([^-]+\\)-block" (symbol-name (org-element-type element)))
+      (match-string 1 (symbol-name (org-element-type element))))))
+
+(defun org-in-clocktable-p ()
+  "Check if the cursor is in a clocktable."
+  (when-let* ((element (org-element-lineage (org-element-at-point) '(dynamic-block))))
+    (when (equal "clocktable" (org-element-property :block-name element))
+      (org-element-post-affiliated element))))
+
+(defalias 'org-at-src-block-p #'org-in-src-block-p)
+(defun org-in-src-block-p (&optional inside element)
+  "Return t when point is at a source block element.
+When INSIDE is non-nil, return t only when point is between #+BEGIN_SRC
+and #+END_SRC lines.
+
+Note that affiliated keywords and blank lines after are considered a
+part of a source block.
+
+When ELEMENT is provided, it is considered to be element at point."
+  (setq element (or element (save-match-data (org-element-at-point))))
+  (when (org-element-type-p element 'src-block)
+    (or (not inside)
+        (not (or (<= (line-beginning-position)
+                  (org-element-post-affiliated element))
+               (>= (line-end-position)
+                  (org-with-point-at (org-element-end element)
+                    (skip-chars-backward " \t\n\r")
+                    (point))))))))
+
+(defun org-at-property-drawer-p ()
+  "Non-nil when point is at the first line of a property drawer."
+  (let ((pdrawer (org-element-at-point)))
+    (and (org-element-type-p pdrawer 'property-drawer)
+         (< (point) (org-element-contents-begin pdrawer)))))
+
+(defun org-at-property-p ()
+  "Non-nil when point is inside a property drawer.
+See `org-property-re' for match data, if applicable."
+  (and (org-element-type-p (org-element-at-point) 'node-property)
+       (org-match-line org-property-re)))
+
+;; FIXME: It is confusing that the default matching is only against
+;; active timestamps.  Also, lax matching is in odds with the parser
+;; and may need to be somehow integrated into org-element API.
+(defun org-at-timestamp-p (&optional extended)
+  "Non-nil if point is inside a timestamp.
+
+By default, the function only consider syntactically valid active
+timestamps.  However, the caller may have a broader definition
+for timestamps.  As a consequence, optional argument EXTENDED can
+be set to the following values
+
+  `inactive'
+
+    Include also syntactically valid inactive timestamps.
+
+  `agenda'
+
+    Include timestamps allowed in Agenda, i.e., those in
+    properties drawers, planning lines and clock lines.
+
+  `lax'
+
+    Ignore context.  The function matches any part of the
+    document looking like a timestamp.  This includes comments,
+    example blocks...
+
+For backward-compatibility with Org 9.0, every other non-nil
+value is equivalent to `inactive'.
+
+When at a timestamp, return the position of the point as a symbol
+among `bracket', `after', `year', `month', `hour', `minute',
+`day' or a number of character from the last know part of the
+time stamp.  If diary sexp timestamps, any point inside the timestamp
+is considered `day' (i.e. only `bracket', `day', and `after' return
+values are possible).
+
+When matching, the match groups are the following:
+  group 2: year, if any
+  group 3: month, if any
+  group 4: day number, if any
+  group 5: day name, if any
+  group 7: hours, if any
+  group 8: minutes, if any"
+  (let* ((regexp
+          (if extended
+              (if (eq extended 'agenda)
+                  (rx-to-string
+                   `(or (regexp ,org-ts-regexp3)
+                        (regexp ,org-element--timestamp-regexp)))
+		org-ts-regexp3)
+            org-ts-regexp2))
+	 (pos (point))
+	 (match?
+	  (let ((boundaries (org-in-regexp regexp)))
+	    (save-match-data
+	      (cond ((null boundaries) nil)
+		    ((eq extended 'lax) t)
+		    (t
+		     (or (and (eq extended 'agenda)
+			      (or (org-at-planning-p)
+				  (org-at-property-p)
+				  (and (bound-and-true-p
+					org-agenda-include-inactive-timestamps)
+				       (org-at-clock-log-p))))
+			 (eq 'timestamp
+			     (save-excursion
+			       (when (= pos (cdr boundaries)) (forward-char -1))
+			       (org-element-type (org-element-context)))))))))))
+    (cond
+     ((not match?)                        nil)
+     ((= pos (match-beginning 0))         'bracket)
+     ;; Distinguish location right before the closing bracket from
+     ;; right after it.
+     ((= pos (1- (match-end 0)))          'bracket)
+     ((= pos (match-end 0))               'after)
+     ((org-pos-in-match-range pos 2)      'year)
+     ((org-pos-in-match-range pos 3)      'month)
+     ((org-pos-in-match-range pos 7)      'hour)
+     ((org-pos-in-match-range pos 8)      'minute)
+     ((or (org-pos-in-match-range pos 4)
+	  (org-pos-in-match-range pos 5)) 'day)
+     ((and (or (match-end 8) (match-end 5))
+           (> pos (or (match-end 8) (match-end 5)))
+	   (< pos (match-end 0)))
+      (- pos (or (match-end 8) (match-end 5))))
+     (t                                   'day))))
+
+(defun org-at-clock-log-p ()
+  "Non-nil if point is on a clock log line."
+  (org-element-type-p (save-match-data (org-element-at-point)) 'clock))
+
+(defun org-point-at-end-of-empty-headline ()
+  "Return non-nil when point is at the end of an empty headline.
+If the heading only contains a TODO keyword, it is still considered
+empty."
+  (and (looking-at-p "[ \t]*$")
+       (let ((element (org-element-at-point)))
+         (and (org-element-type-p element 'headline)
+              (not (org-element-property :priority element))
+              (not (org-element-property :tags element))
+              (not (org-element-property :title element))))))
+
+(defun org-at-heading-or-item-p ()
+  "Return non-nil, when point is at heading or item."
+  (org-element-type-p
+   (org-element-at-point)
+   '(plain-list item headline inlinetask)))
+
+(defun org-first-sibling-p ()
+  "Is this heading the first child of its parents?
+Respect narrowing."
+  (let ((heading (org-element-at-point)))
+    (unless (and (org-element-type-p heading 'headline)
+                 (<= (org-element-begin heading)
+                    (point)
+                    (org-element-contents-begin heading)))
+      (user-error "Not at a heading"))
+    (let* ((start-at-bob? (> (org-element-begin heading) (point-min)))
+           (previous (and (not start-at-bob?)
+                          (org-element-lineage
+                           (org-element-at-point
+                            (1- (org-element-begin heading)))
+                           '(headline) 'with-self))))
+      (and previous (< (org-element-property :true-level previous)
+                       (org-element-property :true-level heading))))))
+
+(defsubst org-in-verbatim-emphasis ()
+  "Return non-nil, when point is at code or verbatim emphasis."
+  (org-element-lineage (org-element-context) '(code verbatim)))
+
 (defun org-element-nested-p (elem-A elem-B)
   "Non-nil when elements ELEM-A and ELEM-B are nested."
   (let ((beg-A (org-element-begin elem-A))
@@ -9751,6 +10187,28 @@ This function may modify match data."
 	(end-B (org-element-end elem-B)))
     (or (and (>= beg-A beg-B) (<= end-A end-B))
 	(and (>= beg-B beg-A) (<= end-B end-A)))))
+
+(defun org-outline-level ()
+  "Compute the outline level of the heading at point.
+
+If this is called at a normal headline, the level is the number
+of stars.  Use `org-reduced-level' to remove the effect of
+`org-odd-levels-only'.  Unlike `org-current-level', this function
+takes into consideration inlinetasks."
+  (org-with-wide-buffer
+   (end-of-line)
+   (if (re-search-backward org-outline-regexp-bol nil t)
+       (1- (- (match-end 0) (match-beginning 0)))
+     0)))
+
+(defun org-current-level ()
+  "Return the level of the current entry, or nil if before the first headline.
+The level is the number of stars at the beginning of the
+headline.  Use `org-reduced-level' to remove the effect of
+`org-odd-levels-only'.  Unlike `org-outline-level', this function
+ignores inlinetasks."
+  (let ((level (org-with-limited-levels (org-outline-level))))
+    (and (> level 0) level)))
 
 (defun org-element-swap-A-B (elem-A elem-B)
   "Swap elements ELEM-A and ELEM-B.
@@ -9796,8 +10254,8 @@ end of ELEM-A."
 	     (body-A (buffer-substring beg-A end-A))
 	     (body-B (buffer-substring beg-B end-B)))
         ;; Clear up the folds.
-        (org-fold-region beg-A end-A nil)
-        (org-fold-region beg-B end-B nil)
+        (org-fold-core-region beg-A end-A nil)
+        (org-fold-core-region beg-B end-B nil)
         (delete-region beg-B end-B)
         (goto-char beg-B)
         (when specialp

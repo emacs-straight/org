@@ -830,12 +830,6 @@ If ZERO is a string, check also this string for a link, and if
 there is one, return it.
 
 (fn BUFFER MARKER &optional NTH ZERO)")
-(autoload 'org-dynamic-block-define "org" "\
-Define dynamic block TYPE with FUNC.
-TYPE is a string.  FUNC is the function creating the dynamic
-block of such type.  FUNC must be able to accept zero arguments.
-
-(fn TYPE FUNC)")
 (autoload 'org-switchb "org" "\
 Switch between Org buffers.
 
@@ -880,7 +874,7 @@ With prefix arg UNCOMPILED, load the uncompiled versions.
 (fn &optional UNCOMPILED)" t)
 (autoload 'org-customize "org" "\
 Call the customize function with org as argument." t)
-(register-definition-prefixes "org" '("org-" "turn-on-org-cdlatex"))
+(register-definition-prefixes "org" '("org-"))
 
 
 ;;; Generated autoloads from org-agenda.el
@@ -1271,6 +1265,35 @@ Set `org-capture-templates' to be similar to `org-remember-templates'." t)
 (register-definition-prefixes "org-capture" '("org-capture-"))
 
 
+;;; Generated autoloads from org-cdlatex.el
+
+(autoload 'org-cdlatex-mode "org-cdlatex" "\
+Toggle the minor `org-cdlatex-mode'.
+
+This mode supports entering LaTeX environment and math in LaTeX fragments
+in Org mode.
+\\{org-cdlatex-mode-map}
+
+This is a minor mode.  If called interactively, toggle the `Org-Cdlatex
+mode' mode.  If the prefix argument is positive, enable the mode, and if
+it is zero or negative, disable the mode.
+
+If called from Lisp, toggle the mode if ARG is `toggle'.  Enable the
+mode if ARG is nil, omitted, or is a positive number.  Disable the mode
+if ARG is a negative number.
+
+To check whether the minor mode is enabled in the current buffer,
+evaluate the variable `org-cdlatex-mode'.
+
+The mode's hook is called both when the mode is enabled and when it is
+disabled.
+
+(fn &optional ARG)" t)
+(autoload 'turn-on-org-cdlatex "org-cdlatex" "\
+Unconditionally turn on `org-cdlatex-mode'.")
+(register-definition-prefixes "org-cdlatex" '("org-"))
+
+
 ;;; Generated autoloads from org-clock.el
 
 (autoload 'org-clock-modify-effort-estimate "org-clock" "\
@@ -1513,6 +1536,11 @@ Turn on or update column view in the agenda." '(org-agenda-mode))
 (register-definition-prefixes "org-colview" '("org-"))
 
 
+;;; Generated autoloads from org-comment.el
+
+(register-definition-prefixes "org-comment" '("org-"))
+
+
 ;;; Generated autoloads from org-compat.el
 
  (autoload 'org-latex-preview--format-color "org-latex-preview")
@@ -1659,6 +1687,22 @@ after the new headline.
 
 (fn TIME-GROUPING D &optional KEEP-RESTRICTION)")
 (register-definition-prefixes "org-datetree" '("org-datetree-"))
+
+
+;;; Generated autoloads from org-dblock.el
+
+(autoload 'org-dynamic-block-define "org-dblock" "\
+Define dynamic block TYPE with FUNC.
+TYPE is a string.  FUNC is the function creating the dynamic
+block of such type.  FUNC must be able to accept zero arguments.
+
+(fn TYPE FUNC)")
+(register-definition-prefixes "org-dblock" '("org-"))
+
+
+;;; Generated autoloads from org-dnd.el
+
+(register-definition-prefixes "org-dnd" '("org-"))
 
 
 ;;; Generated autoloads from org-duration.el
@@ -1866,6 +1910,11 @@ This function may modify match data.
 (register-definition-prefixes "org-element-ast" '("org-element-"))
 
 
+;;; Generated autoloads from org-element-timestamp.el
+
+(register-definition-prefixes "org-element-timestamp" '("org-"))
+
+
 ;;; Generated autoloads from org-entities.el
 
 (register-definition-prefixes "org-entities" '("org-entit"))
@@ -1897,6 +1946,11 @@ Show the raw feed buffer of a feed.
 (register-definition-prefixes "org-feed" '("org-feed-"))
 
 
+;;; Generated autoloads from org-fill.el
+
+(register-definition-prefixes "org-fill" '("org-"))
+
+
 ;;; Generated autoloads from org-fold.el
 
 (register-definition-prefixes "org-fold" '("org-fold-"))
@@ -1905,6 +1959,11 @@ Show the raw feed buffer of a feed.
 ;;; Generated autoloads from org-fold-core.el
 
 (register-definition-prefixes "org-fold-core" '("org-fold-core-"))
+
+
+;;; Generated autoloads from org-font-lock.el
+
+(register-definition-prefixes "org-font-lock" '("org-"))
 
 
 ;;; Generated autoloads from org-footnote.el
@@ -2097,6 +2156,11 @@ disabled.
 
 (fn &optional ARG)" t)
 (register-definition-prefixes "org-indent" '("org-indent-"))
+
+
+;;; Generated autoloads from org-indent-static.el
+
+(register-definition-prefixes "org-indent-static" '("org-"))
 
 
 ;;; Generated autoloads from org-inlinetask.el
@@ -2416,6 +2480,11 @@ agenda view showing the flagged items." t)
 (register-definition-prefixes "org-mouse" '("org-"))
 
 
+;;; Generated autoloads from org-move.el
+
+(register-definition-prefixes "org-move" '("org-"))
+
+
 ;;; Generated autoloads from org-num.el
 
 (defvar org-num-face nil "\
@@ -2500,9 +2569,19 @@ line directly before or after the table.
 (register-definition-prefixes "org-plot" '("org-"))
 
 
+;;; Generated autoloads from org-property.el
+
+(register-definition-prefixes "org-property" '("org-"))
+
+
 ;;; Generated autoloads from org-protocol.el
 
 (register-definition-prefixes "org-protocol" '("org-"))
+
+
+;;; Generated autoloads from org-read-date.el
+
+(register-definition-prefixes "org-read-date" '("org-"))
 
 
 ;;; Generated autoloads from org-refile.el
@@ -3271,9 +3350,19 @@ which will prompt for the width.
 (register-definition-prefixes "org-table" '("org"))
 
 
+;;; Generated autoloads from org-tags.el
+
+(register-definition-prefixes "org-tags" '("org-"))
+
+
 ;;; Generated autoloads from org-tempo.el
 
 (register-definition-prefixes "org-tempo" '("org-tempo-"))
+
+
+;;; Generated autoloads from org-time.el
+
+(register-definition-prefixes "org-time" '("org-"))
 
 
 ;;; Generated autoloads from org-timer.el
@@ -3345,6 +3434,11 @@ using three \\[universal-argument] prefix arguments.
 
 (fn &optional OPT)" t)
 (register-definition-prefixes "org-timer" '("org-timer-"))
+
+
+;;; Generated autoloads from org-timestamp.el
+
+(register-definition-prefixes "org-timestamp" '("org-"))
 
 
 ;;; Generated autoloads from org-version.el
