@@ -1310,7 +1310,7 @@ clocked item, and the value displayed in the mode line.
 (fn &optional VALUE)" t)
 (autoload 'org-resolve-clocks "org-clock" "\
 Resolve all currently open Org clocks.
-If `only-dangling-p' is non-nil, only ask to resolve dangling
+If ONLY-DANGLING-P is non-nil, only ask to resolve dangling
 (i.e., not currently open and valid) clocks.
 
 (fn &optional ONLY-DANGLING-P PROMPT-FN LAST-VALID)" t)
@@ -1940,7 +1940,7 @@ Go to the inbox that captures the feed named FEED.
 
 (fn FEED)" t)
 (autoload 'org-feed-show-raw-feed "org-feed" "\
-Show the raw feed buffer of a feed.
+Show the raw feed buffer of FEED.
 
 (fn FEED)" t)
 (register-definition-prefixes "org-feed" '("org-feed-"))
@@ -2443,6 +2443,11 @@ disabled.
 (register-definition-prefixes "org-list" '("org-"))
 
 
+;;; Generated autoloads from org-log-note.el
+
+(register-definition-prefixes "org-log-note" '("org-"))
+
+
 ;;; Generated autoloads from org-macro.el
 
 (register-definition-prefixes "org-macro" '("org-macro-"))
@@ -2567,6 +2572,11 @@ line directly before or after the table.
 
 (fn &optional PARAMS)" '(org-mode))
 (register-definition-prefixes "org-plot" '("org-"))
+
+
+;;; Generated autoloads from org-priority.el
+
+(register-definition-prefixes "org-priority" '("org-"))
 
 
 ;;; Generated autoloads from org-property.el
@@ -4519,8 +4529,7 @@ asynchronously, in another process.
 (fn &optional FORCE ASYNC)" t)
 (autoload 'org-publish-current-project "ox-publish" "\
 Publish the project associated with the current file.
-With a prefix argument, force publishing of all files in
-the project.
+With a prefix argument, FORCE publishing of all files in the project.
 
 (fn &optional FORCE ASYNC)" t)
 (register-definition-prefixes "ox-publish" '("org-publish-"))

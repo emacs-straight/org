@@ -512,7 +512,7 @@ ARG, when non-nil, is a universal prefix argument.  See
 	   (entry (mapcar ; repair strings enclosed in "..." or {...}
 		   (lambda(c)
 		     (if (string-match
-			  "^\\(?:{\\|\"\\)\\(.*\\)\\(?:}\\|\"\\)$" (cdr c))
+			  "^[{\"]\\(.*\\)[}\"]$" (cdr c))
 			 (cons (car c) (match-string 1 (cdr c))) c))
 		   (save-excursion
 		     (bibtex-beginning-of-entry)
@@ -666,7 +666,7 @@ point."
 
 (defun org-bibtex-create-in-current-entry (&optional arg)
   "Add bibliographical data to the current entry.
-With a prefix arg, query for optional fields."
+With a prefix ARG, query for optional fields."
   (interactive "P" org-mode)
   (org-bibtex-create arg t))
 

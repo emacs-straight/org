@@ -930,7 +930,7 @@ If PLAY-SOUND is non-nil, it overrides `org-clock-sound'."
   (if play-sound (org-clock-play-sound play-sound)))
 
 (defun org-show-notification (notification)
-  "Show notification.
+  "Show NOTIFICATION.
 Use `org-show-notification-handler' if defined,
 use libnotify if available, or fall back on a message."
   (ignore-errors (require 'notifications))
@@ -1001,7 +1001,7 @@ If CLOCK-SOUND is non-nil, it overrides `org-clock-sound'."
   "Information for the mode line about the running clock.")
 
 (defun org-find-open-clocks (file)
-  "Search through the given file and find all open clocks."
+  "Search through FILE and find all open clocks."
   (let ((buf (or (get-file-buffer file)
 		 (find-file-noselect file)))
 	(org-clock-re (concat org-clock-string " \\(\\[.*?\\]\\)$"))
@@ -1261,7 +1261,7 @@ to be CLOCKED OUT."))))
 ;;;###autoload
 (defun org-resolve-clocks (&optional only-dangling-p prompt-fn last-valid)
   "Resolve all currently open Org clocks.
-If `only-dangling-p' is non-nil, only ask to resolve dangling
+If ONLY-DANGLING-P is non-nil, only ask to resolve dangling
 \(i.e., not currently open and valid) clocks."
   (interactive "P")
   (unless org-clock-resolving-clocks
@@ -2617,7 +2617,7 @@ the currently selected interval size."
 	   (d (setq ins (format-time-string
 			 "%Y-%m-%d"
 			 (org-encode-time 0 0 0 (+ d n) nil y)))) ;; m
-	   ((and wp (string-match "w\\|W" wp) mw (> (length wp) 0))
+	   ((and wp (string-match "[wW]" wp) mw (> (length wp) 0))
 	    (require 'cal-iso)
 	    (setq date (calendar-gregorian-from-absolute
 			(calendar-iso-to-absolute (list (+ mw n) 1 y))))
@@ -2628,7 +2628,7 @@ the currently selected interval size."
                         (calendar-extract-day date)
                         (calendar-extract-month date)
                         (calendar-extract-year date)))))
-	   ((and wp (string-match "q\\|Q" wp) mw (> (length wp) 0))
+	   ((and wp (string-match "[qQ]" wp) mw (> (length wp) 0))
 	    (require 'cal-iso)
 					; if the 4th + 1 quarter is requested we flip to the 1st quarter of the next year
 	    (if (> (+ mw n) 4)
