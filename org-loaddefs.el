@@ -762,26 +762,7 @@ Load all extensions listed in `org-modules'.
 (fn &optional FORCE)")
 (autoload 'org-clock-persistence-insinuate "org" "\
 Set up hooks for clock persistence.")
-(autoload 'org-mode "org" "\
-Outline-based notes management and organizer, alias
-\"Carsten's outline-mode for keeping track of everything.\"
-
-Org mode develops organizational tasks around a NOTES file which
-contains information about projects as plain text.  Org mode is
-implemented on top of Outline mode, which is ideal to keep the content
-of large files well structured.  It supports ToDo items, deadlines and
-time stamps, which magically appear in the diary listing of the Emacs
-calendar.  Tables are easily created with a built-in table editor.
-Plain text URL-like links connect to websites, emails (VM), Usenet
-messages (Gnus), BBDB entries, and any files related to the project.
-For printing and sharing of notes, an Org file (or a part of it)
-can be exported as a structured ASCII or HTML file.
-
-The following commands are available:
-
-\\{org-mode-map}
-
-(fn)" t)
+(add-to-list 'customize-package-emacs-version-alist '(Org ("8.0" . "24.4") ("8.1" . "24.4") ("8.2" . "24.4") ("8.2.7" . "24.4") ("8.3" . "26.1") ("9.0" . "26.1") ("9.1" . "26.1") ("9.2" . "27.1") ("9.3" . "27.1") ("9.4" . "27.2") ("9.5" . "28.1") ("9.6" . "29.1") ("9.7" . "30.1") ("9.8" . "31.1")))
 (autoload 'org-run-like-in-org-mode "org" "\
 Run a command, pretending that the current buffer is in Org mode.
 This will temporarily bind local variables that are typically bound in
@@ -789,29 +770,6 @@ Org mode to the values they have in Org mode, and then interactively
 call CMD.
 
 (fn CMD)")
-(autoload 'org-open-file "org" "\
-Open the file at PATH.
-First, this expands any special file name abbreviations.  Then the
-configuration variable `org-file-apps' is checked if it contains an
-entry for this file type, and if yes, the corresponding command is launched.
-
-If no application is found, Emacs simply visits the file.
-
-With optional prefix argument IN-EMACS, Emacs will visit the file.
-With a double \\[universal-argument] \\[universal-argument] prefix arg, Org tries to avoid opening in Emacs
-and to use an external application to visit the file.
-
-Optional LINE specifies a line to go to, optional SEARCH a string
-to search for.  If LINE or SEARCH is given, the file will be
-opened in Emacs, unless an entry from `org-file-apps' that makes
-use of groups in a regexp matches.
-
-If you want to change the way frames are used when following a
-link, please customize `org-link-frame-setup'.
-
-If the file does not exist, throw an error.
-
-(fn PATH &optional IN-EMACS LINE SEARCH)")
 (autoload 'org-open-at-point-global "org" "\
 Follow a link or a timestamp like Org mode does.
 Pass ARG to `org-link-open-to-string'.
@@ -830,18 +788,6 @@ If ZERO is a string, check also this string for a link, and if
 there is one, return it.
 
 (fn BUFFER MARKER &optional NTH ZERO)")
-(autoload 'org-switchb "org" "\
-Switch between Org buffers.
-
-With `\\[universal-argument]' prefix, restrict available buffers to files.
-
-With `\\[universal-argument] \\[universal-argument]' prefix, restrict available buffers to agenda files.
-
-(fn &optional ARG)" t)
-(autoload 'org-cycle-agenda-files "org" "\
-Cycle through the files in `org-agenda-files'.
-If the current buffer visits an agenda file, find the next one in the list.
-If the current buffer does not, find the first agenda file." t)
 (autoload 'org-submit-bug-report "org" "\
 Submit a bug report on Org via mail.
 
@@ -1133,6 +1079,23 @@ to override `appt-message-warning-time'.
 
 (fn &optional REFRESH FILTER &rest ARGS)" t)
 (register-definition-prefixes "org-agenda" '("org-"))
+
+
+;;; Generated autoloads from org-agenda-files.el
+
+(autoload 'org-switchb "org-agenda-files" "\
+Switch between Org buffers.
+
+With `\\[universal-argument]' prefix, restrict available buffers to files.
+
+With `\\[universal-argument] \\[universal-argument]' prefix, restrict available buffers to agenda files.
+
+(fn &optional ARG)" t)
+(autoload 'org-cycle-agenda-files "org-agenda-files" "\
+Cycle through the files in `org-agenda-files'.
+If the current buffer visits an agenda file, find the next one in the list.
+If the current buffer does not, find the first agenda file." t)
+(register-definition-prefixes "org-agenda-files" '("org-"))
 
 
 ;;; Generated autoloads from org-archive.el
@@ -2467,6 +2430,16 @@ Run BODY without active org-element-cache.
 (register-definition-prefixes "org-macs" '("org-"))
 
 
+;;; Generated autoloads from org-map.el
+
+(register-definition-prefixes "org-map" '("org-"))
+
+
+;;; Generated autoloads from org-mark-ring.el
+
+(register-definition-prefixes "org-mark-ring" '("org-mark-ring"))
+
+
 ;;; Generated autoloads from org-mobile.el
 
 (autoload 'org-mobile-push "org-mobile" "\
@@ -2478,6 +2451,11 @@ Pull the contents of `org-mobile-capture-file' and integrate them.
 Apply all flagged actions, flag entries to be flagged and then call an
 agenda view showing the flagged items." t)
 (register-definition-prefixes "org-mobile" '("org-mobile-"))
+
+
+;;; Generated autoloads from org-mode.el
+
+(register-definition-prefixes "org-mode" '("org-"))
 
 
 ;;; Generated autoloads from org-mouse.el
@@ -2551,6 +2529,34 @@ disabled.
 
 (fn &optional ARG)" t)
 (register-definition-prefixes "org-num" '("org-num-"))
+
+
+;;; Generated autoloads from org-open-file.el
+
+(autoload 'org-open-file "org-open-file" "\
+Open the file at PATH.
+First, this expands any special file name abbreviations.  Then the
+configuration variable `org-file-apps' is checked if it contains an
+entry for this file type, and if yes, the corresponding command is launched.
+
+If no application is found, Emacs simply visits the file.
+
+With optional prefix argument IN-EMACS, Emacs will visit the file.
+With a double \\[universal-argument] \\[universal-argument] prefix arg, Org tries to avoid opening in Emacs
+and to use an external application to visit the file.
+
+Optional LINE specifies a line to go to, optional SEARCH a string
+to search for.  If LINE or SEARCH is given, the file will be
+opened in Emacs, unless an entry from `org-file-apps' that makes
+use of groups in a regexp matches.
+
+If you want to change the way frames are used when following a
+link, please customize `org-link-frame-setup'.
+
+If the file does not exist, throw an error.
+
+(fn PATH &optional IN-EMACS LINE SEARCH)")
+(register-definition-prefixes "org-open-file" '("org-"))
 
 
 ;;; Generated autoloads from org-pcomplete.el
@@ -2655,6 +2661,11 @@ prefix argument (\\`C-u C-u C-u C-c C-w').
 
 (fn &optional ARG DEFAULT-BUFFER RFLOC MSG)" '(org-mode))
 (register-definition-prefixes "org-refile" '("org-"))
+
+
+;;; Generated autoloads from org-sparse-tree.el
+
+(register-definition-prefixes "org-sparse-tree" '("org-"))
 
 
 ;;; Generated autoloads from org-src.el
